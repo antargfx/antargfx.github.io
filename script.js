@@ -99,8 +99,6 @@ let autoSlideInterval;
 // ===== Initialize =====
 document.addEventListener('DOMContentLoaded', () => {
     initSlideshow();
-    initScrollEffects();
-    initMobileMenu();
     initContactForm();
     setCurrentYear();
 });
