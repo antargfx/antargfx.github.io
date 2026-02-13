@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    
+    <link rel="stylesheet" href="main-header.css">
+    <title>2026 Ultimate Stock Calendar</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --secondary: #ec4899;
+            --bg-color: #f3f4f6;
+            --card-bg: linear-gradient(45deg, rgba(255, 112, 51, 0.05) 0%, rgba(255, 255, 255, 0.33) 48%, rgba(255, 112, 51, 0.04) 100%);
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border-color: #e5e7eb;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+    body {
+      background: #FF7033;
+      background: linear-gradient(45deg, rgba(255, 112, 51, 0.05) 0%, rgba(255, 255, 255, 0.33) 48%, rgba(255, 112, 51, 0.04) 100%);
+      color: var(--text-main);
+      line-height: 1.5;
+        }
+        .container-events {
+           max-width: 1200px;
+           margin: 0 auto;
+           padding: 0 1rem ! important;
+        }
+        .event-text {
+            text-align: center;
+            margin-top: 6rem;
+            margin-bottom: 2rem;
+            background: var(--card-bg);
+            padding: 3rem 1rem;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+        }
+
+        .event-text h1 { font-size: 2rem; margin-bottom: 0.5rem; font-weight: 800; }
+        .event-text p { color: #9ca3af; font-size: 1rem; }
+
+        /* Filters */
+        .filters {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .search-bar input, select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.95rem;
+        }
+
+        .search-bar input:focus, select:focus {
+            outline: 2px solid var(--primary);
+            border-color: transparent;
+        }
+
+        /* Grid */
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .event-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .event-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary);
+        }
+
+        .card-header {
+            padding: 1rem;
+            background: #f9fafb;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .date-badge {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: white;
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            min-width: 55px;
+        }
+
+        .date-badge .day { font-size: 1.2rem; font-weight: 800; color: var(--text-main); line-height: 1; }
+        .date-badge .month { font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; }
+
+        .header-meta {
+            text-align: right;
+            flex: 1;
+            margin-left: 1rem;
+        }
+
+        .category-tag {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--primary);
+            background: #e0e7ff;
+            padding: 2px 8px;
+            border-radius: 12px;
+            display: inline-block;
+            margin-bottom: 4px;
+        }
+
+        .event-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .card-body {
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .prompt-box {
+            background: #f8fafc;
+            border-radius: 6px;
+            padding: 0.75rem;
+            border-left: 3px solid #ccc;
+        }
+
+        .prompt-box.photo { border-left-color: var(--primary); background: #eff6ff; }
+        .prompt-box.vector { border-left-color: var(--secondary); background: #fdf2f8; }
+
+        .prompt-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .photo .prompt-label { color: var(--primary-dark); }
+        .vector .prompt-label { color: #be185d; }
+
+        .prompt-text {
+            font-size: 0.85rem;
+            color: #374151;
+        }
+
+        @media (max-width: 768px) {
+            .filters { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <main class="container-events">
+
+        <div class="event-text animate-fadeInUp">
+            <h1>2026 Stock Event Calendar</h1>
+            <p>200+ Events • Photo & Vector Ideas • Optimized for Adobe Stock, Shutterstock & other Microstock Sites.</p>
+        </div>
+
+        <div class="filters animate-fadeInUp" style="animation-delay: 0.6s;">
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search events (e.g., 'Yoga', 'India', 'Christmas')...">
+            </div>
+            
+<select id="categorySelect">
+    <option value="all">&#128194; All Categories</option>
+    <option value="Cultural">&#127917; Cultural & Religious</option>
+    <option value="National">&#128681; National Holidays</option>
+    <option value="Health">&#127973; Health & Awareness</option>
+    <option value="Seasonal">&#127810; Seasonal & Fun</option>
+    <option value="Business">&#128188; Business & Tech</option>
+    <option value="Sports">&#9917; Sports & Activities</option>
+    <option value="Nature">&#127793; Nature & Environment</option>
+    <option value="Food">&#127828; Food & Drink</option>
+</select>
+
+            <select id="monthSelect">
+                <option value="all">&#128197; All Months</option>
+                <option value="0">January</option>
+                <option value="1">February</option>
+                <option value="2">March</option>
+                <option value="3">April</option>
+                <option value="4">May</option>
+                <option value="5">June</option>
+                <option value="6">July</option>
+                <option value="7">August</option>
+                <option value="8">September</option>
+                <option value="9">October</option>
+                <option value="10">November</option>
+                <option value="11">December</option>
+            </select>
+        </div>
+
+        <div class="animate-fadeInUp" style="margin-bottom: 1rem; font-weight: 600; color: var(--text-muted); animation-delay: 0.8s;">
+            Showing <span id="eventCount" style="color: var(--text-main);">0</span> events
+        </div>
+
+        <div class="events-grid animate-fadeInUp"  style="animation-delay: 0.12s;" id="eventsGrid">
+            </div>
+    </main>
+
+    <script>
+        // --- MASTER DATA 2026 ---
+        const eventsData = [
+            // JANUARY
+            { m:0, d:"01", cat:"Seasonal", t:"New Year's Day", p:"Gold 2026 balloons, champagne toast, confetti floor, party hats.", v:"2026 typography, fireworks background, calendar icon, resolution list." },
+            { m:0, d:"04", cat:"Health", t:"World Braille Day", p:"Fingers reading braille book, blind person with guide dog, tactile signage.", v:"Braille alphabet chart, blindness awareness ribbon, eye icon, accessibility symbols." },
+            { m:0, d:"05", cat:"Cultural", t:"Harbin Ice Festival (China)", p:"Massive illuminated ice sculptures, snowy winter tourism, people in parkas.", v:"Ice castle illustration, snowflake patterns, winter festival poster, china travel icons." },
+            { m:0, d:"06", cat:"Cultural", t:"Epiphany / Three Kings", p:"Three wise men figurines, camels, star of bethlehem, Rosca de Reyes bread.", v:"Three kings silhouette, gold frankincense myrrh icons, crown vector, star path." },
+            { m:0, d:"11", cat:"Seasonal", t:"Intl. Thank You Day", p:"Handwritten thank you note with flowers, gratitude concept, shaking hands.", v:"Thank you calligraphy, gratitude typography, handshake icon, floral card template." },
+            { m:0, d:"12", cat:"Cultural", t:"Coming of Age Day (Japan)", p:"Young women in kimonos walking in snow, japanese temple, celebration.", v:"Kimono illustration, cherry blossom branch, japanese fan vector, torii gate." },
+            { m:0, d:"14", cat:"Cultural", t:"Makar Sankranti / Pongal", p:"Kites in sky, harvest pot with rice, sugarcane, bonfire lohri.", v:"Colorful kites pattern, pongal pot vector, sun icon, harvest festival greeting." },
+            { m:0, d:"15", cat:"Business", t:"Wikipedia Day", p:"Person typing on laptop, library research, encyclopedia books stack.", v:"Knowledge sharing icons, open book vector, digital information network, puzzle piece." },
+            { m:0, d:"19", cat:"Cultural", t:"Martin Luther King Jr. Day", p:"Civil rights memorial, peace march, candles, I Have a Dream sign.", v:"MLK silhouette, peace dove, equality scale, protest placard vector." },
+            { m:0, d:"20", cat:"Nature", t:"Penguin Awareness Day", p:"Penguins on ice, antarctica landscape, zoo enclosure feeding.", v:"Cute penguin character, iceberg illustration, winter wildlife icons, south pole map." },
+            { m:0, d:"20", cat:"Cultural", t:"Sundance Film Festival", p:"Film reel, snowy utah street, cinema audience, director chair.", v:"Movie camera icon, film strip border, cinema ticket vector, clapperboard." },
+            { m:0, d:"21", cat:"Seasonal", t:"National Hugging Day", p:"Friends hugging, mother hugging child, embrace, emotional support.", v:"Hugging figures illustration, love and care icons, heart arms vector." },
+            { m:0, d:"24", cat:"Cultural", t:"Saraswati Puja", p:"Goddess Saraswati idol, yellow flowers, student praying with books.", v:"Veena instrument vector, lotus flower, indian goddess illustration, education icons." },
+            { m:0, d:"24", cat:"Business", t:"Intl. Day of Education", p:"Classroom with students, graduation cap, online learning tablet.", v:"School supplies set, graduation hat icon, e-learning concept, book stack." },
+            { m:0, d:"26", cat:"National", t:"Republic Day (India)", p:"Indian flag, parade delhi, military salute, tricolor decorations.", v:"Ashoka chakra vector, india map, tricolor ribbon, patriotic banner." },
+            { m:0, d:"26", cat:"National", t:"Australia Day", p:"Australian flag, sydney opera house, beach bbq, kangaroo sign.", v:"Kangaroo silhouette, australia map, boomerang icon, southern cross stars." },
+            { m:0, d:"28", cat:"Business", t:"Data Privacy Day", p:"Padlock on keyboard, hacker in hoodie, secure login screen.", v:"Cyber security shield, data encryption lock, gdpr compliance icon, binary code." },
+            { m:0, d:"28", cat:"Cultural", t:"Tu BiShvat", p:"Planting trees, almond blossoms, dried fruits plate, nature connection.", v:"Tree of life vector, roots illustration, nature conservation icons, leaf pattern." },
+            { m:0, d:"31", cat:"Health", t:"Street Children's Day", p:"Helping hands, shelter home, child portrait, charity food distribution.", v:"Charity icon set, child silhouette, helping hand vector, social care symbol." },
+
+            // FEBRUARY
+            { m:1, d:"01", cat:"Cultural", t:"World Hijab Day", p:"Diverse women wearing hijabs smiling, modesty fashion, solidarity.", v:"Hijab woman avatar, islamic fashion illustration, diversity icons, scarf pattern." },
+            { m:1, d:"01", cat:"Cultural", t:"Black History Month (Start)", p:"African american portraits, cultural artifacts, unity hands, history books.", v:"African pattern border, pan-african flag colors, fist symbol, heritage typography." },
+            { m:1, d:"02", cat:"Seasonal", t:"Groundhog Day", p:"Groundhog emerging from hole, shadow on snow, winter scenery.", v:"Groundhog cartoon, spring vs winter icons, sun and cloud vector." },
+            { m:1, d:"04", cat:"Health", t:"World Cancer Day", p:"Lavender ribbon, doctor consulting patient, support group circle.", v:"Cancer ribbon vector, hope typography, medical care icons, fight cancer badge." },
+            { m:1, d:"06", cat:"Sports", t:"Winter Olympics Opening", p:"Olympic torch relay, snowy stadium, athletes marching, italian flag.", v:"Winter sports icons (ski, skate), gold medal vector, torch flame illustration." },
+            { m:1, d:"07", cat:"Cultural", t:"Venice Carnival", p:"Venetian masks, gondola in canal, elaborate costumes, st mark square.", v:"Carnival mask vector, venice cityscape, masquerade party invitation, confetti." },
+            { m:1, d:"08", cat:"Sports", t:"Super Bowl Sunday", p:"American football stadium, tailgate party food, beer and wings, tv screen.", v:"American football helmet, rugby ball vector, touchdown typography, scoreboard." },
+            { m:1, d:"09", cat:"Food", t:"National Pizza Day", p:"Pepperoni pizza slice cheese pull, wood fired oven, friends eating.", v:"Pizza toppings pattern, pizzeria logo, chef mascot, slice icon." },
+            { m:1, d:"09", cat:"Business", t:"NY Fashion Week", p:"Runway model walking, photographers pit, fashion design sketches.", v:"Dress mannequin vector, fashion accessories icons, stylish silhouette, catwalk." },
+            { m:1, d:"10", cat:"Business", t:"Safer Internet Day", p:"Child using tablet safely, parental control lock, digital wellbeing.", v:"Internet safety shield, cloud security icon, wifi lock vector, protect data." },
+            { m:1, d:"11", cat:"Business", t:"Women in Science Day", p:"Female scientist in lab, microscope, test tubes, girl coding.", v:"Science equipment icons, woman scientist avatar, atom symbol, stem education." },
+            { m:1, d:"13", cat:"Cultural", t:"Rio Carnival", p:"Samba dancers, colorful feather costumes, parade floats, street party.", v:"Samba dancer silhouette, brazil carnival typography, feathers vector, drum icon." },
+            { m:1, d:"14", cat:"Seasonal", t:"Valentine's Day", p:"Red roses bouquet, couple holding hands, romantic dinner, heart gift box.", v:"Heart shape set, cupid angel, love calligraphy, romantic card background." },
+            { m:1, d:"15", cat:"Cultural", t:"Maha Shivaratri", p:"Shiva lingam with milk, temple bells, meditation, rudraksha beads.", v:"Lord shiva trident (trishul), om symbol, lotus flower, hindu spiritual icons." },
+            { m:1, d:"15", cat:"National", t:"Flag Day (Canada)", p:"Canadian flag waving, maple leaf, parliament hill, patriotic crowd.", v:"Maple leaf vector, canada map, flag icon, red and white banner." },
+            { m:1, d:"16", cat:"National", t:"Presidents' Day (US)", p:"Mount rushmore, lincoln memorial, american flag, white house.", v:"US president silhouette, patriotic stars, usa badge, eagle vector." },
+            { m:1, d:"17", cat:"Cultural", t:"Mardi Gras", p:"Beads necklaces, purple green gold decor, king cake, jazz band.", v:"Mardi gras mask, fleur de lis, beads pattern, carnival party poster." },
+            { m:1, d:"17", cat:"Cultural", t:"Chinese New Year (Horse)", p:"Red lanterns, dragon dance, dumplings, family reunion dinner.", v:"Horse zodiac animal, red envelope, chinese knot, lantern festival vector." },
+            { m:1, d:"17", cat:"Cultural", t:"Start of Ramadan", p:"Dates on plate, lantern (fanous), quran, prayer mat, crescent moon.", v:"Ramadan kareem calligraphy, mosque silhouette, hanging lantern, moon and stars." },
+            { m:1, d:"17", cat:"Seasonal", t:"Random Acts of Kindness", p:"Person helping elderly, giving flowers to stranger, smiling faces.", v:"Kindness heart, helping hands vector, charity icons, positive vibes typography." },
+            { m:1, d:"18", cat:"Cultural", t:"Ash Wednesday", p:"Cross of ash on forehead, church interior, prayer beads, bible.", v:"Cross vector, lent season typography, praying hands, church icon." },
+            { m:1, d:"20", cat:"Seasonal", t:"Love Your Pet Day", p:"Dog hugging owner, cat on lap, pet toys, grooming.", v:"Paw prints, cat and dog silhouette, heart bone vector, pet care icons." },
+            { m:1, d:"20", cat:"Health", t:"Social Justice Day", p:"Protest signs, diverse hands joined, scale of justice, poverty concept.", v:"Fist of solidarity, equality scale, peace symbol, human rights icons." },
+            { m:1, d:"22", cat:"Sports", t:"Winter Olympics Closing", p:"Fireworks over stadium, athletes hugging, closing ceremony lights.", v:"Medal podium vector, olympic flame extinguish, winner trophy, confetti." },
+            { m:1, d:"27", cat:"Nature", t:"Polar Bear Day", p:"Polar bear on melting ice, arctic landscape, climate change concept.", v:"Polar bear illustration, snowflake vector, arctic map, save the bears badge." },
+            { m:1, d:"28", cat:"Health", t:"Rare Disease Day", p:"Doctor holding hands, DNA helix, research lab, hope concept.", v:"Zebra stripe ribbon (rare disease), medical research icons, genetics vector." },
+
+            // MARCH
+            { m:2, d:"01", cat:"Health", t:"Zero Discrimination Day", p:"Butterfly symbol, diverse people standing together, stop sign.", v:"Butterfly vector, no discrimination sign, diversity avatars, equal rights." },
+            { m:2, d:"03", cat:"Cultural", t:"Holi Festival", p:"People throwing colored powder, colorful faces, water guns, festive mood.", v:"Color splash vector, gulal powder bowls, happy holi typography, water gun." },
+            { m:2, d:"03", cat:"Nature", t:"World Wildlife Day", p:"Wild animals collage, forest landscape, safari jeep, conservation.", v:"Animal footprints, jungle leaves, save wildlife badge, animal silhouettes." },
+            { m:2, d:"03", cat:"Cultural", t:"Purim", p:"Hamantaschen cookies, gragger noisemaker, costume party, megillah scroll.", v:"Purim mask vector, hamantaschen illustration, scroll icon, carnival elements." },
+            { m:2, d:"08", cat:"Cultural", t:"Intl. Women's Day", p:"Diverse women group smiling, female leadership, mimosa flowers.", v:"Woman profile silhouette, venus symbol, 8 march typography, empowerment badges." },
+            { m:2, d:"14", cat:"Business", t:"Pi Day (3.14)", p:"Fruit pie with pi symbol, chalkboard formulas, math student.", v:"Pi symbol pattern, mathematical equations, geek culture icons, circle geometry." },
+            { m:2, d:"15", cat:"Seasonal", t:"Mother's Day (UK)", p:"Bouquet of flowers, breakfast in bed, greeting card, tea cup.", v:"Floral heart, mum typography, teapot vector, family love icons." },
+            { m:2, d:"17", cat:"Seasonal", t:"St. Patrick's Day", p:"Green beer, shamrock glasses, leprechaun hat, parade street.", v:"Clover vector, pot of gold, leprechaun mascot, celtic knot pattern." },
+            { m:2, d:"18", cat:"Nature", t:"Global Recycling Day", p:"Sorting plastic glass paper, recycling bins, eco friendly lifestyle.", v:"Recycle triangle, waste management icons, eco leaf vector, sustainable cycle." },
+            { m:2, d:"19", cat:"Cultural", t:"Nowruz (Persian NY)", p:"Haft-sin table setting, goldfish bowl, wheatgrass, hyacinth flower.", v:"Nowruz typography, goldfish vector, spring floral pattern, persian motif." },
+            { m:2, d:"20", cat:"Cultural", t:"Eid al-Fitr", p:"Family feasting, embracing, new clothes, mosque exterior.", v:"Eid mubarak calligraphy, mosque dome, crescent moon, lantern decoration." },
+            { m:2, d:"20", cat:"Nature", t:"Spring Equinox", p:"Flowers blooming, green grass, sun flare, nature awakening.", v:"Spring flowers vector, sun and cloud, hello spring lettering, butterfly." },
+            { m:2, d:"20", cat:"Seasonal", t:"Intl. Day of Happiness", p:"Smiley balloons, jumping for joy, yellow background, laughing.", v:"Smiley face icons, sun character, happy vibes typography, rainbow vector." },
+            { m:2, d:"21", cat:"Health", t:"World Down Syndrome Day", p:"Mismatched socks, child smiling, inclusive classroom, support ribbon.", v:"Blue and yellow ribbon, mismatched socks vector, chromosome 21 icon." },
+            { m:2, d:"21", cat:"Nature", t:"Intl. Day of Forests", p:"Dense green forest, sunbeams through trees, hiking trail.", v:"Tree variety icons, pine forest silhouette, eco badge, nature background." },
+            { m:2, d:"22", cat:"Nature", t:"World Water Day", p:"Hands cupping water, clean river, water splash, drinking glass.", v:"Water drop character, faucet icon, save water typography, blue wave pattern." },
+            { m:2, d:"23", cat:"Seasonal", t:"National Puppy Day", p:"Basket of puppies, puppy sleeping, dog playing fetch.", v:"Cute dog breeds, puppy face vector, paw print pattern, pet shop logo." },
+            { m:2, d:"24", cat:"Health", t:"World TB Day", p:"Lungs x-ray, doctor checking patient, red arrow symbol.", v:"Lungs vector, medical bacteria icon, stop TB sign, healthcare infographic." },
+            { m:2, d:"25", cat:"National", t:"Greek Independence Day", p:"Greek flag, parade in athens, evzones soldiers, acropolis.", v:"Greek column vector, olive branch, greece map, blue and white flag." },
+            { m:2, d:"26", cat:"Health", t:"Purple Day (Epilepsy)", p:"Purple ribbon, lavender flowers, brain scan, support group.", v:"Purple ribbon vector, brain icon, epilepsy awareness badge, support hands." },
+            { m:2, d:"27", cat:"Cultural", t:"World Theatre Day", p:"Stage curtains, spotlight, drama masks, actor performing.", v:"Comedy tragedy masks, theatre curtains vector, ticket icon, stage lights." },
+            { m:2, d:"28", cat:"Nature", t:"Earth Hour", p:"Candle light, city skyline dark, holding globe, stars.", v:"Light switch off, candle vector, planet earth night, energy saving icon." },
+            { m:2, d:"30", cat:"Health", t:"National Doctors' Day", p:"Doctor portrait, stethoscope, hospital corridor, thank you card.", v:"Doctor avatar, medical cross, stethoscope vector, hospital building." },
+            { m:2, d:"31", cat:"Business", t:"World Backup Day", p:"External hard drive, server room, cloud sync screen, data cable.", v:"Cloud upload icon, hard disk vector, save button, data protection shield." },
+
+            // APRIL
+            { m:3, d:"01", cat:"Seasonal", t:"April Fool's Day", p:"Whoopee cushion, jester hat, laughing friends, prank surprise.", v:"Jester hat icon, prank comic bubble, clown vector, funny emoji." },
+            { m:3, d:"02", cat:"Health", t:"Autism Awareness Day", p:"Puzzle piece, blue light, child playing with blocks, sensory toys.", v:"Puzzle piece pattern, autism ribbon, colorful brain icon, diversity vector." },
+            { m:3, d:"02", cat:"Cultural", t:"Passover Begins", p:"Seder plate, matzah, wine glasses, haggadah book.", v:"Matzah texture, seder plate icons, star of david, wine goblet vector." },
+            { m:3, d:"03", cat:"Cultural", t:"Good Friday", p:"Wooden cross, crown of thorns, dark sky, church service.", v:"Cross silhouette, thorns crown vector, religious background, crucifixion icon." },
+            { m:3, d:"05", cat:"Seasonal", t:"Easter Sunday", p:"Easter eggs in grass, chocolate bunny, child hunting eggs, lily flowers.", v:"Painted eggs pattern, bunny ears, happy easter lettering, chick vector." },
+            { m:3, d:"07", cat:"Health", t:"World Health Day", p:"Apple and measuring tape, doctor smiling, globe with heart, exercise.", v:"Healthcare icons, world map with heart, medical cross, wellness vector." },
+            { m:3, d:"10", cat:"Seasonal", t:"Coachella Festival", p:"Ferris wheel, desert palm trees, bohemian fashion, concert crowd.", v:"Music festival poster, ferris wheel vector, boho feathers, party wristband." },
+            { m:3, d:"11", cat:"Seasonal", t:"National Pet Day", p:"Owner hugging dog and cat, pet treats, playing in park.", v:"Cat and dog love, pet accessories icons, paw heart vector, animal shelter." },
+            { m:3, d:"13", cat:"Cultural", t:"Songkran (Thailand)", p:"Water fight in street, buddha statue washing, jasmine garland.", v:"Water gun vector, elephant icon, thai pattern, water splash background." },
+            { m:3, d:"15", cat:"Cultural", t:"World Art Day", p:"Paint palette, artist painting canvas, brushes, museum gallery.", v:"Paint brush vector, color palette, creative brain icon, art easel." },
+            { m:3, d:"15", cat:"Business", t:"Tax Day (US)", p:"Tax forms 1040, calculator, receipt stack, stressed man.", v:"Tax document icon, calculator vector, dollar sign, money bag." },
+            { m:3, d:"18", cat:"Cultural", t:"World Heritage Day", p:"Ancient ruins, famous monuments, travel map, unesco site.", v:"Colosseum vector, pyramid icon, taj mahal illustration, historic building." },
+            { m:3, d:"20", cat:"Sports", t:"Boston Marathon", p:"Runners on street, finish line, cheering crowd, marathon bib.", v:"Running shoe icon, marathon runner silhouette, stopwatch vector, medal." },
+            { m:3, d:"22", cat:"Nature", t:"Earth Day", p:"Planting tree seedling, globe in hands, recycling, green forest.", v:"Earth globe vector, recycle symbol, eco friendly icons, green leaf." },
+            { m:3, d:"23", cat:"Cultural", t:"World Book Day", p:"Open magic book, library shelves, person reading in park.", v:"Book stack vector, reading glasses, library icon, education background." },
+            { m:3, d:"25", cat:"National", t:"Anzac Day (Aus/NZ)", p:"Red poppy wreath, dawn service, soldier silhouette, memorial.", v:"Poppy flower vector, soldier bugle, anzac biscuit, lest we forget text." },
+            { m:3, d:"26", cat:"Business", t:"World IP Day", p:"Lightbulb idea, copyright symbol, patent document, innovation.", v:"Copyright icon, trademark symbol, lightbulb vector, intellectual property shield." },
+            { m:3, d:"27", cat:"National", t:"King's Day (Netherlands)", p:"Orange crowd, canals with boats, dutch flags, street market.", v:"Orange crown vector, netherlands map, tulip icon, dutch lion." },
+            { m:3, d:"29", cat:"Cultural", t:"Intl. Dance Day", p:"Ballerina shoes, hip hop dancer, tango couple, stage lights.", v:"Dancer silhouettes, music notes, ballet shoes vector, disco ball." },
+            { m:3, d:"30", cat:"Cultural", t:"Intl. Jazz Day", p:"Saxophone player, jazz band in club, trumpet close up, double bass.", v:"Saxophone icon, musical instruments vector, jazz note pattern, retro mic." },
+
+            // MAY
+            { m:4, d:"01", cat:"Business", t:"Labor Day / May Day", p:"Construction tools, diverse workers, handshake, maypole ribbon.", v:"Worker helmet vector, wrench and hammer, industry factory, labor fist." },
+            { m:4, d:"03", cat:"Business", t:"Press Freedom Day", p:"Journalist with camera, press pass, newspaper stack, microphone.", v:"Newspaper vector, microphone icon, pen nib, freedom of speech symbol." },
+            { m:4, d:"04", cat:"Seasonal", t:"Star Wars Day", p:"Light saber toy, space background, sci-fi costume, galaxy stars.", v:"Space rocket vector, laser sword, alien mascot, futuristic helmet." },
+            { m:4, d:"04", cat:"Health", t:"Intl. Firefighters' Day", p:"Fire truck, firefighter helmet, hose water spray, rescue scene.", v:"Fire hydrant vector, firefighter axe, flame icon, rescue badge." },
+            { m:4, d:"04", cat:"Cultural", t:"Met Gala", p:"Red carpet fashion, paparazzi flashing, elegant gown, museum stairs.", v:"Fashion dress vector, tuxedo icon, red carpet illustration, camera flash." },
+            { m:4, d:"05", cat:"Cultural", t:"Cinco de Mayo", p:"Margarita cocktail, tacos, sombrero, mariachi band guitar.", v:"Sombrero vector, cactus icon, taco illustration, mexican bunting." },
+            { m:4, d:"07", cat:"Business", t:"World Password Day", p:"Typing password on laptop, asterisk hidden text, cyber security.", v:"Password field vector, lock icon, key illustration, security shield." },
+            { m:4, d:"08", cat:"Health", t:"World Red Cross Day", p:"Red cross flag, emergency kit, volunteer helping, ambulance.", v:"Red cross symbol, first aid kit vector, medical bag, humanitarian icon." },
+            { m:4, d:"09", cat:"National", t:"Europe Day", p:"European union flag, brussels parliament, euro currency coins.", v:"EU flag stars, europe map vector, euro sign, unity symbol." },
+            { m:4, d:"10", cat:"Seasonal", t:"Mother's Day (US/Intl)", p:"Mom and child hugging, breakfast tray, tulip bouquet, gift box.", v:"Heart flower vector, best mom badge, mother silhouette, greeting card." },
+            { m:4, d:"12", cat:"Health", t:"Intl. Nurses Day", p:"Nurse with clipboard, hospital ward, stethoscope, caring hands.", v:"Nurse cap vector, medical injection, hospital cross, care icon." },
+            { m:4, d:"15", cat:"Seasonal", t:"Intl. Day of Families", p:"Big family portrait, picnic in park, holding hands walking.", v:"Family silhouette, home icon, genealogy tree, heart connection." },
+            { m:4, d:"16", cat:"Cultural", t:"Eurovision Final", p:"Stage lights, singer performing, voting flags, confetti.", v:"Microphone vector, music note star, europe map, trophy icon." },
+            { m:4, d:"17", cat:"National", t:"Constitution Day (Norway)", p:"Norwegian flags, children parade, bunad costume, ice cream.", v:"Norway flag vector, viking helmet, nordic pattern, constitution scroll." },
+            { m:4, d:"18", cat:"Cultural", t:"Intl. Museum Day", p:"Art gallery hall, ancient statue, visitors looking at painting.", v:"Museum building vector, dinosaur bone, frame icon, ticket stub." },
+            { m:4, d:"20", cat:"Nature", t:"World Bee Day", p:"Honey bee on flower, honeycomb, beekeeper suit, honey jar.", v:"Bee character, honeycomb pattern, honey dipper vector, save bees." },
+            { m:4, d:"21", cat:"Cultural", t:"Ascension Day", p:"Cloudy sky, sun rays, church steeple, dove flying.", v:"Dove vector, cross in clouds, religious heaven icon, ascension typography." },
+            { m:4, d:"22", cat:"Cultural", t:"Hajj Starts (Approx)", p:"Kaaba mecca crowd, pilgrims in white, tent city mina.", v:"Kaaba vector, hajj pilgrimage route, islamic pattern, praying hands." },
+            { m:4, d:"25", cat:"National", t:"Memorial Day (US)", p:"American flag at half staff, cemetery headstones, bbq grill.", v:"USA flag vector, soldier silhouette, poppy flower, patriotic ribbon." },
+            { m:4, d:"28", cat:"Food", t:"Hamburger Day", p:"Juicy burger with cheese, fries basket, diner setting, ketchup.", v:"Burger illustration, fast food icons, grilling pattern, menu design." },
+            { m:4, d:"28", cat:"Health", t:"Menstrual Hygiene Day", p:"Sanitary pads, menstrual cup, calendar, woman comfort.", v:"Female symbol, drop of blood vector, hygiene product icons, calendar." },
+            { m:4, d:"29", cat:"Nature", t:"Intl. Everest Day", p:"Mount everest peak, snowy mountain range, climber gear.", v:"Mountain peak vector, hiking boot, climbing axe, nepal flag." },
+            { m:4, d:"31", cat:"Cultural", t:"Buddha Purnima (Vesak)", p:"Buddha statue, lotus flower, candles, monk meditating.", v:"Buddha silhouette, lotus vector, dharma wheel, lantern icon." },
+            { m:4, d:"31", cat:"Health", t:"World No Tobacco Day", p:"Broken cigarette, healthy lungs, no smoking sign, fresh air.", v:"No smoking symbol, lungs vector, stop sign, cigarette trash." },
+
+            // JUNE
+            { m:5, d:"01", cat:"Seasonal", t:"Global Day of Parents", p:"Parents holding child's hands, family sunset walk, elderly parents.", v:"Parenting icons, family tree vector, love heart, home illustration." },
+            { m:5, d:"03", cat:"Seasonal", t:"World Bicycle Day", p:"Cyclist on road, bike in city, helmet, mountain biking.", v:"Bicycle vector, gear wheel, cycling helmet icon, eco transport." },
+            { m:5, d:"05", cat:"Nature", t:"World Environment Day", p:"Green sprout in soil, wind turbines, solar panel, clean ocean.", v:"Eco bulb vector, recycle bin, green city, renewable energy icons." },
+            { m:5, d:"08", cat:"Nature", t:"World Oceans Day", p:"Blue ocean waves, coral reef, sea turtle, plastic cleanup.", v:"Whale vector, ocean wave pattern, sea shell icons, no plastic sign." },
+            { m:5, d:"11", cat:"Sports", t:"FIFA World Cup Opening", p:"Soccer ball on field, stadium lights, crowd cheering, whistle.", v:"Soccer ball vector, trophy cup, football boots, stadium illustration." },
+            { m:5, d:"14", cat:"National", t:"Flag Day (US)", p:"Row of american flags, patriotic porch decor, star spangled banner.", v:"USA flag waving vector, star pattern, red white blue badge." },
+            { m:5, d:"14", cat:"Health", t:"World Blood Donor Day", p:"Blood bag, bandage on arm, donor smiling, red heart squeeze ball.", v:"Blood drop character, medical cross, donate blood typography, heart vector." },
+            { m:5, d:"16", cat:"Health", t:"Day of the African Child", p:"African children studying, playing football, school uniform.", v:"Africa map vector, child silhouette, education icons, traditional pattern." },
+            { m:5, d:"19", cat:"Cultural", t:"Dragon Boat Festival", p:"Dragon boat race, rowing team, zongzi rice dumplings, river.", v:"Dragon boat vector, paddle icon, chinese waves pattern, drum." },
+            { m:5, d:"19", cat:"Cultural", t:"Juneteenth", p:"Juneteenth flag, bbq celebration, african heritage art, freedom.", v:"Juneteenth flag vector, breaking chains icon, freedom typography, star burst." },
+            { m:5, d:"20", cat:"Nature", t:"Summer Solstice", p:"Stonehenge sunrise, sun flare, sunflower field, beach day.", v:"Sun icon, summer vibes typography, sunglasses vector, beach umbrella." },
+            { m:5, d:"20", cat:"Cultural", t:"Midsommar (Sweden)", p:"Maypole dancing, flower crown, strawberry cake, outdoor feast.", v:"Maypole vector, floral wreath, swedish flag, folk pattern." },
+            { m:5, d:"21", cat:"Seasonal", t:"Father's Day", p:"Dad carrying child, tools gift, fishing rod, tie and mug.", v:"Mustache icon, tie vector, super dad badge, tool set." },
+            { m:5, d:"21", cat:"Health", t:"Intl. Yoga Day", p:"Group yoga park, lotus pose silhouette, meditation mat.", v:"Yoga pose vector set, chakra symbols, lotus flower, om sign." },
+            { m:5, d:"21", cat:"Cultural", t:"Indigenous Peoples Day (CA)", p:"Traditional powwow dancer, totem pole, dreamcatcher, feathers.", v:"Feather vector, dreamcatcher icon, tribal pattern, nature symbols." },
+            { m:5, d:"23", cat:"Sports", t:"Olympic Day", p:"Athletic track, running shoes, gold medal, olympic torch.", v:"Olympic rings colors, torch vector, laurel wreath, sports icons." },
+            { m:5, d:"27", cat:"National", t:"Armed Forces Day (UK)", p:"Military parade, union jack flag, soldier salute, poppy.", v:"UK flag vector, soldier silhouette, military badge, jet plane." },
+            { m:5, d:"29", cat:"Sports", t:"Wimbledon Starts", p:"Tennis racket and ball, grass court, strawberries and cream.", v:"Tennis ball vector, racket icon, court lines, trophy cup." },
+            { m:5, d:"30", cat:"Business", t:"Social Media Day", p:"Smartphone apps screen, influencer taking selfie, like buttons.", v:"Social media icons, chat bubble vector, like heart, share symbol." },
+
+            // JULY
+            { m:6, d:"01", cat:"National", t:"Canada Day", p:"Fireworks over CN tower, maple leaf flag, red white face paint.", v:"Maple leaf vector, beaver icon, canada map, fireworks burst." },
+            { m:6, d:"04", cat:"National", t:"Independence Day (US)", p:"Sparklers at night, picnic blanket, bbq burgers, fireworks sky.", v:"USA flag banner, eagle vector, 4th of july typography, stars." },
+            { m:6, d:"04", cat:"Sports", t:"Tour de France Begins", p:"Cyclist peloton, french countryside, yellow jersey, road bike.", v:"Bicycle silhouette, france map, yellow jersey icon, mountain road." },
+            { m:6, d:"06", cat:"Cultural", t:"Islamic New Year 1448", p:"Moon sighting, mosque silhouette, prayer beads, calm reflection.", v:"Crescent moon vector, islamic calligraphy, hijri calendar, lantern." },
+            { m:6, d:"07", cat:"Food", t:"World Chocolate Day", p:"Melting chocolate, cocoa powder, chocolate bar, truffle box.", v:"Chocolate bar wrapper, cacao bean vector, bonbon icon, drip pattern." },
+            { m:6, d:"14", cat:"National", t:"Bastille Day (France)", p:"Eiffel tower fireworks, french flag, military parade champs elysees.", v:"Eiffel tower vector, france flag, cockade icon, revolutionary hat." },
+            { m:6, d:"17", cat:"Business", t:"World Emoji Day", p:"Yellow balloons with faces, smartphone texting, emotion icons.", v:"3D emoji set, smile vector, reaction icons, chat bubbles." },
+            { m:6, d:"18", cat:"Cultural", t:"Nelson Mandela Day", p:"South africa flag, prison cell robben island, reconciliation statue.", v:"Mandela portrait style, africa map, broken chains, peace fist." },
+            { m:6, d:"18", cat:"Cultural", t:"Comic-Con Intl.", p:"Cosplay costumes, comic books stack, superhero figures, crowd.", v:"Speech bubble pop art, superhero mask, comic halftone pattern, zap pow text." },
+            { m:6, d:"19", cat:"Food", t:"Ice Cream Day", p:"Colorful ice cream scoops, cone melting, sprinkles, child eating.", v:"Ice cream cone vector, popsicle icon, summer treat pattern, sundae." },
+            { m:6, d:"19", cat:"Sports", t:"FIFA World Cup Final", p:"Winning team trophy lift, confetti explosion, fans crying joy.", v:"Gold trophy vector, soccer ball flame, champion typography, stadium." },
+            { m:6, d:"20", cat:"Business", t:"Intl. Moon Day", p:"Full moon telescope view, astronaut footprint, lunar surface.", v:"Moon phases vector, rocket icon, astronaut illustration, crater pattern." },
+            { m:6, d:"21", cat:"Food", t:"National Junk Food Day", p:"Burger fries pizza donut feast, greasy food, vending machine.", v:"Fast food set, donut vector, soda cup, french fries icon." },
+            { m:6, d:"23", cat:"Food", t:"National Hot Dog Day", p:"Hot dog with mustard, baseball game food, street vendor cart.", v:"Hot dog vector, mustard bottle, sausage character, grill icon." },
+            { m:6, d:"28", cat:"National", t:"Peru Independence Day", p:"Machu picchu, llama, peruvian flag, traditional textiles.", v:"Llama vector, peru map, inca pattern, flag icon." },
+            { m:6, d:"28", cat:"Health", t:"World Hepatitis Day", p:"Liver anatomy model, doctor consultation, yellow ribbon, vaccine.", v:"Liver organ vector, medical syringe, no virus sign, health shield." },
+            { m:6, d:"29", cat:"Nature", t:"Intl. Tiger Day", p:"Tiger walking in jungle, zoo enclosure, tiger eye close up.", v:"Tiger face vector, stripes pattern, wild animal icon, paw print." },
+            { m:6, d:"30", cat:"Seasonal", t:"Intl. Friendship Day", p:"Group hug, friendship bracelets, clinking drinks, laughing.", v:"Holding hands vector, infinity loop, best friends text, heart connection." },
+
+            // AUGUST
+            { m:7, d:"01", cat:"National", t:"Swiss National Day", p:"Swiss flag alps, fireworks over lake geneva, cow bell, fondue.", v:"Swiss cross vector, mountain silhouette, cheese icon, edelweiss flower." },
+            { m:7, d:"01", cat:"Business", t:"World Wide Web Day", p:"Server lights, optical fiber cable, globe network, matrix code.", v:"WWW icon, globe internet vector, connect lines, browser window." },
+            { m:7, d:"06", cat:"Cultural", t:"Hiroshima Peace Day", p:"Paper cranes, peace memorial dome, lantern floating ceremony.", v:"Origami crane vector, peace dove, sad memorial icon, japan map." },
+            { m:7, d:"07", cat:"Food", t:"Intl. Beer Day", p:"Clinking beer mugs, brewery tanks, hops, pretzel snack.", v:"Beer mug vector, hop flower, pub sign, cheers typography." },
+            { m:7, d:"08", cat:"Seasonal", t:"Intl. Cat Day", p:"Cat sleeping in box, kitten playing, cat eyes, paw high five.", v:"Cat silhouette, meow text, whiskers vector, fish bone icon." },
+            { m:7, d:"09", cat:"National", t:"Singapore National Day", p:"Marina bay sands fireworks, merlion statue, singapore flag.", v:"Singapore skyline vector, orchid flower, flag icon, moon and stars." },
+            { m:7, d:"10", cat:"Nature", t:"World Lion Day", p:"Lion mane close up, savanna landscape, lioness and cubs.", v:"Lion head vector, crown icon, king of jungle text, african print." },
+            { m:7, d:"12", cat:"Seasonal", t:"Intl. Youth Day", p:"Diverse teens jumping, university campus, concert crowd.", v:"Youth avatars, skateboard vector, headphones icon, graduation cap." },
+            { m:7, d:"12", cat:"Nature", t:"World Elephant Day", p:"Elephant trunk, herd in africa, ivory tusk, water spraying.", v:"Elephant silhouette, tribal pattern, save wildlife badge, peanuts." },
+            { m:7, d:"12", cat:"Nature", t:"Perseid Meteor Shower", p:"Starry night sky, shooting star trail, camping tent, telescope.", v:"Shooting star vector, night sky background, constellation, telescope." },
+            { m:7, d:"14", cat:"National", t:"Pakistan Indep Day", p:"Pakistan flag, minar-e-pakistan, fireworks, green lights.", v:"Crescent and star vector, pakistan map, lantern icon, green bunting." },
+            { m:7, d:"15", cat:"National", t:"Independence Day (India)", p:"Red fort delhi, indian flag kite, cultural dance, sweets.", v:"India gate vector, tricolor wheel, flag icon, jai hind typography." },
+            { m:7, d:"17", cat:"National", t:"Indonesia Indep Day", p:"Panjat pinang game, indonesia flag, bali temple, nasi tumpeng.", v:"Garuda bird vector, indonesia map, red white flag, wayang puppet." },
+            { m:7, d:"19", cat:"Business", t:"World Photography Day", p:"Vintage camera lens, photographer holding camera, film roll.", v:"Camera shutter vector, aperture icon, photo frame, tripod." },
+            { m:7, d:"19", cat:"Health", t:"World Humanitarian Day", p:"Aid worker vest, food distribution, refugee camp, water well.", v:"Helping hand vector, globe heart, water drop, shelter tent icon." },
+            { m:7, d:"24", cat:"National", t:"Ukraine Independence Day", p:"Blue yellow flag, sunflowers, vyshyvanka shirt, kiev square.", v:"Trident symbol (tryzub), sunflower vector, ukraine map, wheat ear." },
+            { m:7, d:"26", cat:"Cultural", t:"La Tomatina (Spain)", p:"Tomato food fight, red messy street, people laughing, goggles.", v:"Tomato splash vector, spain map, festival typography, red splatter." },
+            { m:7, d:"26", cat:"Health", t:"Women's Equality Day", p:"Voting ballot, suffragette sash, female symbol, protest.", v:"Female gender sign, equality scale, vote box vector, fist icon." },
+            { m:7, d:"26", cat:"Seasonal", t:"National Dog Day", p:"Dog running on beach, puppy eyes, dog bone treat, collar.", v:"Dog house vector, bone icon, paw print background, bark text." },
+            { m:7, d:"27", cat:"Cultural", t:"Raksha Bandhan", p:"Sister tying rakhi on brother, sweets plate, gift exchange.", v:"Rakhi bracelet vector, brother sister silhouette, traditional pattern." },
+            { m:7, d:"30", cat:"Cultural", t:"Notting Hill Carnival", p:"Caribbean costumes, steel drums, colorful feathers, london street.", v:"Feather headdress vector, music note, carnival mask, drum icon." },
+
+            // SEPTEMBER
+            { m:8, d:"03", cat:"Cultural", t:"Janmashtami", p:"Baby krishna idol, butter pot, peacock feather, flute.", v:"Flute and feather vector, pot of butter (matki), peacock design." },
+            { m:8, d:"05", cat:"Business", t:"Teachers' Day (India)", p:"Student giving flowers to teacher, blackboard, red pen.", v:"Teacher avatar, apple icon, chalkboard vector, book stack." },
+            { m:8, d:"07", cat:"Business", t:"Labor Day (US)", p:"Closed sign shop, picnic basket, hammock relaxing, bbq.", v:"Wrench and hammer vector, relaxing chair, usa flag, grill icon." },
+            { m:8, d:"08", cat:"Business", t:"Intl. Literacy Day", p:"Child reading book, adult education class, library shelves.", v:"Open book vector, reading glasses, alphabet letters, lightbulb." },
+            { m:8, d:"10", cat:"Health", t:"Suicide Prevention Day", p:"Semicolon tattoo, holding hands support, sunrise hope.", v:"Semicolon symbol, teal and purple ribbon, lifeline vector, hope text." },
+            { m:8, d:"11", cat:"National", t:"Patriot Day (US)", p:"9/11 memorial lights, firefighter helmet, american flag, flowers.", v:"Twin towers silhouette tribute, never forget text, ribbon, flag." },
+            { m:8, d:"12", cat:"Cultural", t:"Rosh Hashanah", p:"Apple dipped in honey, shofar horn, pomegranate, challah bread.", v:"Shofar vector, apple and honey icon, star of david, hebrew text." },
+            { m:8, d:"13", cat:"Seasonal", t:"Grandparents Day", p:"Grandparents reading to kids, elderly couple walking, knitting.", v:"Grandparents vector, rocking chair icon, glasses, family love." },
+            { m:8, d:"14", cat:"Cultural", t:"Ganesh Chaturthi", p:"Ganesha idol immersion, modak sweets, marigold garland.", v:"Lord ganesha silhouette, modak vector, lotus flower, om symbol." },
+            { m:8, d:"15", cat:"Business", t:"Intl. Democracy Day", p:"Ballot box, voting hand, parliament building, gavel.", v:"Vote checkmark vector, ballot box icon, government pillar, flag." },
+            { m:8, d:"16", cat:"National", t:"Mexico Independence Day", p:"Mexico flag, zocalo square, mariachi, fireworks green white red.", v:"Eagle cactus snake vector, mexico map, sombrero, independence text." },
+            { m:8, d:"19", cat:"Food", t:"Oktoberfest Starts", p:"Beer steins clinking, pretzel, dirndl dress, munich tent.", v:"Beer mug vector, pretzel icon, bavarian pattern, tyrolean hat." },
+            { m:8, d:"20", cat:"Nature", t:"World Clean Up Day", p:"Volunteers picking trash, beach cleanup, garbage bags, gloves.", v:"Trash bin vector, recycle symbol, plastic bottle, cleaning glove." },
+            { m:8, d:"21", cat:"Cultural", t:"Intl. Peace Day", p:"Dove flying, peace sign fingers, olive branch, white flag.", v:"Peace symbol vector, dove icon, world harmony, olive branch." },
+            { m:8, d:"21", cat:"Health", t:"World Alzheimer's Day", p:"Elderly hands puzzle, forget-me-not flower, purple ribbon.", v:"Brain vector, puzzle piece, purple ribbon, memory loss concept." },
+            { m:8, d:"22", cat:"Nature", t:"Autumn Equinox", p:"Falling orange leaves, pumpkin patch, sweater weather, acorns.", v:"Autumn leaf set, acorn vector, pumpkin icon, fall season text." },
+            { m:8, d:"23", cat:"National", t:"Saudi National Day", p:"Saudi flag, green fireworks, riyadh skyline, traditional dance.", v:"Palm tree and swords vector, saudi map, green flag, mosque icon." },
+            { m:8, d:"25", cat:"Cultural", t:"Mid-Autumn Festival", p:"Mooncakes, lanterns glowing, full moon, family tea time.", v:"Mooncake vector, rabbit on moon, chinese lantern, tea pot." },
+            { m:8, d:"25", cat:"Cultural", t:"Chuseok (Korea)", p:"Songpyeon rice cakes, hanbok dress, ancestral rites, harvest.", v:"Korean traditional house vector, persimmon fruit, fan, moon." },
+            { m:8, d:"27", cat:"Business", t:"World Tourism Day", p:"Suitcase and passport, airplane wing, famous landmarks collage.", v:"Travel icon set, globe vector, location pin, camera." },
+            { m:8, d:"29", cat:"Health", t:"World Heart Day", p:"Red apple, doctor stethoscope, runner jogging, healthy food.", v:"Anatomical heart vector, ecg line, cardio icon, red heart shape." },
+            { m:8, d:"30", cat:"Cultural", t:"Truth & Reconciliation (CA)", p:"Orange shirt, indigenous art, drumming circle, feathers.", v:"Orange shirt icon, feather vector, every child matters text, hand print." },
+
+            // OCTOBER
+            { m:9, d:"01", cat:"National", t:"National Day (China)", p:"Great wall, tiananmen square, red flags, fireworks beijing.", v:"China map vector, dragon icon, lantern, forbidden city silhouette." },
+            { m:9, d:"01", cat:"Health", t:"Breast Cancer Month", p:"Pink ribbon on lapel, women group hugging, charity walk.", v:"Pink ribbon vector, butterfly icon, hope typography, women silhouette." },
+            { m:9, d:"02", cat:"Seasonal", t:"World Smile Day", p:"Smiley face balloon, child laughing, dentist checking teeth.", v:"Smiley emoji vector, teeth icon, happy mouth, yellow circle." },
+            { m:9, d:"04", cat:"Nature", t:"World Animal Day", p:"Diverse animals collage, pet shelter, wildlife conservation.", v:"Animal paw prints, dog cat bird icons, globe with animals." },
+            { m:9, d:"05", cat:"Business", t:"World Teachers' Day", p:"Teacher at whiteboard, apple on desk, thank you card.", v:"Teacher icon, book stack, graduation cap, owl vector." },
+            { m:9, d:"10", cat:"Health", t:"World Mental Health Day", p:"Meditation outdoors, brain flower art, therapy session.", v:"Brain and heart vector, green ribbon, lotus flower, mindfulness." },
+            { m:9, d:"11", cat:"Health", t:"Intl. Day of the Girl", p:"Girl raising hand class, confident teen, science experiment.", v:"Girl power icon, female symbol, education vector, pink silhouette." },
+            { m:9, d:"12", cat:"Seasonal", t:"Canadian Thanksgiving", p:"Roast turkey, maple leaves, cornucopia, pumpkin pie.", v:"Turkey vector, maple leaf, harvest basket, autumn pattern." },
+            { m:9, d:"16", cat:"Food", t:"World Food Day", p:"Food donation box, farmer holding crop, zero hunger concept.", v:"Wheat ear vector, fruit basket, fork and spoon, globe icon." },
+            { m:9, d:"17", cat:"Cultural", t:"Durga Puja (Saptami)", p:"Goddess durga idol, dhunuchi dance, pandal decoration.", v:"Durga face vector, trident icon, lotus, indian festival pattern." },
+            { m:9, d:"20", cat:"Cultural", t:"Durga Puja (Dashami)", p:"Sindoor khela, immersion procession, sweets exchange.", v:"Red vermilion texture, river boat vector, festival drum." },
+            { m:9, d:"24", cat:"Business", t:"United Nations Day", p:"UN flag, general assembly hall, peacekeepers blue helmet.", v:"UN logo vector, olive branch, world map, globe icon." },
+            { m:9, d:"24", cat:"Health", t:"World Polio Day", p:"Vaccine drops child, rotary logo, end polio now sign.", v:"Vaccine bottle vector, child silhouette, medicine icon, virus stop." },
+            { m:9, d:"25", cat:"Food", t:"World Pasta Day", p:"Spaghetti fork twirl, raw pasta shapes, italian sauce.", v:"Pasta types vector, fork icon, basil leaf, italian flag." },
+            { m:9, d:"26", cat:"Seasonal", t:"National Pumpkin Day", p:"Carved jack-o-lantern, pumpkin patch, latte, pie.", v:"Pumpkin vector, halloween face, vine pattern, orange icon." },
+            { m:9, d:"31", cat:"Seasonal", t:"Halloween", p:"Trick or treat kids, haunted house, ghost costume, candy bowl.", v:"Bat vector, spider web, skull icon, spooky font." },
+            { m:9, d:"31", cat:"Business", t:"World Cities Day", p:"Urban skyline, smart city tech, traffic lights, skyscrapers.", v:"City building vector, skyscraper icon, road map, bridge illustration." },
+
+            // NOVEMBER
+            { m:10, d:"01", cat:"Cultural", t:"Dia de los Muertos", p:"Sugar skull makeup, marigold altar, papel picado, candles.", v:"Sugar skull vector, skeleton guitar, floral pattern, mexican border." },
+            { m:10, d:"01", cat:"Food", t:"World Vegan Day", p:"Fresh vegetables, plant based burger, green smoothie.", v:"Vegan leaf symbol, cruelty free badge, vegetable icons, green v." },
+            { m:10, d:"01", cat:"Health", t:"Movember Starts", p:"Man shaving, mustache growth, men health checkup.", v:"Mustache vector, beard icon, blue ribbon, men silhouette." },
+            { m:10, d:"05", cat:"Cultural", t:"Guy Fawkes Night", p:"Bonfire, fireworks display, sparklers, effigy burning.", v:"Fireworks vector, mask icon, bonfire illustration, sparkle star." },
+            { m:10, d:"08", cat:"National", t:"Remembrance Sunday", p:"Cenotaph wreath, poppy on lapel, veterans marching.", v:"Red poppy vector, soldier silhouette, lest we forget text." },
+            { m:10, d:"08", cat:"Cultural", t:"Diwali (Deepavali)", p:"Diya oil lamps row, rangoli floor art, firecrackers, family.", v:"Diya lamp vector, rangoli mandala, fireworks icon, lantern." },
+            { m:10, d:"11", cat:"Business", t:"Singles' Day (China)", p:"Online shopping packages, smartphone sale app, solo dining.", v:"Shopping cart vector, 11.11 sale text, discount tag, gift box." },
+            { m:10, d:"11", cat:"National", t:"Veterans Day (US)", p:"Soldier saluting flag, military cemetery, parade.", v:"Dog tags vector, military helmet, usa flag, eagle icon." },
+            { m:10, d:"13", cat:"Seasonal", t:"World Kindness Day", p:"Holding door open, giving coffee, heart hands, smile.", v:"Heart icon, kindness typography, helping hand vector, flower." },
+            { m:10, d:"14", cat:"Health", t:"World Diabetes Day", p:"Blood sugar meter, blue circle, insulin pen, healthy plate.", v:"Blue circle logo, blood drop vector, medical test icon, sugar free." },
+            { m:10, d:"17", cat:"Business", t:"Intl. Students Day", p:"University lecture hall, student protest, library study group.", v:"Graduation cap vector, backpack icon, book stack, diploma." },
+            { m:10, d:"19", cat:"Seasonal", t:"Intl. Men's Day", p:"Father and son, male doctor, construction worker, suit.", v:"Male symbol, mustache vector, tie icon, gentleman silhouette." },
+            { m:10, d:"20", cat:"Seasonal", t:"World Children's Day", p:"Kids playing in park, blue decorations, diverse children faces.", v:"Balloon vector, toys icons, child silhouette, playground." },
+            { m:10, d:"24", cat:"Cultural", t:"Loy Krathong (Thailand)", p:"Floating lanterns on water, full moon, candles, lotus boat.", v:"Lotus lantern vector, water ripple, candle icon, thai pattern." },
+            { m:10, d:"25", cat:"Health", t:"Elimination of Violence", p:"Orange ribbon, stop hand sign, women support, protest.", v:"Orange ribbon vector, stop hand icon, female silhouette, safety shield." },
+            { m:10, d:"26", cat:"Seasonal", t:"Thanksgiving (US)", p:"Turkey dinner, family prayer, cranberry sauce, autumn decor.", v:"Turkey mascot vector, cornucopia, pumpkin pie icon, pilgrim hat." },
+            { m:10, d:"27", cat:"Business", t:"Black Friday", p:"Crowd running store, sale signs, shopping bags, credit card.", v:"Sale tag vector, percent off icon, shopping bag, black background." },
+            { m:10, d:"30", cat:"Business", t:"Cyber Monday", p:"Laptop with credit card, online checkout, delivery boxes.", v:"Laptop vector, mouse cursor, wifi icon, digital cart." },
+
+            // DECEMBER
+            { m:11, d:"01", cat:"Health", t:"World AIDS Day", p:"Red ribbon, candlelight vigil, medical test, solidarity.", v:"Red ribbon vector, virus icon, stop sign, heart medical." },
+            { m:11, d:"02", cat:"National", t:"UAE National Day", p:"UAE flag, burj khalifa lights, fireworks, desert celebration.", v:"UAE map vector, falcon icon, flag colors ribbon, mosque." },
+            { m:11, d:"03", cat:"Health", t:"Disabilities Day", p:"Wheelchair user ramp, sign language interpreter, prosthetic limb.", v:"Wheelchair icon, accessibility symbol, ear vector, guide dog." },
+            { m:11, d:"05", cat:"Cultural", t:"Hanukkah Begins", p:"Menorah candles lit, dreidel spinning, gold coins, latkes.", v:"Menorah vector, star of david, dreidel icon, blue candle." },
+            { m:11, d:"07", cat:"National", t:"Pearl Harbor Remembrance", p:"USS arizona memorial, throwing flowers in water, flag half mast.", v:"Ship silhouette vector, anchor icon, poppy, 1941 date." },
+            { m:11, d:"10", cat:"Health", t:"Human Rights Day", p:"Diverse hands raised, breaking chains, globe people.", v:"Dove vector, equal sign, human silhouette, peace icon." },
+            { m:11, d:"10", cat:"Business", t:"Nobel Prize Day", p:"Gold medal medal, diploma scroll, scientist receiving award.", v:"Medal vector, scroll icon, laurel wreath, science symbol." },
+            { m:11, d:"11", cat:"Nature", t:"Intl. Mountain Day", p:"Snowy peak, hiker at summit, mountain goat, landscape.", v:"Mountain range vector, hiking boot, compass icon, pine tree." },
+            { m:11, d:"13", cat:"Cultural", t:"St. Lucia's Day", p:"Girl with candle crown, white dress, saffron buns, procession.", v:"Candle wreath vector, star boy hat, bun icon, sweden tradition." },
+            { m:11, d:"18", cat:"Seasonal", t:"Ugly Sweater Day", p:"Funny knitted sweater, office party, reindeer pattern.", v:"Sweater pattern vector, knitting stitch, reindeer icon, snowflake." },
+            { m:11, d:"21", cat:"Cultural", t:"Dongzhi Festival", p:"Tangyuan balls bowl, family dinner, winter solstice lantern.", v:"Rice ball vector, bowl icon, chinese knot, winter plum." },
+            { m:11, d:"21", cat:"Nature", t:"Winter Solstice", p:"Snowy forest, longest night stars, bonfire, ice crystals.", v:"Snowflake vector, moon and stars, cold thermometer, ice icon." },
+            { m:11, d:"24", cat:"Seasonal", t:"Christmas Eve", p:"Cookies and milk, stocking by fire, santa sleigh in sky.", v:"Stocking vector, fireplace icon, santa silhouette, mistletoe." },
+            { m:11, d:"25", cat:"Seasonal", t:"Christmas Day", p:"Decorated tree, opening gifts, family dinner, snow outside.", v:"Christmas tree vector, gift box, bauble icon, candy cane." },
+            { m:11, d:"26", cat:"Seasonal", t:"Boxing Day", p:"Shopping bags, leftover food sandwich, sports on tv.", v:"Gift box vector, boxing glove (pun), shopping tag, price cut." },
+            { m:11, d:"26", cat:"Cultural", t:"Kwanzaa Starts", p:"Kinara candles, fruit basket, african textile, corn.", v:"Kinara vector, corn icon, african cup, seven candles." },
+            { m:11, d:"31", cat:"Seasonal", t:"New Year's Eve", p:"Clock striking 12, fireworks, champagne glasses, party.", v:"Clock face vector, firework burst, cheers glass, confetti." }
+        ];
+
+        // --- APP LOGIC ---
+        const grid = document.getElementById('eventsGrid');
+        const countSpan = document.getElementById('eventCount');
+        const searchInput = document.getElementById('searchInput');
+        const monthSelect = document.getElementById('monthSelect');
+        const categorySelect = document.getElementById('categorySelect');
+
+        let currentFilter = {
+            search: "",
+            month: "all",
+            category: "all"
+        };
+
+        function init() {
+            renderEvents(eventsData);
+            setupEventListeners();
+        }
+
+        function renderEvents(data) {
+            grid.innerHTML = "";
+            
+            if (data.length === 0) {
+                grid.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 4rem; background: white; border-radius: 12px; border: 2px dashed var(--border-color);">
+                        <h3 style="color: var(--text-muted); margin-bottom: 0.5rem; font-size: 1.25rem;">No events found</h3>
+                        <p style="color: #9ca3af;">Try adjusting your search or filters to find more opportunities.</p>
+                    </div>`;
+                countSpan.innerText = 0;
+                return;
+            }
+
+            countSpan.innerText = data.length;
+
+            data.forEach(event => {
+                const monthName = new Date(2026, event.m).toLocaleString('default', { month: 'short' });
+                
+                const card = document.createElement('div');
+                card.className = 'event-card';
+                card.innerHTML = `
+                    <div class="card-header animate-fadeInUp" style="animation-delay: 0.35s;">
+                        <div class="date-badge">
+                            <span class="day">${event.d}</span>
+                            <span class="month">${monthName}</span>
+                        </div>
+                        <div class="header-meta">
+                            <span class="category-tag">${event.cat}</span>
+                            <div class="event-title">${event.t}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body">
+                        <div class="prompt-box photo">
+                            <div class="prompt-label">
+                                &#128248; Photo Idea
+                            </div>
+                            <div class="prompt-text">
+                                ${event.p}
+                            </div>
+                        </div>
+
+                        <div class="prompt-box vector">
+                            <div class="prompt-label">
+                                &#9998; Vector Idea
+                            </div>
+                            <div class="prompt-text">
+                                ${event.v}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterEvents() {
+            const searchLower = currentFilter.search.toLowerCase();
+            const filtered = eventsData.filter(event => {
+                const matchesSearch = event.t.toLowerCase().includes(searchLower) || 
+                                      event.p.toLowerCase().includes(searchLower) ||
+                                      event.v.toLowerCase().includes(searchLower);
+                
+                const matchesMonth = currentFilter.month === "all" || event.m.toString() === currentFilter.month;
+                const matchesCategory = currentFilter.category === "all" || event.cat === currentFilter.category;
+
+                return matchesSearch && matchesMonth && matchesCategory;
+            });
+            renderEvents(filtered);
+        }
+
+        function setupEventListeners() {
+            searchInput.addEventListener('input', (e) => {
+                currentFilter.search = e.target.value;
+                filterEvents();
+            });
+
+            monthSelect.addEventListener('change', (e) => {
+                currentFilter.month = e.target.value;
+                filterEvents();
+            });
+
+            categorySelect.addEventListener('change', (e) => {
+                currentFilter.category = e.target.value;
+                filterEvents();
+            });
+        }
+
+        init();
+
+    </script>
+
+<script src="main-header.js"></script>
+<script src="main-footer.js"></script>
+    <script src="backtotop.js"></script>
+</body>
+</html>
