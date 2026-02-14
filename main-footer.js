@@ -71,6 +71,7 @@
       color: rgba(255,255,255,0.7);
       text-decoration: none;
       transition: color 0.3s ease;
+      pointer-events: none;
     }
 
     .footer-back-to-top:hover {
@@ -96,7 +97,7 @@
             </svg>
         </p>
         
-        <a href="#home" class="footer-back-to-top">Back to Top ↑</a>
+        <a href="#" class="footer-back-to-top">Pixels with purpose.</a>
     </div>
   `;
 
