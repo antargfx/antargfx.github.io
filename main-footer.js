@@ -21,7 +21,7 @@
   style.innerHTML = `
     .footer {
       padding: 2rem 0;
-      margin: 2rem 0;
+      margin: 2rem 0 0 0;
       background: hsl(0, 0%, 12%);
       color: white;
       font-family: 'Inter', system-ui, sans-serif;
