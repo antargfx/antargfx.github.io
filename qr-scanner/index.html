@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QR & Barcode Scanner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://antargfx.github.io/main-header.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --background: hsl(0, 0%, 98%);
+    --foreground: hsl(0, 0%, 12%);
+    --card: hsl(0, 0%, 100%);
+    --card-foreground: hsl(0, 0%, 12%);
+    --primary: hsl(18, 100%, 60%);
+    --primary-foreground: hsl(0, 0%, 100%);
+    --secondary: hsl(210, 20%, 96%);
+    --secondary-foreground: hsl(0, 0%, 12%);
+    --muted: hsl(210, 15%, 94%);
+    --muted-foreground: hsl(0, 0%, 45%);
+    --border: hsl(0, 0%, 90%);
+    --radius: 0.75rem;
+
+    --gradient-primary: linear-gradient(135deg, hsl(18, 100%, 60%) 0%, hsl(0, 100%, 50%) 100%);
+    --shadow-soft: 0 4px 20px -4px hsla(0, 0%, 0%, 0.08);
+    --shadow-elevated: 0 20px 50px -12px hsla(18, 100%, 60%, 0.25);
+    --shadow-card: 0 10px 40px -10px hsla(0, 0%, 0%, 0.1);
+
+    --font-display: 'Playfair Display', Georgia, serif;
+    --font-body: 'Inter', system-ui, sans-serif;
+
+    --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Semantic aliases used throughout */
+    --success: hsl(142, 71%, 40%);
+    --success-bg: hsl(142, 71%, 96%);
+    --success-border: hsl(142, 71%, 80%);
+    --error: hsl(0, 84%, 50%);
+    --error-bg: hsl(0, 84%, 97%);
+    --error-border: hsl(0, 84%, 85%);
+    --warn: hsl(38, 92%, 45%);
+    --warn-bg: hsl(38, 92%, 96%);
+    --warn-border: hsl(38, 92%, 80%);
+    --scanning-bg: hsl(18, 100%, 97%);
+    --scanning-border: hsl(18, 100%, 80%);
+  }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--background);
+    color: var(--foreground);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 0 72px;
+    overflow-x: hidden;
+  }
+
+  /* Subtle warm tint blob in background */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -120px; right: -120px;
+    width: 480px; height: 480px;
+    background: radial-gradient(circle, hsla(18,100%,60%,0.07) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -80px; left: -80px;
+    width: 360px; height: 360px;
+    background: radial-gradient(circle, hsla(0,100%,50%,0.05) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .header {
+    width: 100%;
+    max-width: 580px;
+    padding: 44px 20px 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 4px;
+  }
+
+  .logo-icon {
+    width: 44px; height: 44px;
+    background: var(--gradient-primary);
+    border-radius: calc(var(--radius) * 0.8);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+    box-shadow: var(--shadow-elevated);
+  }
+
+  .logo h1 {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    color: var(--foreground);
+    line-height: 1;
+  }
+
+  .logo p {
+    font-size: 0.72rem;
+    color: var(--muted-foreground);
+    font-family: var(--font-body);
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top: 3px;
+  }
+
+  .main {
+    width: 100%;
+    max-width: 580px;
+    padding: 24px 16px 0;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  /* Info banner */
+  .info-banner {
+    background: hsl(18, 100%, 97%);
+    border: 1px solid hsl(18, 100%, 88%);
+    border-radius: var(--radius);
+    padding: 11px 14px;
+    font-size: 0.79rem;
+    color: hsl(18, 80%, 35%);
+    line-height: 1.55;
+    display: flex;
+    gap: 9px;
+    align-items: flex-start;
+    box-shadow: var(--shadow-soft);
+  }
+  .info-banner .icon { flex-shrink: 0; margin-top: 1px; }
+  .info-banner strong { color: hsl(18, 90%, 45%); }
+  .info-banner code {
+    background: hsl(18, 100%, 93%);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.75rem;
+  }
+
+  /* Tabs */
+  .tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: var(--secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 4px;
+    gap: 4px;
+    box-shadow: var(--shadow-soft);
+  }
+
+  .tab-btn {
+    padding: 11px 10px;
+    border: none;
+    border-radius: calc(var(--radius) - 2px);
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    display: flex; align-items: center; justify-content: center; gap: 7px;
+    color: var(--muted-foreground);
+    background: transparent;
+  }
+
+  .tab-btn.active {
+    background: var(--card);
+    color: var(--primary);
+    box-shadow: var(--shadow-soft);
+    font-weight: 600;
+  }
+
+  .tab-btn:not(.active):hover {
+    color: var(--foreground);
+    background: hsla(0,0%,0%,0.03);
+  }
+
+  /* Panels */
+  .panel {
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .panel.active { display: flex; }
+
+  /* Scanner viewport */
+  .scanner-wrap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    position: relative;
+    min-height: 300px;
+    box-shadow: var(--shadow-card);
+  }
+
+  #reader { width: 100%; }
+
+  /* Override html5-qrcode default styles */
+  #reader video { border-radius: 0 !important; width: 100% !important; }
+  #reader img { display: none !important; }
+  #reader__scan_region { background: transparent !important; }
+  #reader__header_message { display: none !important; }
+  #reader__dashboard { display: none !important; }
+
+  .scanner-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .scan-frame {
+    width: 200px; height: 200px;
+    position: relative;
+  }
+
+  .scan-frame::before, .scan-frame::after,
+  .scan-frame .corner-tr, .scan-frame .corner-bl, .scan-frame .corner-br {
+    content: '';
+    position: absolute;
+    width: 26px; height: 26px;
+    border-color: var(--primary);
+    border-style: solid;
+  }
+  .scan-frame::before { top:0; left:0; border-width: 2.5px 0 0 2.5px; border-radius: 5px 0 0 0; }
+  .scan-frame::after  { top:0; right:0; border-width: 2.5px 2.5px 0 0; border-radius: 0 5px 0 0; }
+  .scan-frame .corner-bl { bottom:0; left:0; border-width: 0 0 2.5px 2.5px; border-radius: 0 0 0 5px; }
+  .scan-frame .corner-br { bottom:0; right:0; border-width: 0 2.5px 2.5px 0; border-radius: 0 0 5px 0; }
+  .scan-frame .corner-tr, .scan-frame .corner-bl, .scan-frame .corner-br { display: block; }
+
+  .scan-line {
+    position: absolute;
+    left: 4px; right: 4px;
+    height: 2px;
+    background: var(--gradient-primary);
+    top: 4px;
+    animation: scanLine 2.5s ease-in-out infinite;
+    box-shadow: 0 0 10px hsla(18,100%,60%,0.6);
+    border-radius: 1px;
+  }
+
+  @keyframes scanLine {
+    0%   { top: 4px; opacity: 0; }
+    10%  { opacity: 1; }
+    90%  { opacity: 1; }
+    100% { top: calc(100% - 6px); opacity: 0; }
+  }
+
+  .camera-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 60px 20px;
+    color: var(--muted-foreground);
+    text-align: center;
+  }
+
+  .camera-placeholder .cam-icon {
+    font-size: 3rem;
+    opacity: 0.35;
+  }
+
+  .camera-placeholder p {
+    font-size: 0.875rem;
+    line-height: 1.55;
+    max-width: 260px;
+    color: var(--muted-foreground);
+  }
+
+  /* Camera controls */
+  .cam-controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 11px 20px;
+    border: none;
+    border-radius: var(--radius);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    white-space: nowrap;
+  }
+
+  .btn-primary {
+    background: var(--gradient-primary);
+    color: var(--primary-foreground);
+    flex: 1;
+    box-shadow: var(--shadow-elevated);
+    font-weight: 600;
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 24px 50px -10px hsla(18,100%,60%,0.35); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  .btn-secondary {
+    background: var(--card);
+    color: var(--foreground);
+    border: 1px solid var(--border);
+    flex: 1;
+    box-shadow: var(--shadow-soft);
+  }
+  .btn-secondary:hover { background: var(--secondary); border-color: hsl(0,0%,82%); }
+  .btn-secondary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .btn-icon { font-size: 1rem; }
+
+  /* Upload panel */
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 48px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    background: var(--card);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    box-shadow: var(--shadow-soft);
+  }
+
+  .upload-zone:hover, .upload-zone.dragover {
+    border-color: var(--primary);
+    background: hsl(18, 100%, 98%);
+    box-shadow: var(--shadow-elevated);
+  }
+
+  .upload-zone .up-icon { font-size: 2.5rem; opacity: 0.45; }
+
+  .upload-zone h3 {
+    font-size: 1rem; font-weight: 600; color: var(--foreground);
+  }
+  .upload-zone p {
+    font-size: 0.82rem; color: var(--muted-foreground); line-height: 1.45;
+  }
+  .upload-zone input {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer;
+  }
+
+  .preview-wrap {
+    position: relative;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--card);
+    border: 1px solid var(--border);
+    display: none;
+    box-shadow: var(--shadow-card);
+  }
+
+  .preview-wrap.visible { display: block; }
+
+  #preview-img {
+    width: 100%;
+    max-height: 320px;
+    object-fit: contain;
+    display: block;
+    background: var(--muted);
+  }
+
+  .preview-badge {
+    position: absolute;
+    top: 10px; left: 10px;
+    background: hsla(0,0%,100%,0.88);
+    color: var(--muted-foreground);
+    font-size: 0.72rem;
+    font-family: 'Courier New', monospace;
+    padding: 4px 9px;
+    border-radius: 6px;
+    backdrop-filter: blur(6px);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-soft);
+  }
+
+  /* Status bar */
+  .status-bar {
+    display: flex; align-items: center; gap: 10px;
+    padding: 11px 15px;
+    border-radius: var(--radius);
+    font-size: 0.845rem;
+    font-weight: 500;
+    transition: var(--transition-smooth);
+    min-height: 44px;
+    box-shadow: var(--shadow-soft);
+  }
+
+  .status-bar.idle {
+    background: var(--secondary);
+    color: var(--muted-foreground);
+    border: 1px solid var(--border);
+  }
+  .status-bar.scanning {
+    background: var(--scanning-bg);
+    color: var(--primary);
+    border: 1px solid var(--scanning-border);
+  }
+  .status-bar.processing {
+    background: var(--warn-bg);
+    color: var(--warn);
+    border: 1px solid var(--warn-border);
+  }
+  .status-bar.error {
+    background: var(--error-bg);
+    color: var(--error);
+    border: 1px solid var(--error-border);
+  }
+
+  .status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .idle .status-dot { background: var(--muted-foreground); }
+  .scanning .status-dot {
+    background: var(--primary);
+    animation: pulse 1.2s ease-in-out infinite;
+    box-shadow: 0 0 6px hsla(18,100%,60%,0.6);
+  }
+  .processing .status-dot {
+    background: var(--warn);
+    animation: pulse 0.8s ease-in-out infinite;
+  }
+  .error .status-dot { background: var(--error); }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.45; transform: scale(0.75); }
+  }
+
+  /* Result card */
+  .result-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    display: none;
+    animation: slideUp 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow-card);
+  }
+
+  .result-card.visible { display: block; }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .result-header {
+    padding: 13px 16px 10px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+    background: var(--secondary);
+  }
+
+  .result-badge {
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 20px;
+    background: var(--success-bg);
+    color: var(--success);
+    border: 1px solid var(--success-border);
+  }
+
+  .result-type {
+    font-size: 0.75rem;
+    color: var(--muted-foreground);
+    font-family: var(--font-body);
+    margin-left: auto;
+    font-weight: 500;
+    background: var(--muted);
+    padding: 2px 8px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+  }
+
+  .result-body {
+    padding: 16px;
+  }
+
+  .result-text {
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+    word-break: break-all;
+    line-height: 1.65;
+    color: var(--foreground);
+    background: var(--secondary);
+    padding: 12px 14px;
+    border-radius: calc(var(--radius) * 0.7);
+    border: 1px solid var(--border);
+    margin-bottom: 14px;
+    max-height: 120px;
+    overflow-y: auto;
+  }
+
+  .result-link {
+    color: var(--primary);
+    text-decoration: none;
+    display: block;
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+    word-break: break-all;
+    line-height: 1.65;
+    background: hsl(18, 100%, 97%);
+    padding: 12px 14px;
+    border-radius: calc(var(--radius) * 0.7);
+    border: 1px solid hsl(18, 100%, 87%);
+    margin-bottom: 14px;
+    max-height: 120px;
+    overflow-y: auto;
+    transition: var(--transition-smooth);
+    font-weight: 500;
+  }
+  .result-link:hover { background: hsl(18, 100%, 94%); border-color: var(--primary); }
+
+  .result-actions {
+    display: flex; gap: 8px;
+  }
+
+  .btn-copy, .btn-again {
+    flex: 1; padding: 10px 14px;
+    border: none; border-radius: calc(var(--radius) * 0.8);
+    font-family: var(--font-body);
+    font-size: 0.855rem; font-weight: 500;
+    cursor: pointer; transition: var(--transition-smooth);
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+
+  .btn-copy {
+    background: var(--secondary);
+    color: var(--foreground);
+    border: 1px solid var(--border);
+  }
+  .btn-copy:hover { border-color: var(--primary); color: var(--primary); background: hsl(18,100%,98%); }
+  .btn-copy.copied { background: var(--success-bg); border-color: var(--success-border); color: var(--success); }
+
+  .btn-again {
+    background: var(--gradient-primary);
+    color: var(--primary-foreground);
+    font-weight: 600;
+    box-shadow: 0 4px 14px -4px hsla(18,100%,60%,0.4);
+  }
+  .btn-again:hover { box-shadow: 0 8px 20px -4px hsla(18,100%,60%,0.5); transform: translateY(-1px); }
+
+  /* Spinner */
+  .spinner {
+    width: 15px; height: 15px;
+    border: 2px solid hsla(38,92%,45%,0.25);
+    border-top-color: var(--warn);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    flex-shrink: 0;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Camera selector */
+  .cam-select-wrap {
+    display: none;
+    gap: 8px;
+    align-items: center;
+  }
+  .cam-select-wrap.visible { display: flex; }
+  .cam-select-wrap label { font-size: 0.8rem; color: var(--muted-foreground); white-space: nowrap; font-weight: 500; }
+  .cam-select-wrap select {
+    flex: 1;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--foreground);
+    border-radius: calc(var(--radius) * 0.7);
+    padding: 8px 10px;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    outline: none;
+    cursor: pointer;
+    box-shadow: var(--shadow-soft);
+  }
+  .cam-select-wrap select:focus { border-color: var(--primary); }
+
+  /* Formats tag list */
+  .formats {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    padding-top: 4px;
+  }
+  .fmt-tag {
+    font-size: 0.69rem;
+    font-family: var(--font-body);
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 20px;
+    background: var(--card);
+    color: var(--muted-foreground);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-soft);
+  }
+
+  /* Divider label */
+  .section-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--muted-foreground);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  ::-webkit-scrollbar-thumb:hover { background: hsl(0,0%,78%); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">
+    <div class="logo-icon"><i style="color: white;" class="fa-solid fa-magnifying-glass"></i></div>
+    <div>
+      <h1>ScanZero</h1>
+      <p>QR & Barcode Reader</p>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- Info Banner -->
+  <div class="info-banner">
+    <span class="icon"><i class="fa-solid fa-circle-info"></i></span>
+    <span>Camera requires <strong>Permission</strong>. If asks, <strong>allow</strong> on every time</strong>. Click <strong>Upload Image</strong> if already QR saved in your storage.</span>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" id="tab-camera" onclick="switchTab('camera')">
+      <span><i class="fa-solid fa-camera"></i></span> Scan with Camera
+    </button>
+    <button class="tab-btn" id="tab-upload" onclick="switchTab('upload')">
+      <span><i class="fa-solid fa-image"></i></span> Upload Image
+    </button>
+  </div>
+
+  <!-- Camera Panel -->
+  <div class="panel active" id="panel-camera">
+
+    <div class="scanner-wrap">
+      <div id="reader"></div>
+      <div id="cam-placeholder" class="camera-placeholder">
+        <div class="cam-icon"><i class="fa-solid fa-camera"></i></div>
+        <p>Press "Start Camera" to begin scanning.<br>Point camera at a QR code or barcode.</p>
+      </div>
+      <div class="scanner-overlay" id="scan-overlay" style="display:none;">
+        <div class="scan-frame">
+          <span class="corner-bl"></span>
+          <span class="corner-br"></span>
+          <div class="scan-line"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cam-select-wrap" id="cam-select-wrap">
+      <label>Camera:</label>
+      <select id="cam-select" onchange="switchCamera()"></select>
+    </div>
+
+    <div class="cam-controls">
+      <button class="btn btn-primary" id="btn-start" onclick="startCamera()">
+        <span class="btn-icon"><i class="fa-solid fa-play"></i></span> Start Camera
+      </button>
+      <button class="btn btn-secondary" id="btn-stop" onclick="stopCamera()" disabled>
+        <span class="btn-icon"><i class="fa-solid fa-stop"></i></span> Stop
+      </button>
+    </div>
+
+    <div class="status-bar idle" id="cam-status">
+      <div class="status-dot"></div>
+      <span id="cam-status-text">Ready — press Start Camera</span>
+    </div>
+
+  </div>
+
+  <!-- Upload Panel -->
+  <div class="panel" id="panel-upload">
+
+    <label class="upload-zone" id="upload-zone">
+      <div class="up-icon"><i class="fa-solid fa-circle-up"></i></div>
+      <h3>Drop image here or click to browse</h3>
+      <p>Supports JPG, PNG, GIF, WebP<br>Large, rotated, and low-quality images supported</p>
+      <input type="file" id="file-input" accept="image/*" onchange="handleFileInput(this)">
+    </label>
+
+    <div class="preview-wrap" id="preview-wrap">
+      <img id="preview-img" alt="Preview">
+      <div class="preview-badge" id="preview-badge">—</div>
+    </div>
+
+    <div class="status-bar idle" id="up-status">
+      <div class="status-dot"></div>
+      <span id="up-status-text">Upload an image to decode</span>
+    </div>
+
+  </div>
+
+  <!-- Result Card (shared) -->
+  <div class="result-card" id="result-card">
+    <div class="result-header">
+      <div class="result-badge">✓ DECODED</div>
+      <div class="result-type" id="result-type-badge">—</div>
+    </div>
+    <div class="result-body">
+      <div id="result-content"><!-- populated by JS --></div>
+      <div class="result-actions">
+        <button class="btn-copy" id="btn-copy" onclick="copyResult()">
+          <span><i class="fa-solid fa-clipboard"></i></span> <span id="copy-label">Copy</span>
+        </button>
+        <button class="btn-again" onclick="scanAgain()">
+          <span><i class="fa-solid fa-rotate"></i></span> Scan Again
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Supported Formats -->
+  <div style="padding: 4px 0 0;">
+    <div style="font-size:0.72rem; color: var(--muted-foreground); margin-bottom: 8px; font-family: var(--font-body); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;">Supported Formats</div>
+    <div class="formats">
+      <span class="fmt-tag">QR Code</span>
+      <span class="fmt-tag">EAN-13</span>
+      <span class="fmt-tag">EAN-8</span>
+      <span class="fmt-tag">UPC-A</span>
+      <span class="fmt-tag">UPC-E</span>
+      <span class="fmt-tag">Code 128</span>
+      <span class="fmt-tag">Code 39</span>
+      <span class="fmt-tag">Code 93</span>
+      <span class="fmt-tag">ITF</span>
+      <span class="fmt-tag">Aztec</span>
+      <span class="fmt-tag">Data Matrix</span>
+      <span class="fmt-tag">PDF417</span>
+      <span class="fmt-tag">Codabar</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────────
+let html5QrCode = null;
+let isScanning = false;
+let lastResult = '';
+let lastResultTime = 0;
+let currentCamId = null;
+let cameras = [];
+let activeTab = 'camera';
+
+// ── Tab switching ──────────────────────────────────────────────────────────
+function switchTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.getElementById('panel-' + tab).classList.add('active');
+  hideResult();
+
+  if (tab === 'camera' && isScanning) {
+    // Already scanning, just show result area
+  }
+  if (tab !== 'camera' && isScanning) {
+    stopCamera();
+  }
+}
+
+// ── Camera ─────────────────────────────────────────────────────────────────
+function setCamStatus(state, msg) {
+  const bar = document.getElementById('cam-status');
+  const txt = document.getElementById('cam-status-text');
+  bar.className = 'status-bar ' + state;
+  if (state === 'processing') {
+    txt.innerHTML = `<span style="display:flex;align-items:center;gap:8px;"><span class="spinner"></span>${msg}</span>`;
+  } else {
+    txt.textContent = msg;
+  }
+}
+
+function setUpStatus(state, msg) {
+  const bar = document.getElementById('up-status');
+  const txt = document.getElementById('up-status-text');
+  bar.className = 'status-bar ' + state;
+  if (state === 'processing') {
+    txt.innerHTML = `<span style="display:flex;align-items:center;gap:8px;"><span class="spinner"></span>${msg}</span>`;
+  } else {
+    txt.textContent = msg;
+  }
+}
+
+async function startCamera() {
+  hideResult();
+  setCamStatus('processing', 'Requesting camera access...');
+
+  document.getElementById('btn-start').disabled = true;
+  document.getElementById('btn-stop').disabled = false;
+
+  // Check protocol
+  const isFile = location.protocol === 'file:';
+  if (isFile) {
+    setCamStatus('error', 'Camera blocked on file:/// — use image upload or open via HTTPS/localhost');
+    resetCamButtons();
+    return;
+  }
+
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    setCamStatus('error', 'Camera API not supported in this browser');
+    resetCamButtons();
+    return;
+  }
+
+  try {
+    cameras = await Html5Qrcode.getCameras();
+  } catch (err) {
+    setCamStatus('error', 'Camera permission denied or unavailable');
+    resetCamButtons();
+    return;
+  }
+
+  if (!cameras || cameras.length === 0) {
+    setCamStatus('error', 'No cameras found on this device');
+    resetCamButtons();
+    return;
+  }
+
+  // Populate camera selector if multiple cameras
+  const sel = document.getElementById('cam-select');
+  sel.innerHTML = '';
+  cameras.forEach((cam, i) => {
+    const opt = document.createElement('option');
+    opt.value = cam.id;
+    opt.textContent = cam.label || `Camera ${i + 1}`;
+    sel.appendChild(opt);
+  });
+
+  // Prefer back camera on mobile
+  const backCam = cameras.find(c =>
+    /back|rear|environment/i.test(c.label)
+  );
+  currentCamId = backCam ? backCam.id : cameras[0].id;
+  sel.value = currentCamId;
+
+  if (cameras.length > 1) {
+    document.getElementById('cam-select-wrap').classList.add('visible');
+  }
+
+  launchScanner(currentCamId);
+}
+
+function launchScanner(cameraId) {
+  document.getElementById('cam-placeholder').style.display = 'none';
+  document.getElementById('scan-overlay').style.display = 'flex';
+
+  if (html5QrCode) {
+    html5QrCode.clear();
+  }
+
+  html5QrCode = new Html5Qrcode('reader', { verbose: false });
+
+  const config = {
+    fps: 10,
+    qrbox: { width: 220, height: 220 },
+    aspectRatio: 1.0,
+    supportedScanTypes: [
+      Html5QrcodeScanType.SCAN_TYPE_CAMERA
+    ],
+    formatsToSupport: getAllFormats()
+  };
+
+  html5QrCode.start(
+    cameraId,
+    config,
+    onScanSuccess,
+    () => {} // silent errors during scan
+  ).then(() => {
+    isScanning = true;
+    setCamStatus('scanning', 'Scanning — point camera at code');
+  }).catch(err => {
+    console.error(err);
+    setCamStatus('error', 'Failed to start camera: ' + (err.message || err));
+    document.getElementById('scan-overlay').style.display = 'none';
+    document.getElementById('cam-placeholder').style.display = 'flex';
+    resetCamButtons();
+    isScanning = false;
+  });
+}
+
+function stopCamera() {
+  if (html5QrCode && isScanning) {
+    html5QrCode.stop().catch(() => {}).finally(() => {
+      isScanning = false;
+      html5QrCode.clear();
+      document.getElementById('scan-overlay').style.display = 'none';
+      document.getElementById('cam-placeholder').style.display = 'flex';
+      document.getElementById('cam-select-wrap').classList.remove('visible');
+      setCamStatus('idle', 'Camera stopped');
+      resetCamButtons();
+    });
+  } else {
+    resetCamButtons();
+    setCamStatus('idle', 'Ready — press Start Camera');
+  }
+}
+
+function resetCamButtons() {
+  document.getElementById('btn-start').disabled = false;
+  document.getElementById('btn-stop').disabled = true;
+}
+
+async function switchCamera() {
+  if (!isScanning) return;
+  const sel = document.getElementById('cam-select');
+  currentCamId = sel.value;
+  if (html5QrCode) {
+    try {
+      await html5QrCode.stop();
+    } catch (_) {}
+    launchScanner(currentCamId);
+  }
+}
+
+// ── Scan success ────────────────────────────────────────────────────────────
+function onScanSuccess(decodedText, decodedResult) {
+  const now = Date.now();
+  if (decodedText === lastResult && now - lastResultTime < 3000) return;
+  lastResult = decodedText;
+  lastResultTime = now;
+
+  const format = decodedResult?.result?.format?.formatName || 'Unknown';
+  showResult(decodedText, format);
+
+  // Pause scanning briefly after success
+  if (html5QrCode && isScanning) {
+    html5QrCode.pause(true);
+    setCamStatus('idle', '✓ Code detected — press Scan Again to continue');
+    setTimeout(() => {
+      if (html5QrCode && isScanning) {
+        try { html5QrCode.resume(); } catch (_) {}
+      }
+    }, 3000);
+  }
+}
+
+// ── Image Upload ────────────────────────────────────────────────────────────
+function handleFileInput(input) {
+  const file = input.files[0];
+  if (!file) return;
+  processImageFile(file);
+}
+
+// Drag and drop
+const uploadZone = document.getElementById('upload-zone');
+uploadZone.addEventListener('dragover', e => {
+  e.preventDefault();
+  uploadZone.classList.add('dragover');
+});
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+uploadZone.addEventListener('drop', e => {
+  e.preventDefault();
+  uploadZone.classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) {
+    processImageFile(file);
+  }
+});
+
+async function processImageFile(file) {
+  hideResult();
+  setUpStatus('processing', 'Processing image...');
+
+  // Show preview
+  const previewWrap = document.getElementById('preview-wrap');
+  const previewImg  = document.getElementById('preview-img');
+  const previewBadge = document.getElementById('preview-badge');
+
+  // Wait for preview image to fully load before decoding
+  await new Promise(resolve => {
+    const objectUrl = URL.createObjectURL(file);
+    previewImg.onload = () => { URL.revokeObjectURL(objectUrl); resolve(); };
+    previewImg.onerror = resolve;
+    previewImg.src = objectUrl;
+  });
+  previewBadge.textContent = `${file.name} · ${(file.size / 1024).toFixed(0)} KB`;
+  previewWrap.classList.add('visible');
+
+  // ── Attempt 1: html5-qrcode scanFile ──────────────────────────────────────
+  const result1 = await tryHtml5QrcodeScan(file);
+  if (result1) {
+    setUpStatus('idle', '✓ Code decoded successfully');
+    showResult(result1.text, result1.format);
+    return;
+  }
+
+  // ── Attempt 2: canvas rescale + html5-qrcode (handles large/rotated images) ─
+  setUpStatus('processing', 'Retrying with image optimisation...');
+  const result2 = await tryCanvasRescaleScan(file);
+  if (result2) {
+    setUpStatus('idle', '✓ Code decoded successfully');
+    showResult(result2.text, result2.format);
+    return;
+  }
+
+  // ── All attempts failed ────────────────────────────────────────────────────
+  setUpStatus('error', 'No QR/barcode detected — ensure the code is clearly visible and unobstructed');
+}
+
+// html5-qrcode scanFile wrapper — creates its own container div correctly
+async function tryHtml5QrcodeScan(file) {
+  const containerId = 'hqr_scan_' + Date.now();
+  const div = document.createElement('div');
+  div.id = containerId;
+  div.style.cssText = 'position:fixed;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;';
+  document.body.appendChild(div);
+
+  try {
+    const scanner = new Html5Qrcode(containerId, { verbose: false });
+    const text = await scanner.scanFile(file, /* showImage= */ false);
+    try { await scanner.clear(); } catch (_) {}
+    return text ? { text, format: 'QR / Barcode' } : null;
+  } catch (err) {
+    const msg = String(err && err.message ? err.message : err);
+    // Only a genuine "not found" — not a crash
+    if (/no.*multi|no.*found|not found|unable|no qr/i.test(msg)) return null;
+    // Unexpected error — still return null so we fall through to next attempt
+    console.warn('html5-qrcode scanFile error:', msg);
+    return null;
+  } finally {
+    div.remove();
+  }
+}
+
+// Canvas rescale: draw image onto a normalised canvas and re-scan as a Blob
+async function tryCanvasRescaleScan(file) {
+  try {
+    const img = await loadImageFromFile(file);
+    // Try multiple canvas sizes — sometimes smaller is better for the decoder
+    const sizes = [800, 1200, 600, 400];
+    for (const maxDim of sizes) {
+      const blob = await imageToCanvasBlob(img, maxDim);
+      if (!blob) continue;
+      const rescaledFile = new File([blob], 'rescaled.png', { type: 'image/png' });
+      const result = await tryHtml5QrcodeScan(rescaledFile);
+      if (result) return result;
+    }
+  } catch (e) {
+    console.warn('Canvas rescale failed:', e);
+  }
+  return null;
+}
+
+function loadImageFromFile(file) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload  = () => { URL.revokeObjectURL(url); resolve(img); };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Image load failed')); };
+    img.src = url;
+  });
+}
+
+function imageToCanvasBlob(img, maxDim) {
+  return new Promise(resolve => {
+    try {
+      const scale = Math.min(1, maxDim / Math.max(img.naturalWidth, img.naturalHeight));
+      const w = Math.round(img.naturalWidth  * scale);
+      const h = Math.round(img.naturalHeight * scale);
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+      canvas.toBlob(blob => resolve(blob), 'image/png');
+    } catch(e) { resolve(null); }
+  });
+}
+
+// ── Result display ──────────────────────────────────────────────────────────
+let currentResultText = '';
+
+function showResult(text, format) {
+  currentResultText = text;
+  const card = document.getElementById('result-card');
+  const content = document.getElementById('result-content');
+  const typeBadge = document.getElementById('result-type-badge');
+
+  typeBadge.textContent = format || 'Unknown';
+
+  const isUrl = /^https?:\/\//i.test(text) || /^www\./i.test(text);
+  const displayText = /^www\./i.test(text) ? 'https://' + text : text;
+
+  if (isUrl) {
+    content.innerHTML = `<a href="${escHtml(displayText)}" target="_blank" rel="noopener noreferrer" class="result-link">🔗 ${escHtml(text)}</a>`;
+  } else {
+    content.innerHTML = `<div class="result-text">${escHtml(text)}</div>`;
+  }
+
+  card.classList.add('visible');
+  card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function hideResult() {
+  document.getElementById('result-card').classList.remove('visible');
+  currentResultText = '';
+  const cl = document.getElementById('btn-copy');
+  cl.classList.remove('copied');
+  document.getElementById('copy-label').textContent = 'Copy';
+}
+
+function copyResult() {
+  if (!currentResultText) return;
+  navigator.clipboard.writeText(currentResultText).then(() => {
+    const btn = document.getElementById('btn-copy');
+    btn.classList.add('copied');
+    document.getElementById('copy-label').textContent = 'Copied!';
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      document.getElementById('copy-label').textContent = 'Copy';
+    }, 2000);
+  }).catch(() => {
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = currentResultText;
+    ta.style.cssText = 'position:fixed;top:-9999px;';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    ta.remove();
+  });
+}
+
+function scanAgain() {
+  hideResult();
+  if (activeTab === 'camera') {
+    if (html5QrCode && isScanning) {
+      try { html5QrCode.resume(); } catch(_) {}
+      setCamStatus('scanning', 'Scanning — point camera at code');
+    } else {
+      setCamStatus('idle', 'Ready — press Start Camera');
+    }
+  } else {
+    // Reset upload
+    setUpStatus('idle', 'Upload an image to decode');
+    document.getElementById('preview-wrap').classList.remove('visible');
+    document.getElementById('file-input').value = '';
+  }
+}
+
+// ── Helpers ─────────────────────────────────────────────────────────────────
+function escHtml(str) {
+  return str.replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>').replace(/"/g,'&quot;');
+}
+
+function getAllFormats() {
+  try {
+    return [
+      Html5QrcodeSupportedFormats.QR_CODE,
+      Html5QrcodeSupportedFormats.EAN_13,
+      Html5QrcodeSupportedFormats.EAN_8,
+      Html5QrcodeSupportedFormats.UPC_A,
+      Html5QrcodeSupportedFormats.UPC_E,
+      Html5QrcodeSupportedFormats.CODE_128,
+      Html5QrcodeSupportedFormats.CODE_39,
+      Html5QrcodeSupportedFormats.CODE_93,
+      Html5QrcodeSupportedFormats.ITF,
+      Html5QrcodeSupportedFormats.AZTEC,
+      Html5QrcodeSupportedFormats.DATA_MATRIX,
+      Html5QrcodeSupportedFormats.PDF_417,
+      Html5QrcodeSupportedFormats.CODABAR,
+    ];
+  } catch(_) { return undefined; }
+}
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+// Check file:// mode
+if (location.protocol === 'file:') {
+  setCamStatus('error', 'file:/// mode — camera unavailable. Use "Upload Image" tab.');
+}
+
+// Cleanup on page hide
+window.addEventListener('pagehide', () => {
+  if (html5QrCode && isScanning) {
+    html5QrCode.stop().catch(() => {});
+  }
+});
+</script>
+<script src="https://antargfx.github.io/main-header.js"></script>
+<script src="https://antargfx.github.io/main-footer.js"></script>
+    <script src="https://antargfx.github.io/backtotop.js"></script>
+</body>
+</html>
