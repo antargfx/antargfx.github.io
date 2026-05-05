@@ -54,43 +54,26 @@
     font-family: var(--font-body);
     background: var(--background);
     color: var(--foreground);
+  }
+
+.scanner {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 0 0 72px;
     overflow-x: hidden;
-  }
+}
 
-  /* Subtle warm tint blob in background */
-  body::before {
-    content: '';
-    position: fixed;
-    top: -120px; right: -120px;
-    width: 480px; height: 480px;
-    background: radial-gradient(circle, hsla(18,100%,60%,0.07) 0%, transparent 70%);
-    pointer-events: none;
-    z-index: 0;
-  }
-  body::after {
-    content: '';
-    position: fixed;
-    bottom: -80px; left: -80px;
-    width: 360px; height: 360px;
-    background: radial-gradient(circle, hsla(0,100%,50%,0.05) 0%, transparent 70%);
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .header {
+  .header-scanner {
     width: 100%;
     max-width: 580px;
     padding: 44px 20px 0;
+    margin-top: 50px;
     position: relative;
     z-index: 1;
   }
 
-  .logo {
+  .logo-scanner {
     display: flex;
     align-items: center;
     gap: 14px;
@@ -126,7 +109,7 @@
     margin-top: 3px;
   }
 
-  .main {
+  .main-scanner {
     width: 100%;
     max-width: 580px;
     padding: 24px 16px 0;
@@ -647,9 +630,9 @@
 </style>
 </head>
 <body>
-
-<div class="header">
-  <div class="logo">
+<div class="scanner">
+<div class="header-scanner">
+  <div class="logo-scanner">
     <div class="logo-icon"><i style="color: white;" class="fa-solid fa-magnifying-glass"></i></div>
     <div>
       <h1>ScanZero</h1>
@@ -658,7 +641,7 @@
   </div>
 </div>
 
-<div class="main">
+<div class="main-scanner">
 
   <!-- Info Banner -->
   <div class="info-banner">
@@ -777,7 +760,7 @@
   </div>
 
 </div>
-
+</div>
 <script>
 // ── State ──────────────────────────────────────────────────────────────────
 let html5QrCode = null;
@@ -1222,8 +1205,7 @@ window.addEventListener('pagehide', () => {
   }
 });
 </script>
+</body>
 <script src="https://antargfx.github.io/main-header.js"></script>
 <script src="https://antargfx.github.io/main-footer.js"></script>
-    <script src="https://antargfx.github.io/backtotop.js"></script>
-</body>
 </html>
