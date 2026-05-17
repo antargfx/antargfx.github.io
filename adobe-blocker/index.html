@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Adobe Internet Blocker</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+<div class="bg-orb orb-1"></div>
+<div class="bg-orb orb-2"></div>
+
+<div class="language-switch">
+    <button id="langToggle">বাংলা</button>
+</div>
+
+<div class="container-adobe-blocker">
+
+    <div class="hero-card reveal">
+
+        <div class="badge" data-en="PowerShell Utility" data-bn="পাওয়ারশেল ইউটিলিটি">
+            PowerShell Utility
+        </div>
+
+        <h1 data-en="Adobe Internet Blocker" data-bn="Adobe Internet Blocker">
+            Adobe Internet Blocker
+        </h1>
+
+        <p class="subtitle"
+           data-en="One-click PowerShell script to block all Adobe applications from accessing the internet using Windows Firewall."
+           data-bn="Windows Firewall ব্যবহার করে সকল Adobe সফটওয়্যারের ইন্টারনেট সংযোগ বন্ধ করার জন্য এক-ক্লিক PowerShell স্ক্রিপ্ট।">
+            One-click PowerShell script to block all Adobe applications from accessing the internet using Windows Firewall.
+        </p>
+
+        <button class="copy-btn glow-btn" id="copyBtn"
+            data-en="Copy Run Command"
+            data-bn="কমান্ড কপি করুন">
+            Copy Run Command
+        </button>
+
+        <div class="command-box">
+            <code id="command">irm https://antargfx.github.io/codelab/block-adobe.ps1 | iex</code>
+        </div>
+
+    </div>
+
+    <section class="howto-section">
+
+        <div class="section-title reveal"
+            data-en="How To Use"
+            data-bn="কিভাবে ব্যবহার করবেন">
+            How To Use
+        </div>
+
+        <div class="steps-column">
+
+            <div class="step-card reveal">
+                <span>01</span>
+
+                <h3 data-en="Open PowerShell as Administrator"
+                    data-bn="PowerShell Administrator হিসেবে চালু করুন">
+                    Open PowerShell as Administrator
+                </h3>
+
+                <p data-en='Search for PowerShell in Windows, right click and choose "Run as administrator".'
+                   data-bn='Windows এ PowerShell সার্চ করুন, তারপর রাইট ক্লিক করে "Run as administrator" নির্বাচন করুন।'>
+                    Search for PowerShell in Windows, right click and choose "Run as administrator".
+                </p>
+            </div>
+
+            <div class="step-card reveal">
+                <span>02</span>
+
+                <h3 data-en="Paste The Command"
+                    data-bn="কমান্ড পেস্ট করুন">
+                    Paste The Command
+                </h3>
+
+                <p data-en="Copy and paste the command below into PowerShell."
+                   data-bn="নিচের কমান্ডটি কপি করে PowerShell এ পেস্ট করুন।">
+                    Copy and paste the command below into PowerShell.
+                </p>
+
+                <div class="mini-command">
+                    irm https://antargfx.github.io/codelab/block-adobe.ps1 | iex
+                </div>
+
+                <button class="mini-copy-btn" id="miniCopyBtn"
+                    data-en="Copy Command"
+                    data-bn="কমান্ড কপি করুন">
+                    Copy Command
+                </button>
+            </div>
+
+            <div class="step-card reveal">
+                <span>03</span>
+
+                <h3 data-en="Automatic Blocking"
+                    data-bn="স্বয়ংক্রিয় ব্লকিং">
+                    Automatic Blocking
+                </h3>
+
+                <p data-en="The script automatically scans Adobe folders and blocks internet access for Adobe apps."
+                   data-bn="স্ক্রিপ্টটি স্বয়ংক্রিয়ভাবে Adobe ফোল্ডার স্ক্যান করে এবং Adobe সফটওয়্যারগুলোর ইন্টারনেট সংযোগ বন্ধ করে দেয়।">
+                    The script automatically scans Adobe folders and blocks internet access for Adobe apps.
+                </p>
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
