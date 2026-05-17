@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "afterbegin",
     `
 <header id="header">
-  <div class="container header-content">
+  <div class="container header-content" style="font-family:'Inter', system-ui, sans-serif ! important;">
     <a href="/" class="logo">
       <span class="logo-text">Antar</span><span class="logo-accent">GFX</span>
     </a>
