@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Google DNS Setter</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --background: hsl(0, 0%, 98%);
+      --foreground: hsl(0, 0%, 12%);
+      --card: hsl(0, 0%, 100%);
+      --card-foreground: hsl(0, 0%, 12%);
+      --primary: hsl(18, 100%, 60%);
+      --primary-foreground: hsl(0, 0%, 100%);
+      --secondary: hsl(210, 20%, 96%);
+      --secondary-foreground: hsl(0, 0%, 12%);
+      --muted: hsl(210, 15%, 94%);
+      --muted-foreground: hsl(0, 0%, 45%);
+      --border: hsl(0, 0%, 90%);
+      --radius: 0.75rem;
+
+      --gradient-primary: linear-gradient(135deg, hsl(18, 100%, 60%) 0%, hsl(0, 100%, 50%) 100%);
+      --shadow-soft: 0 4px 20px -4px hsla(0, 0%, 0%, 0.08);
+      --shadow-elevated: 0 20px 50px -12px hsla(18, 100%, 60%, 0.25);
+      --shadow-card: 0 10px 40px -10px hsla(0, 0%, 0%, 0.1);
+
+      --font-display: 'Playfair Display', Georgia, serif;
+      --font-body: 'Inter', system-ui, sans-serif;
+
+      --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body {
+      background: var(--background);
+      color: var(--foreground);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1.5rem;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Subtle warm dot pattern background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(circle, hsl(18, 100%, 60%, 0.06) 1px, transparent 1px);
+      background-size: 28px 28px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Warm ambient blobs */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 85% 10%, hsla(18, 100%, 70%, 0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 35% at 10% 85%, hsla(0, 100%, 65%, 0.08) 0%, transparent 55%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 600px;
+    }
+
+    /* ── Header ── */
+    .header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+      animation: fadeDown 0.7s cubic-bezier(0.4,0,0.2,1) both;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-body);
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--primary);
+      margin-bottom: 1rem;
+    }
+
+    .eyebrow-dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--gradient-primary);
+      animation: pulse 2s ease infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.6; transform: scale(0.7); }
+    }
+
+    h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2.4rem, 7vw, 3.6rem);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      color: var(--foreground);
+    }
+
+    h1 em {
+      font-style: italic;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      margin-top: 0.8rem;
+      font-size: 1rem;
+      font-weight: 400;
+      color: var(--muted-foreground);
+      line-height: 1.6;
+    }
+
+    /* ── DNS Cards ── */
+    .dns-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 1.5rem;
+      animation: fadeUp 0.7s 0.1s cubic-bezier(0.4,0,0.2,1) both;
+    }
+
+    .dns-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.4rem;
+      box-shadow: var(--shadow-soft);
+      position: relative;
+      overflow: hidden;
+      transition: var(--transition-smooth);
+    }
+
+    .dns-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--gradient-primary);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .dns-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-card);
+    }
+
+    .dns-card:hover::before { opacity: 1; }
+
+    .dns-card-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted-foreground);
+      margin-bottom: 0.5rem;
+    }
+
+    .dns-card-ip {
+      font-family: var(--font-display);
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+
+    .dns-card-role {
+      margin-top: 0.35rem;
+      font-size: 0.78rem;
+      color: var(--muted-foreground);
+    }
+
+    /* ── Feature list ── */
+    .features {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.3rem 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: var(--shadow-soft);
+      animation: fadeUp 0.7s 0.18s cubic-bezier(0.4,0,0.2,1) both;
+    }
+
+    .feature-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 0;
+      font-size: 0.92rem;
+      font-weight: 400;
+      color: var(--foreground);
+      border-bottom: 1px solid var(--muted);
+      transition: var(--transition-smooth);
+    }
+
+    .feature-row:last-child { border-bottom: none; }
+    .feature-row:hover { padding-left: 4px; }
+
+    .check {
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: var(--gradient-primary);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      font-size: 0.6rem;
+      color: #fff;
+      font-weight: 700;
+    }
+
+    /* ── Download Button ── */
+    .btn-wrap {
+      animation: fadeUp 0.7s 0.26s cubic-bezier(0.4,0,0.2,1) both;
+    }
+
+    .btn-download {
+      width: 100%;
+      padding: 1.1rem 2rem;
+      font-family: var(--font-body);
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--primary-foreground);
+      background: var(--gradient-primary);
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: var(--transition-smooth);
+      box-shadow: var(--shadow-elevated);
+    }
+
+    .btn-download::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0);
+      transition: background 0.25s;
+    }
+
+    .btn-download:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 28px 60px -10px hsla(18, 100%, 60%, 0.4);
+    }
+
+    .btn-download:hover::before { background: rgba(255,255,255,0.12); }
+    .btn-download:active { transform: translateY(0); }
+
+    .btn-download.success {
+      background: linear-gradient(135deg, hsl(142, 71%, 45%), hsl(160, 84%, 39%));
+      box-shadow: 0 20px 50px -12px hsla(142, 71%, 45%, 0.35);
+    }
+
+    /* ── Terminal ── */
+    .terminal {
+      background: var(--foreground);
+      border-radius: var(--radius);
+      margin-top: 1.5rem;
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+      animation: fadeUp 0.7s 0.34s cubic-bezier(0.4,0,0.2,1) both;
+    }
+
+    .terminal-bar {
+      background: hsl(0, 0%, 18%);
+      padding: 0.6rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dot { width: 11px; height: 11px; border-radius: 50%; }
+    .dot-r { background: #ff5f57; }
+    .dot-y { background: #febc2e; }
+    .dot-g { background: #28c840; }
+
+    .terminal-title-text {
+      font-family: var(--font-body);
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: hsl(0,0%,50%);
+      margin: 0 auto;
+      letter-spacing: 0.06em;
+    }
+
+    .terminal-body {
+      padding: 1.25rem 1.4rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.78rem;
+      line-height: 2;
+      color: hsl(0,0%,55%);
+    }
+
+    .t-accent  { color: var(--primary); }
+    .t-ok      { color: hsl(142, 71%, 55%); }
+    .t-ip      { color: hsl(45, 100%, 65%); }
+    .t-head    { color: hsl(0, 0%, 35%); }
+
+    .cursor {
+      display: inline-block;
+      width: 8px; height: 1em;
+      background: var(--primary);
+      vertical-align: text-bottom;
+      animation: blink 1s step-end infinite;
+    }
+
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    /* ── Instructions ── */
+    .instructions {
+      margin-top: 1.5rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.3rem 1.5rem;
+      box-shadow: var(--shadow-soft);
+      animation: fadeUp 0.7s 0.42s cubic-bezier(0.4,0,0.2,1) both;
+    }
+
+    .instructions-title {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--foreground);
+      margin-bottom: 1rem;
+      letter-spacing: -0.01em;
+    }
+
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .step-num {
+      min-width: 28px; height: 28px;
+      border-radius: 50%;
+      background: var(--secondary);
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--primary);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .step-text {
+      font-size: 0.9rem;
+      color: var(--foreground);
+      line-height: 1.6;
+      padding-top: 4px;
+    }
+
+    .step-text strong {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      margin-top: 2rem;
+      text-align: center;
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      color: var(--muted-foreground);
+      animation: fadeUp 0.7s 0.5s cubic-bezier(0.4,0,0.2,1) both;
+    }
+
+    .footer-dots {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .footer-dots span {
+      width: 3px; height: 3px;
+      border-radius: 50%;
+      background: var(--border);
+      display: inline-block;
+    }
+
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <div class="header">
+      <div class="eyebrow">
+        <span class="eyebrow-dot"></span>
+        DNS Configuration Tool
+      </div>
+      <h1>Set <em>Google</em> DNS</h1>
+      <p class="subtitle">One-click batch file generator for Windows.<br>No install needed — runs entirely in your browser.</p>
+    </div>
+
+    <div class="dns-cards">
+      <div class="dns-card">
+        <div class="dns-card-label">Primary DNS</div>
+        <div class="dns-card-ip">8.8.8.8</div>
+        <div class="dns-card-role">Google Public DNS</div>
+      </div>
+      <div class="dns-card">
+        <div class="dns-card-label">Secondary DNS</div>
+        <div class="dns-card-ip">8.8.4.4</div>
+        <div class="dns-card-role">Google Fallback DNS</div>
+      </div>
+    </div>
+
+    <div class="features">
+      <div class="feature-row"><span class="check">✓</span> Auto-detects all active network adapters</div>
+      <div class="feature-row"><span class="check">✓</span> Sets primary &amp; secondary DNS in one run</div>
+      <div class="feature-row"><span class="check">✓</span> Flushes DNS cache automatically after applying</div>
+      <div class="feature-row"><span class="check">✓</span> Works on Wi-Fi and Ethernet simultaneously</div>
+      <div class="feature-row"><span class="check">✓</span> Pure Windows CMD — zero installation required</div>
+    </div>
+
+    <div class="btn-wrap">
+      <button class="btn-download" id="dlBtn" onclick="downloadBat()">
+        ↓ &nbsp; Download .BAT File
+      </button>
+    </div>
+
+    <div class="terminal">
+      <div class="terminal-bar">
+        <span class="dot dot-r"></span>
+        <span class="dot dot-y"></span>
+        <span class="dot dot-g"></span>
+        <span class="terminal-title-text">cmd.exe — preview</span>
+      </div>
+      <div class="terminal-body">
+        <span class="t-head">============================================</span><br>
+        &nbsp;&nbsp;Setting Google DNS on all active adapters...<br>
+        <span class="t-head">============================================</span><br><br>
+        <span class="t-accent">[*]</span> Configuring adapter: <span class="t-ok">Wi-Fi</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;Primary DNS &nbsp;&nbsp;: <span class="t-ip">8.8.8.8</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;Secondary DNS : <span class="t-ip">8.8.4.4</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="t-ok">[OK] Done.</span><br><br>
+        <span class="t-accent">[*]</span> Configuring adapter: <span class="t-ok">Ethernet</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;Primary DNS &nbsp;&nbsp;: <span class="t-ip">8.8.8.8</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;Secondary DNS : <span class="t-ip">8.8.4.4</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="t-ok">[OK] Done.</span><br><br>
+        <span class="t-accent">[*]</span> Flushing DNS cache...<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="t-ok">[OK] DNS cache flushed.</span><br><br>
+        All done! Press any key to exit. <span class="cursor"></span>
+      </div>
+    </div>
+
+    <div class="instructions">
+      <div class="instructions-title">How to use</div>
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">1</span>
+          <span class="step-text">Click the download button above to get the <strong>.bat</strong> file</span>
+        </div>
+        <div class="step">
+          <span class="step-num">2</span>
+          <span class="step-text">Right-click the downloaded file in your folder</span>
+        </div>
+        <div class="step">
+          <span class="step-num">3</span>
+          <span class="step-text">Select <strong>"Run as administrator"</strong> from the context menu</span>
+        </div>
+        <div class="step">
+          <span class="step-num">4</span>
+          <span class="step-text">Done — DNS is updated on all adapters instantly</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span class="footer-dots">
+        NO DATA COLLECTED
+        <span></span>
+        RUNS IN YOUR BROWSER
+        <span></span>
+        FREE TO USE
+      </span>
+    </div>
+
+  </div>
+
+  <script>
+    function downloadBat() {
+      const batContent = `@echo off
+:: ============================================================
+::  Set Google DNS
+::  Automatically sets DNS to Google DNS (8.8.8.8 / 8.8.4.4)
+::  Must be run as Administrator
+:: ============================================================
+
+net session >nul 2>&1
+if %errorLevel% NEQ 0 (
+    echo [ERROR] This script must be run as Administrator.
+    echo Right-click the file and select "Run as administrator".
+    pause
+    exit /b 1
+)
+
+echo.
+echo ============================================================
+echo   Setting Google DNS on all active network adapters...
+echo ============================================================
+echo.
+
+for /f "tokens=*" %%i in ('wmic nic where "NetEnabled=True" get NetConnectionID /value ^| find "="') do (
+    for /f "tokens=2 delims==" %%a in ("%%i") do (
+        set "adapter=%%a"
+        setlocal enabledelayedexpansion
+        if not "!adapter!"=="" (
+            echo [*] Configuring adapter: !adapter!
+            netsh interface ip set dns name="!adapter!" static 8.8.8.8 primary >nul 2>&1
+            netsh interface ip add dns name="!adapter!" 8.8.4.4 index=2 >nul 2>&1
+            echo     Primary DNS   : 8.8.8.8
+            echo     Secondary DNS : 8.8.4.4
+            echo     [OK] Done.
+            echo.
+        )
+        endlocal
+    )
+)
+
+echo ============================================================
+echo   Google DNS has been applied successfully!
+echo   Primary   : 8.8.8.8
+echo   Secondary : 8.8.4.4
+echo ============================================================
+echo.
+
+echo [*] Flushing DNS cache...
+ipconfig /flushdns >nul 2>&1
+echo     [OK] DNS cache flushed.
+echo.
+
+echo All done! Press any key to exit.
+pause >nul
+exit /b 0`;
+
+      const blob = new Blob([batContent], { type: 'application/octet-stream' });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href     = url;
+      a.download = 'set_google_dns.bat';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      const btn = document.getElementById('dlBtn');
+      btn.classList.add('success');
+      btn.textContent = '✓   Downloaded Successfully!';
+      setTimeout(() => {
+        btn.classList.remove('success');
+        btn.innerHTML = '↓ &nbsp; Download .BAT File';
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
