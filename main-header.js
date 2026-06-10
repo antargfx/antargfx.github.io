@@ -29,9 +29,10 @@ document.addEventListener("DOMContentLoaded", () => {
         </button>
 
         <div class="submenu">
-          <a href="/events.html">Events</a>
-          <a href="/software.html">Software</a>
-          <a href="/qr-scanner">Online QR Scanner</a>
+          <a href="https://antargfx.github.io/stockmeta">StockMeta</a>
+          <a href="https://antargfx.github.io/events.html">Events</a>
+          <a href="https://antargfx.github.io/software.html">Software</a>
+          <a href="https://antargfx.github.io/qr-scanner">Online QR Scanner</a>
         </div>
       </div>
 
