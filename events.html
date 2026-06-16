@@ -58,7 +58,7 @@
            padding: 0 1rem ! important;
         }
         .event-text {
-            text-align: center;
+            text-align: left;
             margin-top: 6rem;
             margin-bottom: 2rem;
             background: var(--card-bg);
@@ -734,7 +734,7 @@ const select = document.getElementById("promptType");
 
 const silhouettePrompt = `You are a top-performing Adobe Stock contributor and microstock prompt engineer.
 
-Generate 50 unique image-generation prompts for the niche: "[INPUT]".
+Generate 20 unique image-generation prompts for the niche: "[INPUT]".
 Requirements:
 - Each prompt must feature only ONE single symbolic object, product, tool, icon, or recognizable element strongly associated with the niche.
 - Create a different object and different composition style for each prompt.
@@ -762,7 +762,7 @@ Vector specifications:
 - Stock-safe commercial design.
 - Icon/logo style simplicity.
 Output format:
-- Number prompts from 1 to 50.
+- Number prompts from 1 to 20.
 - Put all prompt one copyable code block.
 - Do not explain the prompts.
 - Do not add headings between prompts.
