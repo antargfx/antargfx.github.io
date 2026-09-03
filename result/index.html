@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#17324d">
+<title>2nd Month Evaluation Test, 7th Batch</title>
+<style>
+:root {
+    --navy: #ff4b2b;
+    --navy-dark: #f52012;
+    --blue: #ff7043;
+    --blue-soft: #fff1eb;
+    --paper: #fbf3f0;
+    --white: #ffffff;
+    --text: #171717;
+    --muted: #737373;
+    --border: #f0d9d1;
+    --success: #24734d;
+    --danger: #f52012;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --radius: 22px;
+}
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body {
+    margin:0;
+    min-height:100vh;
+    font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    color:var(--text);
+    background:
+      radial-gradient(circle at 15% 0%, rgba(47,111,159,.09), transparent 30%),
+      linear-gradient(180deg,#f9fbfc 0%,var(--paper) 100%);
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+  }
+  main {
+    width:min(100% - 28px, 720px);
+    padding:clamp(42px,8vw,86px) 0 50px;
+  }
+  .title-wrap { text-align:center; margin-bottom:30px; }
+  .eyebrow {
+    display:inline-block;
+    margin-bottom:13px;
+    padding:7px 12px;
+    border-radius:999px;
+    background:var(--blue-soft);
+    color:var(--blue);
+    font-size:.74rem;
+    font-weight:800;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+  }
+  h1 {
+    margin:0 auto;
+    max-width:650px;
+    color:var(--navy);
+    font-size:clamp(1.8rem,5vw,3rem);
+    line-height:1.12;
+    letter-spacing:-.035em;
+  }
+  .intro {
+    margin:13px auto 0;
+    max-width:560px;
+    color:var(--muted);
+    font-size:.98rem;
+    line-height:1.65;
+  }
+  .search-card {
+    background:rgba(255,255,255,.92);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:clamp(20px,5vw,32px);
+    box-shadow:var(--shadow);
+    backdrop-filter:blur(10px);
+  }
+  label {
+    display:block;
+    margin-bottom:9px;
+    color:var(--navy);
+    font-size:.9rem;
+    font-weight:750;
+  }
+  .search-row {
+    display:grid;
+    grid-template-columns:1fr auto;
+    gap:11px;
+  }
+  input {
+    width:100%;
+    min-height:54px;
+    padding:0 16px;
+    border:1.5px solid var(--border);
+    border-radius:14px;
+    outline:0;
+    background:var(--white);
+    color:var(--text);
+    font:inherit;
+    transition:border-color .18s ease,box-shadow .18s ease;
+  }
+  input::placeholder { color:#98a5ae; }
+  input:focus {
+    border-color:var(--blue);
+    box-shadow:0 0 0 4px rgba(47,111,159,.13);
+  }
+  button {
+    min-height:54px;
+    border:0;
+    border-radius:14px;
+    padding:0 22px;
+    background:linear-gradient(135deg,var(--navy),var(--blue));
+    color:#fff;
+    font:inherit;
+    font-weight:800;
+    cursor:pointer;
+    box-shadow:0 8px 20px rgba(23,50,77,.18);
+    transition:transform .16s ease,box-shadow .16s ease,opacity .16s ease;
+  }
+  button:hover { transform:translateY(-1px); box-shadow:0 11px 25px rgba(23,50,77,.22); }
+  button:active { transform:translateY(0); }
+  button:focus-visible, .student-option:focus-visible {
+    outline:3px solid rgba(47,111,159,.3);
+    outline-offset:2px;
+  }
+  .hint {
+    margin:11px 2px 0;
+    color:var(--muted);
+    font-size:.82rem;
+  }
+  #output { margin-top:18px; }
+  .message {
+    border-radius:18px;
+    padding:18px 19px;
+    background:var(--white);
+    border:1px solid var(--border);
+  }
+  .message strong { display:block; color:var(--navy); margin-bottom:4px; }
+  .message p { margin:0; color:var(--muted); line-height:1.5; }
+  .message.error { border-color:#e6c8c8; background:#fffafa; }
+  .message.error strong { color:var(--danger); }
+  .matches {
+    padding:20px;
+    border:1px solid var(--border);
+    border-radius:20px;
+    background:var(--white);
+    box-shadow:0 10px 30px rgba(23,50,77,.07);
+  }
+  .matches h2 { margin:0 0 5px; color:var(--navy); font-size:1.05rem; }
+  .matches > p { margin:0 0 15px; color:var(--muted); font-size:.88rem; }
+  .student-list { display:grid; gap:9px; }
+  .student-option {
+    width:100%;
+    min-height:52px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    padding:13px 15px;
+    border:1px solid var(--border);
+    border-radius:13px;
+    background:#fff;
+    color:var(--navy);
+    box-shadow:none;
+    text-align:left;
+  }
+  .student-option:hover { background:var(--blue-soft); border-color:#bdd2df; box-shadow:none; }
+  .student-option span:last-child { color:var(--blue); font-size:.82rem; font-weight:800; }
+  .result-card {
+    position:relative;
+    overflow:hidden;
+    padding:28px 22px 24px;
+    border:1px solid #cbd9e2;
+    border-radius:24px;
+    background:linear-gradient(145deg,#fff 0%,#f2f7fa 100%);
+    box-shadow:var(--shadow);
+    text-align:center;
+    animation:resultIn .38s cubic-bezier(.2,.75,.25,1) both;
+  }
+  .result-card::before {
+    content:"";
+    position:absolute;
+    inset:0 0 auto;
+    height:5px;
+    background:linear-gradient(90deg,var(--navy),var(--blue));
+  }
+  .result-label {
+    color:var(--blue);
+    font-size:.74rem;
+    font-weight:900;
+    letter-spacing:.16em;
+  }
+  .result-name {
+    margin:9px 0 24px;
+    color:var(--navy);
+    font-size:clamp(1.25rem,4vw,1.65rem);
+    font-weight:800;
+    line-height:1.3;
+  }
+  .mark-label {
+    color:var(--muted);
+    font-size:.83rem;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.1em;
+  }
+  .mark {
+    margin:4px 0 17px;
+    color:var(--navy);
+    font-size:clamp(4rem,16vw,6.2rem);
+    line-height:.95;
+    font-weight:900;
+    letter-spacing:-.06em;
+  }
+  .unavailable {
+    margin:9px 0 20px;
+    color:var(--muted);
+    font-weight:700;
+  }
+  .again {
+    background:var(--blue-soft);
+    color:var(--navy);
+    box-shadow:none;
+  }
+  .again:hover { box-shadow:none; }
+  @keyframes resultIn {
+    from { opacity:0; transform:translateY(12px) scale(.985); }
+    to { opacity:1; transform:translateY(0) scale(1); }
+  }
+  @media (max-width:520px) {
+    main { width:min(100% - 20px,720px); padding-top:34px; }
+    .search-row { grid-template-columns:1fr; }
+    button { width:100%; }
+    .search-card { border-radius:19px; padding:18px; }
+    .result-card { padding:25px 18px 21px; }
+  }
+  @media (prefers-reduced-motion:reduce) {
+    *,*::before,*::after { scroll-behavior:auto !important; transition:none !important; animation:none !important; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <section class="title-wrap" aria-labelledby="page-title">
+    <div class="eyebrow">Student Result Portal</div>
+    <h1 id="page-title">2nd Month Evaluation Test, 7th Batch</h1>
+    <p class="intro">Search your evaluation result using your full name, short name, or mobile number.</p>
+  </section>
+
+  <section class="search-card" aria-label="Result search">
+    <form id="searchForm" novalidate>
+      <label for="searchInput">Search your result</label>
+      <div class="search-row">
+        <input
+          id="searchInput"
+          name="query"
+          type="search"
+          inputmode="search"
+          autocomplete="off"
+          spellcheck="false"
+          placeholder="Search by name or mobile number"
+          aria-describedby="searchHint"
+          aria-controls="output"
+        >
+        <button type="submit">View Result</button>
+      </div>
+      <p id="searchHint" class="hint">Search using your full name, short name, or mobile number.</p>
+    </form>
+  </section>
+
+  <section id="output" aria-live="polite" aria-atomic="true"></section>
+</main>
+
+<script>
+"use strict";
+
+const students = [{"name":"Md. Saruar Hosen","mobile":"1301078109","mark":30},{"name":"MD. Khairul Islam","mobile":"1516545780","mark":32},{"name":"Md. Dipu Mia","mobile":"1560036761","mark":38},{"name":"MD. RIFAT MIA","mobile":"1406351296","mark":null},{"name":"Showrav Ahmed Shams","mobile":"1401932426","mark":38},{"name":"Kudrat A Noor Mondol","mobile":"1788471269","mark":null},{"name":"Md.Mursalin Utso","mobile":"1986574161","mark":33},{"name":"Mostakim Ahomed Sunny","mobile":"1706479699","mark":35},{"name":"Noor Tanbir Ahammod","mobile":"1609076208","mark":31},{"name":"Abu Nayem Md Tamim","mobile":"1885485485","mark":null},{"name":"Shoave Evne Haqe","mobile":"1763970070","mark":33},{"name":"Shekh Monuar Jahan Apurba","mobile":"1519601870","mark":35},{"name":"Piash Talukder","mobile":"1793357630","mark":34},{"name":"Anisur Rahman Setu","mobile":"1734877063","mark":32},{"name":"Noman Mia","mobile":"1708436367","mark":44},{"name":"Sifat Hyder","mobile":"1603717317","mark":44},{"name":"Labib Hosen","mobile":"1977172123","mark":41},{"name":"Tanvir Reja","mobile":"1601091608","mark":33},{"name":"Jahidul Islam shajib","mobile":"1670655981","mark":42},{"name":"Taifur Amin Riad","mobile":"1627603477","mark":35},{"name":"Bipul Chandra Day","mobile":"1629955391","mark":38},{"name":"Md. Tanver Ahammed","mobile":"1600082110","mark":null},{"name":"Md. Zihad Mirza","mobile":"1830937396","mark":null},{"name":"Md Iqbal Hossain","mobile":"1949233573","mark":null},{"name":"Supta Talukder","mobile":"1318505018","mark":null},{"name":"Mahabuba Akter Raisa","mobile":"1313563864","mark":27},{"name":"Lima Akter","mobile":"1601127253","mark":24},{"name":"Mst. Khadija Parvin Riya","mobile":"1636505373","mark":31},{"name":"Nabila Nehorin","mobile":"1571069818","mark":28},{"name":"Riya Moni","mobile":"1617311390","mark":28},{"name":"Lima Akter","mobile":"1866189017","mark":25},{"name":"Khadiza Akter","mobile":"1340233309","mark":29},{"name":"Suma Akter","mobile":"1940975138","mark":29},{"name":"Nipa Akter","mobile":"1328514838","mark":null},{"name":"Fahima Akter","mobile":"1714482037","mark":27},{"name":"Sumona Akter","mobile":"1610691637","mark":null},{"name":"Toma Akter","mobile":"1759787436","mark":31},{"name":"Tanjin Sultana","mobile":"1834177134","mark":41},{"name":"Sadia Khanom Orpi","mobile":"1331431143","mark":36},{"name":"Tabassum Jannat Toru","mobile":"1934031212","mark":27},{"name":"Taslima Akter","mobile":"1920438427","mark":26},{"name":"Jannatul Ferdous Oly","mobile":"1617114845","mark":35},{"name":"Mst. Sumaiya Akter Shimu","mobile":"1819415922","mark":36},{"name":"Smrity Akter","mobile":"1830760947","mark":28},{"name":"Samiya Hossain","mobile":"1924448338","mark":28},{"name":"Jhuma Akter","mobile":"1814058309","mark":26},{"name":"Nasreen Akter","mobile":"1703800520","mark":27},{"name":"Troya Saha","mobile":"1323660053","mark":26},{"name":"Sadia Islam Amy","mobile":"1609752615","mark":31},{"name":"Shakila Akter Hima","mobile":"1313316013","mark":null},{"name":"Anwar Hossain","mobile":"1779691757","mark":36},{"name":"Rony Ahmmed Joy","mobile":"1736249214","mark":26},{"name":"Shahadat Monwar Alvi","mobile":"1331659249","mark":19},{"name":"Simanto Dey","mobile":"1762250642","mark":37},{"name":"Musabir Rakib Chowdhury","mobile":"1879856908","mark":36},{"name":"Mofus Alom Prottoy","mobile":"1736598665","mark":27},{"name":"Titas Sarkar","mobile":"1745862121","mark":43},{"name":"Alamgir Kabir","mobile":"1878134692","mark":31},{"name":"Md. Imran Hossain","mobile":"1753768596","mark":28},{"name":"MD. Al Anan Afif","mobile":"1570244540","mark":null},{"name":"Irin Akter Akhi","mobile":"1794689919","mark":31},{"name":"Israt Jahan Toma","mobile":"1312422493","mark":43},{"name":"Afroza Haque Liza","mobile":"1309368049","mark":43},{"name":"Shamima Akter Mitu","mobile":"1340089789","mark":35},{"name":"Shefa Akter","mobile":"1323812640","mark":33},{"name":"Parvin Akter","mobile":"1624724819","mark":22},{"name":"Rokaya Binte Amin","mobile":"1903224479","mark":35},{"name":"Sarnali Chakrabarti","mobile":"1642009644","mark":30},{"name":"Mst Ria Akter","mobile":"1602945146","mark":null},{"name":"Eva Akter","mobile":"1839987013","mark":48},{"name":"Sidratul Nusrat Joba","mobile":"1939564215","mark":39},{"name":"Juma Akter","mobile":"1310662230","mark":null},{"name":"Jui Moni","mobile":"1719821484","mark":null},{"name":"Ema Akter","mobile":"1405967757","mark":null},{"name":"Kobita Akter","mobile":"1742042110","mark":null}];
+
+const form = document.getElementById("searchForm");
+const input = document.getElementById("searchInput");
+const output = document.getElementById("output");
+
+function normalizeName(value) {
+  return String(value ?? "")
+    .normalize("NFKC")
+    .toLowerCase()
+    .replace(/[’'`]/g, "")
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
+    .trim()
+    .replace(/\s+/g, " ");
+}
+
+function normalizeMobile(value) {
+  let digits = String(value ?? "").replace(/\D/g, "");
+  if (digits.startsWith("880") && digits.length === 13) digits = digits.slice(3);
+  if (digits.startsWith("0") && digits.length === 11) digits = digits.slice(1);
+  return /^1\d{9}$/.test(digits) ? digits : "";
+}
+
+function looksLikeMobile(value) {
+  return /^[\d\s()+\-]+$/.test(String(value).trim()) && /\d/.test(String(value));
+}
+
+function showMessage(title, text, error = false) {
+  output.innerHTML = `
+    <div class="message${error ? " error" : ""}" role="status">
+      <strong>${escapeHtml(title)}</strong>
+      <p>${escapeHtml(text)}</p>
+    </div>`;
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&")
+    .replaceAll("<", "<")
+    .replaceAll(">", ">")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function showResult(student) {
+  const markHtml = student.mark === null
+    ? '<div class="unavailable">Mark is not available</div>'
+    : `<div class="mark" aria-label="Obtained mark ${student.mark}">${student.mark}</div>`;
+
+  output.innerHTML = `
+    <article class="result-card" aria-label="Student result">
+      <div class="result-label">RESULT</div>
+      <div class="result-name">${escapeHtml(student.name)}</div>
+      <div class="mark-label">Obtained Mark</div>
+      ${markHtml}
+      <button type="button" class="again" id="againButton">Search Again</button>
+    </article>`;
+
+  document.getElementById("againButton").addEventListener("click", resetSearch);
+}
+
+function showMatches(matches) {
+  output.innerHTML = `
+    <div class="matches">
+      <h2>Multiple students found</h2>
+      <p>Please select your name to view the result.</p>
+      <div class="student-list">
+        ${matches.map((student, index) => `
+          <button type="button" class="student-option" data-index="${index}">
+            <span>${escapeHtml(student.name)}</span>
+            <span>Select</span>
+          </button>`).join("")}
+      </div>
+    </div>`;
+
+  output.querySelectorAll(".student-option").forEach(button => {
+    button.addEventListener("click", () => {
+      const student = matches[Number(button.dataset.index)];
+      showResult(student);
+      window.scrollTo({ top: Math.max(0, output.offsetTop - 24), behavior: "smooth" });
+    });
+  });
+}
+
+function search(query) {
+  const raw = query.trim();
+
+  if (!raw) {
+    showMessage("Please enter your name or mobile number.", "", true);
+    input.focus();
+    return;
+  }
+
+  if (looksLikeMobile(raw)) {
+    const mobile = normalizeMobile(raw);
+    if (!mobile) {
+      showMessage("No result found", "Please check your name or mobile number and try again.", true);
+      return;
+    }
+
+    const matches = students.filter(student => normalizeMobile(student.mobile) === mobile);
+
+    if (matches.length === 1) showResult(matches[0]);
+    else if (matches.length > 1) showMatches(matches);
+    else showMessage("No result found", "Please check your name or mobile number and try again.", true);
+    return;
+  }
+
+  const normalizedQuery = normalizeName(raw);
+  if (!normalizedQuery) {
+    showMessage("Please enter your name or mobile number.", "", true);
+    input.focus();
+    return;
+  }
+
+  // Exact normalized full-name matching gets priority.
+  const exact = students.filter(student => normalizeName(student.name) === normalizedQuery);
+  if (exact.length > 0) {
+    if (exact.length === 1) showResult(exact[0]);
+    else showMatches(exact);
+    return;
+  }
+
+  // Sensible normalized substring matching for short/partial names.
+  const partial = students.filter(student => normalizeName(student.name).includes(normalizedQuery));
+
+  if (partial.length === 1) showResult(partial[0]);
+  else if (partial.length > 1) showMatches(partial);
+  else showMessage("No result found", "Please check your name or mobile number and try again.", true);
+}
+
+function resetSearch() {
+  output.innerHTML = "";
+  input.value = "";
+  input.focus();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+form.addEventListener("submit", event => {
+  event.preventDefault();
+  search(input.value);
+});
+</script>
+</body>
+</html>
