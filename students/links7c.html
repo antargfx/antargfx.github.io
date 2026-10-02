@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Students of Lab - C</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #FF7033;
+            background: linear-gradient(45deg, rgba(255, 112, 51, 0.05) 0%, rgba(255, 255, 255, 0.33) 48%, rgba(255, 112, 51, 0.04) 100%);
+            margin: 0;
+            padding: 10px; /* Reduced padding for smaller screens */
+            color: #333;
+            min-height: 100vh;
+        }
+        h1 {
+            text-align: center;
+            color: #d9531e;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 15px;
+            box-sizing: border-box;
+        }
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            table-layout: fixed; /* Helps fit rows to device width */
+        }
+        /* Adjust column widths */
+        th:nth-child(1), td:nth-child(1) { width: 15%; text-align: center; } /* SL */
+        th:nth-child(2), td:nth-child(2) { width: 50%; } /* Title */
+        th:nth-child(3), td:nth-child(3) { width: 35%; } /* Date */
+        
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            word-wrap: break-word; /* Prevents long text from breaking the table */
+        }
+        th {
+            background-color: #FF7033;
+            color: white;
+            font-weight: bold;
+        }
+        tr:hover {
+            background-color: rgba(255, 112, 51, 0.1);
+        }
+        a {
+            color: #d9531e;
+            text-decoration: none;
+            font-weight: bold;
+            display: block; /* Make the whole cell area clickable */
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .search-bar {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        @media (max-width: 600px) {
+            th, td {
+                padding: 8px 5px;
+                font-size: 14px;
+            }
+            h1 { font-size: 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+    <center><img width="100%" src="https://jubo64.e-laeltd.com/jubo/project/assets/img/all/banner-2.jpg"></center>
+        <h1 style="border: 2px solid #FF7033; border-radius: 10px; padding: 10px 0;">Links for Batch - 7, Lab - C</h1>
+        <input type="text" id="searchInput" class="search-bar" placeholder="Search for titles or dates..." onkeyup="searchTable()">
+        <div class="table-responsive">
+            <table id="dataTable">
+                <thead>
+                    <tr>
+                        <th>SL</th>
+                        <th>Title / Link</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <tr>
+                        <td>1</td>
+                        <td><a href="https://meet.google.com/ecs-pqfq-ghc?pli=1" target="_blank">GoogleMeet</a></td>
+                        <td>Saturday, July 4, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td><a href="https://jubo64.e-laeltd.com/jubo/registration" target="_blank">Jubo Regi</a></td>
+                        <td>Saturday, July 4, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td><a href="https://jubo48.e-laeltd.com/jubo/student-login" target="_blank">Jubo Login</a></td>
+                        <td>Saturday, July 4, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td><a href="https://antargfx.github.io/software.html" target="_blank">Software</a></td>
+                        <td>Saturday, July 4, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td><a href="https://canva.link/96xudenlf98nwii" target="_blank">Illustrator Tools presentation</a></td>
+                        <td>Sunday, July 12, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td><a href="https://drive.google.com/file/d/11aiXaed5_Y5vCI2AIGhHIQZWgn3wx28v/view?usp=sharing" target="_blank">Adobe Illustrator Shortcut</a></td>
+                        <td>Sunday, July 12, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td><a href="https://limewire.com/d/IFi35#TlpujGY6Ji" target="_blank">Line art Practice</a></td>
+                        <td>Wednesday, July 15, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td><a href="https://canva.link/gbjlitrcurjfuhp" target="_blank">Logo Presentation</a></td>
+                        <td>Saturday, July 18, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td><a href="https://canva.link/gv1vvuja2f646nk" target="_blank">Golden Ratio Presentation</a></td>
+                        <td>Saturday, July 18, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>10</td>
+                        <td><a href="https://drive.google.com/drive/folders/1FW8mSJmXX8UWrQl_YEyz3Floog8V1o2f?usp=drive_link" target="_blank">Logo Practice</a></td>
+                        <td>Saturday, July 18, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>11</td>
+                        <td><a href="https://www.indiamart.com/proddetail/office-letter-pads-27094476412.html" target="_blank">Letterhead Practice</a></td>
+                        <td>Saturday, August 8, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>12</td>
+                        <td><a href="https://dribbble.com/shots/15005980-Business-trifold-brochure-design-template-2021" target="_blank">Brochure Practice</a></td>
+                        <td>Saturday, August 8, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>13</td>
+                        <td><a href="https://docs.google.com/document/d/1xJVXbIkqunNWXlGPwgBXPxOm7UuNYeGmHaKgTjM4_Jg/edit?usp=sharing" target="_blank">Test Suggestion</a></td>
+                        <td>Monday, August 10, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>14</td>
+                        <td><a href="https://drive.google.com/drive/folders/1-M0tWRlFeFFRjKOV1lAXLAk2dl7vuUk4?usp=drive_link" target="_blank">illustrator Script files</a></td>
+                        <td>Monday, August 10, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>15</td>
+                        <td><a href="https://submit.shutterstock.com" target="_blank">Shutterstock</a></td>
+                        <td>Monday, August 10, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>16</td>
+                        <td><a href="https://antargfx.github.io/software.html" target="_blank">Softwares</a></td>
+                        <td>Saturday, August 15, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>17</td>
+                        <td><a href="https://antargfx.github.io/events.html" target="_blank">Events and prompts</a></td>
+                        <td>Saturday, August 15, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>18</td>
+                        <td><a href="https://chatgpt.com/" target="_blank">ChatGPT</a></td>
+                        <td>Saturday, August 15, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>19</td>
+                        <td><a href="https://labs.google/fx/tools/flow" target="_blank">Google Flow</a></td>
+                        <td>Saturday, August 15, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>20</td>
+                        <td><a href="https://labs.google/fx/tools/flow/shared/tool/607723b6-6cf3-4b9e-af92-b1d6c10b6eec" target="_blank">Whisk (one time)</a></td>
+                        <td>Saturday, August 15, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>21</td>
+                        <td><a href="https://pikbest.com/png-images/never-look-down-modern-typography-t-shirt-design_10099683.html" target="_blank">T-Shirt Design</a></td>
+                        <td>Monday, August 17, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>22</td>
+                        <td><a href="https://pikbest.com/png-images/typography-motivational-t-shirt-design-motivational-inspirational_10883956.html" target="_blank">T-Shirt Design</a></td>
+                        <td>Tuesday, August 18, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>23</td>
+                        <td><a href="https://pngtree.com/freepng/awesome-typography-t-shirt-design_5332714.html" target="_blank">T-Shirt Design</a></td>
+                        <td>Tuesday, August 18, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>24</td>
+                        <td><a href="https://kdp.amazon.com/cover-calculator" target="_blank">Book Cover Calculator</a></td>
+                        <td>Wednesday, August 19, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>25</td>
+                        <td><a href="https://www.vecteezy.com/vector-art/36134327-corporate-business-book-cover-design-professional-design-for-corporate-business" target="_blank">Book Cover practice</a></td>
+                        <td>Wednesday, August 19, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>26</td>
+                        <td><a href="https://docs.google.com/spreadsheets/d/1PzCyqtLYSuBLFZlNXT2B12X8JrLGPzbj55OLoCso430/edit?usp=sharing" target="_blank">ID card sheet</a></td>
+                        <td>Wednesday, August 19, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>27</td>
+                        <td><a href="https://drive.google.com/file/d/16q-NxQtHK0w9tQqOwC4fWasg-MZOLS1_/view?usp=sharing" target="_blank">ID Card photo</a></td>
+                        <td>Thursday, August 20, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>28</td>
+                        <td><a href="https://drive.google.com/file/d/109x_A0PRAcrAhA9KIDbVGilOajYF-EA6/view?usp=sharing" target="_blank">SVG Downloader</a></td>
+                        <td>Saturday, August 22, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>29</td>
+                        <td><a href="https://www.pacdora.com/dielines-detail/juice-bottle-dieline-503032" target="_blank">Juice bottle dieline</a></td>
+                        <td>Saturday, August 22, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>30</td>
+                        <td><a href="https://img.pikbest.com/templates/20241108/product-label-design-template_11071389.jpg!w700wp" target="_blank">Label Practice</a></td>
+                        <td>Saturday, August 22, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>31</td>
+                        <td><a href="https://canva.link/7m6av5knin4w02d" target="_blank">Photoshop Tools Introduction</a></td>
+                        <td>Saturday, August 22, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>32</td>
+                        <td><a href="https://drive.google.com/drive/folders/1jOf3fOss-85w1r_T31-zBWqvJ-nLQelE?usp=drive_link" target="_blank">Website Banner</a></td>
+                        <td>Sunday, September 6, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>33</td>
+                        <td><a href="https://bangla.plus/bijoy-unicode-converter/" target="_blank">Avro to bijoy</a></td>
+                        <td>Sunday, September 6, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>34</td>
+                        <td><a href="https://lipighor.com/" target="_blank">Bangla Fonts</a></td>
+                        <td>Sunday, September 6, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>35</td>
+                        <td><a href="https://www.brusheezy.com/free/photoshop" target="_blank">Photoshop Brushes</a></td>
+                        <td>Sunday, September 6, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>36</td>
+                        <td><a href="https://drive.google.com/file/d/1RlxL0PqFdNeprutshhqQ8_M7al0cbgso/view?usp=sharing" target="_blank">Jersey Dieline</a></td>
+                        <td>Tuesday, September 8, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>37</td>
+                        <td><a href="https://drive.google.com/drive/folders/1-Fd__XLkD7yUbasDwqFnGTiz_uIxvjz1?usp=sharing" target="_blank">Orange Manipulation</a></td>
+                        <td>Wednesday, September 9, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>38</td>
+                        <td><a href="https://drive.google.com/drive/folders/1s4_9jrRKpluk30KI336muhEXeVkUaTVh?usp=sharing" target="_blank">Text Effect and Mockup</a></td>
+                        <td>Sunday, September 13, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>39</td>
+                        <td><a href="https://goodmockups.com/" target="_blank">Mockup Download</a></td>
+                        <td>Monday, September 14, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>40</td>
+                        <td><a href="https://mockups-design.com/" target="_blank">Mockup Download</a></td>
+                        <td>Monday, September 14, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>41</td>
+                        <td><a href="https://graphicburger.com/" target="_blank">Mockup Download</a></td>
+                        <td>Monday, September 14, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>42</td>
+                        <td><a href="https://mockupnest.com/" target="_blank">Mockup Download</a></td>
+                        <td>Monday, September 14, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>43</td>
+                        <td><a href="https://contributor.stock.adobe.com/" target="_blank">Adobe stock contributor</a></td>
+                        <td>Monday, September 14, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>44</td>
+                        <td><a href="https://www.fontshare.com/pairs" target="_blank">Font Pairs</a></td>
+                        <td>Wednesday, September 16, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>45</td>
+                        <td><a href="https://colorhunt.co/" target="_blank">Color Pairs</a></td>
+                        <td>Wednesday, September 16, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>46</td>
+                        <td><a href="https://drive.google.com/drive/folders/1T4BnmrANTC0k_aEchoRdDzfkcf05RZk5?usp=drive_link" target="_blank">Camera manipulation</a></td>
+                        <td>Tuesday, September 22, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>47</td>
+                        <td><a href="https://drive.google.com/drive/folders/198-ylQOwNOphU9seqpyABsM8taL19nbq?usp=drive_link" target="_blank">Night Car Manipulation</a></td>
+                        <td>Wednesday, September 23, 2026</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function searchTable() {
+            var input, filter, table, tr, td, i, j, txtValue;
+            input = document.getElementById("searchInput");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("dataTable");
+            tr = table.getElementsByTagName("tr");
+
+            for (i = 1; i < tr.length; i++) {
+                tr[i].style.display = "none";
+                td = tr[i].getElementsByTagName("td");
+                for (j = 0; j < td.length; j++) {
+                    if (td[j]) {
+                        txtValue = td[j].textContent || td[j].innerText;
+                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                            tr[i].style.display = "";
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
