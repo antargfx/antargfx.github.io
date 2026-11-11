@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HTML to Video Studio</title>
+<link rel="stylesheet" href="https://antargfx.github.io/main-header.css">
+<style>
+:root{--ink:#292524;--bg:#fff8f4;--bg2:#fff;--card:rgba(255,255,255,.82);--card2:#fff0e8;--ln:#f2c8b6;--tx:#292524;--mut:#78716c;--ac:#ff7033;--ac2:#e85d24;--ok:#15803d;--warn:#b45309;--bad:#dc2626;--shadow:0 10px 30px rgba(124,58,30,.08)}
+*{box-sizing:border-box}
+html {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--ink);
+  background: #FF7033;
+  background: linear-gradient(45deg, rgba(255, 112, 51, 0.05) 0%, rgba(255, 255, 255, 0.33) 48%, rgba(255, 112, 51, 0.04) 100%), #fff8f4;
+  min-height: 100%;
+}
+html,body{margin:0}
+bodyz{background:transparent;color:var(--ink);font-family:inherit;min-height:100vh;line-height:1.5}
+a{color:var(--ac)}
+.wrap{max-width:900px;margin:0 auto;padding:12px}
+h1,h2,h3{margin:0 0 8px}
+h2{font-size:18px}h3{font-size:15px}
+.hide{display:none!important}
+.card{background:var(--card);border:1px solid var(--ln);border-radius:16px;padding:14px;margin-bottom:12px;box-shadow:var(--shadow);backdrop-filter:blur(10px)}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.grow{flex:1}
+.mut{color:var(--mut);font-size:13px}
+label{display:block;font-size:12px;color:var(--mut);margin:10px 0 4px}
+input,select,textarea{width:100%;background:#fff;color:var(--ink);border:1px solid var(--ln);border-radius:10px;padding:11px;font-size:15px;font-family:inherit}
+textarea{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;min-height:150px}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--ac);border-color:transparent}
+#appView button{border:0;border-radius:10px;padding:12px 16px;font-weight:700;font-size:14px;color:#fff;background:linear-gradient(135deg,#ff854f,#f05f28);cursor:pointer;box-shadow:0 4px 12px rgba(255,112,51,.18)}
+#appView button.sec{background:#fff;border:1px solid var(--ln);color:var(--ink);box-shadow:none}
+#appView button.ok{background:var(--ok);color:#052}
+#appView button.bad{background:var(--bad)}
+#appView button.sm{padding:7px 10px;font-size:12px}
+#appView button.full{width:100%;margin-top:10px}
+#appView button:disabled{opacity:.5;cursor:not-allowed}
+/* nav */
+.top{position:relative;top:0;z-index:20;background:rgba(255,248,244,.92);border-bottom:0px solid var(--ln);backdrop-filter:blur(14px)}
+.top .wrap{display:flex;align-items:center;gap:10px;padding:10px 12px}
+.brand{font-weight:800;font-size:17px;background:linear-gradient(135deg,#ff7033,#c2410c);-webkit-background-clip:text;background-clip:text;color:transparent;white-space:nowrap}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;padding:8px 12px;max-width:900px;margin:0 auto}
+.tab.adm{border-color:#d9a441;color:#ffd27a}
+.ticker{background:linear-gradient(90deg,#ff7033,#e85d24);color:#fff;overflow:hidden;white-space:nowrap;padding:7px 0;font-weight:700;font-size:14px}
+.tk{display:inline-block;white-space:nowrap;animation:tkm 18s linear infinite;will-change:transform}
+@keyframes tkm{from{transform:translateX(100vw)}to{transform:translateX(-100%)}}
+input[type=radio]{width:auto}
+.ticker.paused .tk{animation-play-state:paused}
+a.bl{display:inline-block;border-radius:10px;padding:9px 13px;font-weight:700;font-size:13px;color:#fff;background:linear-gradient(135deg,var(--ac),var(--ac2));text-decoration:none}
+.tab{background:transparent;border:1px solid transparent;color:var(--mut);padding:8px 12px;border-radius:10px;white-space:nowrap;font-weight:600}
+.tab.on{background:#ffe9de;border-color:#f4b89c;color:#9a3412}
+.badge{display:inline-block;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:800;letter-spacing:.4px}.b-pro{background:linear-gradient(135deg,#ffcf5c,#ff9d3d);color:#3a2300}.b-approved{background:#0f3d2c;color:#6af0b8}.b-rejected{background:#4a1520;color:#ff9aa5}
+/* hero */
+.hero{padding:26px 6px 10px;text-align:center}
+.hero h1{font-size:28px;line-height:1.25;background:linear-gradient(135deg,#9a3412,#ff7033);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--mut);max-width:560px;margin:10px auto}
+.price{font-size:24px;font-weight:800}
+/* tool */
+#stage{position:relative;background:#292524;border-radius:12px;overflow:hidden;margin:0 auto}
+#pv{position:absolute;left:0;top:0;border:0;transform-origin:0 0;background:#fff}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+#bar{height:10px;background:#fce4d8;border-radius:6px;overflow:hidden;margin-top:10px}
+#fill{height:100%;width:0;background:linear-gradient(90deg,#ff9a6c,#e85d24)}
+#st{font-size:13px;color:var(--mut);margin-top:8px;white-space:pre-line}
+video{width:100%;border-radius:12px;background:#000;display:block}
+/* tables */
+.item{border:1px solid var(--ln);border-radius:12px;padding:10px;margin-top:8px;background:#fff}
+.item .meta{font-size:12px;color:var(--mut)}
+.pre{white-space:pre-wrap;word-break:break-word;font-size:14px}
+.codebox{background:#fffaf7;border:1px dashed var(--ln);border-radius:10px;padding:10px;font-family:ui-monospace,Menlo,monospace;font-size:12px;white-space:pre-wrap;max-height:260px;overflow:auto}
+/* modal + toast */
+#modalBg{position:fixed;inset:0;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
+#modal{background:var(--card);border:1px solid var(--ln);border-radius:16px;padding:16px;max-width:420px;width:100%}
+#toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#292524;color:#fff;border:1px solid #57534e;padding:10px 16px;border-radius:12px;z-index:60;max-width:90%;font-size:14px}
+</style>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+</head>
+<body>
+  <div style="height: 100px;"></div>
+<div id="ticker" class="ticker hide"><div class="tk" id="tkText"></div></div>
+
+
+<div id="appView">
+  <div class="top">
+    <div class="tabs" id="tabs">
+      <button class="tab on" data-tab="tool"><i class="fa-solid fa-clapperboard" aria-hidden="true"></i> Main Tool</button>
+      <button class="tab" data-tab="guide"><i class="fa-solid fa-book-open" aria-hidden="true"></i> Prompt বানানোর নিয়ম</button>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div id="notice" class="card hide" style="border-color:#d9a441"></div>
+
+    <!-- TOOL -->
+    <section id="p-tool">
+      <div class="card">
+        <div id="stage"><iframe id="pv" sandbox="allow-scripts allow-same-origin"></iframe></div>
+        <div class="row" style="margin-top:8px"><button class="sec sm" id="restart">⟲ রিস্টার্ট</button><span class="mut" id="clock">0.0s</span></div>
+      </div>
+      <div class="card">
+        <label>HTML কোড (যেকোনো AI থেকে পেস্ট করুন)</label>
+        <textarea id="src" spellcheck="false"></textarea>
+        <div class="grid3" style="margin-top:8px">
+          <button class="sec sm" id="upl"><i class="fa-solid fa-folder-open" aria-hidden="true"></i> ফাইল</button><button class="sec sm" id="sample"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> নমুনা</button><button class="sec sm" id="clear"><i class="fa-solid fa-trash" aria-hidden="true"></i> মুছুন</button>
+        </div>
+        <input type="file" id="file" accept=".html,.htm,text/html" hidden>
+        <button class="full" id="load"><i class="fa-solid fa-eye" aria-hidden="true"></i> প্রিভিউ দেখুন</button>
+      </div>
+      <div class="card">
+        <div class="grid2">
+          <div><label>সাইজ / রেজোলিউশন</label><select id="fmt"></select></div>
+          <div><label>ফ্রেমরেট (fps)</label><select id="fps"><option>24</option><option>25</option><option selected>30</option><option>60</option></select></div>
+          <div><label>সময় (সেকেন্ড)</label><input type="number" id="dur" value="10" min="1" max="60"></div>
+          <div><label>কোয়ালিটি</label><select id="q"><option value="0.10">স্ট্যান্ডার্ড</option><option value="0.16" selected>হাই</option><option value="0.25">ম্যাক্স</option></select></div>
+        </div>
+        <label style="display:flex;gap:8px;align-items:center;margin-top:10px"><input type="checkbox" id="autoDl" style="width:auto"> এক্সপোর্ট শেষ হলেই অটো ডাউনলোড হবে</label>
+        <div id="usage" class="mut" style="margin-top:8px"></div>
+        <button class="full" id="go"><i class="fa-solid fa-file-video" aria-hidden="true"></i> MP4 এক্সপোর্ট করুন</button>
+        <div id="bar"><div id="fill"></div></div>
+        <div id="st">প্রস্তুত। এক্সপোর্টের সময় স্ক্রিন অন রাখুন এবং এই ট্যাব থেকে বের হবেন না। (Chrome ব্যবহার করুন)</div>
+      </div>
+      <div class="card hide" id="out">
+        <video id="vid" controls loop playsinline></video>
+        <div class="grid2" style="margin-top:8px"><button id="dl"><i class="fa-solid fa-download" aria-hidden="true"></i> ডাউনলোড</button><button class="sec" id="share"><i class="fa-solid fa-share-nodes" aria-hidden="true"></i> গ্যালারিতে সেভ / শেয়ার</button></div>
+      </div>
+    </section>
+
+    <!-- GUIDE -->
+    <section id="p-guide" class="hide">
+      <div class="card"><h2><i class="fa-solid fa-book-open" aria-hidden="true"></i> প্রমট বানানোর নিয়ম</h2><div id="guideText" class="pre"></div></div>
+      <div class="card"><h3><i class="fa-solid fa-robot" aria-hidden="true"></i> AI-কে দেওয়ার প্রম্পট টেমপ্লেট</h3>
+        <div class="mut" style="margin-bottom:6px">কপি করে যেকোনো AI-তে দিন। THEME অংশে আপনার আইডিয়া লিখুন।</div>
+        <div id="promptBox" class="codebox"></div>
+        <button class="full sec" id="copyPrompt"><i class="fa-solid fa-copy" aria-hidden="true"></i> প্রম্পট কপি করুন</button></div>
+    </section>
+  </div>
+</div>
+<div id="toast" class="hide"></div>
+
+<script>
+const VCLOCK = "/* Virtual clock: makes any HTML animation deterministic, frame by frame.\n   Injected BEFORE the page's own scripts (both in the phone tool and in render-html.js). */\n(function () {\n  var now = 0, tid = 1, rid = 1, timers = [], rafs = [], seed = 1234567;\n  var base = 1767225600000, D = Date;\n  window.__rafReal = window.requestAnimationFrame.bind(window);\n  Math.random = function () { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };\n  performance.now = function () { return now; };\n  window.Date = class VDate extends D {\n    constructor(...a) { if (a.length === 0) super(base + now); else super(...a); }\n    static now() { return base + now; }\n  };\n  window.setTimeout = function (f, ms) {\n    var a = [].slice.call(arguments, 2), id = tid++;\n    timers.push({ id: id, due: now + (+ms || 0), f: f, a: a, iv: 0 }); return id;\n  };\n  window.setInterval = function (f, ms) {\n    var a = [].slice.call(arguments, 2), id = tid++, iv = Math.max(+ms || 0, 1);\n    timers.push({ id: id, due: now + iv, f: f, a: a, iv: iv }); return id;\n  };\n  window.clearTimeout = window.clearInterval = function (id) { timers = timers.filter(function (t) { return t.id !== id; }); };\n  window.requestAnimationFrame = function (f) { var id = rid++; rafs.push({ id: id, f: f }); return id; };\n  window.cancelAnimationFrame = function (id) { rafs = rafs.filter(function (r) { return r.id !== id; }); };\n  window.__vcAdvance = function (t) {            // t in milliseconds\n    now = t;\n    var guard = 0;\n    while (guard++ < 10000) {\n      var due = timers.filter(function (x) { return x.due <= now; }).sort(function (a, b) { return a.due - b.due; })[0];\n      if (!due) break;\n      if (due.iv) due.due += due.iv; else timers = timers.filter(function (x) { return x !== due; });\n      try { due.f.apply(window, due.a); } catch (e) { console.error(e); }\n    }\n    var list = rafs; rafs = [];\n    list.forEach(function (r) { try { r.f(now); } catch (e) { console.error(e); } });\n    try { document.getAnimations().forEach(function (a) { a.pause(); a.currentTime = now; }); } catch (e) {}\n  };\n})();\n";
+
+/* ===================================================================== lightweight app core */
+const $ = id => document.getElementById(id);
+const esc = value => String(value == null ? '' : value).replace(/[&<>"']/g, c => ({
+  '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+}[c]));
+let toastTimer;
+function toast(message) {
+  const el = $('toast');
+  if (!el) return;
+  el.textContent = message;
+  el.classList.remove('hide');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.add('hide'), 2600);
+}
+
+const DEFAULTS = {
+  brand: 'VidGen Studio',
+  ticker: '',
+  notice: '',
+  guide: '১) AI-কে (ChatGPT, Gemini, Claude ইত্যাদি) নিচের প্রম্পট টেমপ্লেট দিন।\\n২) THEME অংশে আপনার আইডিয়া লিখুন (রঙ, বিষয়, মুড)।\\n৩) AI যে HTML কোড দেবে সেটা পুরোটা কপি করে টুলে পেস্ট করুন।\\n৪) প্রিভিউ ঠিক থাকলে সাইজ ও fps বেছে MP4 এক্সপোর্ট করুন।\\n\\nগুরুত্বপূর্ণ: অ্যানিমেশন CSS @keyframes বা requestAnimationFrame দিয়ে হতে হবে। বাইরের ছবি, ফন্ট বা SMIL (<animate>) ব্যবহার করা যাবে না।',
+  promptTemplate: `Create ONE self-contained HTML file for a seamless looping animation that will be rendered to a 10-second video (3840x2160, 30fps).
+
+RULES (follow strictly):
+1. Design on a 1920x1080 stage. Use: html,body{margin:0;width:100%;height:100%;overflow:hidden}. Fill the whole screen.
+2. The loop is exactly 10 seconds and the last frame must flow seamlessly into the first.
+3. Animate ONLY with CSS @keyframes (animation-duration 10s, 5s, 2s or 1s, iteration-count: infinite, linear or ease-in-out) OR with requestAnimationFrame(ts) where all motion is a pure function of ts. Never use video, audio, user input or real clocks.
+4. No SMIL (<animate>), no external files, images or web fonts. Inline everything and use system fonts. Inline SVG, CSS shapes and <canvas> are fine.
+5. Style: clean flat vector graphics (EPS / Adobe Stock style), smooth gradients, no photos, no logos, no copyrighted characters, no text unless I ask.
+6. No buttons, controls or UI. Output only the HTML code, nothing else.
+
+THEME: [describe your idea here]`
+};
+const S = { settings: { ...DEFAULTS } };
+const tierOf = (W, H) => {
+  const m = Math.min(W, H);
+  return m <= 720 ? 'hd' : m <= 1080 ? 'fhd' : 'pro';
+};
+function gate(W, H) {
+  return { ok: true, tier: tierOf(W, H) };
+}
+function applyBrand() {
+  const settings = S.settings;
+  const tickerText = (settings.ticker || '').trim();
+  $('ticker').classList.toggle('hide', !tickerText);
+  $('tkText').textContent = tickerText;
+  $('tkText').style.animationDuration = Math.max(10, 8 + tickerText.length * 0.18) + 's';
+  document.querySelectorAll('[data-brand]').forEach(el => el.textContent = settings.brand);
+  document.title = settings.brand;
+}
+function renderHeader() {
+  const notice = S.settings.notice || '';
+  $('notice').classList.toggle('hide', !notice);
+  $('notice').textContent = notice;
+}
+function renderUsage() {
+  $('usage').textContent = 'সব রেজোলিউশন এবং 4K MP4 এক্সপোর্ট ব্যবহারের জন্য উন্মুক্ত।';
+  [...$('fmt').options].forEach(option => {
+    if (option.dataset.label) option.textContent = option.dataset.label;
+  });
+}
+function renderGuide() {
+  $('guideText').textContent = S.settings.guide;
+  $('promptBox').textContent = S.settings.promptTemplate;
+}
+function showTab(tab) {
+  document.querySelectorAll('.tab').forEach(button => {
+    button.classList.toggle('on', button.dataset.tab === tab);
+  });
+  ['tool', 'guide'].forEach(name => {
+    $('p-' + name).classList.toggle('hide', name !== tab);
+  });
+  if (tab === 'tool') layoutPreview();
+  if (tab === 'guide') renderGuide();
+}
+document.querySelectorAll('.tab').forEach(button => {
+  button.addEventListener('click', () => showTab(button.dataset.tab));
+});
+$('copyPrompt').addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText(S.settings.promptTemplate);
+    toast('প্রম্পট কপি হয়েছে');
+  } catch (error) {
+    toast('প্রম্পট সিলেক্ট করে কপি করুন');
+  }
+});
+
+/* ---------- Resource inlining (images, fonts, stylesheets from the web) ---------- */
+async function toDataUrl(url) {
+  const r = await fetch(url); if (!r.ok) throw new Error(r.status);
+  const b = await r.blob();
+  return new Promise(res => { const f = new FileReader(); f.onload = () => res(f.result); f.readAsDataURL(b); });
+}
+async function inlineCssUrls(css, baseUrl, warn) {
+  const re = /url\(\s*(['"]?)([^)'"]+)\1\s*\)/g; const jobs = [];
+  css.replace(re, (m, q, u) => { if (!/^data:|^#/.test(u)) jobs.push(u); return m; });
+  const map = {};
+  await Promise.all([...new Set(jobs)].map(async u => {
+    try { map[u] = await toDataUrl(new URL(u, baseUrl).href); } catch (e) { warn.push(u); }
+  }));
+  return css.replace(re, (m, q, u) => map[u] ? `url("${map[u]}")` : m);
+}
+async function prepareHtml(src) {
+  const warn = [];
+  const d = new DOMParser().parseFromString(src, 'text/html');
+  for (const l of [...d.querySelectorAll('link[rel~="stylesheet"][href]')]) {
+    const href = l.getAttribute('href'); if (!/^https?:/.test(href)) continue;
+    try {
+      const r = await fetch(href); const css = await inlineCssUrls(await r.text(), href, warn);
+      const s = d.createElement('style'); s.textContent = css; l.replaceWith(s);
+    } catch (e) { warn.push(href); }
+  }
+  for (const s of [...d.querySelectorAll('style')]) s.textContent = await inlineCssUrls(s.textContent, location.href, warn);
+  for (const im of [...d.querySelectorAll('img[src]')]) {
+    const u = im.getAttribute('src'); if (!/^https?:/.test(u)) continue;
+    try { im.setAttribute('src', await toDataUrl(u)); } catch (e) { warn.push(u); }
+  }
+  const clk = d.createElement('script'); clk.textContent = VCLOCK; d.head.prepend(clk);
+  return { html: '<!DOCTYPE html>' + d.documentElement.outerHTML, warn };
+}
+
+
+
+/* ===================================================================== TOOL */
+const FORMATS = [['1280,720', 'ল্যান্ডস্কেপ 720p'], ['720,1280', 'ভার্টিকাল 720p'], ['1920,1080', 'ল্যান্ডস্কেপ Full HD 1080p'], ['1080,1920', 'ভার্টিকাল Full HD'], ['1080,1080', 'স্কয়ার 1080'],
+  ['2560,1440', 'ল্যান্ডস্কেপ 1440p'], ['3840,2160', 'ল্যান্ডস্কেপ 4K 3840×2160'], ['2160,3840', 'ভার্টিকাল 4K 2160×3840'], ['2160,2160', 'স্কয়ার 2160×2160']];
+$('fmt').innerHTML = FORMATS.map(([v, l]) => `<option value="${v}" data-label="${l}">${l}</option>`).join('');
+$('fmt').value = '1280,720';
+
+const SAMPLE = `<!doctype html><html><head><meta charset="utf-8"><style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:linear-gradient(160deg,#0f1b4d,#5b2a86 60%,#e0457b)}
+.sun{position:absolute;left:50%;top:58%;width:420px;height:420px;margin:-210px;border-radius:50%;background:#ffd166;animation:pulse 10s ease-in-out infinite}
+.ring{position:absolute;left:50%;top:58%;border-radius:50%;border:6px solid rgba(255,209,102,.6);animation:ring 10s linear infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+@keyframes ring{from{width:420px;height:420px;margin:-210px;opacity:.8}to{width:1500px;height:1500px;margin:-750px;opacity:0}}
+.hill{position:absolute;bottom:-60px;left:-10%;width:120%;border-radius:50% 50% 0 0}
+.h1{height:360px;background:#2b1b57;animation:sway 10s ease-in-out infinite}
+.h2{height:250px;background:#170f35;animation:sway 10s ease-in-out infinite reverse}
+@keyframes sway{0%,100%{transform:translateX(-50px)}50%{transform:translateX(50px)}}
+.star{position:absolute;width:8px;height:8px;border-radius:50%;background:#fff;animation:tw 2s ease-in-out infinite}
+@keyframes tw{0%,100%{opacity:.15}50%{opacity:1}}
+</style></head><body>
+<div class="ring"></div><div class="ring" style="animation-delay:-3.33s"></div><div class="ring" style="animation-delay:-6.66s"></div>
+<div class="sun"></div><div class="hill h1"></div><div class="hill h2"></div>
+<script>
+for(let i=0;i<70;i++){const s=document.createElement('div');s.className='star';
+s.style.left=Math.random()*100+'%';s.style.top=Math.random()*55+'%';s.style.animationDelay=-(Math.random()*2)+'s';document.body.appendChild(s);}
+<\/script></body></html>`;
+$('src').value = SAMPLE;
+$('sample').onclick = () => { $('src').value = SAMPLE; loadPreview(); };
+$('clear').onclick = () => { $('src').value = ''; };
+$('upl').onclick = () => $('file').click();
+$('file').onchange = async e => { const f = e.target.files[0]; if (f) { $('src').value = await f.text(); loadPreview(); } };
+const setStatus = s => { $('st').textContent = s; };
+
+function fmt() { const [W, H] = $('fmt').value.split(',').map(Number); const k = 1080 / Math.min(W, H); return { W, H, lw: Math.round(W * k), lh: Math.round(H * k) }; }
+const pv = $('pv'), stage = $('stage');
+let prepared = null, t0 = 0, busy = false;
+function layoutPreview() {
+  const { lw, lh } = fmt(), host = stage.parentElement;
+  if (!host.clientWidth) return;
+  const maxW = Math.min(host.clientWidth - 28, innerHeight * 0.55 * lw / lh);
+  stage.style.width = maxW + 'px'; stage.style.height = (maxW * lh / lw) + 'px';
+  pv.style.width = lw + 'px'; pv.style.height = lh + 'px'; pv.style.transform = `scale(${maxW / lw})`;
+}
+addEventListener('resize', layoutPreview); $('fmt').onchange = layoutPreview;
+async function loadPreview() {
+  if (busy) return;
+  setStatus(' রিসোর্স প্রস্তুত হচ্ছে...');
+  const { html, warn } = await prepareHtml($('src').value);
+  prepared = html; layoutPreview();
+  await new Promise(r => { pv.onload = r; pv.srcdoc = html; });
+  t0 = performance.now();
+  setStatus(warn.length ? ` ${warn.length}টি বাইরের ফাইল লোড হয়নি। AI-কে বলুন সব ইনলাইন করতে।` : ' প্রিভিউ চলছে। ঠিক থাকলে MP4 এক্সপোর্ট করুন।');
+}
+$('load').onclick = loadPreview; $('restart').onclick = loadPreview;
+let stageVisible = true, lastTick = 0;
+try { new IntersectionObserver(es => { stageVisible = es[0].isIntersecting; }).observe(stage); } catch (e) {}
+(function tick(ts) {
+  if (!busy && prepared && stageVisible && !document.hidden && (ts - lastTick) >= 33 && !$('p-tool').classList.contains('hide')) {
+    lastTick = ts;
+    try { pv.contentWindow.__vcAdvance(performance.now() - t0); } catch (e) {}
+    $('clock').textContent = (((performance.now() - t0) / 1000) % (+$('dur').value || 10)).toFixed(1) + 's';
+  }
+  requestAnimationFrame(tick);
+})(0);
+
+/* ---------- Frame capture: live DOM → SVG foreignObject → canvas ---------- */
+async function capture(doc, win, ctx, W, H, lw, lh) {
+  const live = [...doc.documentElement.querySelectorAll('*')];
+  const root = doc.documentElement.cloneNode(true);
+  const cl = [...root.querySelectorAll('*')];
+  const targets = new Set();
+  const animProps = new Map();   // element -> animated CSS properties (only these need freezing)
+  doc.getAnimations().forEach(a => {
+    const e = a.effect; if (!e || !e.target || e.pseudoElement) return;
+    targets.add(e.target);
+    let m = animProps.get(e.target); if (!m) { m = new Set(); animProps.set(e.target, m); }
+    try { e.getKeyframes().forEach(k => Object.keys(k).forEach(p => { if (!['offset', 'easing', 'composite', 'computedOffset', 'cssFloat'].includes(p)) m.add(p); })); } catch (err) {}
+  });
+  const swaps = [];
+  for (let i = 0; i < live.length; i++) {
+    const el = live[i], c = cl[i];
+    if (el.tagName === 'CANVAS') {
+      let url; try { url = el.toDataURL('image/png'); } catch (e) { continue; }
+      const im = doc.createElement('img'); im.setAttribute('src', url);
+      if (el.id) im.id = el.id; if (el.className) im.className = el.className;
+      im.setAttribute('style', (el.getAttribute('style') || '') + `;width:${el.clientWidth}px;height:${el.clientHeight}px`);
+      swaps.push([c, im]);
+    } else if (targets.has(el)) {
+      const cs = win.getComputedStyle(el);
+      for (const p of animProps.get(el)) { try { c.style[p] = cs[p]; } catch (err) {} }
+      c.style.setProperty('animation', 'none', 'important'); c.style.setProperty('transition', 'none', 'important');
+    }
+  }
+  swaps.forEach(([c, im]) => c.replaceWith(im));
+  root.querySelectorAll('script,noscript').forEach(n => n.remove());
+  root.style.width = lw + 'px'; root.style.height = lh + 'px'; root.style.overflow = 'hidden';
+  const xml = new XMLSerializer().serializeToString(root);
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${lw}" height="${lh}"><foreignObject x="0" y="0" width="${lw}" height="${lh}">${xml}</foreignObject></svg>`;
+  const img = new Image(); img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);   // data: URL keeps the canvas untainted
+  await img.decode();
+  const opaque = c => c && c !== 'rgba(0, 0, 0, 0)' && c !== 'transparent';
+  const hb = win.getComputedStyle(doc.documentElement).backgroundColor, bb = win.getComputedStyle(doc.body).backgroundColor;
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.fillStyle = opaque(hb) ? hb : opaque(bb) ? bb : '#ffffff';
+  ctx.fillRect(0, 0, W, H);
+  ctx.drawImage(img, 0, 0, W, H);
+}
+
+/* ---------- Encoder ---------- */
+async function pickConfig(W, H, fps, bpp) {
+  const codecs = ['avc1.640034', 'avc1.640033', 'avc1.640032', 'avc1.64002A', 'avc1.640028', 'avc1.4d0028', 'avc1.42001f'];
+  const bitrate = Math.min(120e6, Math.round(W * H * fps * bpp));
+  for (const codec of codecs) {
+    const cfg = { codec, width: W, height: H, bitrate, framerate: fps };
+    try { const r = await VideoEncoder.isConfigSupported(cfg); if (r.supported) return cfg; } catch (e) {}
+  }
+  return null;
+}
+function loadScript(src) {
+  return new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s); });
+}
+async function ensureMuxer() {
+  if (typeof Mp4Muxer !== 'undefined') return true;
+  for (const u of ['https://cdn.jsdelivr.net/npm/mp4-muxer@5.1.3/build/mp4-muxer.js', 'https://unpkg.com/mp4-muxer@5.1.3/build/mp4-muxer.js']) {
+    try { await loadScript(u); if (typeof Mp4Muxer !== 'undefined') return true; } catch (e) {}
+  }
+  return false;
+}
+
+
+
+
+/* ---------- Export ---------- */
+let blobUrl = null, blob = null, outName = 'video.mp4';
+$('go').onclick = async () => {
+  if (busy) return;
+  const g0 = fmt();
+  if (!('VideoEncoder' in window)) { setStatus('এই ব্রাউজারে ভিডিও এনকোডার নেই। Android/PC-তে Chrome ব্যবহার করুন।'); return; }
+  if (!(await ensureMuxer())) { setStatus('ইন্টারনেট দরকার (mp4-muxer লোড হয়নি)। নেট চালু করে আবার চেষ্টা করুন।'); return; }
+  busy = true; $('ticker').classList.add('paused'); $('go').disabled = true; $('out').classList.add('hide');
+  let wake = null; try { wake = await navigator.wakeLock.request('screen'); } catch (e) {}
+  let ex = null;
+  try {
+    const fps = +$('fps').value, dur = Math.max(1, Math.min(60, +$('dur').value || 10)), bpp = +$('q').value;
+    let { W, H, lw, lh } = fmt();
+    let cfg = await pickConfig(W, H, fps, bpp), note = '';
+    if (!cfg) for (const k of [2 / 3, 1 / 2]) {
+      const w2 = Math.round(W * k / 2) * 2, h2 = Math.round(H * k / 2) * 2;
+      cfg = await pickConfig(w2, h2, fps, bpp);
+      if (cfg) { W = w2; H = h2; note = ` ডিভাইস বড় সাইজ সাপোর্ট করেনি, ${W}×${H} এ হচ্ছে।\n`; break; }
+    }
+    if (!cfg) throw new Error('এই ডিভাইসে H.264 এনকোডার পাওয়া যায়নি।');
+    setStatus(' রিসোর্স প্রস্তুত হচ্ছে...');
+    const { html } = await prepareHtml($('src').value);
+    ex = document.createElement('iframe');
+    ex.setAttribute('sandbox', 'allow-scripts allow-same-origin');
+    ex.style.cssText = `position:fixed;left:0;top:0;width:${lw}px;height:${lh}px;border:0;opacity:0.01;pointer-events:none;z-index:-1`;
+    document.body.appendChild(ex);
+    await new Promise(r => { ex.onload = r; ex.srcdoc = html; });
+    const win = ex.contentWindow, doc = ex.contentDocument;
+    try { await doc.fonts.ready; } catch (e) {}
+    await new Promise(r => setTimeout(r, 400));
+    win.__vcAdvance(0); await new Promise(r => setTimeout(r, 200));
+    const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+    const ctx = cv.getContext('2d');
+    const muxer = new Mp4Muxer.Muxer({ target: new Mp4Muxer.ArrayBufferTarget(), video: { codec: 'avc', width: W, height: H, frameRate: fps }, fastStart: 'in-memory' });
+    let encErr = null;
+    const enc = new VideoEncoder({ output: (ch, meta) => muxer.addVideoChunk(ch, meta), error: e => { encErr = e; } });
+    enc.configure(cfg);
+    const N = dur * fps, tStart = performance.now();
+    for (let i = 0; i < N; i++) {
+      if (encErr) throw encErr;
+      win.__vcAdvance(i * 1000 / fps);
+      await capture(doc, win, ctx, W, H, lw, lh);
+      const fr = new VideoFrame(cv, { timestamp: Math.round(i * 1e6 / fps), duration: Math.round(1e6 / fps) });
+      enc.encode(fr, { keyFrame: i % fps === 0 }); fr.close();
+      while (enc.encodeQueueSize > 4) await new Promise(r => setTimeout(r, 5));
+      if (i % 2 === 0) {
+        $('fill').style.width = (i / N * 100).toFixed(1) + '%';
+        const el = (performance.now() - tStart) / 1000, eta = el / (i + 1) * (N - i - 1);
+        setStatus(`${note}ফ্রেম ${i + 1}/${N} • ${W}×${H} • বাকি ≈ ${Math.ceil(eta)} সেকেন্ড`);
+        await new Promise(r => setTimeout(r));
+      }
+    }
+    await enc.flush(); enc.close(); muxer.finalize();
+    blob = new Blob([muxer.target.buffer], { type: 'video/mp4' });
+    if (blobUrl) URL.revokeObjectURL(blobUrl);
+    blobUrl = URL.createObjectURL(blob);
+    outName = `${String(Math.floor(Math.random() * 9e9) + 1e9) + String(Date.now() % 1e5).padStart(5, '0')}.mp4`;
+    $('vid').src = blobUrl; $('out').classList.remove('hide'); $('fill').style.width = '100%';
+    setStatus(`${note} সম্পন্ন! ${W}×${H}, ${fps}fps, ${dur}s, ${(blob.size / 1048576).toFixed(1)} MB`);
+    if ($('autoDl').checked) setTimeout(() => { try { $('dl').click(); setStatus($('st').textContent + '\n ডাউনলোড শুরু হয়েছে (না এলে নিচের ডাউনলোড বাটন চাপুন)'); } catch (e) {} }, 600);
+  } catch (e) { setStatus('ত্রুটি: ' + (e.message || e) + '\n(HTML-এ বাইরের ফাইল/SMIL থাকলে "প্রমট বানানোর নিয়ম" ট্যাব দেখুন।)'); }
+  if (ex) ex.remove();
+  if (wake) try { wake.release(); } catch (e) {}
+  busy = false; $('ticker').classList.remove('paused'); $('go').disabled = false; t0 = performance.now(); loadPreview();
+};
+try { $('autoDl').checked = localStorage.getItem('vf_autodl') !== '0'; } catch (e) { $('autoDl').checked = true; }
+$('autoDl').onchange = () => { try { localStorage.setItem('vf_autodl', $('autoDl').checked ? '1' : '0'); } catch (e) {} };
+$('dl').onclick = () => { const a = document.createElement('a'); a.href = blobUrl; a.download = outName; a.click(); };
+$('share').onclick = async () => {
+  const f = new File([blob], outName, { type: 'video/mp4' });
+  if (navigator.canShare && navigator.canShare({ files: [f] })) { try { await navigator.share({ files: [f] }); } catch (e) {} }
+  else setStatus('শেয়ার সাপোর্ট নেই। "ডাউনলোড" চাপুন, ফাইল Downloads ফোল্ডারে যাবে।');
+};
+
+/* ===================================================================== boot */
+window.__app = { gate, tierOf };
+(function boot() {
+  applyBrand();
+  renderHeader();
+  renderUsage();
+  showTab('tool');
+})();
+</script>
+<script src="https://antargfx.github.io/main-header.js"></script>
+<script src="https://antargfx.github.io/main-footer.js"></script>
+</body>
+</html>
