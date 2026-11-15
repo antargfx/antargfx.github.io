@@ -1,7 +1,6 @@
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,8 +14,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <!-- Font Awesome -->
-  <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
   <style>
     :root {
@@ -47,19 +45,17 @@
       padding: 45px 20px;
     }
 
-    button,
-    input,
-    select {
+    button, input {
       font: inherit;
     }
 
     .container {
+      max-width: 1150px;
       width: 100%;
-      max-width: 1100px;
       margin: auto;
     }
 
-    /* Header */
+    /* HEADER */
 
     .header {
       margin-bottom: 35px;
@@ -77,14 +73,14 @@
       height: 54px;
       display: grid;
       place-items: center;
-      background: rgba(99, 102, 241, 0.15);
+      background: rgba(99,102,241,.15);
       color: #818cf8;
       border-radius: 15px;
       font-size: 23px;
     }
 
     .header h1 {
-      font-size: clamp(25px, 5vw, 36px);
+      font-size: clamp(25px,5vw,36px);
       font-weight: 800;
       letter-spacing: -1px;
     }
@@ -95,7 +91,7 @@
       line-height: 1.7;
     }
 
-    /* Toolbar */
+    /* TOOLBAR */
 
     .toolbar {
       display: flex;
@@ -127,7 +123,6 @@
       outline: none;
       color: white;
       font-size: 14px;
-      transition: .2s;
     }
 
     #search:focus {
@@ -138,7 +133,7 @@
       color: #64748b;
     }
 
-    .toolbar button {
+    #refresh {
       height: 48px;
       padding: 0 18px;
       border: none;
@@ -148,20 +143,18 @@
       cursor: pointer;
       font-size: 14px;
       font-weight: 600;
-      transition: .2s;
-      white-space: nowrap;
     }
 
-    .toolbar button:hover {
+    #refresh:hover {
       background: var(--primary-hover);
     }
 
-    .toolbar button:disabled {
+    #refresh:disabled {
       opacity: .6;
       cursor: wait;
     }
 
-    /* Info bar */
+    /* INFO */
 
     .info {
       display: flex;
@@ -187,20 +180,21 @@
       background: var(--success);
     }
 
-    /* File grid */
+    /* GRID */
 
     .file-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 18px;
     }
+
+    /* PROJECT CARD */
 
     .file-card {
       display: flex;
       flex-direction: column;
       min-width: 0;
-      min-height: 145px;
-      padding: 20px;
+      overflow: hidden;
       text-decoration: none;
       color: var(--text);
       background: var(--card);
@@ -213,25 +207,109 @@
       transform: translateY(-4px);
       border-color: var(--primary);
       background: var(--card-hover);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, .15);
+      box-shadow: 0 12px 30px rgba(0,0,0,.2);
+    }
+
+    /* LIVE PREVIEW */
+
+    .preview-container {
+      position: relative;
+      width: 100%;
+      height: 190px;
+      overflow: hidden;
+      background: #e2e8f0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .preview-frame {
+      display: block;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: white;
+      pointer-events: none;
+    }
+
+    .preview-loading {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      background: #1e293b;
+      color: #94a3b8;
+      font-size: 12px;
+      pointer-events: none;
+      transition: opacity .3s;
+    }
+
+    .preview-loading i {
+      font-size: 23px;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .preview-loading.hidden {
+      opacity: 0;
+    }
+
+    .preview-label {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(15,23,42,.85);
+      color: #cbd5e1;
+      padding: 6px 9px;
+      border-radius: 6px;
+      font-size: 10px;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .preview-label i {
+      color: #818cf8;
+      margin-right: 4px;
+    }
+
+    .preview-failed {
+      position: absolute;
+      inset: 0;
+      display: none;
+      place-items: center;
+      color: #94a3b8;
+      background: #1e293b;
+      font-size: 12px;
+      text-align: center;
+      pointer-events: none;
+    }
+
+    .preview-failed i {
+      display: block;
+      font-size: 25px;
+      margin-bottom: 10px;
+    }
+
+    /* CARD DETAILS */
+
+    .file-details {
+      padding: 16px 18px 18px;
     }
 
     .file-card-top {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 20px;
+      margin-bottom: 13px;
     }
 
     .file-icon {
-      width: 42px;
-      height: 42px;
+      width: 36px;
+      height: 36px;
       display: grid;
       place-items: center;
-      background: rgba(99, 102, 241, .15);
+      background: rgba(99,102,241,.15);
       color: #818cf8;
-      border-radius: 11px;
-      font-size: 19px;
+      border-radius: 9px;
+      font-size: 17px;
     }
 
     .open-icon {
@@ -242,23 +320,23 @@
 
     .file-card:hover .open-icon {
       color: #a5b4fc;
-      transform: translate(2px, -2px);
+      transform: translate(2px,-2px);
     }
 
     .file-name {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 600;
       line-height: 1.5;
       overflow-wrap: anywhere;
     }
 
     .file-type {
-      margin-top: 7px;
+      margin-top: 6px;
       color: var(--muted);
       font-size: 11px;
     }
 
-    /* States */
+    /* STATUS */
 
     .status {
       grid-column: 1 / -1;
@@ -290,7 +368,7 @@
     }
 
     .error-text {
-      color: var(--danger) !important;
+      color: var(--danger);
     }
 
     .retry-btn {
@@ -301,10 +379,9 @@
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      font-weight: 600;
     }
 
-    /* Footer */
+    /* FOOTER */
 
     .footer {
       margin-top: 45px;
@@ -328,7 +405,7 @@
       color: #a5b4fc;
     }
 
-    /* Responsive */
+    /* RESPONSIVE */
 
     @media (max-width: 600px) {
       body {
@@ -339,18 +416,21 @@
         flex-direction: column;
       }
 
-      .toolbar button {
+      #refresh {
         width: 100%;
       }
 
       .file-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 10px;
+        grid-template-columns: repeat(2,minmax(0,1fr));
+        gap: 11px;
       }
 
-      .file-card {
-        padding: 15px;
-        min-height: 135px;
+      .preview-container {
+        height: 135px;
+      }
+
+      .file-details {
+        padding: 12px;
       }
 
       .file-name {
@@ -367,6 +447,10 @@
       .file-grid {
         grid-template-columns: 1fr;
       }
+
+      .preview-container {
+        height: 190px;
+      }
     }
 
   </style>
@@ -376,7 +460,7 @@
 
   <main class="container">
 
-    <!-- Header -->
+    <!-- HEADER -->
     <header class="header">
 
       <div class="header-top">
@@ -396,7 +480,7 @@
     </header>
 
 
-    <!-- Search and Refresh -->
+    <!-- SEARCH -->
     <div class="toolbar">
 
       <div class="search-box">
@@ -418,7 +502,7 @@
     </div>
 
 
-    <!-- Information -->
+    <!-- INFO -->
     <div class="info">
 
       <div class="info-left">
@@ -431,7 +515,7 @@
     </div>
 
 
-    <!-- Project List -->
+    <!-- PROJECT GRID -->
     <section class="file-grid" id="fileList">
 
       <div class="status">
@@ -443,7 +527,7 @@
     </section>
 
 
-    <!-- Footer -->
+    <!-- FOOTER -->
     <footer class="footer">
 
       <span>
@@ -467,33 +551,29 @@
 
   <script>
 
-    // ==========================================
+    // =====================================
     // CONFIGURATION
-    // ==========================================
+    // =====================================
 
     const FILES_URL = "./files.json";
 
     let allFiles = [];
 
 
-    // ==========================================
-    // DOM ELEMENTS
-    // ==========================================
+    // =====================================
+    // ELEMENTS
+    // =====================================
 
     const fileList = document.getElementById("fileList");
-
     const fileCount = document.getElementById("fileCount");
-
     const lastUpdated = document.getElementById("lastUpdated");
-
     const searchInput = document.getElementById("search");
-
     const refreshButton = document.getElementById("refresh");
 
 
-    // ==========================================
-    // LOAD FILES FROM files.json
-    // ==========================================
+    // =====================================
+    // LOAD FILES
+    // =====================================
 
     async function loadFiles() {
 
@@ -501,12 +581,11 @@
         <div class="status">
           <i class="fa-solid fa-spinner fa-spin"></i>
           <h3>Loading projects</h3>
-          <p>Please wait while we fetch your files.</p>
+          <p>Please wait...</p>
         </div>
       `;
 
       fileCount.textContent = "Fetching projects...";
-
       refreshButton.disabled = true;
 
       refreshButton.innerHTML = `
@@ -516,39 +595,32 @@
 
       try {
 
-        // Fetch JSON file
         const response = await fetch(
           FILES_URL + "?t=" + Date.now(),
           { cache: "no-store" }
         );
 
         if (!response.ok) {
-
           throw new Error(
             `HTTP ${response.status}: Unable to load files.json`
           );
-
         }
 
         const files = await response.json();
 
         if (!Array.isArray(files)) {
-
           throw new Error("Invalid files.json format.");
-
         }
 
-        // Validate and filter filenames
-        allFiles = files
-          .filter(name =>
-            typeof name === "string" &&
-            name.toLowerCase().endsWith(".html") &&
-            name.toLowerCase() !== "index.html" &&
-            !name.includes("/") &&
-            !name.includes("\\")
-          );
+        allFiles = files.filter(name =>
+          typeof name === "string" &&
+          name.toLowerCase().endsWith(".html") &&
+          name.toLowerCase() !== "index.html" &&
+          !name.includes("/") &&
+          !name.includes("\\")
+        );
 
-        // Sort newest filename first
+        // Newest filename first
         allFiles.sort((a, b) =>
           b.localeCompare(a, undefined, {
             numeric: true,
@@ -565,13 +637,12 @@
 
       catch (error) {
 
-        console.error("Loading Error:", error);
+        console.error(error);
 
         fileCount.textContent = "Unable to load projects";
 
         fileList.innerHTML = `
           <div class="status">
-
             <i class="fa-solid fa-triangle-exclamation"
                style="color:#f87171"></i>
 
@@ -585,7 +656,6 @@
               <i class="fa-solid fa-rotate-right"></i>
               Try Again
             </button>
-
           </div>
         `;
 
@@ -605,9 +675,9 @@
     }
 
 
-    // ==========================================
-    // RENDER PROJECTS
-    // ==========================================
+    // =====================================
+    // RENDER PROJECT CARDS WITH PREVIEWS
+    // =====================================
 
     function renderFiles(files) {
 
@@ -618,16 +688,9 @@
 
         fileList.innerHTML = `
           <div class="status">
-
             <i class="fa-regular fa-folder-open"></i>
-
             <h3>No projects found</h3>
-
-            <p>
-              No matching HTML files were found.
-              Try another search keyword.
-            </p>
-
+            <p>No matching HTML files were found.</p>
           </div>
         `;
 
@@ -635,11 +698,12 @@
 
       }
 
-      fileList.innerHTML = files.map(name => {
+      fileList.innerHTML = files.map((name, index) => {
 
         const safeName = escapeHTML(name);
-
         const fileURL = "./" + encodeURIComponent(name);
+
+        const frameID = "preview-" + index;
 
         return `
 
@@ -650,22 +714,63 @@
             rel="noopener noreferrer"
           >
 
-            <div class="file-card-top">
+            <!-- LIVE PREVIEW -->
+            <div class="preview-container">
 
-              <div class="file-icon">
-                <i class="fa-brands fa-html5"></i>
+              <div class="preview-label">
+                <i class="fa-solid fa-eye"></i>
+                LIVE PREVIEW
               </div>
 
-              <i class="fa-solid fa-arrow-up-right-from-square open-icon"></i>
+              <iframe
+                id="${frameID}"
+                class="preview-frame"
+                src="${fileURL}"
+                loading="lazy"
+                title="Preview of ${safeName}"
+                sandbox="allow-scripts allow-same-origin"
+                tabindex="-1"
+                aria-hidden="true"
+              ></iframe>
+
+              <div class="preview-loading" id="${frameID}-loading">
+                <div>
+                  <i class="fa-solid fa-spinner fa-spin"></i>
+                  Loading preview...
+                </div>
+              </div>
+
+              <div class="preview-failed" id="${frameID}-failed">
+                <div>
+                  <i class="fa-regular fa-image"></i>
+                  Preview unavailable
+                </div>
+              </div>
 
             </div>
 
-            <div class="file-name">
-              ${safeName}
-            </div>
 
-            <div class="file-type">
-              HTML Project · Open Project
+            <!-- PROJECT DETAILS -->
+            <div class="file-details">
+
+              <div class="file-card-top">
+
+                <div class="file-icon">
+                  <i class="fa-brands fa-html5"></i>
+                </div>
+
+                <i class="fa-solid fa-arrow-up-right-from-square open-icon"></i>
+
+              </div>
+
+              <div class="file-name">
+                ${safeName}
+              </div>
+
+              <div class="file-type">
+                HTML Project · Open Project
+              </div>
+
             </div>
 
           </a>
@@ -674,48 +779,84 @@
 
       }).join("");
 
+
+      // Attach iframe preview events
+      files.forEach((name, index) => {
+
+        const frameID = "preview-" + index;
+
+        const frame = document.getElementById(frameID);
+        const loading = document.getElementById(frameID + "-loading");
+        const failed = document.getElementById(frameID + "-failed");
+
+        frame.addEventListener("load", () => {
+
+          loading.classList.add("hidden");
+          failed.style.display = "none";
+
+        });
+
+        frame.addEventListener("error", () => {
+
+          loading.classList.add("hidden");
+          failed.style.display = "grid";
+
+        });
+
+        // Fallback if the preview does not load
+        setTimeout(() => {
+
+          if (!frame.contentDocument?.readyState ||
+              frame.contentDocument.readyState === "loading") {
+
+            loading.classList.add("hidden");
+
+          }
+
+        }, 12000);
+
+      });
+
     }
 
 
-    // ==========================================
-    // SEARCH PROJECTS
-    // ==========================================
+    // =====================================
+    // SEARCH
+    // =====================================
 
     searchInput.addEventListener("input", function() {
 
       const keyword = this.value.toLowerCase().trim();
 
-      const filteredFiles = allFiles.filter(name =>
+      const filtered = allFiles.filter(name =>
         name.toLowerCase().includes(keyword)
       );
 
-      renderFiles(filteredFiles);
+      renderFiles(filtered);
 
     });
 
 
-    // ==========================================
+    // =====================================
     // HTML ESCAPE
-    // ==========================================
+    // =====================================
 
     function escapeHTML(value) {
 
       return String(value).replace(/[&<>"']/g, char => ({
-
         "&": "&amp;",
         "<": "&lt;",
         ">": "&gt;",
         '"': "&quot;",
         "'": "&#039;"
-
       })[char]);
 
     }
 
 
-    // ==========================================
+    // =====================================
     // INITIALIZE
-    // ==========================================
+    // =====================================
 
     loadFiles();
 
