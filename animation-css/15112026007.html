@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Abstract Vector Fireworks & Starbursts</title>
+<style>
+  html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: #07091E;
+  }
+  canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+</style>
+</head>
+<body>
+<canvas id="stage"></canvas>
+<script>
+const canvas = document.getElementById('stage');
+const ctx = canvas.getContext('2d');
+
+const W = 1920;
+const H = 1080;
+
+function resize() {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+}
+window.addEventListener('resize', resize);
+resize();
+
+const PALETTE = {
+  bgTop: '#050614',
+  bgMid: '#07091E',
+  bgBot: '#12153A',
+  magenta: '#FF007F',
+  yellow: '#FFD600',
+  cyan: '#00F0FF',
+  tangerine: '#FF6D00',
+  white: '#FFFFFF',
+  purple: '#9D00FF'
+};
+
+function mulberry32(a) {
+  return function() {
+    var t = a += 0x6D2B79F5;
+    t = Math.imul(t ^ t >>> 15, t | 1);
+    t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  }
+}
+
+const rng = mulberry32(2026);
+
+const stars = [];
+for (let i = 0; i < 160; i++) {
+  const colors = [PALETTE.white, PALETTE.cyan, PALETTE.yellow, PALETTE.magenta];
+  stars.push({
+    x: rng() * W,
+    y: rng() * H * 0.88,
+    r: 0.6 + rng() * 1.8,
+    phase: rng() * Math.PI * 2,
+    freq: rng() > 0.4 ? 1 : 2,
+    color: colors[Math.floor(rng() * colors.length)],
+    isCross: rng() > 0.84
+  });
+}
+
+const bgOrbs = [];
+for (let i = 0; i < 24; i++) {
+  const colors = [PALETTE.magenta, PALETTE.cyan, PALETTE.purple, PALETTE.tangerine];
+  bgOrbs.push({
+    x: rng() * W,
+    y: rng() * H * 0.75,
+    r: 40 + rng() * 110,
+    color: colors[Math.floor(rng() * colors.length)],
+    phase: rng() * Math.PI * 2,
+    ampX: 15 + rng() * 30,
+    ampY: 10 + rng() * 25
+  });
+}
+
+const floatingLanterns = [];
+for (let i = 0; i < 45; i++) {
+  const colors = [PALETTE.yellow, PALETTE.tangerine, PALETTE.magenta, PALETTE.cyan];
+  floatingLanterns.push({
+    xBase: rng() * W,
+    yStart: rng(),
+    size: 1.5 + rng() * 2.5,
+    color: colors[Math.floor(rng() * colors.length)],
+    wobblePhase: rng() * Math.PI * 2,
+    wobbleAmp: 10 + rng() * 25,
+    pulseFreq: 2 + Math.floor(rng() * 3)
+  });
+}
+
+const fireworks = [
+  { t0: 0.2, x0: 260,  x1: 310,  y1: 270, c1: PALETTE.magenta,   c2: PALETTE.yellow,    c3: PALETTE.white,     scale: 1.15, type: 0, rot: 0.2 },
+  { t0: 0.9, x0: 1560, x1: 1490, y1: 230, c1: PALETTE.cyan,      c2: PALETTE.magenta,   c3: PALETTE.white,     scale: 1.25, type: 1, rot: -0.3 },
+  { t0: 1.5, x0: 960,  x1: 960,  y1: 180, c1: PALETTE.yellow,    c2: PALETTE.tangerine, c3: PALETTE.magenta,   scale: 1.45, type: 2, rot: 0.1 },
+  { t0: 2.2, x0: 580,  x1: 630,  y1: 370, c1: PALETTE.tangerine, c2: PALETTE.cyan,      c3: PALETTE.yellow,    scale: 0.95, type: 3, rot: 0.4 },
+  { t0: 2.8, x0: 1320, x1: 1270, y1: 330, c1: PALETTE.magenta,   c2: PALETTE.cyan,      c3: PALETTE.yellow,    scale: 1.10, type: 0, rot: -0.2 },
+  { t0: 3.4, x0: 190,  x1: 230,  y1: 420, c1: PALETTE.cyan,      c2: PALETTE.yellow,    c3: PALETTE.white,     scale: 0.85, type: 1, rot: 0.5 },
+  { t0: 4.0, x0: 1730, x1: 1680, y1: 350, c1: PALETTE.yellow,    c2: PALETTE.magenta,   c3: PALETTE.tangerine, scale: 1.05, type: 2, rot: -0.4 },
+  { t0: 4.6, x0: 780,  x1: 740,  y1: 240, c1: PALETTE.cyan,      c2: PALETTE.tangerine, c3: PALETTE.white,     scale: 1.30, type: 3, rot: 0.15 },
+  { t0: 5.2, x0: 1140, x1: 1180, y1: 210, c1: PALETTE.magenta,   c2: PALETTE.yellow,    c3: PALETTE.cyan,      scale: 1.35, type: 1, rot: -0.25 },
+  { t0: 5.9, x0: 420,  x1: 460,  y1: 290, c1: PALETTE.tangerine, c2: PALETTE.magenta,   c3: PALETTE.yellow,    scale: 1.15, type: 2, rot: 0.3 },
+  { t0: 6.5, x0: 1620, x1: 1570, y1: 260, c1: PALETTE.cyan,      c2: PALETTE.yellow,    c3: PALETTE.magenta,   scale: 1.20, type: 0, rot: -0.15 },
+  { t0: 7.2, x0: 880,  x1: 850,  y1: 390, c1: PALETTE.yellow,    c2: PALETTE.cyan,      c3: PALETTE.white,     scale: 0.95, type: 3, rot: 0.35 },
+  { t0: 7.8, x0: 1380, x1: 1410, y1: 190, c1: PALETTE.magenta,   c2: PALETTE.tangerine, c3: PALETTE.yellow,    scale: 1.35, type: 2, rot: -0.3 },
+  { t0: 8.5, x0: 500,  x1: 540,  y1: 200, c1: PALETTE.cyan,      c2: PALETTE.magenta,   c3: PALETTE.white,     scale: 1.25, type: 1, rot: 0.2 },
+  { t0: 9.2, x0: 1040, x1: 1010, y1: 290, c1: PALETTE.tangerine, c2: PALETTE.yellow,    c3: PALETTE.cyan,      scale: 1.15, type: 0, rot: -0.1 }
+];
+
+fireworks.forEach((fw, idx) => {
+  const fRng = mulberry32(idx * 997 + 123);
+  fw.embers = [];
+  for (let i = 0; i < 36; i++) {
+    const angle = (i / 36) * Math.PI * 2 + (fRng() - 0.5) * 0.15;
+    const dist = 50 + fRng() * 170;
+    fw.embers.push({
+      angle,
+      dist,
+      size: 1.5 + fRng() * 3,
+      twinkleOffset: fRng() * 10,
+      colorPick: i % 3
+    });
+  }
+});
+
+function easeOutCubic(x) {
+  return 1 - Math.pow(1 - x, 3);
+}
+function easeOutQuart(x) {
+  return 1 - Math.pow(1 - x, 4);
+}
+function easeOutQuint(x) {
+  return 1 - Math.pow(1 - x, 5);
+}
+function easeInQuad(x) {
+  return x * x;
+}
+
+function getQuadPoint(t, x0, y0, cx, cy, x1, y1) {
+  const u = 1 - t;
+  return {
+    x: u * u * x0 + 2 * u * t * cx + t * t * x1,
+    y: u * u * y0 + 2 * u * t * cy + t * t * y1
+  };
+}
+
+function drawStarSparkle(x, y, size, color, alpha, rot = 0) {
+  if (alpha <= 0.01) return;
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(rot);
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  const inner = size * 0.22;
+  for (let i = 0; i < 4; i++) {
+    const a1 = (i * Math.PI) / 2;
+    const a2 = a1 + Math.PI / 4;
+    ctx.lineTo(Math.cos(a1) * size, Math.sin(a1) * size);
+    ctx.lineTo(Math.cos(a2) * inner, Math.sin(a2) * inner);
+  }
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawTaperedRay(angle, innerR, outerR, width, color, alpha) {
+  if (alpha <= 0.01 || outerR <= innerR) return;
+  ctx.save();
+  ctx.rotate(angle);
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle = color;
+  const midR = innerR + (outerR - innerR) * 0.65;
+  ctx.beginPath();
+  ctx.moveTo(innerR, 0);
+  ctx.lineTo(midR, width * 0.5);
+  ctx.lineTo(outerR, 0);
+  ctx.lineTo(midR, -width * 0.5);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawDashedRing(r, count, dashRatio, weight, color, alpha, rot) {
+  if (alpha <= 0.01 || r <= 1) return;
+  ctx.save();
+  ctx.rotate(rot);
+  ctx.globalAlpha = alpha;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = weight;
+  ctx.lineCap = 'round';
+  const step = (Math.PI * 2) / count;
+  const arcLen = step * dashRatio;
+  for (let i = 0; i < count; i++) {
+    ctx.beginPath();
+    ctx.arc(0, 0, r, i * step, i * step + arcLen);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawDotRing(r, count, dotR, color, alpha, rot, diamond = false) {
+  if (alpha <= 0.01 || r <= 1 || dotR <= 0.1) return;
+  ctx.save();
+  ctx.rotate(rot);
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle = color;
+  const step = (Math.PI * 2) / count;
+  for (let i = 0; i < count; i++) {
+    const a = i * step;
+    const px = Math.cos(a) * r;
+    const py = Math.sin(a) * r;
+    if (diamond) {
+      ctx.save();
+      ctx.translate(px, py);
+      ctx.rotate(a);
+      ctx.beginPath();
+      ctx.moveTo(dotR * 1.4, 0);
+      ctx.lineTo(0, dotR * 0.8);
+      ctx.lineTo(-dotR * 1.4, 0);
+      ctx.lineTo(0, -dotR * 0.8);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    } else {
+      ctx.beginPath();
+      ctx.arc(px, py, dotR, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+  ctx.restore();
+}
+
+function drawWillowPlumes(maxR, progress, count, color1, color2, alpha, rot) {
+  if (alpha <= 0.01) return;
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.lineCap = 'round';
+  const step = (Math.PI * 2) / count;
+  const easeP = easeOutQuart(progress);
+  const tailP = easeOutCubic(Math.max(0, (progress - 0.12) / 0.88));
+
+  for (let i = 0; i < count; i++) {
+    const a = i * step + rot;
+    ctx.strokeStyle = i % 2 === 0 ? color1 : color2;
+    ctx.lineWidth = (1 - progress * 0.65) * 3.2;
+    ctx.beginPath();
+    const segments = 10;
+    for (let s = 0; s <= segments; s++) {
+      const sp = tailP + (easeP - tailP) * (s / segments);
+      const r = sp * maxR;
+      const drop = Math.pow(sp, 2.3) * 65;
+      const px = Math.cos(a) * r;
+      const py = Math.sin(a) * r + drop;
+      if (s === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+
+    const tipR = easeP * maxR;
+    const tipDrop = Math.pow(easeP, 2.3) * 65;
+    const tx = Math.cos(a) * tipR;
+    const ty = Math.sin(a) * tipR + tipDrop;
+    ctx.fillStyle = PALETTE.white;
+    ctx.beginPath();
+    ctx.arc(tx, ty, (1 - progress * 0.5) * 2.5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+function renderRocket(fw, p) {
+  const x0 = fw.x0;
+  const y0 = H + 20;
+  const x1 = fw.x1;
+  const y1 = fw.y1;
+  const cx = (x0 + x1) * 0.5 + (x1 - x0) * 0.6;
+  const cy = (y0 + y1) * 0.5 - 90;
+
+  const headT = easeOutCubic(p);
+  const tailT = easeOutCubic(Math.max(0, p - 0.28));
+
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+
+  const steps = 18;
+  for (let i = 0; i < steps; i++) {
+    const tA = tailT + (headT - tailT) * (i / steps);
+    const tB = tailT + (headT - tailT) * ((i + 1) / steps);
+    const ptA = getQuadPoint(tA, x0, y0, cx, cy, x1, y1);
+    const ptB = getQuadPoint(tB, x0, y0, cx, cy, x1, y1);
+    const segRatio = (i + 1) / steps;
+
+    ctx.strokeStyle = fw.c1;
+    ctx.globalAlpha = segRatio * 0.85 * (1 - Math.pow(p, 4) * 0.5);
+    ctx.lineWidth = segRatio * 4.5 * fw.scale;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(ptA.x, ptA.y);
+    ctx.lineTo(ptB.x, ptB.y);
+    ctx.stroke();
+  }
+
+  for (let s = 0; s < 6; s++) {
+    const sparkP = Math.max(0, headT - s * 0.035);
+    const pt = getQuadPoint(sparkP, x0, y0, cx, cy, x1, y1);
+    const offset = Math.sin(p * 35 + s * 2) * (6 * (s / 6));
+    ctx.fillStyle = s % 2 === 0 ? fw.c2 : PALETTE.white;
+    ctx.globalAlpha = (1 - s / 6) * 0.7;
+    ctx.beginPath();
+    ctx.arc(pt.x + offset, pt.y + s * 2, (1 - s / 6) * 2.5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  const headPt = getQuadPoint(headT, x0, y0, cx, cy, x1, y1);
+  const headGrad = ctx.createRadialGradient(headPt.x, headPt.y, 0, headPt.x, headPt.y, 24 * fw.scale);
+  headGrad.addColorStop(0, PALETTE.white);
+  headGrad.addColorStop(0.35, fw.c1);
+  headGrad.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = headGrad;
+  ctx.beginPath();
+  ctx.arc(headPt.x, headPt.y, 24 * fw.scale, 0, Math.PI * 2);
+  ctx.fill();
+
+  drawStarSparkle(headPt.x, headPt.y, 12 * fw.scale, PALETTE.white, 0.95, p * 6);
+  ctx.restore();
+}
+
+function renderBurst(fw, p) {
+  const easeP = easeOutQuart(p);
+  const easeFast = easeOutQuint(p);
+  const driftY = easeInQuad(p) * 58;
+  const cx = fw.x1;
+  const cy = fw.y1 + driftY;
+  const maxR = 210 * fw.scale;
+
+  const fadeMain = Math.max(0, 1 - Math.pow(p, 1.8));
+  const fadeSlow = Math.max(0, 1 - Math.pow(p, 2.6));
+
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+
+  const smokeAlpha = Math.sin(Math.min(1, p * 1.3) * Math.PI) * 0.24 * (1 - p * 0.4);
+  if (smokeAlpha > 0.005) {
+    const smokeR = maxR * (0.7 + easeP * 1.25);
+    const smokeGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, smokeR);
+    smokeGrad.addColorStop(0, fw.c1);
+    smokeGrad.addColorStop(0.45, fw.c2);
+    smokeGrad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.globalAlpha = smokeAlpha;
+    ctx.fillStyle = smokeGrad;
+    ctx.beginPath();
+    ctx.arc(cx, cy, smokeR, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  if (p < 0.22) {
+    const flashP = p / 0.22;
+    const flashAlpha = (1 - flashP) * 0.9;
+    const flashR = maxR * 0.55 * easeOutCubic(flashP);
+    const flashGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(1, flashR));
+    flashGrad.addColorStop(0, PALETTE.white);
+    flashGrad.addColorStop(0.4, fw.c2);
+    flashGrad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.globalAlpha = flashAlpha;
+    ctx.fillStyle = flashGrad;
+    ctx.beginPath();
+    ctx.arc(cx, cy, flashR, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.translate(cx, cy);
+  const baseRot = fw.rot + p * 0.22;
+
+  if (fw.type === 0) {
+    drawDashedRing(easeFast * maxR * 0.96, 28, 0.55, 3.2 * (1 - p * 0.5), fw.c1, fadeMain, baseRot);
+    drawDashedRing(easeP * maxR * 0.64, 18, 0.45, 2.5 * (1 - p * 0.5), fw.c2, fadeMain, -baseRot * 1.4);
+    drawDashedRing(easeP * maxR * 0.34, 12, 0.5, 2.0, PALETTE.white, fadeMain * 0.9, baseRot * 0.8);
+
+    const rayCount = 16;
+    const rInner = easeInQuad(Math.min(1, p * 1.35)) * maxR * 0.72;
+    const rOuter = easeP * maxR * 1.08;
+    for (let i = 0; i < rayCount; i++) {
+      const a = (i / rayCount) * Math.PI * 2 + baseRot;
+      drawTaperedRay(a, rInner * 0.45, rOuter, 5.5 * fw.scale * (1 - p * 0.5), i % 2 === 0 ? fw.c1 : fw.c2, fadeMain);
+    }
+
+    drawDotRing(easeFast * maxR * 1.12, 24, 3.5 * fw.scale * (1 - p * 0.6), fw.c2, fadeSlow, baseRot * 0.5, true);
+    drawDotRing(easeP * maxR * 0.48, 12, 3.0 * fw.scale * (1 - p * 0.5), PALETTE.white, fadeMain, -baseRot);
+
+  } else if (fw.type === 1) {
+    const rayCount = 24;
+    for (let i = 0; i < rayCount; i++) {
+      const isLong = i % 2 === 0;
+      const targetR = isLong ? maxR * 1.15 : maxR * 0.75;
+      const rInner = easeInQuad(Math.min(1, p * 1.4)) * targetR * 0.45;
+      const rOuter = easeP * targetR;
+      const a = (i / rayCount) * Math.PI * 2 + baseRot;
+      const col = isLong ? fw.c1 : fw.c2;
+      drawTaperedRay(a, rInner, rOuter, (isLong ? 6.5 : 4.2) * fw.scale * (1 - p * 0.4), col, fadeMain);
+
+      if (isLong && fadeSlow > 0.05) {
+        const sx = Math.cos(a) * (rOuter + 12 * fw.scale);
+        const sy = Math.sin(a) * (rOuter + 12 * fw.scale);
+        drawStarSparkle(sx, sy, 9 * fw.scale * (1 - p * 0.4), PALETTE.white, fadeSlow, a + p * 4);
+      }
+    }
+    drawDashedRing(easeP * maxR * 0.52, 20, 0.35, 2.5, PALETTE.white, fadeMain * 0.85, -baseRot);
+    drawDotRing(easeP * maxR * 0.88, 12, 3.2 * fw.scale * (1 - p * 0.5), fw.c3, fadeMain, baseRot + Math.PI / 12);
+
+  } else if (fw.type === 2) {
+    drawWillowPlumes(maxR * 1.05, p, 20, fw.c1, fw.c2, fadeMain, baseRot);
+    drawDashedRing(easeP * maxR * 0.45, 16, 0.5, 2.8 * (1 - p * 0.5), fw.c2, fadeMain * 0.9, -baseRot * 1.2);
+    drawDotRing(easeFast * maxR * 0.72, 16, 3.5 * fw.scale * (1 - p * 0.5), PALETTE.white, fadeMain, baseRot * 0.8, true);
+
+    const innerRays = 8;
+    for (let i = 0; i < innerRays; i++) {
+      const a = (i / innerRays) * Math.PI * 2 - baseRot;
+      drawTaperedRay(a, easeP * maxR * 0.1, easeP * maxR * 0.4, 5 * fw.scale * (1 - p * 0.5), PALETTE.white, fadeMain);
+    }
+
+  } else {
+    const layers = 3;
+    for (let l = 0; l < layers; l++) {
+      const layerP = Math.max(0, Math.min(1, (p - l * 0.06) / (1 - l * 0.06)));
+      const lEase = easeOutQuart(layerP);
+      const rScale = (0.45 + l * 0.32) * maxR;
+      const col = l === 0 ? PALETTE.white : (l === 1 ? fw.c2 : fw.c1);
+      const dir = l % 2 === 0 ? 1 : -1;
+
+      drawDotRing(lEase * rScale, 14 + l * 6, (4 - l * 0.6) * fw.scale * (1 - p * 0.5), col, fadeMain, baseRot * dir, true);
+      drawDashedRing(lEase * rScale * 0.85, 14 + l * 6, 0.4, 2.4 * (1 - p * 0.5), col, fadeMain * 0.8, -baseRot * dir);
+    }
+    const burstSpikes = 12;
+    for (let i = 0; i < burstSpikes; i++) {
+      const a = (i / burstSpikes) * Math.PI * 2 + baseRot;
+      drawTaperedRay(a, easeP * maxR * 0.25, easeFast * maxR * 1.12, 4.5 * fw.scale * (1 - p * 0.5), fw.c1, fadeMain);
+    }
+  }
+
+  if (p < 0.55) {
+    const coreAlpha = (1 - p / 0.55) * 0.85;
+    drawStarSparkle(0, 0, 26 * fw.scale * (1 - p), PALETTE.white, coreAlpha, -baseRot * 2);
+  }
+
+  if (p > 0.2) {
+    const emberP = (p - 0.2) / 0.8;
+    const emberFade = Math.sin(emberP * Math.PI) * (1 - Math.pow(emberP, 2.2));
+    fw.embers.forEach((em) => {
+      const r = easeOutQuart(p) * em.dist * fw.scale;
+      const ex = Math.cos(em.angle) * r;
+      const ey = Math.sin(em.angle) * r + emberP * emberP * 55;
+      const twinkle = 0.35 + 0.65 * Math.pow(Math.sin(p * 28 + em.twinkleOffset), 2);
+      const col = em.colorPick === 0 ? fw.c1 : (em.colorPick === 1 ? fw.c2 : PALETTE.white);
+      const alpha = emberFade * twinkle;
+      if (alpha > 0.02) {
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = col;
+        ctx.beginPath();
+        ctx.arc(ex, ey, em.size * (1 - emberP * 0.4), 0, Math.PI * 2);
+        ctx.fill();
+      }
+    });
+  }
+
+  ctx.restore();
+}
+
+function drawBackground(t) {
+  const skyGrad = ctx.createLinearGradient(0, 0, 0, H);
+  skyGrad.addColorStop(0, PALETTE.bgTop);
+  skyGrad.addColorStop(0.55, PALETTE.bgMid);
+  skyGrad.addColorStop(1, PALETTE.bgBot);
+  ctx.fillStyle = skyGrad;
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  const tau = (t / 10) * Math.PI * 2;
+
+  bgOrbs.forEach((orb) => {
+    const ox = orb.x + Math.sin(tau + orb.phase) * orb.ampX;
+    const oy = orb.y + Math.cos(tau + orb.phase) * orb.ampY;
+    const pulse = 0.035 + 0.025 * Math.sin(tau * 2 + orb.phase);
+    const grad = ctx.createRadialGradient(ox, oy, 0, ox, oy, orb.r);
+    grad.addColorStop(0, orb.color);
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.globalAlpha = pulse;
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(ox, oy, orb.r, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  stars.forEach((st) => {
+    const twinkle = 0.25 + 0.75 * (0.5 + 0.5 * Math.sin(tau * st.freq + st.phase));
+    if (st.isCross) {
+      drawStarSparkle(st.x, st.y, st.r * 3.2, st.color, twinkle * 0.85, 0);
+    } else {
+      ctx.globalAlpha = twinkle * 0.8;
+      ctx.fillStyle = st.color;
+      ctx.beginPath();
+      ctx.arc(st.x, st.y, st.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  });
+
+  floatingLanterns.forEach((p) => {
+    const prog = (p.yStart + t / 10) % 1.0;
+    const py = H - prog * (H * 0.55);
+    const px = p.xBase + Math.sin(prog * Math.PI * 2 + p.wobblePhase) * p.wobbleAmp;
+    const env = Math.sin(prog * Math.PI);
+    const pulse = 0.5 + 0.5 * Math.sin(tau * p.pulseFreq + p.wobblePhase);
+    const alpha = env * pulse * 0.45;
+    if (alpha > 0.01) {
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(px, py, p.size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  });
+
+  ctx.restore();
+}
+
+function drawHorizonGlow(t) {
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  const tau = (t / 10) * Math.PI * 2;
+
+  const hGrad = ctx.createLinearGradient(0, H - 180, 0, H);
+  hGrad.addColorStop(0, 'rgba(7, 9, 30, 0)');
+  hGrad.addColorStop(0.6, 'rgba(255, 0, 127, 0.06)');
+  hGrad.addColorStop(1, 'rgba(0, 240, 255, 0.12)');
+  ctx.fillStyle = hGrad;
+  ctx.fillRect(0, H - 180, W, 180);
+
+  ctx.strokeStyle = 'rgba(0, 240, 255, 0.18)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  for (let x = 0; x <= W; x += 20) {
+    const y = H - 18 + Math.sin(x * 0.006 + tau) * 6 + Math.cos(x * 0.015 - tau * 2) * 3;
+    if (x === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+function render(ts) {
+  const dpr = canvas.width / W;
+  ctx.save();
+  ctx.scale(dpr, dpr);
+
+  const t = ((ts || 0) / 1000) % 10;
+
+  drawBackground(t);
+
+  const launchDur = 0.95;
+  const burstDur = 3.55;
+
+  fireworks.forEach((fw) => {
+    const age = (t - fw.t0 + 10) % 10;
+    if (age < launchDur) {
+      const p = age / launchDur;
+      renderRocket(fw, p);
+    } else if (age < launchDur + burstDur) {
+      const p = (age - launchDur) / burstDur;
+      renderBurst(fw, p);
+    }
+  });
+
+  drawHorizonGlow(t);
+
+  ctx.restore();
+  requestAnimationFrame(render);
+}
+
+requestAnimationFrame(render);
+</script>
+</body>
+</html>
