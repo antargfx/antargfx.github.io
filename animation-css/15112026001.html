@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: #050B14;
+  }
+  canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+</style>
+</head>
+<body>
+<canvas id="stage"></canvas>
+<script>
+const canvas = document.getElementById('stage');
+const ctx = canvas.getContext('2d', { alpha: false });
+
+const W = 1920;
+const H = 1080;
+
+function resize() {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+window.addEventListener('resize', resize);
+resize();
+
+const COLS = 58;
+const ROWS = 38;
+const SPACING_X = 68;
+const SPACING_Z = 56;
+const Z_NEAR = 180;
+const FOV = 950;
+const CAM_Y = 235;
+const HORIZON_Y = 350;
+
+let seed = 421337;
+function rand() {
+  seed = (seed * 1664525 + 1013904223) % 4294967296;
+  return seed / 4294967296;
+}
+
+const grid = [];
+for (let r = 0; r < ROWS; r++) {
+  const row = [];
+  for (let c = 0; c < COLS; c++) {
+    const jx = (rand() - 0.5) * SPACING_X * 0.42;
+    const jz = (rand() - 0.5) * SPACING_Z * 0.42;
+    const bx = (c - (COLS - 1) / 2 + (r % 2) * 0.5) * SPACING_X + jx;
+    const bz = Z_NEAR + r * SPACING_Z + jz;
+    row.push({
+      bx, bz, r, c,
+      x: 0, y: 0, z: 0,
+      sx: 0, sy: 0,
+      elev: 0,
+      dof: 0,
+      distFade: 0
+    });
+  }
+  grid.push(row);
+}
+
+const triangles = [];
+const edgeMap = new Map();
+const edges = [];
+
+function addEdge(n1, n2) {
+  const id1 = n1.r * COLS + n1.c;
+  const id2 = n2.r * COLS + n2.c;
+  const key = id1 < id2 ? `${id1}_${id2}` : `${id2}_${id1}`;
+  if (!edgeMap.has(key)) {
+    const hasPulse = rand() < 0.28;
+    const e = {
+      n1, n2,
+      zAvg: (n1.bz + n2.bz) * 0.5,
+      hasPulse,
+      pulseSpeed: rand() < 0.5 ? 1 : 2,
+      pulseOffset: rand(),
+      pulseDir: rand() < 0.78 ? 1 : -1
+    };
+    edgeMap.set(key, e);
+    edges.push(e);
+  }
+}
+
+for (let r = 0; r < ROWS - 1; r++) {
+  for (let c = 0; c < COLS - 1; c++) {
+    const n00 = grid[r][c];
+    const n10 = grid[r][c + 1];
+    const n01 = grid[r + 1][c];
+    const n11 = grid[r + 1][c + 1];
+
+    if (r % 2 === 0) {
+      triangles.push({ a: n00, b: n10, c: n01, zAvg: (n00.bz + n10.bz + n01.bz) / 3 });
+      triangles.push({ a: n10, b: n11, c: n01, zAvg: (n10.bz + n11.bz + n01.bz) / 3 });
+      addEdge(n00, n10); addEdge(n10, n01); addEdge(n01, n00);
+      addEdge(n10, n11); addEdge(n11, n01);
+    } else {
+      triangles.push({ a: n00, b: n10, c: n11, zAvg: (n00.bz + n10.bz + n11.bz) / 3 });
+      triangles.push({ a: n00, b: n11, c: n01, zAvg: (n00.bz + n11.bz + n01.bz) / 3 });
+      addEdge(n00, n10); addEdge(n10, n11); addEdge(n11, n00);
+      addEdge(n11, n01); addEdge(n01, n00);
+    }
+  }
+}
+
+triangles.sort((t1, t2) => t2.zAvg - t1.zAvg);
+edges.sort((e1, e2) => e2.zAvg - e1.zAvg);
+
+const dust = [];
+for (let i = 0; i < 110; i++) {
+  dust.push({
+    x: (rand() - 0.5) * 3200,
+    y: rand() * 340 - 40,
+    z: Z_NEAR + rand() * (ROWS * SPACING_Z * 0.85),
+    size: 1 + rand() * 2.8,
+    phase: rand() * Math.PI * 2,
+    speed: rand() < 0.6 ? 1 : 2,
+    ampY: 12 + rand() * 25
+  });
+}
+
+const skyParticles = [];
+for (let i = 0; i < 65; i++) {
+  skyParticles.push({
+    x: rand() * W,
+    y: rand() * (HORIZON_Y + 40),
+    r: 0.6 + rand() * 1.6,
+    phase: rand() * Math.PI * 2
+  });
+}
+
+function getWaveY(x, z, phase) {
+  const w1 = Math.sin(x * 0.0028 - phase * 2 + z * 0.0014) * 76;
+  const w2 = Math.cos(x * 0.0015 - phase * 1 - z * 0.0026) * 48;
+  const w3 = Math.sin(x * 0.0055 - phase * 3 + z * 0.0042) * 22;
+  const w4 = Math.cos((x - z) * 0.0022 - phase * 1) * 18;
+  return w1 + w2 + w3 + w4;
+}
+
+function drawBackground(phase) {
+  const bgGrad = ctx.createLinearGradient(0, 0, 0, H);
+  bgGrad.addColorStop(0, '#02050A');
+  bgGrad.addColorStop(0.28, '#040C1A');
+  bgGrad.addColorStop(0.35, '#071B3B');
+  bgGrad.addColorStop(0.52, '#050E1D');
+  bgGrad.addColorStop(1, '#02060D');
+  ctx.fillStyle = bgGrad;
+  ctx.fillRect(0, 0, W, H);
+
+  for (let i = 0; i < skyParticles.length; i++) {
+    const sp = skyParticles[i];
+    const alpha = 0.12 + 0.22 * Math.sin(phase * 2 + sp.phase);
+    ctx.fillStyle = `rgba(110, 215, 255, ${alpha.toFixed(3)})`;
+    ctx.beginPath();
+    ctx.arc(sp.x, sp.y, sp.r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.save();
+  ctx.globalCompositeOperation = 'screen';
+
+  const glowX = W * 0.5 + Math.sin(phase) * 140;
+  const hGlow = ctx.createRadialGradient(glowX, HORIZON_Y + 10, 10, glowX, HORIZON_Y + 20, 980);
+  hGlow.addColorStop(0, 'rgba(0, 240, 255, 0.34)');
+  hGlow.addColorStop(0.25, 'rgba(0, 110, 255, 0.22)');
+  hGlow.addColorStop(0.6, 'rgba(0, 50, 160, 0.07)');
+  hGlow.addColorStop(1, 'rgba(5, 11, 20, 0)');
+  ctx.fillStyle = hGlow;
+  ctx.fillRect(0, 0, W, H);
+
+  const bandGrad = ctx.createLinearGradient(0, HORIZON_Y - 90, 0, HORIZON_Y + 150);
+  bandGrad.addColorStop(0, 'rgba(0, 81, 255, 0)');
+  bandGrad.addColorStop(0.45, 'rgba(0, 195, 255, 0.16)');
+  bandGrad.addColorStop(0.55, 'rgba(0, 240, 255, 0.24)');
+  bandGrad.addColorStop(1, 'rgba(0, 50, 140, 0)');
+  ctx.fillStyle = bandGrad;
+  ctx.fillRect(0, HORIZON_Y - 90, W, 240);
+
+  ctx.restore();
+}
+
+function render(ts) {
+  const t = (ts % 10000) / 10000;
+  const phase = t * Math.PI * 2;
+
+  drawBackground(phase);
+
+  const maxZ = Z_NEAR + ROWS * SPACING_Z;
+
+  for (let r = 0; r < ROWS; r++) {
+    const row = grid[r];
+    for (let c = 0; c < COLS; c++) {
+      const n = row[c];
+      const swayX = Math.sin(phase + r * 0.18 + c * 0.08) * 14;
+      const swayZ = Math.cos(phase + c * 0.14) * 10;
+
+      n.x = n.bx + swayX;
+      n.z = n.bz + swayZ;
+      n.y = getWaveY(n.x, n.z, phase);
+
+      const scale = FOV / n.z;
+      n.sx = W * 0.5 + n.x * scale;
+      n.sy = HORIZON_Y + (CAM_Y - n.y) * scale;
+
+      const normE = (n.y + 135) / 270;
+      n.elev = normE < 0 ? 0 : (normE > 1 ? 1 : normE);
+
+      const df = 1 - (n.z - Z_NEAR) / (maxZ - Z_NEAR);
+      n.distFade = df < 0 ? 0 : Math.pow(df, 1.45);
+    }
+  }
+
+  for (let i = 0; i < triangles.length; i++) {
+    const tri = triangles[i];
+    const a = tri.a, b = tri.b, c = tri.c;
+
+    if (a.sx < -150 && b.sx < -150 && c.sx < -150) continue;
+    if (a.sx > W + 150 && b.sx > W + 150 && c.sx > W + 150) continue;
+    if (a.sy > H + 150 && b.sy > H + 150 && c.sy > H + 150) continue;
+
+    const avgElev = (a.elev + b.elev + c.elev) * 0.3333;
+    const avgFade = (a.distFade + b.distFade + c.distFade) * 0.3333;
+    if (avgFade <= 0.02) continue;
+
+    const ny = (b.sx - a.sx) * (c.sy - a.sy) - (b.sy - a.sy) * (c.sx - a.sx);
+    const shimmer = ny > 0 ? 1.15 : 0.85;
+
+    const rCol = Math.round(3 + avgElev * 10);
+    const gCol = Math.round((16 + avgElev * 115) * shimmer);
+    const bCol = Math.round((48 + avgElev * 175) * shimmer);
+    const alpha = (0.08 + avgElev * 0.24) * avgFade;
+
+    ctx.fillStyle = `rgba(${rCol}, ${gCol}, ${bCol}, ${alpha.toFixed(3)})`;
+    ctx.beginPath();
+    ctx.moveTo(a.sx, a.sy);
+    ctx.lineTo(b.sx, b.sy);
+    ctx.lineTo(c.sx, c.sy);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.lineCap = 'round';
+
+  for (let i = 0; i < edges.length; i++) {
+    const e = edges[i];
+    const n1 = e.n1, n2 = e.n2;
+
+    if ((n1.sx < -100 && n2.sx < -100) || (n1.sx > W + 100 && n2.sx > W + 100)) continue;
+    if (n1.sy > H + 120 && n2.sy > H + 120) continue;
+
+    const avgFade = (n1.distFade + n2.distFade) * 0.5;
+    if (avgFade <= 0.015) continue;
+
+    const avgElev = (n1.elev + n2.elev) * 0.5;
+    const crestBoost = Math.pow(avgElev, 2.2);
+
+    const rCol = Math.round(crestBoost * 165);
+    const gCol = Math.round(81 + avgElev * 159 + crestBoost * 15);
+    const bCol = 255;
+
+    const zMid = (n1.z + n2.z) * 0.5;
+    const nearBlur = zMid < 420 ? (420 - zMid) / 240 : 0;
+
+    const lineAlpha = (0.12 + avgElev * 0.52 + crestBoost * 0.32) * avgFade * (1 - nearBlur * 0.45);
+    const lw = Math.max(0.45, (FOV / zMid) * 0.65 * (1 + crestBoost * 0.45) + nearBlur * 2.2);
+
+    ctx.strokeStyle = `rgba(${rCol > 255 ? 255 : rCol}, ${gCol > 255 ? 255 : gCol}, ${bCol}, ${lineAlpha.toFixed(3)})`;
+    ctx.lineWidth = lw;
+    ctx.beginPath();
+    ctx.moveTo(n1.sx, n1.sy);
+    ctx.lineTo(n2.sx, n2.sy);
+    ctx.stroke();
+
+    if (e.hasPulse && avgFade > 0.08 && zMid > 260) {
+      let prog = (t * e.pulseSpeed + e.pulseOffset) % 1;
+      if (e.pulseDir < 0) prog = 1 - prog;
+
+      const tailLen = 0.28;
+      const pStart = Math.max(0, prog - tailLen);
+      const pEnd = prog;
+
+      const sx1 = n1.sx + (n2.sx - n1.sx) * pStart;
+      const sy1 = n1.sy + (n2.sy - n1.sy) * pStart;
+      const sx2 = n1.sx + (n2.sx - n1.sx) * pEnd;
+      const sy2 = n1.sy + (n2.sy - n1.sy) * pEnd;
+
+      const env = Math.sin(prog * Math.PI);
+      const pAlpha = env * (0.45 + avgElev * 0.55) * avgFade;
+
+      if (pAlpha > 0.04) {
+        ctx.strokeStyle = `rgba(180, 250, 255, ${(pAlpha * 0.85).toFixed(3)})`;
+        ctx.lineWidth = lw * 1.9;
+        ctx.beginPath();
+        ctx.moveTo(sx1, sy1);
+        ctx.lineTo(sx2, sy2);
+        ctx.stroke();
+
+        const headR = Math.max(1.1, (FOV / zMid) * 1.35);
+        ctx.fillStyle = `rgba(240, 255, 255, ${pAlpha.toFixed(3)})`;
+        ctx.beginPath();
+        ctx.arc(sx2, sy2, headR, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+  }
+
+  for (let i = 0; i < dust.length; i++) {
+    const d = dust[i];
+    const dy = d.y + Math.sin(phase * d.speed + d.phase) * d.ampY;
+    const dx = d.x + Math.cos(phase + d.phase) * 30;
+    const scale = FOV / d.z;
+    const sx = W * 0.5 + dx * scale;
+    const sy = HORIZON_Y + (CAM_Y - dy) * scale;
+
+    if (sx < -50 || sx > W + 50 || sy < -50 || sy > H + 50) continue;
+
+    const df = Math.max(0, 1 - (d.z - Z_NEAR) / (maxZ - Z_NEAR));
+    const alpha = (0.15 + 0.25 * Math.sin(phase * 2 + d.phase)) * df;
+    const r = d.size * scale * 1.3;
+
+    if (r > 3.5) {
+      const grad = ctx.createRadialGradient(sx, sy, 0, sx, sy, r * 2.5);
+      grad.addColorStop(0, `rgba(120, 240, 255, ${(alpha * 0.6).toFixed(3)})`);
+      grad.addColorStop(0.5, `rgba(0, 180, 255, ${(alpha * 0.25).toFixed(3)})`);
+      grad.addColorStop(1, 'rgba(0, 81, 255, 0)');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(sx, sy, r * 2.5, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      ctx.fillStyle = `rgba(140, 245, 255, ${alpha.toFixed(3)})`;
+      ctx.beginPath();
+      ctx.arc(sx, sy, Math.max(0.8, r), 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  for (let r = ROWS - 1; r >= 0; r--) {
+    const row = grid[r];
+    for (let c = 0; c < COLS; c++) {
+      const n = row[c];
+      if (n.sx < -120 || n.sx > W + 120 || n.sy < -120 || n.sy > H + 120) continue;
+      if (n.distFade <= 0.02) continue;
+
+      const scale = FOV / n.z;
+      const baseR = scale * (2.1 + n.elev * 1.5);
+      const crest = Math.pow(n.elev, 2.4);
+
+      if (n.z < 500) {
+        const dofFactor = (500 - n.z) / 320;
+        const bokehR = baseR * (1 + dofFactor * 5.8);
+        const bAlpha = (0.28 - dofFactor * 0.16) * (0.5 + n.elev * 0.6);
+
+        const bGrad = ctx.createRadialGradient(n.sx, n.sy, 0, n.sx, n.sy, bokehR);
+        bGrad.addColorStop(0, `rgba(210, 252, 255, ${(bAlpha * 0.95).toFixed(3)})`);
+        bGrad.addColorStop(0.45, `rgba(0, 240, 255, ${(bAlpha * 0.65).toFixed(3)})`);
+        bGrad.addColorStop(0.78, `rgba(0, 120, 255, ${(bAlpha * 0.35).toFixed(3)})`);
+        bGrad.addColorStop(1, 'rgba(0, 81, 255, 0)');
+
+        ctx.fillStyle = bGrad;
+        ctx.beginPath();
+        ctx.arc(n.sx, n.sy, bokehR, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (n.z < 1450) {
+        const haloR = baseR * (2.6 + crest * 3.2);
+        const hAlpha = (0.22 + crest * 0.62) * n.distFade;
+
+        const hGrad = ctx.createRadialGradient(n.sx, n.sy, 0, n.sx, n.sy, haloR);
+        const innerR = Math.round(110 + crest * 145);
+        hGrad.addColorStop(0, `rgba(${innerR}, 250, 255, ${hAlpha.toFixed(3)})`);
+        hGrad.addColorStop(0.38, `rgba(0, 225, 255, ${(hAlpha * 0.45).toFixed(3)})`);
+        hGrad.addColorStop(1, 'rgba(0, 81, 255, 0)');
+
+        ctx.fillStyle = hGrad;
+        ctx.beginPath();
+        ctx.arc(n.sx, n.sy, haloR, 0, Math.PI * 2);
+        ctx.fill();
+
+        const coreAlpha = (0.55 + n.elev * 0.45) * n.distFade;
+        const coreR = Math.max(1.0, baseR * 0.62);
+        const cR = Math.round(140 + n.elev * 115);
+        const cG = Math.round(225 + n.elev * 30);
+        ctx.fillStyle = `rgba(${cR}, ${cG}, 255, ${coreAlpha.toFixed(3)})`;
+        ctx.beginPath();
+        ctx.arc(n.sx, n.sy, coreR, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        const dotAlpha = (0.35 + n.elev * 0.65) * n.distFade;
+        const dotR = Math.max(0.75, baseR * 0.85);
+        const cR = Math.round(40 + crest * 200);
+        const cG = Math.round(160 + n.elev * 95);
+        ctx.fillStyle = `rgba(${cR}, ${cG}, 255, ${dotAlpha.toFixed(3)})`;
+        ctx.beginPath();
+        ctx.arc(n.sx, n.sy, dotR, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+  }
+
+  ctx.restore();
+
+  const vig = ctx.createRadialGradient(W * 0.5, H * 0.52, W * 0.28, W * 0.5, H * 0.5, W * 0.68);
+  vig.addColorStop(0, 'rgba(5, 11, 20, 0)');
+  vig.addColorStop(1, 'rgba(2, 5, 11, 0.65)');
+  ctx.fillStyle = vig;
+  ctx.fillRect(0, 0, W, H);
+
+  requestAnimationFrame(render);
+}
+
+requestAnimationFrame(render);
+</script>
+</body>
+</html>
