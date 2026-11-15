@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Champagne Gold & Confetti Cascade</title>
+<style>
+  html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: #0A0602;
+  }
+  canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+</style>
+</head>
+<body>
+<canvas id="stage" width="3840" height="2160"></canvas>
+<script>
+(function() {
+  const canvas = document.getElementById('stage');
+  const ctx = canvas.getContext('2d', { alpha: false });
+  const W = 1920;
+  const H = 1080;
+  const SCALE = 2;
+  const TWO_PI = Math.PI * 2;
+
+  let seed = 948271;
+  function rand() {
+    seed |= 0;
+    seed = seed + 0x6D2B79F5 | 0;
+    let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  }
+  function randRange(min, max) {
+    return min + rand() * (max - min);
+  }
+  function randInt(min, max) {
+    return Math.floor(randRange(min, max + 1));
+  }
+
+  function getEdgeX(spreadFactor) {
+    const side = rand() < 0.5 ? -1 : 1;
+    const dist = Math.pow(rand(), 1.35) * (W * 0.44 * spreadFactor);
+    return side === -1 ? dist : W - dist;
+  }
+
+  function getEdgeVisibility(x) {
+    const normCenterDist = Math.abs(x - W * 0.5) / (W * 0.5);
+    if (normCenterDist < 0.22) return 0;
+    if (normCenterDist < 0.42) {
+      const t = (normCenterDist - 0.22) / 0.20;
+      return t * t * (3 - 2 * t);
+    }
+    return 1;
+  }
+
+  const bgCanvas = document.createElement('canvas');
+  bgCanvas.width = W * SCALE;
+  bgCanvas.height = H * SCALE;
+  const bgCtx = bgCanvas.getContext('2d');
+  bgCtx.scale(SCALE, SCALE);
+
+  bgCtx.fillStyle = '#0A0602';
+  bgCtx.fillRect(0, 0, W, H);
+
+  const topSpot = bgCtx.createRadialGradient(W * 0.5, -H * 0.12, 10, W * 0.5, H * 0.28, W * 0.72);
+  topSpot.addColorStop(0, 'rgba(253, 230, 138, 0.26)');
+  topSpot.addColorStop(0.28, 'rgba(217, 119, 6, 0.13)');
+  topSpot.addColorStop(0.65, 'rgba(38, 18, 5, 0.05)');
+  topSpot.addColorStop(1, 'rgba(10, 6, 2, 0)');
+  bgCtx.fillStyle = topSpot;
+  bgCtx.fillRect(0, 0, W, H);
+
+  const centerStageGlow = bgCtx.createRadialGradient(W * 0.5, H * 0.48, 20, W * 0.5, H * 0.48, W * 0.44);
+  centerStageGlow.addColorStop(0, 'rgba(255, 251, 235, 0.08)');
+  centerStageGlow.addColorStop(0.45, 'rgba(217, 119, 6, 0.04)');
+  centerStageGlow.addColorStop(1, 'rgba(10, 6, 2, 0)');
+  bgCtx.fillStyle = centerStageGlow;
+  bgCtx.fillRect(0, 0, W, H);
+
+  const leftWingGlow = bgCtx.createRadialGradient(0, H * 0.55, 10, 0, H * 0.55, W * 0.48);
+  leftWingGlow.addColorStop(0, 'rgba(217, 119, 6, 0.16)');
+  leftWingGlow.addColorStop(0.45, 'rgba(244, 63, 94, 0.05)');
+  leftWingGlow.addColorStop(1, 'rgba(10, 6, 2, 0)');
+  bgCtx.fillStyle = leftWingGlow;
+  bgCtx.fillRect(0, 0, W, H);
+
+  const rightWingGlow = bgCtx.createRadialGradient(W, H * 0.55, 10, W, H * 0.55, W * 0.48);
+  rightWingGlow.addColorStop(0, 'rgba(217, 119, 6, 0.16)');
+  rightWingGlow.addColorStop(0.45, 'rgba(244, 63, 94, 0.05)');
+  rightWingGlow.addColorStop(1, 'rgba(10, 6, 2, 0)');
+  bgCtx.fillStyle = rightWingGlow;
+  bgCtx.fillRect(0, 0, W, H);
+
+  bgCtx.save();
+  bgCtx.globalCompositeOperation = 'screen';
+  for (let i = -4; i <= 4; i++) {
+    const angle = i * 0.11;
+    bgCtx.save();
+    bgCtx.translate(W * 0.5, -120);
+    bgCtx.rotate(angle);
+    const beamGrad = bgCtx.createLinearGradient(0, 0, 0, H * 1.35);
+    beamGrad.addColorStop(0, 'rgba(253, 230, 138, 0.025)');
+    beamGrad.addColorStop(0.5, 'rgba(217, 119, 6, 0.01)');
+    beamGrad.addColorStop(1, 'rgba(10, 6, 2, 0)');
+    bgCtx.fillStyle = beamGrad;
+    bgCtx.beginPath();
+    bgCtx.moveTo(-30, 0);
+    bgCtx.lineTo(30, 0);
+    bgCtx.lineTo(240, H * 1.35);
+    bgCtx.lineTo(-240, H * 1.35);
+    bgCtx.closePath();
+    bgCtx.fill();
+    bgCtx.restore();
+  }
+  bgCtx.restore();
+
+  function createBokehSprite(r, g, b, coreStop) {
+    const c = document.createElement('canvas');
+    c.width = 256;
+    c.height = 256;
+    const bx = c.getContext('2d');
+    const grad = bx.createRadialGradient(128, 128, 0, 128, 128, 124);
+    grad.addColorStop(0, `rgba(${r},${g},${b},${coreStop})`);
+    grad.addColorStop(0.55, `rgba(${r},${g},${b},${coreStop * 0.75})`);
+    grad.addColorStop(0.82, `rgba(${r},${g},${b},${coreStop * 1.35})`);
+    grad.addColorStop(0.92, `rgba(${r},${g},${b},${coreStop * 0.4})`);
+    grad.addColorStop(1, `rgba(${r},${g},${b},0)`);
+    bx.fillStyle = grad;
+    bx.beginPath();
+    bx.arc(128, 128, 124, 0, TWO_PI);
+    bx.fill();
+    return c;
+  }
+
+  const bokehSprites = [
+    createBokehSprite(253, 230, 138, 0.35),
+    createBokehSprite(217, 119, 6, 0.32),
+    createBokehSprite(255, 251, 235, 0.38),
+    createBokehSprite(244, 63, 94, 0.26)
+  ];
+
+  const bubbleSprite = document.createElement('canvas');
+  bubbleSprite.width = 96;
+  bubbleSprite.height = 96;
+  const bCtx = bubbleSprite.getContext('2d');
+  const bGrad = bCtx.createRadialGradient(48, 48, 4, 48, 48, 44);
+  bGrad.addColorStop(0, 'rgba(255, 251, 235, 0.08)');
+  bGrad.addColorStop(0.62, 'rgba(253, 230, 138, 0.25)');
+  bGrad.addColorStop(0.86, 'rgba(217, 119, 6, 0.72)');
+  bGrad.addColorStop(0.95, 'rgba(255, 251, 235, 0.92)');
+  bGrad.addColorStop(1, 'rgba(253, 230, 138, 0)');
+  bCtx.fillStyle = bGrad;
+  bCtx.beginPath();
+  bCtx.arc(48, 48, 44, 0, TWO_PI);
+  bCtx.fill();
+  bCtx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+  bCtx.beginPath();
+  bCtx.arc(33, 33, 9, 0, TWO_PI);
+  bCtx.fill();
+  bCtx.fillStyle = 'rgba(253, 230, 138, 0.75)';
+  bCtx.beginPath();
+  bCtx.arc(62, 62, 5, 0, TWO_PI);
+  bCtx.fill();
+
+  function createFgConfettiSprite(r1, g1, b1, r2, g2, b2) {
+    const c = document.createElement('canvas');
+    c.width = 256;
+    c.height = 256;
+    const fx = c.getContext('2d');
+    fx.translate(128, 128);
+    for (let layer = 18; layer >= 1; layer--) {
+      const alpha = (1 - layer / 19) * 0.11;
+      const expand = layer * 2.6;
+      const g = fx.createLinearGradient(-44 - expand, -24 - expand, 44 + expand, 24 + expand);
+      g.addColorStop(0, `rgba(${r1},${g1},${b1},${alpha})`);
+      g.addColorStop(0.5, `rgba(255,251,235,${alpha * 1.3})`);
+      g.addColorStop(1, `rgba(${r2},${g2},${b2},${alpha})`);
+      fx.fillStyle = g;
+      fx.beginPath();
+      fx.roundRect(-42 - expand, -22 - expand * 0.65, 84 + expand * 2, 44 + expand * 1.3, 14 + expand * 0.6);
+      fx.fill();
+    }
+    return c;
+  }
+
+  const fgSprites = [
+    createFgConfettiSprite(253, 230, 138, 217, 119, 6),
+    createFgConfettiSprite(217, 119, 6, 255, 251, 235),
+    createFgConfettiSprite(244, 63, 94, 253, 230, 138)
+  ];
+
+  const bokehList = [];
+  const bokehWrapH = H + 420;
+  for (let i = 0; i < 65; i++) {
+    const x = getEdgeX(1.08);
+    bokehList.push({
+      x0: x,
+      y0: randRange(0, bokehWrapH),
+      size: randRange(70, 260),
+      sprite: bokehSprites[randInt(0, bokehSprites.length - 1)],
+      speedMult: randInt(1, 2),
+      dir: rand() < 0.65 ? -1 : 1,
+      swayAmp: randRange(12, 45),
+      swayFreq: randInt(1, 2),
+      swayPhase: randRange(0, TWO_PI),
+      pulseFreq: randInt(1, 3),
+      pulsePhase: randRange(0, TWO_PI),
+      baseAlpha: randRange(0.16, 0.52) * getEdgeVisibility(x)
+    });
+  }
+
+  const bubbleList = [];
+  const bubbleWrapH = H + 120;
+  for (let i = 0; i < 480; i++) {
+    const x = getEdgeX(0.96);
+    const depth = rand();
+    bubbleList.push({
+      x0: x,
+      y0: randRange(0, bubbleWrapH),
+      radius: 1.5 + depth * 7.5,
+      speedMult: randInt(1, 3),
+      wobbleAmp: randRange(6, 28),
+      wobbleFreq: randInt(1, 4),
+      wobblePhase: randRange(0, TWO_PI),
+      shimmerFreq: randInt(2, 5),
+      shimmerPhase: randRange(0, TWO_PI),
+      alpha: (0.28 + depth * 0.65) * getEdgeVisibility(x)
+    });
+  }
+
+  const palettes = [
+    { base: [248, 215, 110], dark: [165, 102, 12], spec: [255, 253, 244] },
+    { base: [217, 119, 6],   dark: [115, 48, 4],   spec: [253, 230, 138] },
+    { base: [255, 248, 220], dark: [195, 152, 68], spec: [255, 255, 255] },
+    { base: [244, 63, 94],   dark: [136, 19, 55],  spec: [255, 228, 235] },
+    { base: [232, 165, 152], dark: [145, 72, 62],  spec: [255, 245, 240] }
+  ];
+
+  function pickPaletteIndex() {
+    const r = rand();
+    if (r < 0.38) return 0;
+    if (r < 0.68) return 1;
+    if (r < 0.84) return 2;
+    if (r < 0.93) return 3;
+    return 4;
+  }
+
+  const confettiList = [];
+  const confettiWrapH = H + 160;
+  const totalConfetti = 860;
+  for (let i = 0; i < totalConfetti; i++) {
+    const x = getEdgeX(1.0);
+    const vis = getEdgeVisibility(x);
+    if (vis <= 0.01) continue;
+
+    const layerWeight = Math.pow(rand(), 1.15);
+    const size = 4.5 + layerWeight * 15.5;
+    const shapeRand = rand();
+    let shape = 0;
+    if (shapeRand > 0.52 && shapeRand <= 0.78) shape = 1;
+    else if (shapeRand > 0.78 && shapeRand <= 0.92) shape = 2;
+    else if (shapeRand > 0.92) shape = 3;
+
+    confettiList.push({
+      x0: x,
+      y0: randRange(0, confettiWrapH),
+      size: size,
+      aspect: shape === 0 ? randRange(0.42, 0.78) : 1,
+      shape: shape,
+      pal: palettes[pickPaletteIndex()],
+      fallSpeed: randInt(1, 3),
+      swayAmp: randRange(14, 58) * (0.6 + layerWeight * 0.6),
+      swayFreq: randInt(1, 3),
+      swayPhase: randRange(0, TWO_PI),
+      rotFreq: (rand() < 0.5 ? -1 : 1) * randInt(1, 3),
+      rotPhase: randRange(0, TWO_PI),
+      pitchFreq: (rand() < 0.5 ? -1 : 1) * randInt(1, 4),
+      pitchPhase: randRange(0, TWO_PI),
+      rollFreq: (rand() < 0.5 ? -1 : 1) * randInt(1, 3),
+      rollPhase: randRange(0, TWO_PI),
+      vis: vis * (0.45 + layerWeight * 0.55),
+      depth: layerWeight
+    });
+  }
+  confettiList.sort((a, b) => a.depth - b.depth);
+
+  const fgConfettiList = [];
+  const fgWrapH = H + 520;
+  for (let i = 0; i < 28; i++) {
+    const side = i % 2 === 0 ? -1 : 1;
+    const x = side === -1 ? randRange(-40, W * 0.26) : randRange(W * 0.74, W + 40);
+    fgConfettiList.push({
+      x0: x,
+      y0: randRange(0, fgWrapH),
+      size: randRange(110, 240),
+      sprite: fgSprites[randInt(0, fgSprites.length - 1)],
+      speedMult: randInt(2, 3),
+      swayAmp: randRange(35, 90),
+      swayFreq: randInt(1, 2),
+      swayPhase: randRange(0, TWO_PI),
+      rotFreq: (rand() < 0.5 ? -1 : 1) * randInt(1, 2),
+      rotPhase: randRange(0, TWO_PI),
+      pitchFreq: randInt(1, 3),
+      pitchPhase: randRange(0, TWO_PI),
+      alpha: randRange(0.35, 0.75)
+    });
+  }
+
+  const starPoints = [];
+  for (let i = 0; i < 8; i++) {
+    const angle = (i * Math.PI) / 4;
+    const r = i % 2 === 0 ? 1.0 : 0.34;
+    starPoints.push({ x: Math.cos(angle) * r, y: Math.sin(angle) * r });
+  }
+
+  function drawStarPath(ctx, radius) {
+    ctx.beginPath();
+    for (let i = 0; i < 8; i++) {
+      const px = starPoints[i].x * radius;
+      const py = starPoints[i].y * radius;
+      if (i === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+  }
+
+  function render(ts) {
+    const p = ((ts % 10000) / 10000);
+    const phase = p * TWO_PI;
+
+    ctx.save();
+    ctx.scale(SCALE, SCALE);
+
+    ctx.drawImage(bgCanvas, 0, 0, W, H);
+
+    ctx.save();
+    ctx.globalCompositeOperation = 'screen';
+    const pulseGlow = 0.88 + 0.12 * Math.sin(phase * 2);
+    const dynSpot = ctx.createRadialGradient(W * 0.5, H * 0.15, 10, W * 0.5, H * 0.35, W * 0.55);
+    dynSpot.addColorStop(0, `rgba(255, 251, 235, ${0.09 * pulseGlow})`);
+    dynSpot.addColorStop(0.5, `rgba(253, 230, 138, ${0.04 * pulseGlow})`);
+    dynSpot.addColorStop(1, 'rgba(10, 6, 2, 0)');
+    ctx.fillStyle = dynSpot;
+    ctx.fillRect(0, 0, W, H);
+
+    for (let i = 0; i < bokehList.length; i++) {
+      const b = bokehList[i];
+      let y = (b.y0 + b.dir * p * b.speedMult * bokehWrapH) % bokehWrapH;
+      if (y < 0) y += bokehWrapH;
+      y -= 210;
+
+      const x = b.x0 + Math.sin(phase * b.swayFreq + b.swayPhase) * b.swayAmp;
+      const alpha = b.baseAlpha * (0.7 + 0.3 * Math.sin(phase * b.pulseFreq + b.pulsePhase));
+      if (alpha <= 0.005) continue;
+
+      ctx.globalAlpha = alpha;
+      const half = b.size * 0.5;
+      ctx.drawImage(b.sprite, x - half, y - half, b.size, b.size);
+    }
+    ctx.restore();
+
+    ctx.save();
+    ctx.globalCompositeOperation = 'screen';
+    for (let i = 0; i < bubbleList.length; i++) {
+      const b = bubbleList[i];
+      let y = (b.y0 - p * b.speedMult * bubbleWrapH) % bubbleWrapH;
+      if (y < 0) y += bubbleWrapH;
+      y -= 60;
+
+      const x = b.x0 + Math.sin(phase * b.wobbleFreq + b.wobblePhase) * b.wobbleAmp;
+      const shimmer = 0.65 + 0.35 * Math.sin(phase * b.shimmerFreq + b.shimmerPhase);
+      const alpha = b.alpha * shimmer;
+      if (alpha <= 0.01) continue;
+
+      ctx.globalAlpha = alpha;
+      const d = b.radius * 2;
+      ctx.drawImage(bubbleSprite, x - b.radius, y - b.radius, d, d);
+    }
+    ctx.restore();
+
+    ctx.save();
+    for (let i = 0; i < confettiList.length; i++) {
+      const c = confettiList[i];
+      let y = (c.y0 + p * c.fallSpeed * confettiWrapH) % confettiWrapH;
+      y -= 80;
+
+      const swayAngle = phase * c.swayFreq + c.swayPhase;
+      const x = c.x0 + Math.sin(swayAngle) * c.swayAmp;
+
+      const rot = phase * c.rotFreq + c.rotPhase + Math.cos(swayAngle) * 0.35;
+      const pitch = phase * c.pitchFreq + c.pitchPhase;
+      const roll = phase * c.rollFreq + c.rollPhase;
+
+      const scaleX = Math.cos(pitch);
+      const scaleY = Math.sin(roll) * 0.75 + 0.25;
+
+      const absScaleX = Math.abs(scaleX);
+      const clampedX = scaleX >= 0 ? Math.max(0.07, absScaleX) : -Math.max(0.07, absScaleX);
+
+      const normalZ = Math.abs(Math.cos(pitch) * Math.cos(roll));
+      const specGlint = Math.pow(normalZ, 14);
+      const shade = 0.35 + 0.65 * normalZ;
+
+      const pal = c.pal;
+      const r = Math.min(255, Math.round(pal.dark[0] + (pal.base[0] - pal.dark[0]) * shade + (pal.spec[0] - pal.base[0]) * specGlint));
+      const g = Math.min(255, Math.round(pal.dark[1] + (pal.base[1] - pal.dark[1]) * shade + (pal.spec[1] - pal.base[1]) * specGlint));
+      const b = Math.min(255, Math.round(pal.dark[2] + (pal.base[2] - pal.dark[2]) * shade + (pal.spec[2] - pal.base[2]) * specGlint));
+
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(rot);
+      ctx.scale(clampedX, scaleY);
+
+      ctx.globalAlpha = c.vis;
+      ctx.fillStyle = `rgb(${r},${g},${b})`;
+
+      const s = c.size;
+      if (c.shape === 0) {
+        const w = s;
+        const h = s * c.aspect;
+        ctx.fillRect(-w * 0.5, -h * 0.5, w, h);
+      } else if (c.shape === 1) {
+        ctx.beginPath();
+        ctx.arc(0, 0, s * 0.46, 0, TWO_PI);
+        ctx.fill();
+      } else if (c.shape === 2) {
+        drawStarPath(ctx, s * 0.65);
+        ctx.fill();
+      } else {
+        ctx.beginPath();
+        ctx.moveTo(0, -s * 0.62);
+        ctx.lineTo(s * 0.42, 0);
+        ctx.lineTo(0, s * 0.62);
+        ctx.lineTo(-s * 0.42, 0);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      if (specGlint > 0.52 && c.depth > 0.38) {
+        const glintIntensity = (specGlint - 0.52) / 0.48;
+        ctx.restore();
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.globalCompositeOperation = 'screen';
+        ctx.globalAlpha = c.vis * glintIntensity * 0.9;
+        ctx.fillStyle = '#FFFBEB';
+        const sparkSize = s * (0.9 + glintIntensity * 1.4);
+        ctx.beginPath();
+        ctx.moveTo(0, -sparkSize);
+        ctx.quadraticCurveTo(0, 0, sparkSize, 0);
+        ctx.quadraticCurveTo(0, 0, 0, sparkSize);
+        ctx.quadraticCurveTo(0, 0, -sparkSize, 0);
+        ctx.quadraticCurveTo(0, 0, 0, -sparkSize);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      ctx.restore();
+    }
+    ctx.restore();
+
+    ctx.save();
+    ctx.globalCompositeOperation = 'screen';
+    for (let i = 0; i < fgConfettiList.length; i++) {
+      const f = fgConfettiList[i];
+      let y = (f.y0 + p * f.speedMult * fgWrapH) % fgWrapH;
+      y -= 260;
+
+      const x = f.x0 + Math.sin(phase * f.swayFreq + f.swayPhase) * f.swayAmp;
+      const rot = phase * f.rotFreq + f.rotPhase;
+      const pitchScale = 0.35 + 0.65 * Math.abs(Math.cos(phase * f.pitchFreq + f.pitchPhase));
+
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(rot);
+      ctx.scale(1, pitchScale);
+      ctx.globalAlpha = f.alpha;
+      const half = f.size * 0.5;
+      ctx.drawImage(f.sprite, -half, -half, f.size, f.size);
+      ctx.restore();
+    }
+    ctx.restore();
+
+    const vignette = ctx.createRadialGradient(W * 0.5, H * 0.5, W * 0.28, W * 0.5, H * 0.5, W * 0.68);
+    vignette.addColorStop(0, 'rgba(10, 6, 2, 0)');
+    vignette.addColorStop(0.7, 'rgba(10, 6, 2, 0.12)');
+    vignette.addColorStop(1, 'rgba(5, 3, 1, 0.58)');
+    ctx.fillStyle = vignette;
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.restore();
+    requestAnimationFrame(render);
+  }
+
+  requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>
