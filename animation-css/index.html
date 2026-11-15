@@ -1,10 +1,11 @@
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#101827">
+  <meta name="theme-color" content="#FF7033">
 
   <title>CSS Animations | Antar's Projects</title>
 
@@ -18,17 +19,13 @@
 
   <style>
     :root {
-      --bg: #101827;
-      --card: #1e293b;
-      --card-hover: #263449;
-      --primary: #6366f1;
-      --primary-hover: #4f46e5;
-      --text: #f1f5f9;
-      --muted: #94a3b8;
-      --border: #334155;
-      --success: #22c55e;
-      --danger: #f87171;
-      --radius: 14px;
+      --ink: #252525;
+      --muted: #777777;
+      --primary: #FF7033;
+      --primary-dark: #e85b20;
+      --border: rgba(50, 40, 30, .10);
+      --card-bg: rgba(255, 255, 255, .78);
+      --radius: 18px;
     }
 
     * {
@@ -37,20 +34,35 @@
       box-sizing: border-box;
     }
 
-    body {
-      font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      padding: 45px 20px;
+    html {
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system,
+        BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background-color: #FF7033;
+      background-image: linear-gradient(
+        45deg,
+        rgba(255,112,51,.05) 0%,
+        rgba(255,255,255,.33) 48%,
+        rgba(255,112,51,.04) 100%
+      );
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      background-size: 100% 100%;
+      min-height: 100%;
     }
 
-    button, input {
+    body {
+      min-height: 100vh;
+      padding: 50px 24px;
+      background: transparent;
+    }
+
+    button {
       font: inherit;
     }
 
     .container {
-      max-width: 1150px;
+      max-width: 1400px;
       width: 100%;
       margin: auto;
     }
@@ -64,128 +76,103 @@
     .header-top {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 16px;
       margin-bottom: 12px;
     }
 
     .header-icon {
-      width: 54px;
-      height: 54px;
+      width: 60px;
+      height: 60px;
       display: grid;
       place-items: center;
-      background: rgba(99,102,241,.15);
-      color: #818cf8;
-      border-radius: 15px;
-      font-size: 23px;
+      background: rgba(255,255,255,.35);
+      color: #a9431b;
+      border: 1px solid rgba(255,255,255,.45);
+      border-radius: 17px;
+      font-size: 25px;
+      box-shadow: 0 5px 20px rgba(120,50,20,.08);
     }
 
     .header h1 {
-      font-size: clamp(25px,5vw,36px);
+      font-size: clamp(27px, 5vw, 40px);
       font-weight: 800;
-      letter-spacing: -1px;
+      letter-spacing: -1.5px;
+      color: #29231f;
     }
 
     .header p {
-      color: var(--muted);
+      color: rgba(41,35,31,.72);
       font-size: 14px;
       line-height: 1.7;
     }
 
-    /* TOOLBAR */
-
-    .toolbar {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 22px;
-    }
-
-    .search-box {
-      position: relative;
-      flex: 1;
-    }
-
-    .search-box i {
-      position: absolute;
-      left: 16px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--muted);
-      pointer-events: none;
-    }
-
-    #search {
-      width: 100%;
-      height: 48px;
-      padding: 0 15px 0 43px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      outline: none;
-      color: white;
-      font-size: 14px;
-    }
-
-    #search:focus {
-      border-color: var(--primary);
-    }
-
-    #search::placeholder {
-      color: #64748b;
-    }
-
-    #refresh {
-      height: 48px;
-      padding: 0 18px;
-      border: none;
-      border-radius: 10px;
-      background: var(--primary);
-      color: white;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 600;
-    }
-
-    #refresh:hover {
-      background: var(--primary-hover);
-    }
-
-    #refresh:disabled {
-      opacity: .6;
-      cursor: wait;
-    }
-
-    /* INFO */
+    /* INFO BAR */
 
     .info {
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 17px;
-      color: var(--muted);
-      font-size: 13px;
+      gap: 12px;
+      margin-bottom: 20px;
     }
 
     .info-left {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 9px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #45352c;
     }
 
     .status-dot {
-      width: 7px;
-      height: 7px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
-      background: var(--success);
+      background: #16894c;
+      box-shadow: 0 0 0 4px rgba(22,137,76,.12);
     }
 
-    /* GRID */
+    #lastUpdated {
+      font-size: 12px;
+      color: rgba(41,35,31,.65);
+    }
+
+    /* REFRESH BUTTON */
+
+    .refresh-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 17px;
+      background: rgba(255,255,255,.65);
+      color: #4b3024;
+      border: 1px solid rgba(255,255,255,.75);
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: .2s;
+    }
+
+    .refresh-btn:hover {
+      background: white;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(100,40,15,.08);
+    }
+
+    .refresh-btn:disabled {
+      opacity: .6;
+      cursor: wait;
+    }
+
+    /* PROJECT GRID */
 
     .file-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 18px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 24px;
     }
 
     /* PROJECT CARD */
@@ -196,18 +183,19 @@
       min-width: 0;
       overflow: hidden;
       text-decoration: none;
-      color: var(--text);
-      background: var(--card);
-      border: 1px solid var(--border);
+      color: var(--ink);
+      background: var(--card-bg);
+      border: 1px solid rgba(255,255,255,.65);
       border-radius: var(--radius);
-      transition: .25s ease;
+      box-shadow: 0 8px 28px rgba(95,44,20,.09);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: transform .25s ease, box-shadow .25s ease;
     }
 
     .file-card:hover {
-      transform: translateY(-4px);
-      border-color: var(--primary);
-      background: var(--card-hover);
-      box-shadow: 0 12px 30px rgba(0,0,0,.2);
+      transform: translateY(-6px);
+      box-shadow: 0 16px 38px rgba(95,44,20,.17);
     }
 
     /* LIVE PREVIEW */
@@ -215,124 +203,121 @@
     .preview-container {
       position: relative;
       width: 100%;
-      height: 190px;
+      height: 245px;
       overflow: hidden;
-      background: #e2e8f0;
-      border-bottom: 1px solid var(--border);
+      background: #f1f1f1;
+      border-bottom: 1px solid rgba(0,0,0,.07);
     }
 
     .preview-frame {
       display: block;
       width: 100%;
       height: 100%;
-      border: 0;
+      border: none;
       background: white;
       pointer-events: none;
     }
 
-    .preview-loading {
+    .preview-label {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      z-index: 2;
+      padding: 7px 10px;
+      background: rgba(255,255,255,.9);
+      color: #4c4038;
+      border: 1px solid rgba(0,0,0,.06);
+      border-radius: 7px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .3px;
+      pointer-events: none;
+      box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    }
+
+    .preview-label i {
+      color: var(--primary);
+      margin-right: 5px;
+    }
+
+    .preview-loading,
+    .preview-failed {
       position: absolute;
       inset: 0;
       display: grid;
       place-items: center;
-      background: #1e293b;
-      color: #94a3b8;
-      font-size: 12px;
-      pointer-events: none;
-      transition: opacity .3s;
-    }
-
-    .preview-loading i {
-      font-size: 23px;
-      margin-bottom: 8px;
-      display: block;
-    }
-
-    .preview-loading.hidden {
-      opacity: 0;
-    }
-
-    .preview-label {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      background: rgba(15,23,42,.85);
-      color: #cbd5e1;
-      padding: 6px 9px;
-      border-radius: 6px;
-      font-size: 10px;
-      z-index: 2;
-      pointer-events: none;
-    }
-
-    .preview-label i {
-      color: #818cf8;
-      margin-right: 4px;
-    }
-
-    .preview-failed {
-      position: absolute;
-      inset: 0;
-      display: none;
-      place-items: center;
-      color: #94a3b8;
-      background: #1e293b;
+      background: #fff9f5;
+      color: #9b7967;
       font-size: 12px;
       text-align: center;
       pointer-events: none;
     }
 
+    .preview-loading i,
     .preview-failed i {
       display: block;
       font-size: 25px;
       margin-bottom: 10px;
+      color: var(--primary);
     }
 
-    /* CARD DETAILS */
+    .preview-loading.hidden {
+      display: none;
+    }
+
+    .preview-failed {
+      display: none;
+    }
+
+    /* PROJECT DETAILS */
 
     .file-details {
-      padding: 16px 18px 18px;
+      padding: 20px 22px 22px;
     }
 
     .file-card-top {
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      margin-bottom: 13px;
+      align-items: center;
+      margin-bottom: 15px;
     }
 
     .file-icon {
-      width: 36px;
-      height: 36px;
+      width: 42px;
+      height: 42px;
       display: grid;
       place-items: center;
-      background: rgba(99,102,241,.15);
-      color: #818cf8;
-      border-radius: 9px;
-      font-size: 17px;
+      background: rgba(255,112,51,.12);
+      color: #e75c24;
+      border-radius: 11px;
+      font-size: 20px;
     }
 
     .open-icon {
-      color: #64748b;
-      font-size: 13px;
+      color: #9a8173;
+      font-size: 14px;
       transition: .2s;
     }
 
     .file-card:hover .open-icon {
-      color: #a5b4fc;
-      transform: translate(2px,-2px);
+      color: var(--primary-dark);
+      transform: translate(3px,-3px);
     }
 
     .file-name {
-      font-size: 13px;
-      font-weight: 600;
-      line-height: 1.5;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.6;
       overflow-wrap: anywhere;
+      color: #29231f;
     }
 
     .file-type {
-      margin-top: 6px;
-      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 7px;
+      color: #8b7669;
       font-size: 11px;
     }
 
@@ -341,24 +326,25 @@
     .status {
       grid-column: 1 / -1;
       text-align: center;
-      padding: 65px 15px;
-      color: var(--muted);
-      background: var(--card);
-      border: 1px solid var(--border);
+      padding: 75px 20px;
+      color: #80675a;
+      background: rgba(255,255,255,.65);
+      border: 1px solid rgba(255,255,255,.7);
       border-radius: var(--radius);
+      box-shadow: 0 8px 28px rgba(95,44,20,.06);
     }
 
     .status > i {
-      font-size: 30px;
+      font-size: 34px;
       margin-bottom: 18px;
       display: block;
-      color: #818cf8;
+      color: var(--primary-dark);
     }
 
     .status h3 {
-      color: var(--text);
-      font-size: 16px;
-      margin-bottom: 8px;
+      color: #29231f;
+      font-size: 17px;
+      margin-bottom: 9px;
     }
 
     .status p {
@@ -368,88 +354,82 @@
     }
 
     .error-text {
-      color: var(--danger);
+      color: #c0392b;
     }
 
     .retry-btn {
       margin-top: 18px;
-      padding: 10px 17px;
+      padding: 11px 18px;
       background: var(--primary);
       color: white;
       border: none;
-      border-radius: 8px;
+      border-radius: 9px;
       cursor: pointer;
+      font-weight: 600;
     }
 
     /* FOOTER */
 
     .footer {
-      margin-top: 45px;
-      padding-top: 20px;
-      border-top: 1px solid var(--border);
+      margin-top: 50px;
+      padding-top: 22px;
+      border-top: 1px solid rgba(80,45,25,.15);
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
       gap: 12px;
-      color: #64748b;
+      color: rgba(41,35,31,.65);
       font-size: 12px;
     }
 
     .footer a {
-      color: #818cf8;
+      color: #8f3d1e;
       text-decoration: none;
+      font-weight: 600;
     }
 
     .footer a:hover {
-      color: #a5b4fc;
+      color: #54210d;
     }
 
     /* RESPONSIVE */
 
-    @media (max-width: 600px) {
-      body {
-        padding: 28px 15px;
-      }
-
-      .toolbar {
-        flex-direction: column;
-      }
-
-      #refresh {
-        width: 100%;
-      }
-
+    @media (max-width: 1000px) {
       .file-grid {
-        grid-template-columns: repeat(2,minmax(0,1fr));
-        gap: 11px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
       .preview-container {
-        height: 135px;
+        height: 220px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 30px 15px;
+      }
+
+      .file-grid {
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+
+      .preview-container {
+        height: 230px;
       }
 
       .file-details {
-        padding: 12px;
+        padding: 17px;
       }
 
-      .file-name {
-        font-size: 12px;
+      .header h1 {
+        letter-spacing: -1px;
       }
 
       .footer {
         justify-content: center;
         text-align: center;
-      }
-    }
-
-    @media (max-width: 350px) {
-      .file-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .preview-container {
-        height: 190px;
       }
     }
 
@@ -480,28 +460,6 @@
     </header>
 
 
-    <!-- SEARCH -->
-    <div class="toolbar">
-
-      <div class="search-box">
-        <i class="fa-solid fa-magnifying-glass"></i>
-
-        <input
-          type="search"
-          id="search"
-          placeholder="Search projects by filename..."
-          autocomplete="off"
-        >
-      </div>
-
-      <button id="refresh" onclick="loadFiles()">
-        <i class="fa-solid fa-rotate-right"></i>
-        Refresh
-      </button>
-
-    </div>
-
-
     <!-- INFO -->
     <div class="info">
 
@@ -510,7 +468,16 @@
         <span id="fileCount">Loading projects...</span>
       </div>
 
-      <span id="lastUpdated"></span>
+      <div style="display:flex;align-items:center;gap:15px;flex-wrap:wrap">
+
+        <span id="lastUpdated"></span>
+
+        <button class="refresh-btn" id="refresh" onclick="loadFiles()">
+          <i class="fa-solid fa-rotate-right"></i>
+          Refresh
+        </button>
+
+      </div>
 
     </div>
 
@@ -561,13 +528,12 @@
 
 
     // =====================================
-    // ELEMENTS
+    // DOM ELEMENTS
     // =====================================
 
     const fileList = document.getElementById("fileList");
     const fileCount = document.getElementById("fileCount");
     const lastUpdated = document.getElementById("lastUpdated");
-    const searchInput = document.getElementById("search");
     const refreshButton = document.getElementById("refresh");
 
 
@@ -586,6 +552,7 @@
       `;
 
       fileCount.textContent = "Fetching projects...";
+
       refreshButton.disabled = true;
 
       refreshButton.innerHTML = `
@@ -620,7 +587,6 @@
           !name.includes("\\")
         );
 
-        // Newest filename first
         allFiles.sort((a, b) =>
           b.localeCompare(a, undefined, {
             numeric: true,
@@ -643,15 +609,11 @@
 
         fileList.innerHTML = `
           <div class="status">
-            <i class="fa-solid fa-triangle-exclamation"
-               style="color:#f87171"></i>
-
+            <i class="fa-solid fa-triangle-exclamation"></i>
             <h3>Something went wrong!</h3>
-
             <p class="error-text">
               ${escapeHTML(error.message)}
             </p>
-
             <button class="retry-btn" onclick="loadFiles()">
               <i class="fa-solid fa-rotate-right"></i>
               Try Again
@@ -676,7 +638,7 @@
 
 
     // =====================================
-    // RENDER PROJECT CARDS WITH PREVIEWS
+    // RENDER PROJECT CARDS
     // =====================================
 
     function renderFiles(files) {
@@ -690,7 +652,7 @@
           <div class="status">
             <i class="fa-regular fa-folder-open"></i>
             <h3>No projects found</h3>
-            <p>No matching HTML files were found.</p>
+            <p>No HTML files were found.</p>
           </div>
         `;
 
@@ -702,7 +664,6 @@
 
         const safeName = escapeHTML(name);
         const fileURL = "./" + encodeURIComponent(name);
-
         const frameID = "preview-" + index;
 
         return `
@@ -714,7 +675,7 @@
             rel="noopener noreferrer"
           >
 
-            <!-- LIVE PREVIEW -->
+            <!-- PREVIEW -->
             <div class="preview-container">
 
               <div class="preview-label">
@@ -750,7 +711,7 @@
             </div>
 
 
-            <!-- PROJECT DETAILS -->
+            <!-- DETAILS -->
             <div class="file-details">
 
               <div class="file-card-top">
@@ -768,6 +729,7 @@
               </div>
 
               <div class="file-type">
+                <i class="fa-solid fa-code"></i>
                 HTML Project · Open Project
               </div>
 
@@ -780,7 +742,7 @@
       }).join("");
 
 
-      // Attach iframe preview events
+      // PREVIEW LOAD EVENTS
       files.forEach((name, index) => {
 
         const frameID = "preview-" + index;
@@ -790,51 +752,24 @@
         const failed = document.getElementById(frameID + "-failed");
 
         frame.addEventListener("load", () => {
-
           loading.classList.add("hidden");
           failed.style.display = "none";
-
         });
 
         frame.addEventListener("error", () => {
-
           loading.classList.add("hidden");
           failed.style.display = "grid";
-
         });
 
-        // Fallback if the preview does not load
         setTimeout(() => {
-
-          if (!frame.contentDocument?.readyState ||
-              frame.contentDocument.readyState === "loading") {
-
+          if (loading && loading.isConnected) {
             loading.classList.add("hidden");
-
           }
-
-        }, 12000);
+        }, 15000);
 
       });
 
     }
-
-
-    // =====================================
-    // SEARCH
-    // =====================================
-
-    searchInput.addEventListener("input", function() {
-
-      const keyword = this.value.toLowerCase().trim();
-
-      const filtered = allFiles.filter(name =>
-        name.toLowerCase().includes(keyword)
-      );
-
-      renderFiles(filtered);
-
-    });
 
 
     // =====================================
