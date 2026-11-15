@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: #02120E;
+  }
+  canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+</style>
+</head>
+<body>
+<canvas id="stage"></canvas>
+<script>
+const canvas = document.getElementById('stage');
+const ctx = canvas.getContext('2d', { alpha: false });
+
+const W = 1920;
+const H = 1080;
+
+function resize() {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+window.addEventListener('resize', resize);
+resize();
+
+let seed = 804219;
+function rand() {
+  seed = (seed * 1664525 + 1013904223) % 4294967296;
+  return seed / 4294967296;
+}
+
+const PALETTE = [
+  { r: 0, g: 255, b: 163 },
+  { r: 0, g: 180, b: 216 },
+  { r: 181, g: 228, b: 140 }
+];
+
+function evalSpine(u, phase) {
+  const p0x = -260, p0y = 1280;
+  const p1x = 580 + Math.sin(phase) * 45, p1y = 1060 + Math.cos(phase) * 35;
+  const p2x = 1340 + Math.cos(phase) * 45, p2y = 20 + Math.sin(phase) * 35;
+  const p3x = 2180, p3y = -200;
+
+  const it = 1 - u;
+  const b0 = it * it * it;
+  const b1 = 3 * it * it * u;
+  const b2 = 3 * it * u * u;
+  const b3 = u * u * u;
+
+  const x = b0 * p0x + b1 * p1x + b2 * p2x + b3 * p3x;
+  const y = b0 * p0y + b1 * p1y + b2 * p2y + b3 * p3y;
+
+  const d0 = -3 * it * it;
+  const d1 = 3 * it * it - 6 * it * u;
+  const d2 = 6 * it * u - 3 * u * u;
+  const d3 = 3 * u * u;
+
+  const tx = d0 * p0x + d1 * p1x + d2 * p2x + d3 * p3x;
+  const ty = d0 * p0y + d1 * p1y + d2 * p2y + d3 * p3y;
+  const len = Math.hypot(tx, ty) || 1;
+
+  const nx = -ty / len;
+  const ny = tx / len;
+
+  const wave = Math.sin(u * Math.PI * 4 - phase * 2) * 28 + Math.cos(u * Math.PI * 2 - phase) * 16;
+
+  return {
+    x: x + nx * wave,
+    y: y + ny * wave,
+    nx,
+    ny,
+    tx: tx / len,
+    ty: ty / len
+  };
+}
+
+function buildMeshLayer(config) {
+  const { cols, rows, speed, spread, jitterU, jitterV } = config;
+  const grid = [];
+
+  for (let c = 0; c < cols; c++) {
+    const colArr = [];
+    for (let r = 0; r < rows; r++) {
+      const vNorm = (r / (rows - 1)) - 0.5 + (c % 2 === 0 ? -0.06 : 0.06);
+      const vBase = vNorm * spread + (rand() - 0.5) * jitterV;
+      const uJitter = (rand() - 0.5) * jitterU / cols;
+      const pal = PALETTE[Math.floor(rand() * PALETTE.length)];
+      colArr.push({
+        c, r,
+        uJitter,
+        vBase,
+        swayAmp: 6 + rand() * 14,
+        swayPhase: rand() * Math.PI * 2,
+        swayFreq: rand() < 0.5 ? 1 : 2,
+        radius: (1.5 + rand() * 2.2) * (1 - Math.abs(vNorm) * 0.45),
+        color: pal,
+        isHub: rand() < 0.22,
+        x: 0, y: 0, u: 0, alpha: 0, lum: 0
+      });
+    }
+    grid.push(colArr);
+  }
+
+  const triangles = [];
+  const edgeMap = new Map();
+  const edges = [];
+
+  function addEdge(n1, n2) {
+    const k1 = `${n1.c}_${n1.r}`;
+    const k2 = `${n2.c}_${n2.r}`;
+    const key = k1 < k2 ? `${k1}|${k2}` : `${k2}|${k1}`;
+    if (!edgeMap.has(key)) {
+      const hasPulse = rand() < config.pulseProb;
+      const edge = {
+        n1, n2,
+        hasPulse,
+        pulseSpeed: 2 + Math.floor(rand() * 3),
+        pulseOffset: rand(),
+        pulseDir: rand() < 0.85 ? 1 : -1,
+        color: PALETTE[Math.floor(rand() * PALETTE.length)]
+      };
+      edgeMap.set(key, edge);
+      edges.push(edge);
+    }
+  }
+
+  for (let c = 0; c < cols; c++) {
+    const cNext = (c + 1) % cols;
+    for (let r = 0; r < rows - 1; r++) {
+      const n00 = grid[c][r];
+      const n10 = grid[cNext][r];
+      const n01 = grid[c][r + 1];
+      const n11 = grid[cNext][r + 1];
+
+      if (c % 2 === 0) {
+        if (rand() < 0.88) {
+          triangles.push({ a: n00, b: n10, c: n01, shade: 0.7 + rand() * 0.6 });
+          addEdge(n00, n10); addEdge(n10, n01); addEdge(n01, n00);
+        }
+        if (rand() < 0.88) {
+          triangles.push({ a: n10, b: n11, c: n01, shade: 0.7 + rand() * 0.6 });
+          addEdge(n10, n11); addEdge(n11, n01); addEdge(n01, n10);
+        }
+      } else {
+        if (rand() < 0.88) {
+          triangles.push({ a: n00, b: n10, c: n11, shade: 0.7 + rand() * 0.6 });
+          addEdge(n00, n10); addEdge(n10, n11); addEdge(n11, n00);
+        }
+        if (rand() < 0.88) {
+          triangles.push({ a: n00, b: n11, c: n01, shade: 0.7 + rand() * 0.6 });
+          addEdge(n00, n11); addEdge(n11, n01); addEdge(n01, n00);
+        }
+      }
+    }
+  }
+
+  return { grid, triangles, edges, cols, rows, speed, config };
+}
+
+const bgLayer = buildMeshLayer({
+  cols: 28,
+  rows: 6,
+  speed: 1,
+  spread: 390,
+  jitterU: 0.35,
+  jitterV: 36,
+  pulseProb: 0.18
+});
+
+const midLayer = buildMeshLayer({
+  cols: 42,
+  rows: 8,
+  speed: 2,
+  spread: 235,
+  jitterU: 0.38,
+  jitterV: 22,
+  pulseProb: 0.42
+});
+
+const ribbons = [];
+for (let i = 0; i < 7; i++) {
+  ribbons.push({
+    vOffset: (i / 6 - 0.5) * 260,
+    amp: 14 + rand() * 24,
+    freq: 2 + Math.floor(rand() * 2),
+    speed: 1 + Math.floor(rand() * 2),
+    phaseOff: rand() * Math.PI * 2,
+    color: PALETTE[i % PALETTE.length],
+    width: 0.8 + rand() * 1.4,
+    alpha: 0.12 + rand() * 0.16
+  });
+}
+
+const fgParticles = [];
+for (let i = 0; i < 52; i++) {
+  const isBokeh = i < 18;
+  fgParticles.push({
+    uBase: rand(),
+    vBase: (rand() - 0.5) * (isBokeh ? 560 : 360),
+    speed: isBokeh ? 3 : 2,
+    swayAmp: 18 + rand() * 35,
+    swayFreq: 1 + Math.floor(rand() * 2),
+    phase: rand() * Math.PI * 2,
+    radius: isBokeh ? (14 + rand() * 32) : (2 + rand() * 4.5),
+    color: PALETTE[Math.floor(rand() * PALETTE.length)],
+    alphaBase: isBokeh ? (0.06 + rand() * 0.11) : (0.35 + rand() * 0.45),
+    isBokeh
+  });
+}
+
+const ambientSpores = [];
+for (let i = 0; i < 40; i++) {
+  ambientSpores.push({
+    x: rand() * W,
+    y: rand() * H,
+    r: 0.8 + rand() * 1.8,
+    phase: rand() * Math.PI * 2,
+    speed: 1 + Math.floor(rand() * 2),
+    drift: 8 + rand() * 16,
+    color: PALETTE[Math.floor(rand() * PALETTE.length)]
+  });
+}
+
+function updateLayer(layer, t, phase) {
+  const { grid, cols, rows, speed } = layer;
+  for (let c = 0; c < cols; c++) {
+    const colArr = grid[c];
+    for (let r = 0; r < rows; r++) {
+      const n = colArr[r];
+      let u = (c / cols + n.uJitter + (t * speed) / cols) % 1;
+      if (u < 0) u += 1;
+      n.u = u;
+
+      const pinch = 0.62 + 0.38 * Math.sin(u * Math.PI * 2 - phase);
+      const sway = Math.sin(phase * n.swayFreq + n.swayPhase) * n.swayAmp;
+      const v = n.vBase * pinch + sway;
+
+      const sp = evalSpine(u, phase);
+      n.x = sp.x + sp.nx * v;
+      n.y = sp.y + sp.ny * v;
+
+      const edgeFade = Math.sin(u * Math.PI);
+      n.alpha = Math.pow(Math.max(0, edgeFade), 0.65);
+
+      const waveCrest = 0.5 + 0.5 * Math.sin(u * Math.PI * 6 - phase * 3 + r * 0.5);
+      n.lum = waveCrest;
+    }
+  }
+}
+
+function drawBackground(phase) {
+  const bg = ctx.createLinearGradient(0, 0, W, H);
+  bg.addColorStop(0, '#010A08');
+  bg.addColorStop(0.45, '#02120E');
+  bg.addColorStop(0.55, '#041E18');
+  bg.addColorStop(1, '#010907');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.save();
+  ctx.globalCompositeOperation = 'screen';
+
+  const stops = [0.18, 0.42, 0.64, 0.84];
+  for (let i = 0; i < stops.length; i++) {
+    const u = stops[i] + Math.sin(phase + i * 1.5) * 0.03;
+    const sp = evalSpine(u, phase);
+    const rad = 360 + Math.cos(phase + i) * 45;
+    const g = ctx.createRadialGradient(sp.x, sp.y, 10, sp.x, sp.y, rad);
+    if (i % 2 === 0) {
+      g.addColorStop(0, 'rgba(0, 255, 163, 0.11)');
+      g.addColorStop(0.45, 'rgba(0, 180, 216, 0.05)');
+    } else {
+      g.addColorStop(0, 'rgba(0, 180, 216, 0.11)');
+      g.addColorStop(0.45, 'rgba(181, 228, 140, 0.04)');
+    }
+    g.addColorStop(1, 'rgba(2, 18, 14, 0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  for (let i = 0; i < ambientSpores.length; i++) {
+    const s = ambientSpores[i];
+    const sx = s.x + Math.sin(phase * s.speed + s.phase) * s.drift;
+    const sy = s.y + Math.cos(phase * s.speed + s.phase) * s.drift;
+    const a = 0.08 + 0.14 * (0.5 + 0.5 * Math.sin(phase * 2 + s.phase));
+    ctx.fillStyle = `rgba(${s.color.r}, ${s.color.g}, ${s.color.b}, ${a.toFixed(3)})`;
+    ctx.beginPath();
+    ctx.arc(sx, sy, s.r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
+
+function drawContinuousRibbons(phase) {
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  const steps = 64;
+
+  for (let i = 0; i < ribbons.length; i++) {
+    const rb = ribbons[i];
+    ctx.beginPath();
+    for (let s = 0; s <= steps; s++) {
+      const u = s / steps;
+      const sp = evalSpine(u, phase);
+      const env = Math.sin(u * Math.PI);
+      const wave = Math.sin(u * Math.PI * rb.freq * 2 - phase * rb.speed + rb.phaseOff) * rb.amp;
+      const v = (rb.vOffset + wave) * (0.65 + 0.35 * env);
+      const x = sp.x + sp.nx * v;
+      const y = sp.y + sp.ny * v;
+      if (s === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.strokeStyle = `rgba(${rb.color.r}, ${rb.color.g}, ${rb.color.b}, ${rb.alpha.toFixed(3)})`;
+    ctx.lineWidth = rb.width;
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function renderMeshLayer(layer, t, phase, isMain) {
+  const { triangles, edges, grid, cols, rows } = layer;
+
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.lineCap = 'round';
+
+  for (let i = 0; i < triangles.length; i++) {
+    const tri = triangles[i];
+    const a = tri.a, b = tri.b, c = tri.c;
+
+    if (Math.abs(a.u - b.u) > 0.3 || Math.abs(b.u - c.u) > 0.3 || Math.abs(a.u - c.u) > 0.3) continue;
+
+    const avgAlpha = (a.alpha + b.alpha + c.alpha) * 0.3333;
+    if (avgAlpha <= 0.02) continue;
+
+    const avgLum = (a.lum + b.lum + c.lum) * 0.3333;
+    const baseFill = isMain ? (0.022 + avgLum * 0.065) : (0.012 + avgLum * 0.025);
+    const fillAlpha = baseFill * avgAlpha * tri.shade;
+
+    const rCol = Math.round(0 + avgLum * 55);
+    const gCol = Math.round(185 + avgLum * 65);
+    const bCol = Math.round(195 - avgLum * 30);
+
+    ctx.fillStyle = `rgba(${rCol}, ${gCol}, ${bCol}, ${fillAlpha.toFixed(3)})`;
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(b.x, b.y);
+    ctx.lineTo(c.x, c.y);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  for (let i = 0; i < edges.length; i++) {
+    const e = edges[i];
+    const n1 = e.n1, n2 = e.n2;
+
+    if (Math.abs(n1.u - n2.u) > 0.3) continue;
+
+    const avgAlpha = (n1.alpha + n2.alpha) * 0.5;
+    if (avgAlpha <= 0.02) continue;
+
+    const avgLum = (n1.lum + n2.lum) * 0.5;
+    const lineAlpha = (isMain ? (0.14 + avgLum * 0.38) : (0.06 + avgLum * 0.12)) * avgAlpha;
+    const lw = isMain ? (0.75 + avgLum * 0.85) : 0.6;
+
+    const c = e.color;
+    ctx.strokeStyle = `rgba(${c.r}, ${c.g}, ${c.b}, ${lineAlpha.toFixed(3)})`;
+    ctx.lineWidth = lw;
+    ctx.beginPath();
+    ctx.moveTo(n1.x, n1.y);
+    ctx.lineTo(n2.x, n2.y);
+    ctx.stroke();
+
+    if (e.hasPulse && avgAlpha > 0.08) {
+      let prog = (t * e.pulseSpeed + e.pulseOffset) % 1;
+      if (e.pulseDir < 0) prog = 1 - prog;
+
+      const dashLen = isMain ? 0.32 : 0.25;
+      const p0 = Math.max(0, prog - dashLen);
+      const p1 = prog;
+
+      const x0 = n1.x + (n2.x - n1.x) * p0;
+      const y0 = n1.y + (n2.y - n1.y) * p0;
+      const x1 = n1.x + (n2.x - n1.x) * p1;
+      const y1 = n1.y + (n2.y - n1.y) * p1;
+
+      const env = Math.sin(prog * Math.PI);
+      const pAlpha = env * avgAlpha * (isMain ? 0.95 : 0.45);
+
+      if (pAlpha > 0.03) {
+        const grad = ctx.createLinearGradient(x0, y0, x1, y1);
+        grad.addColorStop(0, `rgba(${c.r}, ${c.g}, ${c.b}, 0)`);
+        grad.addColorStop(0.7, `rgba(${c.r}, ${c.g}, ${c.b}, ${(pAlpha * 0.85).toFixed(3)})`);
+        grad.addColorStop(1, `rgba(235, 255, 245, ${pAlpha.toFixed(3)})`);
+
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = isMain ? 2.4 : 1.3;
+        ctx.beginPath();
+        ctx.moveTo(x0, y0);
+        ctx.lineTo(x1, y1);
+        ctx.stroke();
+
+        if (isMain) {
+          ctx.fillStyle = `rgba(240, 255, 250, ${pAlpha.toFixed(3)})`;
+          ctx.beginPath();
+          ctx.arc(x1, y1, 1.9, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    }
+  }
+
+  for (let c = 0; c < cols; c++) {
+    const colArr = grid[c];
+    for (let r = 0; r < rows; r++) {
+      const n = colArr[r];
+      if (n.alpha <= 0.02) continue;
+
+      const col = n.color;
+      const rSize = n.radius * (isMain ? (0.9 + n.lum * 0.45) : 0.65);
+      const nodeAlpha = n.alpha * (isMain ? (0.55 + n.lum * 0.45) : 0.28);
+
+      if (isMain && (n.isHub || n.lum > 0.65)) {
+        const haloR = rSize * (3.2 + n.lum * 2.2);
+        const hGrad = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, haloR);
+        hGrad.addColorStop(0, `rgba(${col.r}, ${col.g}, ${col.b}, ${(nodeAlpha * 0.55).toFixed(3)})`);
+        hGrad.addColorStop(0.45, `rgba(0, 255, 163, ${(nodeAlpha * 0.2).toFixed(3)})`);
+        hGrad.addColorStop(1, 'rgba(0, 180, 216, 0)');
+        ctx.fillStyle = hGrad;
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, haloR, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (n.isHub) {
+          ctx.strokeStyle = `rgba(181, 228, 140, ${(nodeAlpha * 0.5).toFixed(3)})`;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.arc(n.x, n.y, rSize * 2.1, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+      }
+
+      ctx.fillStyle = isMain
+        ? `rgba(${Math.min(255, col.r + 120)}, 255, ${Math.min(255, col.b + 80)}, ${nodeAlpha.toFixed(3)})`
+        : `rgba(${col.r}, ${col.g}, ${col.b}, ${nodeAlpha.toFixed(3)})`;
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, rSize, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  ctx.restore();
+}
+
+function drawForegroundParticles(t, phase) {
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+
+  for (let i = 0; i < fgParticles.length; i++) {
+    const p = fgParticles[i];
+    const u = (p.uBase + (t * p.speed) / 10) % 1;
+    const sp = evalSpine(u, phase);
+
+    const sway = Math.sin(phase * p.swayFreq + p.phase) * p.swayAmp;
+    const v = p.vBase + sway;
+
+    const x = sp.x + sp.nx * v;
+    const y = sp.y + sp.ny * v;
+
+    if (x < -120 || x > W + 120 || y < -120 || y > H + 120) continue;
+
+    const env = Math.sin(u * Math.PI);
+    const twinkle = 0.65 + 0.35 * Math.sin(phase * 2 + p.phase);
+    const alpha = p.alphaBase * env * twinkle;
+    if (alpha <= 0.008) continue;
+
+    const col = p.color;
+
+    if (p.isBokeh) {
+      const grad = ctx.createRadialGradient(x, y, 0, x, y, p.radius);
+      grad.addColorStop(0, `rgba(${col.r}, ${col.g}, ${col.b}, ${(alpha * 0.9).toFixed(3)})`);
+      grad.addColorStop(0.55, `rgba(${col.r}, ${col.g}, ${col.b}, ${(alpha * 0.45).toFixed(3)})`);
+      grad.addColorStop(0.85, `rgba(181, 228, 140, ${(alpha * 0.15).toFixed(3)})`);
+      grad.addColorStop(1, 'rgba(0, 255, 163, 0)');
+
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(x, y, p.radius, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      const tailLen = 14 + p.radius * 3;
+      const tx = x - sp.tx * tailLen;
+      const ty = y - sp.ty * tailLen;
+
+      const lGrad = ctx.createLinearGradient(tx, ty, x, y);
+      lGrad.addColorStop(0, `rgba(${col.r}, ${col.g}, ${col.b}, 0)`);
+      lGrad.addColorStop(1, `rgba(210, 255, 235, ${(alpha * 0.85).toFixed(3)})`);
+
+      ctx.strokeStyle = lGrad;
+      ctx.lineWidth = p.radius * 0.7;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(tx, ty);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+
+      ctx.fillStyle = `rgba(235, 255, 245, ${alpha.toFixed(3)})`;
+      ctx.beginPath();
+      ctx.arc(x, y, p.radius * 0.65, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  ctx.restore();
+}
+
+function drawVignette() {
+  const ulGrad = ctx.createRadialGradient(0, 0, 80, 0, 0, 920);
+  ulGrad.addColorStop(0, 'rgba(1, 10, 8, 0.78)');
+  ulGrad.addColorStop(0.6, 'rgba(2, 18, 14, 0.28)');
+  ulGrad.addColorStop(1, 'rgba(2, 18, 14, 0)');
+  ctx.fillStyle = ulGrad;
+  ctx.fillRect(0, 0, W, H);
+
+  const lrGrad = ctx.createRadialGradient(W, H, 80, W, H, 920);
+  lrGrad.addColorStop(0, 'rgba(1, 10, 8, 0.78)');
+  lrGrad.addColorStop(0.6, 'rgba(2, 18, 14, 0.28)');
+  lrGrad.addColorStop(1, 'rgba(2, 18, 14, 0)');
+  ctx.fillStyle = lrGrad;
+  ctx.fillRect(0, 0, W, H);
+}
+
+function render(ts) {
+  const t = (ts % 10000) / 10000;
+  const phase = t * Math.PI * 2;
+
+  drawBackground(phase);
+  drawContinuousRibbons(phase);
+
+  updateLayer(bgLayer, t, phase);
+  renderMeshLayer(bgLayer, t, phase, false);
+
+  updateLayer(midLayer, t, phase);
+  renderMeshLayer(midLayer, t, phase, true);
+
+  drawForegroundParticles(t, phase);
+  drawVignette();
+
+  requestAnimationFrame(render);
+}
+
+requestAnimationFrame(render);
+</script>
+</body>
+</html>
