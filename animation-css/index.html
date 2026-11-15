@@ -1,13 +1,38 @@
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#101827">
+
   <title>CSS Animations | Antar's Projects</title>
 
+  <!-- Google Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
   <style>
+    :root {
+      --bg: #101827;
+      --card: #1e293b;
+      --card-hover: #263449;
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --border: #334155;
+      --success: #22c55e;
+      --danger: #f87171;
+      --radius: 14px;
+    }
+
     * {
       margin: 0;
       padding: 0;
@@ -15,136 +40,335 @@
     }
 
     body {
-      font-family: Inter, Arial, sans-serif;
-      background: #101827;
-      color: #f1f5f9;
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
       min-height: 100vh;
-      padding: 40px 20px;
+      padding: 45px 20px;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
     }
 
     .container {
-      max-width: 1000px;
+      width: 100%;
+      max-width: 1100px;
       margin: auto;
     }
 
+    /* Header */
+
     .header {
-      margin-bottom: 30px;
+      margin-bottom: 35px;
+    }
+
+    .header-top {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 12px;
+    }
+
+    .header-icon {
+      width: 54px;
+      height: 54px;
+      display: grid;
+      place-items: center;
+      background: rgba(99, 102, 241, 0.15);
+      color: #818cf8;
+      border-radius: 15px;
+      font-size: 23px;
     }
 
     .header h1 {
       font-size: clamp(25px, 5vw, 36px);
-      margin-bottom: 10px;
+      font-weight: 800;
+      letter-spacing: -1px;
     }
 
     .header p {
-      color: #94a3b8;
+      color: var(--muted);
       font-size: 14px;
+      line-height: 1.7;
     }
+
+    /* Toolbar */
 
     .toolbar {
       display: flex;
       gap: 12px;
-      flex-wrap: wrap;
-      margin-bottom: 25px;
+      margin-bottom: 22px;
+    }
+
+    .search-box {
+      position: relative;
+      flex: 1;
+    }
+
+    .search-box i {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      pointer-events: none;
     }
 
     #search {
-      flex: 1;
-      min-width: 200px;
-      padding: 13px 16px;
-      border: 1px solid #334155;
-      border-radius: 9px;
-      background: #1e293b;
+      width: 100%;
+      height: 48px;
+      padding: 0 15px 0 43px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      outline: none;
       color: white;
       font-size: 14px;
-      outline: none;
+      transition: .2s;
     }
 
     #search:focus {
-      border-color: #6366f1;
+      border-color: var(--primary);
     }
 
-    #refresh {
-      padding: 12px 20px;
+    #search::placeholder {
+      color: #64748b;
+    }
+
+    .toolbar button {
+      height: 48px;
+      padding: 0 18px;
       border: none;
-      border-radius: 9px;
-      background: #4f46e5;
+      border-radius: 10px;
+      background: var(--primary);
       color: white;
       cursor: pointer;
       font-size: 14px;
+      font-weight: 600;
+      transition: .2s;
+      white-space: nowrap;
     }
 
-    #refresh:hover {
-      background: #4338ca;
+    .toolbar button:hover {
+      background: var(--primary-hover);
     }
+
+    .toolbar button:disabled {
+      opacity: .6;
+      cursor: wait;
+    }
+
+    /* Info bar */
 
     .info {
       display: flex;
       justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
       gap: 10px;
-      margin-bottom: 15px;
-      color: #94a3b8;
+      margin-bottom: 17px;
+      color: var(--muted);
       font-size: 13px;
     }
+
+    .info-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--success);
+    }
+
+    /* File grid */
 
     .file-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 15px;
+      gap: 16px;
     }
 
     .file-card {
-      display: block;
-      text-decoration: none;
-      color: white;
-      background: #1e293b;
-      border: 1px solid #334155;
-      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      min-height: 145px;
       padding: 20px;
-      transition: .2s ease;
+      text-decoration: none;
+      color: var(--text);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      transition: .25s ease;
     }
 
     .file-card:hover {
-      transform: translateY(-3px);
-      border-color: #6366f1;
-      background: #263449;
+      transform: translateY(-4px);
+      border-color: var(--primary);
+      background: var(--card-hover);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, .15);
+    }
+
+    .file-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
     }
 
     .file-icon {
-      font-size: 25px;
-      margin-bottom: 13px;
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      background: rgba(99, 102, 241, .15);
+      color: #818cf8;
+      border-radius: 11px;
+      font-size: 19px;
+    }
+
+    .open-icon {
+      color: #64748b;
+      font-size: 13px;
+      transition: .2s;
+    }
+
+    .file-card:hover .open-icon {
+      color: #a5b4fc;
+      transform: translate(2px, -2px);
     }
 
     .file-name {
       font-size: 14px;
       font-weight: 600;
+      line-height: 1.5;
       overflow-wrap: anywhere;
     }
 
     .file-type {
-      color: #94a3b8;
-      font-size: 12px;
       margin-top: 7px;
+      color: var(--muted);
+      font-size: 11px;
     }
 
+    /* States */
+
     .status {
-      text-align: center;
-      padding: 45px 15px;
-      color: #94a3b8;
       grid-column: 1 / -1;
+      text-align: center;
+      padding: 65px 15px;
+      color: var(--muted);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
     }
+
+    .status > i {
+      font-size: 30px;
+      margin-bottom: 18px;
+      display: block;
+      color: #818cf8;
+    }
+
+    .status h3 {
+      color: var(--text);
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+
+    .status p {
+      font-size: 13px;
+      line-height: 1.7;
+      overflow-wrap: anywhere;
+    }
+
+    .error-text {
+      color: var(--danger) !important;
+    }
+
+    .retry-btn {
+      margin-top: 18px;
+      padding: 10px 17px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    /* Footer */
 
     .footer {
       margin-top: 45px;
-      text-align: center;
-      font-size: 12px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
       color: #64748b;
+      font-size: 12px;
     }
 
     .footer a {
       color: #818cf8;
       text-decoration: none;
     }
+
+    .footer a:hover {
+      color: #a5b4fc;
+    }
+
+    /* Responsive */
+
+    @media (max-width: 600px) {
+      body {
+        padding: 28px 15px;
+      }
+
+      .toolbar {
+        flex-direction: column;
+      }
+
+      .toolbar button {
+        width: 100%;
+      }
+
+      .file-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .file-card {
+        padding: 15px;
+        min-height: 135px;
+      }
+
+      .file-name {
+        font-size: 12px;
+      }
+
+      .footer {
+        justify-content: center;
+        text-align: center;
+      }
+    }
+
+    @media (max-width: 350px) {
+      .file-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
   </style>
 </head>
 
@@ -152,164 +376,349 @@
 
   <main class="container">
 
+    <!-- Header -->
     <header class="header">
-      <h1>CSS Animations</h1>
-      <p>Explore all available animation projects.</p>
+
+      <div class="header-top">
+
+        <div class="header-icon">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+        </div>
+
+        <h1>CSS Animations</h1>
+
+      </div>
+
+      <p>
+        Explore and discover all available animation projects.
+      </p>
+
     </header>
 
+
+    <!-- Search and Refresh -->
     <div class="toolbar">
-      <input
-        type="search"
-        id="search"
-        placeholder="Search projects..."
-        autocomplete="off"
-      >
-      <button id="refresh" onclick="loadFiles()">↻ Refresh</button>
+
+      <div class="search-box">
+        <i class="fa-solid fa-magnifying-glass"></i>
+
+        <input
+          type="search"
+          id="search"
+          placeholder="Search projects by filename..."
+          autocomplete="off"
+        >
+      </div>
+
+      <button id="refresh" onclick="loadFiles()">
+        <i class="fa-solid fa-rotate-right"></i>
+        Refresh
+      </button>
+
     </div>
 
+
+    <!-- Information -->
     <div class="info">
-      <span id="fileCount">Loading projects...</span>
+
+      <div class="info-left">
+        <span class="status-dot"></span>
+        <span id="fileCount">Loading projects...</span>
+      </div>
+
       <span id="lastUpdated"></span>
+
     </div>
 
+
+    <!-- Project List -->
     <section class="file-grid" id="fileList">
-      <div class="status">Loading HTML files...</div>
+
+      <div class="status">
+        <i class="fa-solid fa-spinner fa-spin"></i>
+        <h3>Loading projects</h3>
+        <p>Please wait while we fetch your files.</p>
+      </div>
+
     </section>
 
+
+    <!-- Footer -->
     <footer class="footer">
-      Powered by GitHub API ·
-      <a href="https://github.com/antargfx/antargfx.github.io"
-         target="_blank">View Repository</a>
+
+      <span>
+        <i class="fa-regular fa-copyright"></i>
+        Antar's Projects
+      </span>
+
+      <a
+        href="https://github.com/antargfx/antargfx.github.io"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <i class="fa-brands fa-github"></i>
+        View Repository
+      </a>
+
     </footer>
 
   </main>
 
-  <script>
-    // GitHub repository configuration
-    const OWNER = "antargfx";
-    const REPO = "antargfx.github.io";
-    const FOLDER = "animation-css";
-    const BRANCH = "main";
 
-    const API_URL =
-      `https://api.github.com/repos/${OWNER}/${REPO}/contents/${FOLDER}?ref=${BRANCH}`;
+  <script>
+
+    // ==========================================
+    // CONFIGURATION
+    // ==========================================
+
+    const FILES_URL = "./files.json";
 
     let allFiles = [];
 
+
+    // ==========================================
+    // DOM ELEMENTS
+    // ==========================================
+
     const fileList = document.getElementById("fileList");
-    const searchInput = document.getElementById("search");
+
     const fileCount = document.getElementById("fileCount");
+
     const lastUpdated = document.getElementById("lastUpdated");
 
-    // Load all HTML files from GitHub
-    async function loadFiles() {
-      fileList.innerHTML =
-        '<div class="status">Loading projects...</div>';
+    const searchInput = document.getElementById("search");
 
-      fileCount.textContent = "Fetching files...";
+    const refreshButton = document.getElementById("refresh");
+
+
+    // ==========================================
+    // LOAD FILES FROM files.json
+    // ==========================================
+
+    async function loadFiles() {
+
+      fileList.innerHTML = `
+        <div class="status">
+          <i class="fa-solid fa-spinner fa-spin"></i>
+          <h3>Loading projects</h3>
+          <p>Please wait while we fetch your files.</p>
+        </div>
+      `;
+
+      fileCount.textContent = "Fetching projects...";
+
+      refreshButton.disabled = true;
+
+      refreshButton.innerHTML = `
+        <i class="fa-solid fa-spinner fa-spin"></i>
+        Loading...
+      `;
 
       try {
-        const response = await fetch(API_URL, {
-          headers: {
-            Accept: "application/vnd.github+json"
-          }
-        });
+
+        // Fetch JSON file
+        const response = await fetch(
+          FILES_URL + "?t=" + Date.now(),
+          { cache: "no-store" }
+        );
 
         if (!response.ok) {
+
           throw new Error(
-            `GitHub API error: ${response.status}`
+            `HTTP ${response.status}: Unable to load files.json`
           );
+
         }
 
         const files = await response.json();
 
+        if (!Array.isArray(files)) {
+
+          throw new Error("Invalid files.json format.");
+
+        }
+
+        // Validate and filter filenames
         allFiles = files
-          .filter(file =>
-            file.type === "file" &&
-            file.name.toLowerCase().endsWith(".html") &&
-            file.name.toLowerCase() !== "index.html"
-          )
-          .sort((a, b) =>
-            b.name.localeCompare(a.name, undefined, {
-              numeric: true,
-              sensitivity: "base"
-            })
+          .filter(name =>
+            typeof name === "string" &&
+            name.toLowerCase().endsWith(".html") &&
+            name.toLowerCase() !== "index.html" &&
+            !name.includes("/") &&
+            !name.includes("\\")
           );
+
+        // Sort newest filename first
+        allFiles.sort((a, b) =>
+          b.localeCompare(a, undefined, {
+            numeric: true,
+            sensitivity: "base"
+          })
+        );
 
         renderFiles(allFiles);
 
         lastUpdated.textContent =
           "Updated: " + new Date().toLocaleTimeString();
 
-      } catch (error) {
-        console.error(error);
+      }
+
+      catch (error) {
+
+        console.error("Loading Error:", error);
 
         fileCount.textContent = "Unable to load projects";
 
         fileList.innerHTML = `
           <div class="status">
+
+            <i class="fa-solid fa-triangle-exclamation"
+               style="color:#f87171"></i>
+
             <h3>Something went wrong!</h3>
-            <p style="margin-top:10px">
+
+            <p class="error-text">
               ${escapeHTML(error.message)}
             </p>
-            <p style="margin-top:10px">
-              Check the repository name and branch configuration.
-            </p>
+
+            <button class="retry-btn" onclick="loadFiles()">
+              <i class="fa-solid fa-rotate-right"></i>
+              Try Again
+            </button>
+
           </div>
         `;
+
       }
+
+      finally {
+
+        refreshButton.disabled = false;
+
+        refreshButton.innerHTML = `
+          <i class="fa-solid fa-rotate-right"></i>
+          Refresh
+        `;
+
+      }
+
     }
 
-    // Display files
+
+    // ==========================================
+    // RENDER PROJECTS
+    // ==========================================
+
     function renderFiles(files) {
+
       fileCount.textContent =
         `${files.length} project${files.length !== 1 ? "s" : ""} found`;
 
       if (!files.length) {
-        fileList.innerHTML =
-          '<div class="status">No HTML projects found.</div>';
+
+        fileList.innerHTML = `
+          <div class="status">
+
+            <i class="fa-regular fa-folder-open"></i>
+
+            <h3>No projects found</h3>
+
+            <p>
+              No matching HTML files were found.
+              Try another search keyword.
+            </p>
+
+          </div>
+        `;
+
         return;
+
       }
 
-      fileList.innerHTML = files.map(file => {
-        const fileName = escapeHTML(file.name);
-        const fileURL = `${FOLDER}/${encodeURIComponent(file.name)}`;
+      fileList.innerHTML = files.map(name => {
+
+        const safeName = escapeHTML(name);
+
+        const fileURL = "./" + encodeURIComponent(name);
 
         return `
-          <a class="file-card"
-             href="${fileURL}">
-            <div class="file-icon">🌐</div>
-            <div class="file-name">${fileName}</div>
-            <div class="file-type">HTML Project · Open project ↗</div>
+
+          <a
+            class="file-card"
+            href="${fileURL}"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+
+            <div class="file-card-top">
+
+              <div class="file-icon">
+                <i class="fa-brands fa-html5"></i>
+              </div>
+
+              <i class="fa-solid fa-arrow-up-right-from-square open-icon"></i>
+
+            </div>
+
+            <div class="file-name">
+              ${safeName}
+            </div>
+
+            <div class="file-type">
+              HTML Project · Open Project
+            </div>
+
           </a>
+
         `;
+
       }).join("");
+
     }
 
-    // Search projects
-    searchInput.addEventListener("input", () => {
-      const keyword = searchInput.value.toLowerCase().trim();
 
-      const filtered = allFiles.filter(file =>
-        file.name.toLowerCase().includes(keyword)
+    // ==========================================
+    // SEARCH PROJECTS
+    // ==========================================
+
+    searchInput.addEventListener("input", function() {
+
+      const keyword = this.value.toLowerCase().trim();
+
+      const filteredFiles = allFiles.filter(name =>
+        name.toLowerCase().includes(keyword)
       );
 
-      renderFiles(filtered);
+      renderFiles(filteredFiles);
+
     });
 
-    // Escape HTML to prevent markup injection
+
+    // ==========================================
+    // HTML ESCAPE
+    // ==========================================
+
     function escapeHTML(value) {
+
       return String(value).replace(/[&<>"']/g, char => ({
+
         "&": "&amp;",
         "<": "&lt;",
         ">": "&gt;",
         '"': "&quot;",
         "'": "&#039;"
+
       })[char]);
+
     }
 
-    // Initial loading
+
+    // ==========================================
+    // INITIALIZE
+    // ==========================================
+
     loadFiles();
+
   </script>
 
 </body>
