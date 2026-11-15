@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Floating Silk Ribbons & Pastel Balloons</title>
+<style>
+  html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: #FAF8F5;
+  }
+  canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+</style>
+</head>
+<body>
+<canvas id="stage"></canvas>
+<script>
+const canvas = document.getElementById('stage');
+const ctx = canvas.getContext('2d');
+
+const W = 1920;
+const H = 1080;
+
+function resize() {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+}
+window.addEventListener('resize', resize);
+resize();
+
+const COLORS = {
+  coral: {
+    base: '#FB7185',
+    light: '#FFE4E8',
+    mid: '#FB7185',
+    dark: '#E11D48',
+    deep: '#9F1239',
+    back: '#BE123C'
+  },
+  yellow: {
+    base: '#FACC15',
+    light: '#FEF9C3',
+    mid: '#FACC15',
+    dark: '#CA8A04',
+    deep: '#854D0E',
+    back: '#D97706'
+  },
+  mint: {
+    base: '#2DD4BF',
+    light: '#CCFBF1',
+    mid: '#2DD4BF',
+    dark: '#0D9488',
+    deep: '#115E59',
+    back: '#0F766E'
+  },
+  lavender: {
+    base: '#A855F7',
+    light: '#F3E8FF',
+    mid: '#A855F7',
+    dark: '#7E22CE',
+    deep: '#581C87',
+    back: '#6B21A8'
+  },
+  cream: {
+    base: '#F5EFE6',
+    light: '#FFFFFF',
+    mid: '#F3EDE2',
+    dark: '#D6CBB9',
+    deep: '#A89B84',
+    back: '#C4B7A0'
+  }
+};
+
+function mulberry32(a) {
+  return function() {
+    var t = a += 0x6D2B79F5;
+    t = Math.imul(t ^ t >>> 15, t | 1);
+    t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+const rng = mulberry32(3030);
+const colorKeys = ['coral', 'yellow', 'mint', 'lavender'];
+
+const ribbons = [
+  { xBase: 140,  yStart: 0.12, len: 460, width: 34, amp: 52, freq: 2.2, color: COLORS.coral,    layer: 0, tilt: 0.22,  phase: 0.4, speed: 1 },
+  { xBase: 320,  yStart: 0.65, len: 380, width: 26, amp: 40, freq: 2.5, color: COLORS.mint,     layer: 1, tilt: 0.18,  phase: 2.1, speed: 1 },
+  { xBase: 85,   yStart: 0.52, len: 520, width: 42, amp: 60, freq: 2.0, color: COLORS.lavender, layer: 2, tilt: 0.25,  phase: 4.2, speed: 1 },
+  { xBase: 460,  yStart: 0.90, len: 340, width: 22, amp: 35, freq: 2.6, color: COLORS.yellow,   layer: 0, tilt: 0.15,  phase: 1.5, speed: 1 },
+  { xBase: 230,  yStart: 0.35, len: 410, width: 30, amp: 46, freq: 2.3, color: COLORS.yellow,   layer: 2, tilt: 0.20,  phase: 3.3, speed: 1 },
+
+  { xBase: 1780, yStart: 0.28, len: 480, width: 36, amp: 54, freq: 2.1, color: COLORS.mint,     layer: 0, tilt: -0.22, phase: 1.1, speed: 1 },
+  { xBase: 1600, yStart: 0.78, len: 400, width: 28, amp: 44, freq: 2.4, color: COLORS.coral,    layer: 1, tilt: -0.18, phase: 3.8, speed: 1 },
+  { xBase: 1835, yStart: 0.68, len: 540, width: 44, amp: 62, freq: 1.9, color: COLORS.yellow,   layer: 2, tilt: -0.25, phase: 5.0, speed: 1 },
+  { xBase: 1470, yStart: 0.15, len: 350, width: 22, amp: 36, freq: 2.7, color: COLORS.lavender, layer: 0, tilt: -0.15, phase: 2.7, speed: 1 },
+  { xBase: 1690, yStart: 0.48, len: 420, width: 32, amp: 48, freq: 2.2, color: COLORS.lavender, layer: 2, tilt: -0.20, phase: 0.8, speed: 1 },
+
+  { xBase: 640,  yStart: 0.05, len: 300, width: 18, amp: 28, freq: 2.5, color: COLORS.coral,    layer: 0, tilt: 0.12,  phase: 4.5, speed: 1 },
+  { xBase: 1290, yStart: 0.55, len: 310, width: 18, amp: 30, freq: 2.5, color: COLORS.mint,     layer: 0, tilt: -0.12, phase: 1.9, speed: 1 }
+];
+
+const balloons = [
+  { xBase: 110,  yStart: 0.18, r: 78, color: COLORS.coral,    isBalloon: true,  layer: 2, swayAmp: 28, swayPhase: 0.5, driftX: 110 },
+  { xBase: 265,  yStart: 0.46, r: 58, color: COLORS.mint,     isBalloon: true,  layer: 1, swayAmp: 22, swayPhase: 2.0, driftX: 90  },
+  { xBase: 175,  yStart: 0.76, r: 68, color: COLORS.yellow,   isBalloon: true,  layer: 2, swayAmp: 25, swayPhase: 3.8, driftX: 100 },
+  { xBase: 390,  yStart: 0.22, r: 46, color: COLORS.lavender, isBalloon: false, layer: 1, swayAmp: 18, swayPhase: 1.2, driftX: 70  },
+  { xBase: 340,  yStart: 0.64, r: 52, color: COLORS.coral,    isBalloon: true,  layer: 0, swayAmp: 20, swayPhase: 4.5, driftX: 80  },
+  { xBase: 75,   yStart: 0.92, r: 62, color: COLORS.lavender, isBalloon: true,  layer: 1, swayAmp: 24, swayPhase: 2.9, driftX: 95  },
+  { xBase: 485,  yStart: 0.82, r: 36, color: COLORS.mint,     isBalloon: false, layer: 0, swayAmp: 15, swayPhase: 5.1, driftX: 60  },
+  { xBase: 220,  yStart: 0.04, r: 40, color: COLORS.cream,    isBalloon: false, layer: 2, swayAmp: 18, swayPhase: 0.9, driftX: 85  },
+  { xBase: 550,  yStart: 0.38, r: 30, color: COLORS.yellow,   isBalloon: false, layer: 0, swayAmp: 14, swayPhase: 3.3, driftX: 55  },
+
+  { xBase: 1810, yStart: 0.32, r: 82, color: COLORS.lavender, isBalloon: true,  layer: 2, swayAmp: 30, swayPhase: 1.4, driftX: -110 },
+  { xBase: 1650, yStart: 0.60, r: 60, color: COLORS.yellow,   isBalloon: true,  layer: 1, swayAmp: 22, swayPhase: 3.1, driftX: -90  },
+  { xBase: 1745, yStart: 0.88, r: 70, color: COLORS.mint,     isBalloon: true,  layer: 2, swayAmp: 26, swayPhase: 4.9, driftX: -100 },
+  { xBase: 1520, yStart: 0.35, r: 48, color: COLORS.coral,    isBalloon: false, layer: 1, swayAmp: 19, swayPhase: 0.3, driftX: -70  },
+  { xBase: 1580, yStart: 0.75, r: 54, color: COLORS.lavender, isBalloon: true,  layer: 0, swayAmp: 21, swayPhase: 2.4, driftX: -80  },
+  { xBase: 1845, yStart: 0.08, r: 64, color: COLORS.coral,    isBalloon: true,  layer: 1, swayAmp: 24, swayPhase: 4.0, driftX: -95  },
+  { xBase: 1430, yStart: 0.94, r: 38, color: COLORS.yellow,   isBalloon: false, layer: 0, swayAmp: 16, swayPhase: 1.7, driftX: -60  },
+  { xBase: 1700, yStart: 0.16, r: 42, color: COLORS.cream,    isBalloon: false, layer: 2, swayAmp: 18, swayPhase: 5.5, driftX: -85  },
+  { xBase: 1365, yStart: 0.50, r: 32, color: COLORS.mint,     isBalloon: false, layer: 0, swayAmp: 14, swayPhase: 2.8, driftX: -55  }
+];
+
+const pearls = [];
+for (let i = 0; i < 34; i++) {
+  const side = i % 2 === 0 ? -1 : 1;
+  const xSpread = rng() * 580;
+  const xBase = side === -1 ? 40 + xSpread : W - 40 - xSpread;
+  const ck = colorKeys[i % colorKeys.length];
+  pearls.push({
+    xBase,
+    yStart: rng(),
+    r: 8 + rng() * 16,
+    color: i % 5 === 0 ? COLORS.cream : COLORS[ck],
+    layer: Math.floor(rng() * 3),
+    swayAmp: 10 + rng() * 18,
+    swayPhase: rng() * Math.PI * 2,
+    driftX: side === -1 ? 45 : -45
+  });
+}
+
+const confetti = [];
+const shapeTypes = ['triangle', 'plus', 'ring', 'diamond', 'pill'];
+for (let i = 0; i < 56; i++) {
+  const inCenter = i < 10;
+  let x;
+  if (inCenter) {
+    x = 620 + rng() * 680;
+  } else {
+    const side = i % 2 === 0 ? -1 : 1;
+    x = side === -1 ? 50 + rng() * 560 : W - 50 - rng() * 560;
+  }
+  const y = 60 + rng() * (H - 120);
+  const ck = colorKeys[i % colorKeys.length];
+  confetti.push({
+    x,
+    y,
+    size: inCenter ? 7 + rng() * 6 : 9 + rng() * 11,
+    type: shapeTypes[i % shapeTypes.length],
+    color: COLORS[ck].base,
+    darkColor: COLORS[ck].dark,
+    rotSpeed: (rng() > 0.5 ? 1 : -1) * (rng() > 0.4 ? 1 : 2),
+    rotOffset: rng() * Math.PI * 2,
+    bobAmp: 6 + rng() * 12,
+    bobPhase: rng() * Math.PI * 2,
+    scalePhase: rng() * Math.PI * 2,
+    alpha: inCenter ? 0.45 : 0.88,
+    layer: i % 3
+  });
+}
+
+function drawBackdrop(tau) {
+  const bgGrad = ctx.createRadialGradient(W * 0.5, H * 0.48, 80, W * 0.5, H * 0.5, W * 0.75);
+  bgGrad.addColorStop(0, '#FFFFFF');
+  bgGrad.addColorStop(0.55, '#FAF8F5');
+  bgGrad.addColorStop(1, '#F2ECE1');
+  ctx.fillStyle = bgGrad;
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.save();
+  const softBlobs = [
+    { x: 220,  y: 240, r: 420, col: 'rgba(251, 113, 133, 0.055)', phase: 0 },
+    { x: 1700, y: 280, r: 450, col: 'rgba(168, 85, 247, 0.05)',   phase: 2 },
+    { x: 280,  y: 860, r: 440, col: 'rgba(45, 212, 191, 0.055)',  phase: 4 },
+    { x: 1640, y: 840, r: 420, col: 'rgba(250, 204, 21, 0.06)',   phase: 1.5 }
+  ];
+  softBlobs.forEach(b => {
+    const bx = b.x + Math.sin(tau + b.phase) * 35;
+    const by = b.y + Math.cos(tau + b.phase) * 25;
+    const g = ctx.createRadialGradient(bx, by, 0, bx, by, b.r);
+    g.addColorStop(0, b.col);
+    g.addColorStop(1, 'rgba(250, 248, 245, 0)');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(bx, by, b.r, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  ctx.strokeStyle = 'rgba(220, 210, 195, 0.35)';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([8, 14]);
+  ctx.beginPath();
+  ctx.moveTo(-50, H * 0.85);
+  ctx.bezierCurveTo(W * 0.22, H * 0.65, W * 0.15, H * 0.25, W * 0.38, -50);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(W + 50, H * 0.85);
+  ctx.bezierCurveTo(W * 0.78, H * 0.65, W * 0.85, H * 0.25, W * 0.62, -50);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
+}
+
+function drawConfettiItem(c, tau) {
+  const bx = c.x + Math.sin(tau + c.bobPhase) * (c.bobAmp * 0.6);
+  const by = c.y + Math.cos(tau + c.bobPhase) * c.bobAmp;
+  const rot = c.rotOffset + tau * c.rotSpeed;
+  const tiltScale = 0.65 + 0.35 * Math.sin(tau * 2 + c.scalePhase);
+
+  ctx.save();
+  ctx.translate(bx, by);
+  ctx.rotate(rot);
+  ctx.scale(1, tiltScale);
+  ctx.globalAlpha = c.alpha;
+
+  ctx.shadowColor = 'rgba(24, 24, 40, 0.07)';
+  ctx.shadowBlur = 8;
+  ctx.shadowOffsetX = 3;
+  ctx.shadowOffsetY = 6;
+
+  const s = c.size;
+  const grad = ctx.createLinearGradient(-s, -s, s, s);
+  grad.addColorStop(0, c.color);
+  grad.addColorStop(1, c.darkColor);
+  ctx.fillStyle = grad;
+  ctx.strokeStyle = grad;
+
+  if (c.type === 'triangle') {
+    ctx.beginPath();
+    for (let i = 0; i < 3; i++) {
+      const a = (i * Math.PI * 2) / 3 - Math.PI / 2;
+      const px = Math.cos(a) * s;
+      const py = Math.sin(a) * s;
+      if (i === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    ctx.lineJoin = 'round';
+    ctx.lineWidth = s * 0.35;
+    ctx.stroke();
+    ctx.fill();
+  } else if (c.type === 'plus') {
+    const t = s * 0.36;
+    ctx.beginPath();
+    ctx.roundRect(-s, -t, s * 2, t * 2, t * 0.8);
+    ctx.roundRect(-t, -s, t * 2, s * 2, t * 0.8);
+    ctx.fill();
+  } else if (c.type === 'ring') {
+    ctx.lineWidth = s * 0.42;
+    ctx.beginPath();
+    ctx.arc(0, 0, s * 0.7, 0, Math.PI * 2);
+    ctx.stroke();
+  } else if (c.type === 'diamond') {
+    ctx.beginPath();
+    ctx.moveTo(0, -s * 1.15);
+    ctx.lineTo(s * 0.8, 0);
+    ctx.lineTo(0, s * 1.15);
+    ctx.lineTo(-s * 0.8, 0);
+    ctx.closePath();
+    ctx.fill();
+  } else if (c.type === 'pill') {
+    ctx.beginPath();
+    ctx.roundRect(-s * 0.9, -s * 0.42, s * 1.8, s * 0.84, s * 0.42);
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
+
+function drawSerpentineRibbon(rib, tNorm, tau) {
+  const spanY = H + rib.len * 1.5;
+  const prog = (rib.yStart + tNorm * rib.speed) % 1.0;
+  const centerY = H + rib.len * 0.75 - prog * spanY;
+  const centerX = rib.xBase + (prog - 0.5) * rib.tilt * 650;
+
+  ctx.save();
+  ctx.translate(centerX, centerY);
+  ctx.rotate(rib.tilt);
+
+  const N = 44;
+  const halfLen = rib.len * 0.5;
+  const dy = rib.len / N;
+  const wavePhase = tau * 2 + rib.phase;
+
+  ctx.shadowColor = 'rgba(20, 20, 38, 0.08)';
+  ctx.shadowBlur = 16;
+  ctx.shadowOffsetX = 6;
+  ctx.shadowOffsetY = 12;
+
+  for (let i = 0; i < N; i++) {
+    const u0 = i / N;
+    const u1 = (i + 1) / N;
+    const y0 = -halfLen + i * dy;
+    const y1 = y0 + dy + 0.9;
+
+    const taper0 = Math.sin(u0 * Math.PI);
+    const taper1 = Math.sin(u1 * Math.PI);
+    const w0 = rib.width * (0.25 + 0.75 * taper0);
+    const w1 = rib.width * (0.25 + 0.75 * taper1);
+
+    const theta0 = u0 * Math.PI * 2 * rib.freq - wavePhase;
+    const theta1 = u1 * Math.PI * 2 * rib.freq - wavePhase;
+
+    const x0 = Math.sin(theta0) * rib.amp * taper0;
+    const x1 = Math.sin(theta1) * rib.amp * taper1;
+
+    const slope = Math.cos(theta0);
+    const isFront = slope >= 0;
+
+    const segGrad = ctx.createLinearGradient(x0 - w0, y0, x1 + w1, y1);
+    if (isFront) {
+      const sheen = Math.pow(Math.max(0, slope), 1.6);
+      segGrad.addColorStop(0, rib.color.dark);
+      segGrad.addColorStop(0.5, sheen > 0.55 ? rib.color.light : rib.color.base);
+      segGrad.addColorStop(1, rib.color.dark);
+    } else {
+      segGrad.addColorStop(0, rib.color.deep);
+      segGrad.addColorStop(0.5, rib.color.back);
+      segGrad.addColorStop(1, rib.color.deep);
+    }
+
+    ctx.fillStyle = segGrad;
+    ctx.beginPath();
+    ctx.moveTo(x0 - w0 * 0.5, y0);
+    ctx.lineTo(x0 + w0 * 0.5, y0);
+    ctx.lineTo(x1 + w1 * 0.5, y1);
+    ctx.lineTo(x1 - w1 * 0.5, y1);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+  }
+
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+  ctx.lineWidth = 1.4;
+  ctx.beginPath();
+  for (let i = 0; i <= N; i++) {
+    const u = i / N;
+    const y = -halfLen + i * dy;
+    const taper = Math.sin(u * Math.PI);
+    const w = rib.width * (0.25 + 0.75 * taper);
+    const theta = u * Math.PI * 2 * rib.freq - wavePhase;
+    const x = Math.sin(theta) * rib.amp * taper - w * 0.28;
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+function drawGlossyBalloon(b, tNorm, tau) {
+  const padY = 230;
+  const spanY = H + padY * 2;
+  const prog = (b.yStart + tNorm) % 1.0;
+  const py = H + padY - prog * spanY;
+  const sway = Math.sin(tau + b.swayPhase) * b.swayAmp;
+  const px = b.xBase + (prog - 0.5) * b.driftX + sway;
+
+  const tilt = Math.cos(tau + b.swayPhase) * 0.08 + (b.driftX > 0 ? 0.05 : -0.05);
+  const r = b.r;
+
+  ctx.save();
+  ctx.translate(px, py);
+
+  if (b.isBalloon) {
+    ctx.save();
+    const strLen = r * 1.85;
+    const strGrad = ctx.createLinearGradient(0, r, 0, r + strLen);
+    strGrad.addColorStop(0, 'rgba(160, 150, 140, 0.65)');
+    strGrad.addColorStop(1, 'rgba(160, 150, 140, 0)');
+    ctx.strokeStyle = strGrad;
+    ctx.lineWidth = 1.8;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    const startY = r * 1.08;
+    ctx.moveTo(0, startY);
+    for (let s = 1; s <= 16; s++) {
+      const sp = s / 16;
+      const sy = startY + sp * strLen;
+      const sx = Math.sin(sp * Math.PI * 2.5 - tau * 2 + b.swayPhase) * (12 * sp) - sway * 0.25 * sp;
+      ctx.lineTo(sx, sy);
+    }
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  ctx.rotate(tilt);
+
+  ctx.shadowColor = 'rgba(20, 20, 42, 0.09)';
+  ctx.shadowBlur = 24;
+  ctx.shadowOffsetX = 8;
+  ctx.shadowOffsetY = 16;
+
+  const rx = r * 0.96;
+  const ry = b.isBalloon ? r * 1.07 : r * 0.96;
+
+  if (b.isBalloon) {
+    ctx.fillStyle = b.color.dark;
+    ctx.beginPath();
+    ctx.moveTo(-r * 0.06, ry - 2);
+    ctx.lineTo(r * 0.06, ry - 2);
+    ctx.lineTo(r * 0.13, ry + r * 0.13);
+    ctx.lineTo(-r * 0.13, ry + r * 0.13);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  const sphereGrad = ctx.createRadialGradient(-rx * 0.35, -ry * 0.35, r * 0.06, 0, 0, ry * 1.1);
+  sphereGrad.addColorStop(0, b.color.light);
+  sphereGrad.addColorStop(0.28, b.color.base);
+  sphereGrad.addColorStop(0.78, b.color.dark);
+  sphereGrad.addColorStop(1, b.color.deep);
+
+  ctx.fillStyle = sphereGrad;
+  ctx.beginPath();
+  ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.shadowColor = 'transparent';
+  ctx.shadowBlur = 0;
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = 0;
+
+  const rimGrad = ctx.createRadialGradient(rx * 0.25, ry * 0.3, r * 0.2, 0, 0, ry);
+  rimGrad.addColorStop(0, 'rgba(255, 255, 255, 0)');
+  rimGrad.addColorStop(0.82, 'rgba(255, 255, 255, 0)');
+  rimGrad.addColorStop(1, 'rgba(255, 255, 255, 0.38)');
+  ctx.fillStyle = rimGrad;
+  ctx.beginPath();
+  ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.save();
+  ctx.translate(-rx * 0.38, -ry * 0.38);
+  ctx.rotate(-Math.PI / 4);
+  const specGrad = ctx.createLinearGradient(0, -r * 0.22, 0, r * 0.22);
+  specGrad.addColorStop(0, 'rgba(255, 255, 255, 0.78)');
+  specGrad.addColorStop(1, 'rgba(255, 255, 255, 0.05)');
+  ctx.fillStyle = specGrad;
+  ctx.beginPath();
+  ctx.ellipse(0, 0, r * 0.14, r * 0.26, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
+  ctx.beginPath();
+  ctx.arc(-r * 0.02, r * 0.35, r * 0.045, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  if (b.isBalloon) {
+    ctx.fillStyle = b.color.light;
+    ctx.beginPath();
+    ctx.roundRect(-r * 0.1, ry - 1, r * 0.2, r * 0.05, r * 0.025);
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
+
+function render(ts) {
+  const dpr = canvas.width / W;
+  ctx.save();
+  ctx.scale(dpr, dpr);
+
+  const t = ((ts || 0) / 1000) % 10;
+  const tNorm = t / 10;
+  const tau = tNorm * Math.PI * 2;
+
+  drawBackdrop(tau);
+
+  for (let layer = 0; layer < 3; layer++) {
+    ribbons.forEach(rib => {
+      if (rib.layer === layer) drawSerpentineRibbon(rib, tNorm, tau);
+    });
+
+    pearls.forEach(p => {
+      if (p.layer === layer) drawGlossyBalloon(p, tNorm, tau);
+    });
+
+    balloons.forEach(b => {
+      if (b.layer === layer) drawGlossyBalloon(b, tNorm, tau);
+    });
+
+    confetti.forEach(c => {
+      if (c.layer === layer) drawConfettiItem(c, tau);
+    });
+  }
+
+  ctx.restore();
+  requestAnimationFrame(render);
+}
+
+requestAnimationFrame(render);
+</script>
+</body>
+</html>
