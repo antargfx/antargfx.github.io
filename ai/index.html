@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Code & Model Studio</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/tokyo-night-dark.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.1/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <style>
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+    .prose pre { background: #090d16 !important; padding: 0 !important; border-radius: 0.5rem; overflow: hidden; border: 1px solid #1e293b; margin: 0.75rem 0; }
+    .prose code { color: #38bdf8; font-size: 0.875rem; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 h-screen flex overflow-hidden font-sans antialiased">
+
+  <!-- Left Sidebar: Providers, Keys & Chat Sessions -->
+  <aside class="w-80 bg-slate-900 border-r border-slate-800 flex flex-col justify-between shrink-0">
+    <div class="p-4 space-y-4 overflow-y-auto flex-1">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center space-x-2">
+          <span class="w-3 h-3 rounded-full bg-emerald-400 animate-pulse"></span>
+          <h1 class="font-bold text-lg tracking-tight text-white">AI Code Studio</h1>
+        </div>
+        <button onclick="createNewSession()" class="text-xs bg-indigo-600 hover:bg-indigo-500 px-2.5 py-1.5 rounded font-medium transition">+ New Chat</button>
+      </div>
+
+      <!-- Provider Configuration -->
+      <div class="space-y-3 bg-slate-950/60 p-3 rounded-lg border border-slate-800/80">
+        <div class="flex justify-between items-center">
+          <label class="text-xs font-semibold uppercase tracking-wider text-slate-400">API Provider</label>
+          <button onclick="openProviderModal()" class="text-xs text-indigo-400 hover:underline">+ Add Custom</button>
+        </div>
+        <select id="providerSelect" onchange="onProviderChange()" class="w-full bg-slate-800 border border-slate-700 rounded px-2.5 py-1.5 text-sm focus:outline-none focus:border-indigo-500"></select>
+
+        <div>
+          <label class="text-xs text-slate-400 block mb-1">Base URL</label>
+          <input id="baseUrlInput" type="text" onchange="saveCurrentProviderConfig()" class="w-full bg-slate-900 border border-slate-800 rounded px-2.5 py-1.5 text-xs font-mono text-slate-300 focus:outline-none focus:border-indigo-500" placeholder="https://coarena.ai/api/v1" />
+        </div>
+
+        <div>
+          <div class="flex justify-between items-center mb-1">
+            <label class="text-xs text-slate-400">API Keys (comma-separated for rotation)</label>
+          </div>
+          <input id="apiKeyInput" type="password" onchange="saveCurrentProviderConfig()" class="w-full bg-slate-900 border border-slate-800 rounded px-2.5 py-1.5 text-xs font-mono text-slate-300 focus:outline-none focus:border-indigo-500" placeholder="coa_xxxx, coa_yyyy" />
+          <p class="text-[11px] text-slate-500 mt-1">Stored locally in your browser. Auto-rotates on 429 quota limits.</p>
+        </div>
+
+        <!-- Model Selection -->
+        <div>
+          <div class="flex justify-between items-center mb-1">
+            <label class="text-xs text-slate-400">Model ID</label>
+            <button onclick="fetchModels()" class="text-[11px] text-emerald-400 hover:underline">↻ Fetch Models</button>
+          </div>
+          <select id="modelSelect" onchange="syncCustomModelInput()" class="w-full bg-slate-800 border border-slate-700 rounded px-2.5 py-1.5 text-xs font-mono mb-1.5 focus:outline-none"></select>
+          <input id="customModelInput" type="text" onchange="saveCurrentProviderConfig()" class="w-full bg-slate-900 border border-slate-800 rounded px-2.5 py-1 text-xs font-mono text-slate-300" placeholder="Or type custom model ID..." />
+        </div>
+
+        <!-- Coarena Specific Utilities -->
+        <div id="coarenaTools" class="pt-2 border-t border-slate-800/80 flex gap-2">
+          <button onclick="checkCoarenaLimits()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-[11px] py-1.5 rounded border border-slate-700 transition">Check Quota</button>
+          <button onclick="requestCoarenaLimitIncrease()" class="flex-1 bg-emerald-950/60 hover:bg-emerald-900/70 text-emerald-300 text-[11px] py-1.5 rounded border border-emerald-800/60 transition">Request +$10 Limit</button>
+        </div>
+        <div id="quotaStatus" class="hidden text-[11px] font-mono bg-slate-900 p-2 rounded border border-slate-800 text-slate-300 whitespace-pre-wrap"></div>
+      </div>
+
+      <!-- System Prompt & Params -->
+      <div class="space-y-2 bg-slate-950/60 p-3 rounded-lg border border-slate-800/80">
+        <label class="text-xs font-semibold uppercase tracking-wider text-slate-400 block">System Prompt</label>
+        <textarea id="systemPrompt" rows="3" onchange="saveSettings()" class="w-full bg-slate-900 border border-slate-800 rounded p-2 text-xs text-slate-300 focus:outline-none focus:border-indigo-500">You are a Principal Full-Stack Architect. Write clean, modular, production-ready code. Always provide complete code blocks without placeholders.</textarea>
+        <div class="flex items-center justify-between text-xs pt-1">
+          <span class="text-slate-400">Temperature: <strong id="tempVal">0.3</strong></span>
+          <input id="tempInput" type="range" min="0" max="1.5" step="0.1" value="0.3" oninput="document.getElementById('tempVal').innerText = this.value; saveSettings()" class="w-32 accent-indigo-500" />
+        </div>
+      </div>
+
+      <!-- Saved Chat Sessions -->
+      <div>
+        <label class="text-xs font-semibold uppercase tracking-wider text-slate-400 block mb-2">Workspace History</label>
+        <div id="sessionList" class="space-y-1 max-h-48 overflow-y-auto"></div>
+      </div>
+    </div>
+
+    <div class="p-3 border-t border-slate-800 text-[11px] text-slate-500 flex justify-between items-center">
+      <span>100% Client-Side LocalStorage</span>
+      <button onclick="clearAllData()" class="text-rose-400 hover:underline">Reset Keys</button>
+    </div>
+  </aside>
+
+  <!-- Main Chat Area -->
+  <main class="flex-1 flex flex-col h-full bg-slate-950 relative">
+    <!-- Top Bar -->
+    <header class="h-12 border-b border-slate-800 px-6 flex items-center justify-between bg-slate-900/50">
+      <div class="flex items-center space-x-3">
+        <span id="activeModelBadge" class="text-xs font-mono bg-indigo-950 text-indigo-300 border border-indigo-800/60 px-2.5 py-0.5 rounded">claude-fable-5</span>
+        <span id="keyRotationBadge" class="text-xs text-slate-400 font-mono">Key #1 active</span>
+      </div>
+      <div class="flex items-center space-x-2">
+        <button onclick="exportChatMarkdown()" class="text-xs bg-slate-800 hover:bg-slate-700 px-3 py-1 rounded border border-slate-700">Export .MD</button>
+        <button onclick="togglePreviewDrawer()" class="text-xs bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1 rounded font-medium">Live Code Sandbox</button>
+      </div>
+    </header>
+
+    <!-- Messages Container -->
+    <div id="chatContainer" class="flex-1 overflow-y-auto p-6 space-y-6"></div>
+
+    <!-- Input Box -->
+    <div class="p-4 border-t border-slate-800 bg-slate-900/40">
+      <div class="max-w-4xl mx-auto flex gap-3 items-end">
+        <textarea id="userInput" rows="3" placeholder="Ask any model to architect apps, debug scripts, or generate UI components... (Shift+Enter for new line, Enter to send)" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 resize-none"></textarea>
+        <div class="flex flex-col gap-2">
+          <button id="sendBtn" onclick="sendMessage()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-5 py-2.5 rounded-lg text-sm transition">Send</button>
+          <button id="stopBtn" onclick="stopGeneration()" class="hidden bg-rose-600 hover:bg-rose-500 text-white font-medium px-5 py-2.5 rounded-lg text-sm transition">Stop</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Right Live Sandbox Drawer -->
+  <section id="previewDrawer" class="hidden w-[42%] border-l border-slate-800 bg-slate-900 flex flex-col h-full shrink-0">
+    <div class="h-12 border-b border-slate-800 px-4 flex items-center justify-between">
+      <span class="text-xs font-semibold uppercase tracking-wider text-emerald-400">Live HTML/JS Artifact Sandbox</span>
+      <div class="flex gap-2">
+        <button onclick="refreshSandbox()" class="text-xs bg-slate-800 px-2.5 py-1 rounded hover:bg-slate-700">↻ Reload</button>
+        <button onclick="togglePreviewDrawer()" class="text-xs bg-slate-800 px-2.5 py-1 rounded hover:bg-slate-700">✕ Close</button>
+      </div>
+    </div>
+    <iframe id="sandboxFrame" sandbox="allow-scripts allow-modals" class="w-full flex-1 bg-white"></iframe>
+  </section>
+
+  <script>
+    // Default Providers pre-configured with Coarena & major hubs
+    const defaultProviders = {
+      coarena: {
+        name: "Coarena.ai (Free $5/day)",
+        baseUrl: "https://coarena.ai/api/v1",
+        keys: "",
+        models: ["claude-fable-5", "claude-fable-5-1", "claude-fable-5-2", "kimi-k3-1-pro"],
+        selectedModel: "claude-fable-5"
+      },
+      openrouter: {
+        name: "OpenRouter",
+        baseUrl: "https://openrouter.ai/api/v1",
+        keys: "",
+        models: ["anthropic/claude-3.7-sonnet", "deepseek/deepseek-coder", "google/gemini-2.5-pro"],
+        selectedModel: "anthropic/claude-3.7-sonnet"
+      },
+      groq: {
+        name: "Groq Cloud",
+        baseUrl: "https://api.groq.com/openai/v1",
+        keys: "",
+        models: ["llama-3.3-70b-versatile", "qwen-2.5-coder-32b"],
+        selectedModel: "llama-3.3-70b-versatile"
+      },
+      custom: {
+        name: "Custom OpenAI-Compatible",
+        baseUrl: "https://api.openai.com/v1",
+        keys: "",
+        models: ["gpt-4o"],
+        selectedModel: "gpt-4o"
+      }
+    };
+
+    let state = {
+      providers: JSON.parse(localStorage.getItem("ai_studio_providers")) || defaultProviders,
+      activeProvider: localStorage.getItem("ai_studio_active_provider") || "coarena",
+      sessions: JSON.parse(localStorage.getItem("ai_studio_sessions")) || [],
+      activeSessionId: null,
+      keyIndex: 0,
+      abortController: null,
+      latestHtmlArtifact: ""
+    };
+
+    function init() {
+      renderProviderDropdown();
+      loadProviderIntoUI();
+      if (state.sessions.length === 0) {
+        createNewSession();
+      } else {
+        state.activeSessionId = state.sessions[0].id;
+        renderSessions();
+        renderChat();
+      }
+
+      document.getElementById("userInput").addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          sendMessage();
+        }
+      });
+    }
+
+    function saveState() {
+      localStorage.setItem("ai_studio_providers", JSON.stringify(state.providers));
+      localStorage.setItem("ai_studio_active_provider", state.activeProvider);
+      localStorage.setItem("ai_studio_sessions", JSON.stringify(state.sessions));
+    }
+
+    function renderProviderDropdown() {
+      const sel = document.getElementById("providerSelect");
+      sel.innerHTML = "";
+      Object.entries(state.providers).forEach(([id, p]) => {
+        const opt = document.createElement("option");
+        opt.value = id;
+        opt.textContent = p.name;
+        if (id === state.activeProvider) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    }
+
+    function loadProviderIntoUI() {
+      const p = state.providers[state.activeProvider];
+      document.getElementById("baseUrlInput").value = p.baseUrl;
+      document.getElementById("apiKeyInput").value = p.keys;
+      renderModelDropdown(p.models, p.selectedModel);
+      document.getElementById("customModelInput").value = p.selectedModel;
+      document.getElementById("activeModelBadge").textContent = p.selectedModel;
+      document.getElementById("coarenaTools").style.display = p.baseUrl.includes("coarena.ai") ? "flex" : "none";
+      updateKeyBadge();
+    }
+
+    function renderModelDropdown(models, selected) {
+      const sel = document.getElementById("modelSelect");
+      sel.innerHTML = "";
+      models.forEach(m => {
+        const opt = document.createElement("option");
+        opt.value = m;
+        opt.textContent = m;
+        if (m === selected) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    }
+
+    function onProviderChange() {
+      state.activeProvider = document.getElementById("providerSelect").value;
+      state.keyIndex = 0;
+      loadProviderIntoUI();
+      saveState();
+    }
+
+    function syncCustomModelInput() {
+      const selected = document.getElementById("modelSelect").value;
+      document.getElementById("customModelInput").value = selected;
+      saveCurrentProviderConfig();
+    }
+
+    function saveCurrentProviderConfig() {
+      const p = state.providers[state.activeProvider];
+      p.baseUrl = document.getElementById("baseUrlInput").value.trim().replace(/\/+$/, "");
+      p.keys = document.getElementById("apiKeyInput").value.trim();
+      p.selectedModel = document.getElementById("customModelInput").value.trim();
+      document.getElementById("activeModelBadge").textContent = p.selectedModel;
+      updateKeyBadge();
+      saveState();
+    }
+
+    function getKeysArray() {
+      const raw = state.providers[state.activeProvider].keys || "";
+      return raw.split(",").map(k => k.trim()).filter(Boolean);
+    }
+
+    function getActiveApiKey() {
+      const keys = getKeysArray();
+      if (keys.length === 0) return "";
+      if (state.keyIndex >= keys.length) state.keyIndex = 0;
+      return keys[state.keyIndex];
+    }
+
+    function rotateKey() {
+      const keys = getKeysArray();
+      if (keys.length <= 1) return false;
+      state.keyIndex = (state.keyIndex + 1) % keys.length;
+      updateKeyBadge();
+      return true;
+    }
+
+    function updateKeyBadge() {
+      const keys = getKeysArray();
+      document.getElementById("keyRotationBadge").textContent =
+        keys.length > 0 ? `Key #${state.keyIndex + 1}/${keys.length} active` : "No API Key set";
+    }
+
+    // Dynamic Model Fetching (works without key on Coarena GET /api/v1/models)
+    async function fetchModels() {
+      const p = state.providers[state.activeProvider];
+      const key = getActiveApiKey();
+      const headers = key ? { "Authorization": `Bearer ${key}` } : {};
+      try {
+        const res = await fetch(`${p.baseUrl}/models`, { headers });
+        const data = await res.json();
+        const list = (data.data || data.models || []).map(item => item.id || item.name || item);
+        if (list.length > 0) {
+          p.models = list;
+          p.selectedModel = list[0];
+          renderModelDropdown(p.models, p.selectedModel);
+          document.getElementById("customModelInput").value = p.selectedModel;
+          saveState();
+          alert(`Loaded ${list.length} models from ${p.name}`);
+        }
+      } catch (err) {
+        alert(`Could not fetch models: ${err.message}`);
+      }
+    }
+
+    // Coarena Specific API Helpers
+    async function checkCoarenaLimits() {
+      const p = state.providers[state.activeProvider];
+      const key = getActiveApiKey();
+      if (!key) return alert("Enter your Coarena API key first.");
+      const box = document.getElementById("quotaStatus");
+      box.classList.remove("hidden");
+      box.textContent = "Checking Coarena usage limits...";
+      try {
+        const res = await fetch(`${p.baseUrl}/limits`, {
+          headers: { "Authorization": `Bearer ${key}` }
+        });
+        const data = await res.json();
+        box.textContent = JSON.stringify(data, null, 2);
+      } catch (e) {
+        box.textContent = `Error: ${e.message}`;
+      }
+    }
+
+    async function requestCoarenaLimitIncrease() {
+      const p = state.providers[state.activeProvider];
+      const key = getActiveApiKey();
+      if (!key) return alert("Enter your Coarena API key first.");
+      try {
+        const res = await fetch(`${p.baseUrl}/limits/requests`, {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${key}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ usd_per_day: 10, requests_per_minute: 60 })
+        });
+        const data = await res.json();
+        const box = document.getElementById("quotaStatus");
+        box.classList.remove("hidden");
+        box.textContent = "Upgrade Request Response:\n" + JSON.stringify(data, null, 2);
+      } catch (e) {
+        alert(`Request failed: ${e.message}`);
+      }
+    }
+
+    // Session Management
+    function createNewSession() {
+      const session = {
+        id: Date.now().toString(),
+        title: `Workspace ${state.sessions.length + 1}`,
+        messages: []
+      };
+      state.sessions.unshift(session);
+      state.activeSessionId = session.id;
+      saveState();
+      renderSessions();
+      renderChat();
+    }
+
+    function selectSession(id) {
+      state.activeSessionId = id;
+      renderSessions();
+      renderChat();
+    }
+
+    function deleteSession(id, e) {
+      e.stopPropagation();
+      state.sessions = state.sessions.filter(s => s.id !== id);
+      if (state.sessions.length === 0) createNewSession();
+      else if (state.activeSessionId === id) state.activeSessionId = state.sessions[0].id;
+      saveState();
+      renderSessions();
+      renderChat();
+    }
+
+    function renderSessions() {
+      const container = document.getElementById("sessionList");
+      container.innerHTML = "";
+      state.sessions.forEach(s => {
+        const div = document.createElement("div");
+        const active = s.id === state.activeSessionId;
+        div.className = `flex justify-between items-center px-2.5 py-1.5 rounded text-xs cursor-pointer ${active ? "bg-indigo-600/20 text-indigo-300 border border-indigo-500/40" : "hover:bg-slate-800 text-slate-400"}`;
+        div.onclick = () => selectSession(s.id);
+        div.innerHTML = `<span class="truncate pr-2">${s.title}</span><button onclick="deleteSession('${s.id}', event)" class="text-slate-500 hover:text-rose-400">✕</button>`;
+        container.appendChild(div);
+      });
+    }
+
+    function getActiveSession() {
+      return state.sessions.find(s => s.id === state.activeSessionId);
+    }
+
+    // Chat & Code Rendering
+    function renderChat() {
+      const container = document.getElementById("chatContainer");
+      container.innerHTML = "";
+      const session = getActiveSession();
+      if (!session || session.messages.length === 0) {
+        container.innerHTML = `
+          <div class="max-w-2xl mx-auto mt-16 text-center space-y-3">
+            <h2 class="text-xl font-semibold text-slate-200">Multi-Model AI Coding Workspace</h2>
+            <p class="text-sm text-slate-400">Paste your Coarena or OpenAI-compatible API keys in the left panel, choose a model (like <code class="text-indigo-400">claude-fable-5</code>), and generate full-stack code with live preview.</p>
+          </div>`;
+        return;
+      }
+
+      session.messages.forEach((msg, idx) => {
+        const wrap = document.createElement("div");
+        wrap.className = `max-w-4xl mx-auto flex flex-col ${msg.role === "user" ? "items-end" : "items-start"}`;
+
+        const bubble = document.createElement("div");
+        bubble.className = msg.role === "user"
+          ? "bg-indigo-600 text-white px-4 py-2.5 rounded-2xl rounded-br-sm max-w-2xl text-sm whitespace-pre-wrap"
+          : "bg-slate-900 border border-slate-800 px-5 py-4 rounded-2xl rounded-bl-sm w-full prose prose-invert max-w-none text-sm";
+
+        if (msg.role === "user") {
+          bubble.textContent = msg.content;
+        } else {
+          bubble.innerHTML = formatMarkdownWithCodeActions(msg.content);
+        }
+
+        const meta = document.createElement("div");
+        meta.className = "text-[11px] text-slate-500 mt-1 px-1 flex gap-3 items-center";
+        meta.innerHTML = `<span>${msg.role === "user" ? "You" : (msg.model || "Assistant")}</span>`;
+
+        // Coarena Feedback thumbs if request_id is returned
+        if (msg.requestId && state.providers[state.activeProvider].baseUrl.includes("coarena.ai")) {
+          meta.innerHTML += `
+            <button onclick="sendCoarenaFeedback('${msg.requestId}', 'up')" class="hover:text-emerald-400">👍 Good Code</button>
+            <button onclick="sendCoarenaFeedback('${msg.requestId}', 'down')" class="hover:text-rose-400">👎 Bad Code</button>
+          `;
+        }
+
+        wrap.appendChild(bubble);
+        wrap.appendChild(meta);
+        container.appendChild(wrap);
+      });
+
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function formatMarkdownWithCodeActions(mdText) {
+      const renderer = new marked.Renderer();
+      renderer.code = function(codeObjOrStr, langStr) {
+        const rawCode = typeof codeObjOrStr === "object" ? codeObjOrStr.text : codeObjOrStr;
+        const lang = (typeof codeObjOrStr === "object" ? codeObjOrStr.lang : langStr) || "plaintext";
+        const validLang = hljs.getLanguage(lang) ? lang : "plaintext";
+        const highlighted = hljs.highlight(rawCode, { language: validLang }).value;
+        const encoded = encodeURIComponent(rawCode);
+
+        if (["html", "xml", "svg"].includes(lang.toLowerCase())) {
+          state.latestHtmlArtifact = rawCode;
+        }
+
+        return `
+          <div class="my-3 rounded-lg overflow-hidden border border-slate-800 bg-[#090d16]">
+            <div class="flex items-center justify-between px-3 py-1.5 bg-slate-900 border-b border-slate-800 text-xs font-mono text-slate-400">
+              <span>${lang}</span>
+              <div class="flex gap-2">
+                <button onclick="copyCode('${encoded}', this)" class="hover:text-white">Copy</button>
+                <button onclick="downloadCode('${encoded}', '${lang}')" class="hover:text-white">Download</button>
+                <button onclick="previewInSandbox('${encoded}')" class="text-emerald-400 hover:underline">▶ Run in Sandbox</button>
+              </div>
+            </div>
+            <pre class="p-3 overflow-x-auto text-xs leading-relaxed"><code class="hljs language-${validLang}">${highlighted}</code></pre>
+          </div>
+        `;
+      };
+      return marked.parse(mdText, { renderer });
+    }
+
+    window.copyCode = function(encoded, btn) {
+      navigator.clipboard.writeText(decodeURIComponent(encoded));
+      btn.textContent = "Copied!";
+      setTimeout(() => (btn.textContent = "Copy"), 1500);
+    };
+
+    window.downloadCode = function(encoded, lang) {
+      const extMap = { javascript: "js", typescript: "ts", python: "py", html: "html", css: "css", json: "json", bash: "sh" };
+      const ext = extMap[lang.toLowerCase()] || "txt";
+      const blob = new Blob([decodeURIComponent(encoded)], { type: "text/plain" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `artifact-${Date.now()}.${ext}`;
+      a.click();
+    };
+
+    window.previewInSandbox = function(encoded) {
+      const code = decodeURIComponent(encoded);
+      state.latestHtmlArtifact = code;
+      const drawer = document.getElementById("previewDrawer");
+      drawer.classList.remove("hidden");
+      document.getElementById("sandboxFrame").srcdoc = code;
+    };
+
+    function togglePreviewDrawer() {
+      const drawer = document.getElementById("previewDrawer");
+      drawer.classList.toggle("hidden");
+      if (!drawer.classList.contains("hidden") && state.latestHtmlArtifact) {
+        document.getElementById("sandboxFrame").srcdoc = state.latestHtmlArtifact;
+      }
+    }
+
+    function refreshSandbox() {
+      if (state.latestHtmlArtifact) {
+        document.getElementById("sandboxFrame").srcdoc = state.latestHtmlArtifact;
+      }
+    }
+
+    // Streaming Chat Completion with Automatic Multi-Key Failover
+    async function sendMessage(retryCount = 0) {
+      const inputEl = document.getElementById("userInput");
+      const text = inputEl.value.trim();
+      const session = getActiveSession();
+      const p = state.providers[state.activeProvider];
+      const apiKey = getActiveApiKey();
+
+      if (!text && retryCount === 0) return;
+      if (!apiKey) return alert("Please enter your API key in the left sidebar.");
+
+      if (retryCount === 0) {
+        session.messages.push({ role: "user", content: text });
+        if (session.messages.length === 1) session.title = text.slice(0, 28);
+        inputEl.value = "";
+        session.messages.push({ role: "assistant", content: "", model: p.selectedModel, requestId: null });
+        renderSessions();
+        renderChat();
+      }
+
+      const assistantMsg = session.messages[session.messages.length - 1];
+      const sysPrompt = document.getElementById("systemPrompt").value.trim();
+      const temp = parseFloat(document.getElementById("tempInput").value);
+
+      const apiMessages = [];
+      if (sysPrompt) apiMessages.push({ role: "system", content: sysPrompt });
+      session.messages.slice(0, -1).forEach(m => apiMessages.push({ role: m.role, content: m.content }));
+
+      document.getElementById("sendBtn").classList.add("hidden");
+      document.getElementById("stopBtn").classList.remove("hidden");
+      state.abortController = new AbortController();
+
+      try {
+        const response = await fetch(`${p.baseUrl}/chat/completions`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            model: p.selectedModel,
+            messages: apiMessages,
+            temperature: temp,
+            stream: true
+          }),
+          signal: state.abortController.signal
+        });
+
+        // Handle Rate Limit (429) with Multi-Key Rotation
+        if (response.status === 429) {
+          const errJson = await response.json().catch(() => ({}));
+          if (rotateKey() && retryCount < getKeysArray().length) {
+            assistantMsg.content = `_Key rate-limited (429). Rotating to Key #${state.keyIndex + 1}..._\n\n`;
+            renderChat();
+            return await sendMessage(retryCount + 1);
+          }
+          throw new Error(errJson?.error?.message || "Rate limit or daily quota reached (429). Click 'Request +$10 Limit' in the sidebar.");
+        }
+
+        if (!response.ok) {
+          const errText = await response.text();
+          throw new Error(`API Error (${response.status}): ${errText}`);
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+        assistantMsg.content = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          const chunk = decoder.decode(value, { stream: true });
+          const lines = chunk.split("\n");
+
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed.startsWith("data:")) continue;
+            const dataStr = trimmed.replace(/^data:\s*/, "");
+            if (dataStr === "[DONE]") break;
+
+            try {
+              const parsed = JSON.parse(dataStr);
+              if (parsed.id) assistantMsg.requestId = parsed.id;
+              const delta = parsed.choices?.[0]?.delta?.content || "";
+              if (delta) {
+                assistantMsg.content += delta;
+                renderChat();
+              }
+            } catch (_) {}
+          }
+        }
+      } catch (err) {
+        if (err.name !== "AbortError") {
+          assistantMsg.content += `\n\n> **Error:** ${err.message}`;
+          renderChat();
+        }
+      } finally {
+        document.getElementById("sendBtn").classList.remove("hidden");
+        document.getElementById("stopBtn").classList.add("hidden");
+        saveState();
+      }
+    }
+
+    function stopGeneration() {
+      if (state.abortController) state.abortController.abort();
+    }
+
+    async function sendCoarenaFeedback(requestId, rating) {
+      const p = state.providers[state.activeProvider];
+      const key = getActiveApiKey();
+      try {
+        await fetch(`${p.baseUrl}/feedback`, {
+          method: "POST",
+          headers: { "Authorization": `Bearer ${key}`, "Content-Type": "application/json" },
+          body: JSON.stringify({ request_id: requestId, rating, tags: rating === "up" ? ["good_code", "helpful"] : ["bad_code"] })
+        });
+        alert(`Sent '${rating}' feedback for request ${requestId}`);
+      } catch (e) {
+        alert(`Failed to send feedback: ${e.message}`);
+      }
+    }
+
+    function exportChatMarkdown() {
+      const session = getActiveSession();
+      if (!session) return;
+      const md = session.messages.map(m => `### ${m.role.toUpperCase()} (${m.model || "User"})\n\n${m.content}\n`).join("\n---\n\n");
+      const blob = new Blob([md], { type: "text/markdown" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `${session.title.replace(/\s+/g, "-").toLowerCase()}.md`;
+      a.click();
+    }
+
+    function openProviderModal() {
+      const name = prompt("Provider Name (e.g., Together AI, DeepSeek):");
+      if (!name) return;
+      const baseUrl = prompt("OpenAI-Compatible Base URL (e.g., https://api.deepseek.com/v1):");
+      if (!baseUrl) return;
+      const id = name.toLowerCase().replace(/[^a-z0-9]/g, "_");
+      state.providers[id] = {
+        name,
+        baseUrl: baseUrl.trim().replace(/\/+$/, ""),
+        keys: "",
+        models: ["default-model"],
+        selectedModel: "default-model"
+      };
+      state.activeProvider = id;
+      renderProviderDropdown();
+      loadProviderIntoUI();
+      saveState();
+    }
+
+    function clearAllData() {
+      if (confirm("Clear all locally saved API keys and chat history?")) {
+        localStorage.clear();
+        location.reload();
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>
