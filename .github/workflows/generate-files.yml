@@ -1,0 +1,53 @@
+
+name: Generate HTML File List
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'animation-css/**'
+      - '.github/workflows/generate-files.yml'
+
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate files.json
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          folder = Path("animation-css")
+
+          files = sorted(
+              [
+                  f.name for f in folder.glob("*.html")
+                  if f.is_file() and f.name.lower() != "index.html"
+              ],
+              reverse=True
+          )
+
+          with open(folder / "files.json", "w") as f:
+              json.dump(files, f, indent=2)
+
+          print(f"Generated {len(files)} HTML files.")
+          PY
+
+      - name: Commit updated file list
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add animation-css/files.json
+          git diff --cached --quiet || git commit -m "Update animation CSS file list"
+          git push
