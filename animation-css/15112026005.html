@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: #090A0F;
+  }
+  canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+</style>
+</head>
+<body>
+<canvas id="stage"></canvas>
+<script>
+const canvas = document.getElementById('stage');
+const ctx = canvas.getContext('2d', { alpha: false });
+
+const W = 1920;
+const H = 1080;
+
+function resize() {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+window.addEventListener('resize', resize);
+resize();
+
+let seed = 551092;
+function rand() {
+  seed = (seed * 1664525 + 1013904223) % 4294967296;
+  return seed / 4294967296;
+}
+
+const FOV = 1280;
+const CAM_Z = 1200;
+const DOME_R = 1150;
+const DOME_CZ = -760;
+
+const TILT_X = -0.32;
+const TILT_Y = 0.36;
+const TILT_Z = -0.14;
+
+const cosX = Math.cos(TILT_X), sinX = Math.sin(TILT_X);
+const cosY = Math.cos(TILT_Y), sinY = Math.sin(TILT_Y);
+const cosZ = Math.cos(TILT_Z), sinZ = Math.sin(TILT_Z);
+
+function project3D(x, y, z, out) {
+  const x1 = x * cosZ - y * sinZ;
+  const y1 = x * sinZ + y * cosZ;
+  const z1 = z;
+
+  const x2 = x1 * cosY + z1 * sinY;
+  const y2 = y1;
+  const z2 = -x1 * sinY + z1 * cosY;
+
+  const rx = x2;
+  const ry = y2 * cosX - z2 * sinX;
+  const rz = y2 * sinX + z2 * cosX;
+
+  const depth = CAM_Z - rz;
+  const scale = FOV / Math.max(120, depth);
+
+  out.rx = rx;
+  out.ry = ry;
+  out.rz = rz;
+  out.scale = scale;
+  out.sx = W * 0.52 + rx * scale;
+  out.sy = H * 0.54 + ry * scale;
+}
+
+function getShieldSurface(u, v, ripple, out) {
+  const rSq = u * u + v * v;
+  const clamped = Math.min(DOME_R * DOME_R * 0.92, rSq);
+  const zSurf = DOME_CZ + Math.sqrt(DOME_R * DOME_R - clamped) + ripple;
+  const nx = u / DOME_R;
+  const ny = v / DOME_R;
+  const nz = (zSurf - DOME_CZ) / DOME_R;
+  out.bx = u;
+  out.by = v;
+  out.bz = zSurf;
+  out.nx = nx;
+  out.ny = ny;
+  out.nz = nz;
+}
+
+const HEX_RADIUS = 56;
+const STEP_U = HEX_RADIUS * Math.sqrt(3);
+const STEP_V = HEX_RADIUS * 1.5;
+const COLS = 21;
+const ROWS = 15;
+
+const hexCells = [];
+const allVertices = [];
+const triangles = [];
+const edgeMap = new Map();
+const edges = [];
+
+function createVertex(u, v, isCenter) {
+  const vtx = {
+    id: allVertices.length,
+    u, v,
+    isCenter,
+    isActiveNode: isCenter ? (rand() < 0.34) : (rand() < 0.14),
+    phase: rand() * Math.PI * 2,
+    bx: 0, by: 0, bz: 0,
+    nx: 0, ny: 0, nz: 1,
+    rx: 0, ry: 0, rz: 0,
+    sx: 0, sy: 0, scale: 1,
+    dof: 0,
+    edgeFade: 1
+  };
+  const distNorm = Math.hypot(u / 1080, v / 740);
+  vtx.edgeFade = Math.max(0, Math.min(1, 1.25 - distNorm * 0.95));
+  vtx.dof = Math.max(0, (distNorm - 0.58) / 0.55);
+  allVertices.push(vtx);
+  return vtx;
+}
+
+const cornerGrid = new Map();
+function getCornerVertex(u, v) {
+  const ku = Math.round(u * 0.5);
+  const kv = Math.round(v * 0.5);
+  const key = `${ku}_${kv}`;
+  if (cornerGrid.has(key)) return cornerGrid.get(key);
+  const jx = (rand() - 0.5) * 4.5;
+  const jy = (rand() - 0.5) * 4.5;
+  const vtx = createVertex(u + jx, v + jy, false);
+  cornerGrid.set(key, vtx);
+  return vtx;
+}
+
+function registerEdge(a, b, isSpoke) {
+  const id1 = a.id, id2 = b.id;
+  const key = id1 < id2 ? `${id1}_${id2}` : `${id2}_${id1}`;
+  if (!edgeMap.has(key)) {
+    const e = {
+      a, b,
+      isSpoke,
+      hasPulse: rand() < (isSpoke ? 0.18 : 0.32),
+      pulseSpeed: 1 + Math.floor(rand() * 2),
+      pulseOffset: rand()
+    };
+    edgeMap.set(key, e);
+    edges.push(e);
+  }
+}
+
+for (let r = 0; r < ROWS; r++) {
+  for (let c = 0; c < COLS; c++) {
+    const cu = (c - (COLS - 1) * 0.5 + (r % 2) * 0.5) * STEP_U;
+    const cv = (r - (ROWS - 1) * 0.5) * STEP_V;
+
+    if (Math.hypot(cu / 1150, cv / 780) > 1.08) continue;
+
+    const centerVtx = createVertex(cu + (rand() - 0.5) * 5, cv + (rand() - 0.5) * 5, true);
+    const corners = [];
+    for (let k = 0; k < 6; k++) {
+      const ang = (k * 60 - 30) * (Math.PI / 180);
+      const vx = cu + Math.cos(ang) * HEX_RADIUS;
+      const vy = cv + Math.sin(ang) * HEX_RADIUS;
+      corners.push(getCornerVertex(vx, vy));
+    }
+
+    const cellTris = [];
+    for (let k = 0; k < 6; k++) {
+      const c1 = corners[k];
+      const c2 = corners[(k + 1) % 6];
+      const tri = {
+        a: centerVtx,
+        b: c1,
+        c: c2,
+        uAvg: (centerVtx.u + c1.u + c2.u) / 3,
+        vAvg: (centerVtx.v + c1.v + c2.v) / 3,
+        zAvg: 0,
+        shadeVar: 0.75 + rand() * 0.5,
+        isCyanBias: rand() < 0.45,
+        impactEnergy: 0
+      };
+      triangles.push(tri);
+      cellTris.push(tri);
+      registerEdge(centerVtx, c1, true);
+      registerEdge(c1, c2, false);
+    }
+
+    hexCells.push({
+      center: centerVtx,
+      corners,
+      tris: cellTris,
+      u: cu,
+      v: cv,
+      isTargetCandidate: Math.hypot(cu / 720, cv / 480) < 0.85
+    });
+  }
+}
+
+const targetCells = hexCells.filter(hc => hc.isTargetCandidate);
+const threats = [];
+const NUM_THREATS = 46;
+
+for (let i = 0; i < NUM_THREATS; i++) {
+  const cell = targetCells[Math.floor(rand() * targetCells.length)];
+  const targetCorner = cell.corners[Math.floor(rand() * 6)];
+  const secondCorner = cell.corners[(cell.corners.indexOf(targetCorner) + 1) % 6];
+
+  const offsetTime = (i / NUM_THREATS + rand() * 0.02) % 1;
+  const speed = rand() < 0.35 ? 2 : 1;
+
+  const spreadX = (rand() - 0.5) * 420 - 160;
+  const spreadY = (rand() - 0.5) * 320 - 220;
+  const startDist = 420 + rand() * 260;
+
+  threats.push({
+    cell,
+    targetVtx: cell.center,
+    branchVtx1: targetCorner,
+    branchVtx2: secondCorner,
+    offset: offsetTime,
+    speed,
+    spreadX,
+    spreadY,
+    startDist,
+    size: 2.8 + rand() * 2.4,
+    polySides: rand() < 0.5 ? 3 : 6,
+    rotSpeed: (rand() < 0.5 ? -1 : 1) * (2 + Math.floor(rand() * 3))
+  });
+}
+
+const bgDataStream = [];
+for (let i = 0; i < 75; i++) {
+  bgDataStream.push({
+    x: rand() * W,
+    y: rand() * H,
+    len: 18 + rand() * 45,
+    speed: 1 + Math.floor(rand() * 2),
+    offset: rand(),
+    isCyan: rand() < 0.55,
+    alpha: 0.08 + rand() * 0.16
+  });
+}
+
+const fgBokeh = [];
+for (let i = 0; i < 24; i++) {
+  const angle = rand() * Math.PI * 2;
+  const rad = 520 + rand() * 480;
+  fgBokeh.push({
+    bx: W * 0.5 + Math.cos(angle) * rad * 1.25,
+    by: H * 0.5 + Math.sin(angle) * rad * 0.78,
+    r: 18 + rand() * 38,
+    swayX: 20 + rand() * 35,
+    swayY: 15 + rand() * 28,
+    phase: rand() * Math.PI * 2,
+    isRed: rand() < 0.28,
+    isEmerald: rand() < 0.5
+  });
+}
+
+function getScanIntensity(u, v, t) {
+  const diag = u * 0.82 + v * 0.57;
+  const wavePhase = ((t * 2) % 1);
+  const waveCenter1 = -1150 + wavePhase * 2300;
+  const waveCenter2 = waveCenter1 - 2300;
+  const waveCenter3 = waveCenter1 + 2300;
+
+  const d1 = diag - waveCenter1;
+  const d2 = diag - waveCenter2;
+  const d3 = diag - waveCenter3;
+
+  let d = d1;
+  if (Math.abs(d2) < Math.abs(d)) d = d2;
+  if (Math.abs(d3) < Math.abs(d)) d = d3;
+
+  if (d > 90 || d < -420) return 0;
+  if (d >= 0) {
+    const f = 1 - d / 90;
+    return f * f;
+  } else {
+    const f = 1 - (-d) / 420;
+    return f * f * (0.75 + 0.25 * Math.cos(d * 0.04));
+  }
+}
+
+function lerpColor(r1, g1, b1, r2, g2, b2, m) {
+  return {
+    r: Math.round(r1 + (r2 - r1) * m),
+    g: Math.round(g1 + (g2 - g1) * m),
+    b: Math.round(b1 + (b2 - b1) * m)
+  };
+}
+
+function drawBackground(t, phase) {
+  const bg = ctx.createRadialGradient(W * 0.54, H * 0.52, 80, W * 0.5, H * 0.5, 1280);
+  bg.addColorStop(0, '#0D1722');
+  bg.addColorStop(0.45, '#090D15');
+  bg.addColorStop(0.85, '#090A0F');
+  bg.addColorStop(1, '#050609');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.save();
+  ctx.globalCompositeOperation = 'screen';
+
+  const secGlow = ctx.createRadialGradient(W * 0.62, H * 0.62, 40, W * 0.62, H * 0.62, 880);
+  secGlow.addColorStop(0, 'rgba(16, 185, 129, 0.14)');
+  secGlow.addColorStop(0.45, 'rgba(6, 182, 212, 0.08)');
+  secGlow.addColorStop(1, 'rgba(9, 10, 15, 0)');
+  ctx.fillStyle = secGlow;
+  ctx.fillRect(0, 0, W, H);
+
+  const threatGlow = ctx.createRadialGradient(W * 0.22, H * 0.18, 20, W * 0.22, H * 0.18, 760);
+  threatGlow.addColorStop(0, 'rgba(239, 68, 68, 0.11)');
+  threatGlow.addColorStop(0.5, 'rgba(239, 68, 68, 0.03)');
+  threatGlow.addColorStop(1, 'rgba(9, 10, 15, 0)');
+  ctx.fillStyle = threatGlow;
+  ctx.fillRect(0, 0, W, H);
+
+  for (let i = 0; i < bgDataStream.length; i++) {
+    const st = bgDataStream[i];
+    const prog = (t * st.speed + st.offset) % 1;
+    const y = (st.y + prog * H) % H;
+    const env = Math.sin(prog * Math.PI);
+    const a = st.alpha * env;
+    if (a <= 0.01) continue;
+
+    const grad = ctx.createLinearGradient(st.x, y - st.len, st.x, y);
+    if (st.isCyan) {
+      grad.addColorStop(0, 'rgba(6, 182, 212, 0)');
+      grad.addColorStop(1, `rgba(6, 182, 212, ${a.toFixed(3)})`);
+    } else {
+      grad.addColorStop(0, 'rgba(16, 185, 129, 0)');
+      grad.addColorStop(1, `rgba(16, 185, 129, ${a.toFixed(3)})`);
+    }
+    ctx.strokeStyle = grad;
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(st.x, y - st.len);
+    ctx.lineTo(st.x, y);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+function render(ts) {
+  const t = (ts % 10000) / 10000;
+  const phase = t * Math.PI * 2;
+
+  drawBackground(t, phase);
+
+  for (let i = 0; i < triangles.length; i++) {
+    triangles[i].impactEnergy = 0;
+  }
+
+  for (let i = 0; i < threats.length; i++) {
+    const th = threats[i];
+    const p = (t * th.speed + th.offset) % 1;
+    th.p = p;
+    if (p >= 0.40 && p < 0.78) {
+      const imp = Math.sin(((p - 0.40) / 0.38) * Math.PI);
+      const tris = th.cell.tris;
+      for (let k = 0; k < tris.length; k++) {
+        if (imp > tris[k].impactEnergy) tris[k].impactEnergy = imp;
+      }
+    }
+  }
+
+  for (let i = 0; i < allVertices.length; i++) {
+    const v = allVertices[i];
+    const scanVal = getScanIntensity(v.u, v.v, t);
+    v.scan = scanVal;
+    const harmonic = Math.sin(v.u * 0.006 + v.v * 0.005 - phase * 2) * 10
+                   + Math.cos(v.u * 0.012 - v.v * 0.009 + phase) * 6;
+    const scanLift = scanVal * 14;
+    getShieldSurface(v.u, v.v, harmonic + scanLift, v);
+    project3D(v.bx, v.by, v.bz, v);
+  }
+
+  for (let i = 0; i < triangles.length; i++) {
+    const tri = triangles[i];
+    tri.zAvg = (tri.a.rz + tri.b.rz + tri.c.rz) / 3;
+  }
+  triangles.sort((t1, t2) => t1.zAvg - t2.zAvg);
+
+  ctx.save();
+  ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
+
+  for (let i = 0; i < triangles.length; i++) {
+    const tri = triangles[i];
+    const a = tri.a, b = tri.b, c = tri.c;
+
+    const fade = (a.edgeFade + b.edgeFade + c.edgeFade) / 3;
+    if (fade <= 0.02) continue;
+
+    if (a.sx < -150 && b.sx < -150 && c.sx < -150) continue;
+    if (a.sx > W + 150 && b.sx > W + 150 && c.sx > W + 150) continue;
+    if (a.sy < -150 && b.sy < -150 && c.sy < -150) continue;
+    if (a.sy > H + 150 && b.sy > H + 150 && c.sy > H + 150) continue;
+
+    const scanVal = getScanIntensity(tri.uAvg, tri.vAvg, t);
+    const impVal = tri.impactEnergy;
+
+    const baseAlpha = 0.025 * tri.shadeVar;
+    const scanAlpha = scanVal * 0.40 * (0.85 + 0.3 * tri.shadeVar);
+    const impAlpha = impVal * 0.34;
+    const totalAlpha = Math.min(0.52, (baseAlpha + scanAlpha + impAlpha) * fade);
+
+    let rCol = 6, gCol = 182, bCol = 212;
+    if (tri.isCyanBias) {
+      const emeraldMix = Math.min(1, scanVal * 0.85 + impVal * 0.9);
+      rCol = Math.round(6 + emeraldMix * 10 + scanVal * 45);
+      gCol = Math.round(182 + emeraldMix * 3 + scanVal * 55);
+      bCol = Math.round(212 - emeraldMix * 83 + scanVal * 35);
+    } else {
+      rCol = Math.round(16 + scanVal * 65 + impVal * 40);
+      gCol = Math.round(185 + scanVal * 55 + impVal * 45);
+      bCol = Math.round(129 + scanVal * 75 + impVal * 60);
+    }
+
+    ctx.fillStyle = `rgba(${rCol}, ${gCol}, ${bCol}, ${totalAlpha.toFixed(3)})`;
+    ctx.beginPath();
+    ctx.moveTo(a.sx, a.sy);
+    ctx.lineTo(b.sx, b.sy);
+    ctx.lineTo(c.sx, c.sy);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  ctx.globalCompositeOperation = 'lighter';
+
+  for (let i = 0; i < edges.length; i++) {
+    const e = edges[i];
+    const a = e.a, b = e.b;
+
+    const fade = (a.edgeFade + b.edgeFade) * 0.5;
+    if (fade <= 0.02) continue;
+
+    const scanAvg = (a.scan + b.scan) * 0.5;
+    const dofAvg = (a.dof + b.dof) * 0.5;
+
+    const baseLineAlpha = e.isSpoke ? 0.14 : 0.32;
+    const activeAlpha = (baseLineAlpha + scanAvg * 0.58) * fade * (1 - dofAvg * 0.45);
+    const lw = (e.isSpoke ? 0.85 : 1.45) * ((a.scale + b.scale) * 0.5) * (1 + scanAvg * 0.5 + dofAvg * 1.6);
+
+    const col = lerpColor(6, 182, 212, 16, 185, 129, scanAvg);
+    const boostR = Math.min(255, col.r + Math.round(scanAvg * 110));
+    const boostG = Math.min(255, col.g + Math.round(scanAvg * 65));
+    const boostB = Math.min(255, col.b + Math.round(scanAvg * 40));
+
+    ctx.strokeStyle = `rgba(${boostR}, ${boostG}, ${boostB}, ${activeAlpha.toFixed(3)})`;
+    ctx.lineWidth = lw;
+    ctx.beginPath();
+    ctx.moveTo(a.sx, a.sy);
+    ctx.lineTo(b.sx, b.sy);
+    ctx.stroke();
+
+    if (e.hasPulse && fade > 0.15 && dofAvg < 0.6) {
+      const prog = (t * e.pulseSpeed + e.pulseOffset) % 1;
+      const tail = 0.34;
+      const p0 = Math.max(0, prog - tail);
+      const p1 = prog;
+
+      const x0 = a.sx + (b.sx - a.sx) * p0;
+      const y0 = a.sy + (b.sy - a.sy) * p0;
+      const x1 = a.sx + (b.sx - a.sx) * p1;
+      const y1 = a.sy + (b.sy - a.sy) * p1;
+
+      const pa = Math.sin(prog * Math.PI) * fade * (0.45 + scanAvg * 0.55);
+      if (pa > 0.04) {
+        ctx.strokeStyle = `rgba(16, 185, 129, ${pa.toFixed(3)})`;
+        ctx.lineWidth = lw * 1.9;
+        ctx.beginPath();
+        ctx.moveTo(x0, y0);
+        ctx.lineTo(x1, y1);
+        ctx.stroke();
+
+        ctx.fillStyle = `rgba(220, 255, 245, ${pa.toFixed(3)})`;
+        ctx.beginPath();
+        ctx.arc(x1, y1, 1.8 * a.scale, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+  }
+
+  for (let i = 0; i < allVertices.length; i++) {
+    const v = allVertices[i];
+    if (v.edgeFade <= 0.03) continue;
+    if (v.sx < -80 || v.sx > W + 80 || v.sy < -80 || v.sy > H + 80) continue;
+
+    const pulse = 0.5 + 0.5 * Math.sin(phase * 2 + v.phase);
+    const energy = Math.min(1, v.scan + (v.isActiveNode ? pulse * 0.45 : 0));
+    const baseR = (v.isCenter ? 2.5 : 1.9) * v.scale;
+
+    if (v.dof > 0.25) {
+      const bokehR = baseR * (2.5 + v.dof * 6.5);
+      const bAlpha = v.edgeFade * (0.16 + energy * 0.22) * (1 - v.dof * 0.35);
+      const bGrad = ctx.createRadialGradient(v.sx, v.sy, 0, v.sx, v.sy, bokehR);
+      bGrad.addColorStop(0, `rgba(16, 185, 129, ${bAlpha.toFixed(3)})`);
+      bGrad.addColorStop(0.5, `rgba(6, 182, 212, ${(bAlpha * 0.5).toFixed(3)})`);
+      bGrad.addColorStop(1, 'rgba(6, 182, 212, 0)');
+      ctx.fillStyle = bGrad;
+      ctx.beginPath();
+      ctx.arc(v.sx, v.sy, bokehR, 0, Math.PI * 2);
+      ctx.fill();
+      continue;
+    }
+
+    if (v.isActiveNode || v.scan > 0.25) {
+      const haloR = baseR * (3.2 + energy * 3.8);
+      const hAlpha = v.edgeFade * (0.28 + energy * 0.58);
+      const hGrad = ctx.createRadialGradient(v.sx, v.sy, 0, v.sx, v.sy, haloR);
+      hGrad.addColorStop(0, `rgba(210, 255, 245, ${hAlpha.toFixed(3)})`);
+      hGrad.addColorStop(0.38, `rgba(16, 185, 129, ${(hAlpha * 0.65).toFixed(3)})`);
+      hGrad.addColorStop(0.75, `rgba(6, 182, 212, ${(hAlpha * 0.25).toFixed(3)})`);
+      hGrad.addColorStop(1, 'rgba(6, 182, 212, 0)');
+      ctx.fillStyle = hGrad;
+      ctx.beginPath();
+      ctx.arc(v.sx, v.sy, haloR, 0, Math.PI * 2);
+      ctx.fill();
+
+      if (v.isCenter && energy > 0.45) {
+        ctx.strokeStyle = `rgba(16, 185, 129, ${(hAlpha * 0.7).toFixed(3)})`;
+        ctx.lineWidth = 1.1;
+        ctx.beginPath();
+        ctx.arc(v.sx, v.sy, baseR * (1.8 + energy * 1.4), 0, Math.PI * 2);
+        ctx.stroke();
+      }
+    }
+
+    const coreAlpha = v.edgeFade * (0.55 + energy * 0.45);
+    ctx.fillStyle = energy > 0.35
+      ? `rgba(235, 255, 250, ${coreAlpha.toFixed(3)})`
+      : `rgba(6, 182, 212, ${coreAlpha.toFixed(3)})`;
+    ctx.beginPath();
+    ctx.arc(v.sx, v.sy, baseR, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  const pPt = { rx: 0, ry: 0, rz: 0, sx: 0, sy: 0, scale: 1 };
+  const tailPt = { rx: 0, ry: 0, rz: 0, sx: 0, sy: 0, scale: 1 };
+
+  for (let i = 0; i < threats.length; i++) {
+    const th = threats[i];
+    const p = th.p;
+    const tv = th.targetVtx;
+    if (tv.edgeFade <= 0.08) continue;
+
+    if (p < 0.42) {
+      const u = p / 0.42;
+      const easeOut = 1 - Math.pow(1 - u, 1.85);
+      const dist = (1 - easeOut) * th.startDist;
+
+      const bx = tv.bx + tv.nx * dist + (1 - easeOut) * th.spreadX;
+      const by = tv.by + tv.ny * dist + (1 - easeOut) * th.spreadY;
+      const bz = tv.bz + tv.nz * dist;
+
+      const uTail = Math.max(0, u - 0.14);
+      const easeTail = 1 - Math.pow(1 - uTail, 1.85);
+      const distTail = (1 - easeTail) * th.startDist;
+      const tx = tv.bx + tv.nx * distTail + (1 - easeTail) * th.spreadX;
+      const ty = tv.by + tv.ny * distTail + (1 - easeTail) * th.spreadY;
+      const tz = tv.bz + tv.nz * distTail;
+
+      project3D(bx, by, bz, pPt);
+      project3D(tx, ty, tz, tailPt);
+
+      const fadeIn = Math.min(1, u / 0.22);
+      const nearShieldMorph = Math.max(0, (u - 0.78) / 0.22);
+      const col = lerpColor(239, 68, 68, 255, 190, 90, nearShieldMorph);
+
+      const tGrad = ctx.createLinearGradient(tailPt.sx, tailPt.sy, pPt.sx, pPt.sy);
+      tGrad.addColorStop(0, 'rgba(239, 68, 68, 0)');
+      tGrad.addColorStop(0.6, `rgba(239, 68, 68, ${(fadeIn * 0.65).toFixed(3)})`);
+      tGrad.addColorStop(1, `rgba(${col.r}, ${col.g}, ${col.b}, ${(fadeIn * 0.95).toFixed(3)})`);
+
+      ctx.strokeStyle = tGrad;
+      ctx.lineWidth = 2.4 * pPt.scale;
+      ctx.beginPath();
+      ctx.moveTo(tailPt.sx, tailPt.sy);
+      ctx.lineTo(pPt.sx, pPt.sy);
+      ctx.stroke();
+
+      if (u > 0.55) {
+        const tetherAlpha = ((u - 0.55) / 0.45) * 0.55;
+        ctx.strokeStyle = `rgba(239, 68, 68, ${tetherAlpha.toFixed(3)})`;
+        ctx.lineWidth = 1.0 * pPt.scale;
+        ctx.beginPath();
+        ctx.moveTo(pPt.sx, pPt.sy);
+        ctx.lineTo(tv.sx, tv.sy);
+        ctx.stroke();
+      }
+
+      const haloR = th.size * pPt.scale * 4.2;
+      const hGrad = ctx.createRadialGradient(pPt.sx, pPt.sy, 0, pPt.sx, pPt.sy, haloR);
+      hGrad.addColorStop(0, `rgba(255, 220, 220, ${(fadeIn * 0.95).toFixed(3)})`);
+      hGrad.addColorStop(0.35, `rgba(${col.r}, ${col.g}, ${col.b}, ${(fadeIn * 0.72).toFixed(3)})`);
+      hGrad.addColorStop(1, 'rgba(239, 68, 68, 0)');
+      ctx.fillStyle = hGrad;
+      ctx.beginPath();
+      ctx.arc(pPt.sx, pPt.sy, haloR, 0, Math.PI * 2);
+      ctx.fill();
+
+      const polyR = th.size * pPt.scale * 1.25;
+      const rot = phase * th.rotSpeed;
+      ctx.fillStyle = `rgba(255, 240, 240, ${fadeIn.toFixed(3)})`;
+      ctx.beginPath();
+      for (let s = 0; s < th.polySides; s++) {
+        const a = (s / th.polySides) * Math.PI * 2 + rot;
+        const px = pPt.sx + Math.cos(a) * polyR;
+        const py = pPt.sy + Math.sin(a) * polyR;
+        if (s === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      }
+      ctx.closePath();
+      ctx.fill();
+
+    } else if (p < 0.88) {
+      const u = (p - 0.42) / 0.46;
+      const fadeOut = 1 - Math.pow(u, 1.6);
+
+      let col;
+      if (u < 0.35) {
+        col = lerpColor(239, 68, 68, 16, 185, 129, u / 0.35);
+      } else {
+        col = lerpColor(16, 185, 129, 6, 182, 212, (u - 0.35) / 0.65);
+      }
+
+      const ringR = (6 + u * 54) * tv.scale;
+      ctx.strokeStyle = `rgba(${col.r}, ${col.g}, ${col.b}, ${(fadeOut * 0.85).toFixed(3)})`;
+      ctx.lineWidth = (2.6 * (1 - u * 0.65)) * tv.scale;
+      ctx.beginPath();
+      for (let k = 0; k < 6; k++) {
+        const a = (k * 60 - 30) * (Math.PI / 180);
+        const rx = tv.sx + Math.cos(a) * ringR;
+        const ry = tv.sy + Math.sin(a) * ringR * 0.82;
+        if (k === 0) ctx.moveTo(rx, ry);
+        else ctx.lineTo(rx, ry);
+      }
+      ctx.closePath();
+      ctx.stroke();
+
+      const corners = th.cell.corners;
+      for (let k = 0; k < 6; k++) {
+        const cVtx = corners[k];
+        const px = tv.sx + (cVtx.sx - tv.sx) * u;
+        const py = tv.sy + (cVtx.sy - tv.sy) * u;
+
+        ctx.strokeStyle = `rgba(${col.r}, ${col.g}, ${col.b}, ${(fadeOut * 0.65).toFixed(3)})`;
+        ctx.lineWidth = 1.8 * tv.scale;
+        ctx.beginPath();
+        ctx.moveTo(tv.sx, tv.sy);
+        ctx.lineTo(px, py);
+        ctx.stroke();
+
+        ctx.fillStyle = `rgba(225, 255, 248, ${(fadeOut * 0.95).toFixed(3)})`;
+        ctx.beginPath();
+        ctx.arc(px, py, 2.2 * tv.scale, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      const flashR = (28 * (1 - u * 0.5)) * tv.scale;
+      const fGrad = ctx.createRadialGradient(tv.sx, tv.sy, 0, tv.sx, tv.sy, flashR);
+      fGrad.addColorStop(0, `rgba(255, 255, 255, ${(fadeOut * 0.95).toFixed(3)})`);
+      fGrad.addColorStop(0.35, `rgba(${col.r}, ${col.g}, ${col.b}, ${(fadeOut * 0.75).toFixed(3)})`);
+      fGrad.addColorStop(1, `rgba(${col.r}, ${col.g}, ${col.b}, 0)`);
+      ctx.fillStyle = fGrad;
+      ctx.beginPath();
+      ctx.arc(tv.sx, tv.sy, flashR, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  for (let i = 0; i < fgBokeh.length; i++) {
+    const b = fgBokeh[i];
+    const x = b.bx + Math.sin(phase + b.phase) * b.swayX;
+    const y = b.by + Math.cos(phase + b.phase) * b.swayY;
+    const pulse = 0.6 + 0.4 * Math.sin(phase * 2 + b.phase);
+    const alpha = 0.08 * pulse;
+
+    const grad = ctx.createRadialGradient(x, y, 0, x, y, b.r);
+    if (b.isRed) {
+      grad.addColorStop(0, `rgba(239, 68, 68, ${alpha.toFixed(3)})`);
+      grad.addColorStop(0.6, `rgba(239, 68, 68, ${(alpha * 0.35).toFixed(3)})`);
+      grad.addColorStop(1, 'rgba(239, 68, 68, 0)');
+    } else if (b.isEmerald) {
+      grad.addColorStop(0, `rgba(16, 185, 129, ${alpha.toFixed(3)})`);
+      grad.addColorStop(0.6, `rgba(16, 185, 129, ${(alpha * 0.35).toFixed(3)})`);
+      grad.addColorStop(1, 'rgba(16, 185, 129, 0)');
+    } else {
+      grad.addColorStop(0, `rgba(6, 182, 212, ${alpha.toFixed(3)})`);
+      grad.addColorStop(0.6, `rgba(6, 182, 212, ${(alpha * 0.35).toFixed(3)})`);
+      grad.addColorStop(1, 'rgba(6, 182, 212, 0)');
+    }
+
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(x, y, b.r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.restore();
+
+  const vig = ctx.createRadialGradient(W * 0.52, H * 0.52, W * 0.28, W * 0.5, H * 0.5, W * 0.68);
+  vig.addColorStop(0, 'rgba(9, 10, 15, 0)');
+  vig.addColorStop(0.68, 'rgba(9, 10, 15, 0.24)');
+  vig.addColorStop(1, 'rgba(5, 6, 9, 0.82)');
+  ctx.fillStyle = vig;
+  ctx.fillRect(0, 0, W, H);
+
+  requestAnimationFrame(render);
+}
+
+requestAnimationFrame(render);
+</script>
+</body>
+</html>
