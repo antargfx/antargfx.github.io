@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: #F8FAFC;
+  }
+  canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+</style>
+</head>
+<body>
+<canvas id="stage"></canvas>
+<script>
+const canvas = document.getElementById('stage');
+const ctx = canvas.getContext('2d', { alpha: false });
+
+const W = 1920;
+const H = 1080;
+
+function resize() {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+window.addEventListener('resize', resize);
+resize();
+
+let seed = 202611;
+function rand() {
+  seed = (seed * 1664525 + 1013904223) % 4294967296;
+  return seed / 4294967296;
+}
+
+const COLS = 16;
+const ROWS = 10;
+const CELL_W = W / (COLS - 3);
+const CELL_H = H / (ROWS - 3);
+
+const nodes = [];
+const grid = [];
+
+for (let r = 0; r < ROWS; r++) {
+  const row = [];
+  for (let c = 0; c < COLS; c++) {
+    const isEdge = r === 0 || r === ROWS - 1 || c === 0 || c === COLS - 1;
+    const hexShift = (r % 2) * 0.5 * CELL_W;
+    const jx = isEdge ? 0 : (rand() - 0.5) * CELL_W * 0.36;
+    const jy = isEdge ? 0 : (rand() - 0.5) * CELL_H * 0.36;
+
+    const bx = (c - 1.5) * CELL_W + hexShift + jx;
+    const by = (r - 1.5) * CELL_H + jy;
+
+    const roll = rand();
+    let type = 0;
+    if (roll < 0.14) type = 2;
+    else if (roll < 0.38) type = 1;
+
+    const node = {
+      r, c,
+      bx, by,
+      x: bx, y: by,
+      z: 0,
+      rx: isEdge ? 8 : 16 + rand() * 24,
+      ry: isEdge ? 8 : 16 + rand() * 24,
+      rz: 25 + rand() * 45,
+      phaseX: rand() * Math.PI * 2,
+      phaseY: rand() * Math.PI * 2,
+      phaseZ: rand() * Math.PI * 2,
+      dir: rand() < 0.5 ? 1 : -1,
+      freq: rand() < 0.72 ? 1 : 2,
+      type,
+      radius: type === 2 ? (4.5 + rand() * 2.2) : (type === 1 ? (3.2 + rand() * 1.4) : (2.0 + rand() * 1.0))
+    };
+    row.push(node);
+    nodes.push(node);
+  }
+  grid.push(row);
+}
+
+const triangles = [];
+const edgeMap = new Map();
+const edges = [];
+
+function addEdge(n1, n2) {
+  const id1 = n1.r * COLS + n1.c;
+  const id2 = n2.r * COLS + n2.c;
+  const key = id1 < id2 ? `${id1}_${id2}` : `${id2}_${id1}`;
+  if (!edgeMap.has(key)) {
+    const isAccent = (n1.type === 2 || n2.type === 2) && rand() < 0.35;
+    const e = {
+      n1, n2,
+      isAccent,
+      phase: rand() * Math.PI * 2
+    };
+    edgeMap.set(key, e);
+    edges.push(e);
+  }
+}
+
+for (let r = 0; r < ROWS - 1; r++) {
+  for (let c = 0; c < COLS - 1; c++) {
+    const n00 = grid[r][c];
+    const n10 = grid[r][c + 1];
+    const n01 = grid[r + 1][c];
+    const n11 = grid[r + 1][c + 1];
+
+    if (r % 2 === 0) {
+      triangles.push({ a: n00, b: n10, c: n01, tint: rand(), skyBias: rand() < 0.25 ? (0.3 + rand() * 0.7) : 0 });
+      triangles.push({ a: n10, b: n11, c: n01, tint: rand(), skyBias: rand() < 0.25 ? (0.3 + rand() * 0.7) : 0 });
+      addEdge(n00, n10); addEdge(n10, n01); addEdge(n01, n00);
+      addEdge(n10, n11); addEdge(n11, n01);
+    } else {
+      triangles.push({ a: n00, b: n10, c: n11, tint: rand(), skyBias: rand() < 0.25 ? (0.3 + rand() * 0.7) : 0 });
+      triangles.push({ a: n00, b: n11, c: n01, tint: rand(), skyBias: rand() < 0.25 ? (0.3 + rand() * 0.7) : 0 });
+      addEdge(n00, n10); addEdge(n10, n11); addEdge(n11, n00);
+      addEdge(n11, n01); addEdge(n01, n00);
+    }
+  }
+}
+
+function lerp(a, b, t) {
+  return a + (b - a) * t;
+}
+
+function mixRGB(c1, c2, t) {
+  return [
+    lerp(c1[0], c2[0], t),
+    lerp(c1[1], c2[1], t),
+    lerp(c1[2], c2[2], t)
+  ];
+}
+
+const C_PEARL = [248, 250, 252];
+const C_WHITE = [255, 255, 255];
+const C_SILVER = [226, 232, 240];
+const C_SLATE_LIGHT = [241, 245, 249];
+const C_SKY = [186, 230, 253];
+
+function render(ts) {
+  const t = (ts % 10000) / 10000;
+  const phase = t * Math.PI * 2;
+
+  ctx.fillStyle = '#F8FAFC';
+  ctx.fillRect(0, 0, W, H);
+
+  for (let i = 0; i < nodes.length; i++) {
+    const n = nodes[i];
+    const ang = phase * n.freq * n.dir;
+    n.x = n.bx + Math.cos(ang + n.phaseX) * n.rx;
+    n.y = n.by + Math.sin(ang + n.phaseY) * n.ry;
+
+    const waveZ = Math.sin(n.bx * 0.0025 + n.by * 0.002 - phase) * 38;
+    const localZ = Math.cos(phase * n.freq + n.phaseZ) * n.rz;
+    n.z = waveZ + localZ;
+  }
+
+  const lx = Math.cos(phase) * 0.18 - 0.32;
+  const ly = Math.sin(phase) * 0.14 - 0.45;
+  const lz = 0.82;
+  const lLen = Math.hypot(lx, ly, lz);
+  const lightX = lx / lLen;
+  const lightY = ly / lLen;
+  const lightZ = lz / lLen;
+
+  for (let i = 0; i < triangles.length; i++) {
+    const tri = triangles[i];
+    const a = tri.a, b = tri.b, c = tri.c;
+
+    const minX = Math.min(a.x, b.x, c.x);
+    const maxX = Math.max(a.x, b.x, c.x);
+    const minY = Math.min(a.y, b.y, c.y);
+    const maxY = Math.max(a.y, b.y, c.y);
+    if (maxX < -20 || minX > W + 20 || maxY < -20 || minY > H + 20) continue;
+
+    const ux = b.x - a.x;
+    const uy = b.y - a.y;
+    const uz = b.z - a.z;
+
+    const vx = c.x - a.x;
+    const vy = c.y - a.y;
+    const vz = c.z - a.z;
+
+    let nx = uy * vz - uz * vy;
+    let ny = uz * vx - ux * vz;
+    let nz = ux * vy - uy * vx;
+    if (nz < 0) {
+      nx = -nx;
+      ny = -ny;
+      nz = -nz;
+    }
+    const nLen = Math.hypot(nx, ny, nz) || 1;
+    nx /= nLen;
+    ny /= nLen;
+    nz /= nLen;
+
+    const dot = nx * lightX + ny * lightY + nz * lightZ;
+    const shade = Math.max(0, Math.min(1, (dot + 0.25) / 1.25));
+
+    const cx = (a.x + b.x + c.x) / 3;
+    const cy = (a.y + b.y + c.y) / 3;
+    const distCenter = Math.hypot((cx - W * 0.5) / (W * 0.55), (cy - H * 0.5) / (H * 0.55));
+    const centerBright = Math.max(0, 1 - distCenter * 0.45);
+
+    let baseCol = mixRGB(C_SILVER, C_WHITE, shade * 0.78 + centerBright * 0.22);
+    baseCol = mixRGB(baseCol, C_SLATE_LIGHT, tri.tint * 0.35);
+
+    const skyWave = 0.5 + 0.5 * Math.sin(cx * 0.003 - cy * 0.002 + phase);
+    const skyAmount = (tri.skyBias * 0.32 + (1 - shade) * 0.18) * skyWave;
+    const col1 = mixRGB(baseCol, C_SKY, skyAmount);
+    const col2 = mixRGB(col1, C_PEARL, 0.35);
+
+    const grad = ctx.createLinearGradient(a.x, a.y, (b.x + c.x) * 0.5, (b.y + c.y) * 0.5);
+    grad.addColorStop(0, `rgb(${Math.round(col1[0])}, ${Math.round(col1[1])}, ${Math.round(col1[2])})`);
+    grad.addColorStop(1, `rgb(${Math.round(col2[0])}, ${Math.round(col2[1])}, ${Math.round(col2[2])})`);
+
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(b.x, b.y);
+    ctx.lineTo(c.x, c.y);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.strokeStyle = `rgba(226, 232, 240, 0.55)`;
+    ctx.lineWidth = 0.7;
+    ctx.stroke();
+  }
+
+  ctx.lineCap = 'round';
+  for (let i = 0; i < edges.length; i++) {
+    const e = edges[i];
+    const n1 = e.n1, n2 = e.n2;
+
+    if (n1.x < -50 && n2.x < -50) continue;
+    if (n1.x > W + 50 && n2.x > W + 50) continue;
+    if (n1.y < -50 && n2.y < -50) continue;
+    if (n1.y > H + 50 && n2.y > H + 50) continue;
+
+    const len = Math.hypot(n2.x - n1.x, n2.y - n1.y);
+    const lenFactor = Math.max(0.2, Math.min(1, 1 - (len - 120) / 220));
+
+    if (e.isAccent) {
+      const pulse = 0.5 + 0.5 * Math.sin(phase * 2 + e.phase);
+      const lGrad = ctx.createLinearGradient(n1.x, n1.y, n2.x, n2.y);
+      lGrad.addColorStop(0, `rgba(186, 230, 253, ${(0.45 * lenFactor).toFixed(3)})`);
+      lGrad.addColorStop(0.5, `rgba(37, 99, 235, ${((0.18 + pulse * 0.28) * lenFactor).toFixed(3)})`);
+      lGrad.addColorStop(1, `rgba(186, 230, 253, ${(0.45 * lenFactor).toFixed(3)})`);
+      ctx.strokeStyle = lGrad;
+      ctx.lineWidth = 1.45;
+    } else {
+      ctx.strokeStyle = `rgba(203, 213, 225, ${(0.65 * lenFactor).toFixed(3)})`;
+      ctx.lineWidth = 1.0;
+    }
+
+    ctx.beginPath();
+    ctx.moveTo(n1.x, n1.y);
+    ctx.lineTo(n2.x, n2.y);
+    ctx.stroke();
+  }
+
+  for (let i = 0; i < nodes.length; i++) {
+    const n = nodes[i];
+    if (n.x < -30 || n.x > W + 30 || n.y < -30 || n.y > H + 30) continue;
+
+    const pulse = 0.5 + 0.5 * Math.sin(phase * 2 + n.phaseZ);
+
+    if (n.type === 2) {
+      const shadowR = n.radius * 3.4;
+      const sGrad = ctx.createRadialGradient(n.x + 2, n.y + 4, 0, n.x + 2, n.y + 4, shadowR);
+      sGrad.addColorStop(0, 'rgba(30, 58, 138, 0.18)');
+      sGrad.addColorStop(0.5, 'rgba(37, 99, 235, 0.06)');
+      sGrad.addColorStop(1, 'rgba(37, 99, 235, 0)');
+      ctx.fillStyle = sGrad;
+      ctx.beginPath();
+      ctx.arc(n.x + 2, n.y + 4, shadowR, 0, Math.PI * 2);
+      ctx.fill();
+
+      const outerR = n.radius * (1.85 + pulse * 0.35);
+      ctx.fillStyle = 'rgba(186, 230, 253, 0.55)';
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, outerR, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = 'rgba(37, 99, 235, 0.32)';
+      ctx.lineWidth = 1.1;
+      ctx.stroke();
+
+      ctx.fillStyle = '#FFFFFF';
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.radius * 1.18, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#2563EB';
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.radius * 0.78, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (n.type === 1) {
+      const shadowR = n.radius * 2.8;
+      const sGrad = ctx.createRadialGradient(n.x + 1.5, n.y + 3, 0, n.x + 1.5, n.y + 3, shadowR);
+      sGrad.addColorStop(0, 'rgba(100, 116, 139, 0.16)');
+      sGrad.addColorStop(1, 'rgba(100, 116, 139, 0)');
+      ctx.fillStyle = sGrad;
+      ctx.beginPath();
+      ctx.arc(n.x + 1.5, n.y + 3, shadowR, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#FFFFFF';
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.radius * 1.25, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = '#BAE6FD';
+      ctx.lineWidth = 1.4;
+      ctx.stroke();
+
+      ctx.fillStyle = '#38BDF8';
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.radius * 0.65, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      ctx.fillStyle = 'rgba(148, 163, 184, 0.18)';
+      ctx.beginPath();
+      ctx.arc(n.x + 1, n.y + 2, n.radius * 1.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#FFFFFF';
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.radius * 1.15, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#CBD5E1';
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.radius * 0.7, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  const centerGlow = ctx.createRadialGradient(W * 0.5, H * 0.5, 40, W * 0.5, H * 0.5, W * 0.48);
+  centerGlow.addColorStop(0, 'rgba(255, 255, 255, 0.24)');
+  centerGlow.addColorStop(0.6, 'rgba(248, 250, 252, 0.06)');
+  centerGlow.addColorStop(1, 'rgba(248, 250, 252, 0)');
+  ctx.fillStyle = centerGlow;
+  ctx.fillRect(0, 0, W, H);
+
+  const vig = ctx.createRadialGradient(W * 0.5, H * 0.5, W * 0.32, W * 0.5, H * 0.5, W * 0.68);
+  vig.addColorStop(0, 'rgba(226, 232, 240, 0)');
+  vig.addColorStop(0.7, 'rgba(226, 232, 240, 0.18)');
+  vig.addColorStop(1, 'rgba(203, 213, 225, 0.42)');
+  ctx.fillStyle = vig;
+  ctx.fillRect(0, 0, W, H);
+
+  requestAnimationFrame(render);
+}
+
+requestAnimationFrame(render);
+</script>
+</body>
+</html>
