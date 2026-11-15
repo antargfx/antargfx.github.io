@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: #07050A;
+  }
+  canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+</style>
+</head>
+<body>
+<canvas id="stage"></canvas>
+<script>
+const canvas = document.getElementById('stage');
+const ctx = canvas.getContext('2d', { alpha: false });
+
+const W = 1920;
+const H = 1080;
+
+function resize() {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+window.addEventListener('resize', resize);
+resize();
+
+let seed = 918273;
+function rand() {
+  seed = (seed * 1664525 + 1013904223) % 4294967296;
+  return seed / 4294967296;
+}
+
+const PALETTE = [
+  { r: 255, g: 107, b: 0 },
+  { r: 255, g: 208, b: 0 },
+  { r: 208, g: 0, b: 0 }
+];
+
+const NUM_RINGS = 32;
+const RING_SPEED = 8;
+const SEGS = 12;
+const Z_NEAR = 90;
+const Z_FAR = 3600;
+const Z_SPAN = Z_FAR - Z_NEAR;
+const FOV = 820;
+const BASE_RAD = 340;
+
+const rings = [];
+for (let i = 0; i < NUM_RINGS; i++) {
+  const nodes = [];
+  for (let s = 0; s < SEGS; s++) {
+    const isMajor = s % 2 === 0;
+    const radFactor = isMajor ? 1.0 : 0.88 + (rand() - 0.5) * 0.08;
+    const angJitter = (rand() - 0.5) * 0.05;
+    const pal = PALETTE[Math.floor(rand() * PALETTE.length)];
+    nodes.push({
+      s,
+      isMajor,
+      radFactor,
+      angJitter,
+      color: pal,
+      hasPulseNext: rand() < 0.42,
+      hasPulseDiag: rand() < 0.35,
+      hasPulseRing: rand() < 0.30,
+      pulseSpeed: 1 + Math.floor(rand() * 3),
+      pulseOffset: rand(),
+      hasCluster: rand() < 0.22,
+      clusterDist: 1.18 + rand() * 0.28,
+      clusterAngOff: (rand() - 0.5) * 0.22,
+      x: 0, y: 0,
+      cx: 0, cy: 0
+    });
+  }
+  rings.push({
+    index: i,
+    nodes,
+    z: 0,
+    u: 0,
+    alpha: 0,
+    scale: 0
+  });
+}
+
+const debris = [];
+for (let i = 0; i < 95; i++) {
+  const angle = rand() * Math.PI * 2;
+  const dist = BASE_RAD * (0.45 + rand() * 1.35);
+  const type = Math.floor(rand() * 3);
+  debris.push({
+    uBase: rand(),
+    speed: 1 + Math.floor(rand() * 2),
+    angle,
+    dist,
+    size: 4 + rand() * 11,
+    rotSpeed: (rand() < 0.5 ? 1 : -1) * (1 + Math.floor(rand() * 3)),
+    rotPhase: rand() * Math.PI * 2,
+    type,
+    color: PALETTE[Math.floor(rand() * PALETTE.length)]
+  });
+}
+
+const bgStars = [];
+for (let i = 0; i < 120; i++) {
+  bgStars.push({
+    x: rand() * W,
+    y: rand() * H,
+    r: 0.5 + rand() * 1.4,
+    phase: rand() * Math.PI * 2,
+    color: PALETTE[Math.floor(rand() * PALETTE.length)]
+  });
+}
+
+function getTunnelOffset(z, phase) {
+  const zn = (z - Z_NEAR) / Z_SPAN;
+  const ox = Math.sin(zn * Math.PI * 2.5 - phase) * 65 * zn;
+  const oy = Math.cos(zn * Math.PI * 2.5 - phase) * 42 * zn;
+  return { ox, oy };
+}
+
+function drawBackground(phase, vpX, vpY) {
+  const bg = ctx.createRadialGradient(vpX, vpY, 10, W * 0.5, H * 0.5, W * 0.75);
+  bg.addColorStop(0, '#280904');
+  bg.addColorStop(0.22, '#160508');
+  bg.addColorStop(0.55, '#09040C');
+  bg.addColorStop(1, '#040206');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  for (let i = 0; i < bgStars.length; i++) {
+    const st = bgStars[i];
+    const a = 0.1 + 0.25 * (0.5 + 0.5 * Math.sin(phase * 2 + st.phase));
+    ctx.fillStyle = `rgba(${st.color.r}, ${st.color.g}, ${st.color.b}, ${a.toFixed(3)})`;
+    ctx.beginPath();
+    ctx.arc(st.x, st.y, st.r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+
+  for (let s = 0; s < SEGS; s++) {
+    const ang = (s / SEGS) * Math.PI * 2 + phase * (1 / SEGS);
+    const len = 1300;
+    const x2 = vpX + Math.cos(ang) * len;
+    const y2 = vpY + Math.sin(ang) * len;
+
+    const rGrad = ctx.createLinearGradient(vpX, vpY, x2, y2);
+    const col = PALETTE[s % 3];
+    rGrad.addColorStop(0, `rgba(255, 220, 120, 0.14)`);
+    rGrad.addColorStop(0.25, `rgba(${col.r}, ${col.g}, ${col.b}, 0.06)`);
+    rGrad.addColorStop(1, 'rgba(7, 5, 10, 0)');
+
+    ctx.strokeStyle = rGrad;
+    ctx.lineWidth = s % 2 === 0 ? 3.5 : 1.5;
+    ctx.beginPath();
+    ctx.moveTo(vpX, vpY);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+function drawPulseOnLine(x1, y1, x2, y2, prog, alpha, lw, col) {
+  const tail = 0.32;
+  const p0 = Math.max(0, prog - tail);
+  const p1 = prog;
+
+  const sx0 = x1 + (x2 - x1) * p0;
+  const sy0 = y1 + (y2 - y1) * p0;
+  const sx1 = x1 + (x2 - x1) * p1;
+  const sy1 = y1 + (y2 - y1) * p1;
+
+  const env = Math.sin(prog * Math.PI);
+  const pa = env * alpha;
+  if (pa <= 0.02) return;
+
+  const grad = ctx.createLinearGradient(sx0, sy0, sx1, sy1);
+  grad.addColorStop(0, `rgba(${col.r}, ${col.g}, ${col.b}, 0)`);
+  grad.addColorStop(0.65, `rgba(255, 160, 20, ${(pa * 0.85).toFixed(3)})`);
+  grad.addColorStop(1, `rgba(255, 250, 210, ${pa.toFixed(3)})`);
+
+  ctx.strokeStyle = grad;
+  ctx.lineWidth = lw * 2.1;
+  ctx.beginPath();
+  ctx.moveTo(sx0, sy0);
+  ctx.lineTo(sx1, sy1);
+  ctx.stroke();
+
+  ctx.fillStyle = `rgba(255, 245, 200, ${pa.toFixed(3)})`;
+  ctx.beginPath();
+  ctx.arc(sx1, sy1, Math.max(1.2, lw * 1.15), 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function render(ts) {
+  const t = (ts % 10000) / 10000;
+  const phase = t * Math.PI * 2;
+
+  const camSwayX = Math.sin(phase) * 18;
+  const camSwayY = Math.cos(phase) * 12;
+  const vpOff = getTunnelOffset(Z_FAR, phase);
+  const vpX = W * 0.5 + camSwayX + vpOff.ox * (FOV / Z_FAR);
+  const vpY = H * 0.5 + camSwayY + vpOff.oy * (FOV / Z_FAR);
+
+  drawBackground(phase, vpX, vpY);
+
+  const orderedRings = [];
+
+  for (let i = 0; i < NUM_RINGS; i++) {
+    const ring = rings[i];
+    let u = (i - t * RING_SPEED) / NUM_RINGS;
+    u = ((u % 1) + 1) % 1;
+    ring.u = u;
+
+    const depthCurve = Math.pow(u, 1.55);
+    const z = Z_NEAR + depthCurve * Z_SPAN;
+    ring.z = z;
+
+    const scale = FOV / z;
+    ring.scale = scale;
+
+    const nearFade = Math.min(1, u / 0.12);
+    const farFade = Math.pow(1 - u, 1.35);
+    ring.alpha = nearFade * farFade;
+
+    const off = getTunnelOffset(z, phase);
+    const centerX = W * 0.5 + camSwayX + off.ox * scale;
+    const centerY = H * 0.5 + camSwayY + off.oy * scale;
+
+    const twist = (i % 2) * (Math.PI / SEGS) + Math.sin(phase + u * 5) * 0.14;
+    const pulseRad = 1 + 0.06 * Math.sin(phase * 2 - u * Math.PI * 6);
+
+    for (let s = 0; s < SEGS; s++) {
+      const nd = ring.nodes[s];
+      const baseAng = (s / SEGS) * Math.PI * 2 + twist + nd.angJitter;
+      const rWorld = BASE_RAD * nd.radFactor * pulseRad;
+
+      nd.x = centerX + Math.cos(baseAng) * rWorld * scale;
+      nd.y = centerY + Math.sin(baseAng) * rWorld * scale;
+
+      if (nd.hasCluster) {
+        const cAng = baseAng + nd.clusterAngOff;
+        const cWorld = rWorld * nd.clusterDist;
+        nd.cx = centerX + Math.cos(cAng) * cWorld * scale;
+        nd.cy = centerY + Math.sin(cAng) * cWorld * scale;
+      }
+    }
+
+    orderedRings.push(ring);
+  }
+
+  orderedRings.sort((a, b) => b.z - a.z);
+
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  for (let rIdx = 0; rIdx < orderedRings.length; rIdx++) {
+    const rCurr = orderedRings[rIdx];
+    if (rCurr.alpha <= 0.01) continue;
+
+    const lwRing = Math.max(0.5, rCurr.scale * 2.1);
+
+    if (rIdx < orderedRings.length - 1) {
+      const rNext = orderedRings[rIdx + 1];
+      if (Math.abs(rCurr.u - rNext.u) < 0.15) {
+        const pairAlpha = Math.min(rCurr.alpha, rNext.alpha);
+        const lwLong = Math.max(0.45, (rCurr.scale + rNext.scale) * 0.85);
+
+        for (let s = 0; s < SEGS; s++) {
+          const sNext = (s + 1) % SEGS;
+          const n00 = rCurr.nodes[s];
+          const n01 = rCurr.nodes[sNext];
+          const n10 = rNext.nodes[s];
+          const n11 = rNext.nodes[sNext];
+
+          const facetWave = 0.5 + 0.5 * Math.sin(phase * 3 - rCurr.u * 12 + s);
+          const fAlpha = pairAlpha * (0.025 + facetWave * 0.055);
+          const col = n00.color;
+
+          ctx.fillStyle = `rgba(${col.r}, ${col.g}, ${col.b}, ${fAlpha.toFixed(3)})`;
+          ctx.beginPath();
+          ctx.moveTo(n00.x, n00.y);
+          ctx.lineTo(n10.x, n10.y);
+          ctx.lineTo(n11.x, n11.y);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.fillStyle = `rgba(208, 0, 0, ${(fAlpha * 0.7).toFixed(3)})`;
+          ctx.beginPath();
+          ctx.moveTo(n00.x, n00.y);
+          ctx.lineTo(n11.x, n11.y);
+          ctx.lineTo(n01.x, n01.y);
+          ctx.closePath();
+          ctx.fill();
+
+          const lAlpha = pairAlpha * (0.24 + facetWave * 0.28);
+          ctx.strokeStyle = `rgba(${col.r}, ${col.g}, ${col.b}, ${lAlpha.toFixed(3)})`;
+          ctx.lineWidth = lwLong;
+          ctx.beginPath();
+          ctx.moveTo(n00.x, n00.y);
+          ctx.lineTo(n10.x, n10.y);
+          ctx.stroke();
+
+          ctx.strokeStyle = `rgba(255, 107, 0, ${(lAlpha * 0.72).toFixed(3)})`;
+          ctx.lineWidth = lwLong * 0.8;
+          ctx.beginPath();
+          ctx.moveTo(n00.x, n00.y);
+          ctx.lineTo(n11.x, n11.y);
+          ctx.stroke();
+
+          if (n00.hasPulseNext && pairAlpha > 0.06) {
+            const prog = (t * n00.pulseSpeed + n00.pulseOffset) % 1;
+            drawPulseOnLine(n00.x, n00.y, n10.x, n10.y, prog, pairAlpha * 0.95, lwLong, n00.color);
+          }
+
+          if (n00.hasPulseDiag && pairAlpha > 0.06) {
+            const prog = (t * n00.pulseSpeed + n00.pulseOffset + 0.5) % 1;
+            drawPulseOnLine(n00.x, n00.y, n11.x, n11.y, prog, pairAlpha * 0.8, lwLong * 0.85, PALETTE[1]);
+          }
+        }
+      }
+    }
+
+    for (let s = 0; s < SEGS; s++) {
+      const sNext = (s + 1) % SEGS;
+      const n1 = rCurr.nodes[s];
+      const n2 = rCurr.nodes[sNext];
+
+      const wave = 0.5 + 0.5 * Math.cos(phase * 2 - rCurr.u * 10 + s * 0.5);
+      const rAlpha = rCurr.alpha * (0.32 + wave * 0.42);
+
+      ctx.strokeStyle = `rgba(${n1.color.r}, ${n1.color.g}, ${n1.color.b}, ${rAlpha.toFixed(3)})`;
+      ctx.lineWidth = lwRing;
+      ctx.beginPath();
+      ctx.moveTo(n1.x, n1.y);
+      ctx.lineTo(n2.x, n2.y);
+      ctx.stroke();
+
+      if (s % 2 === 0) {
+        const sSkip = (s + 2) % SEGS;
+        const n3 = rCurr.nodes[sSkip];
+        ctx.strokeStyle = `rgba(208, 0, 0, ${(rAlpha * 0.42).toFixed(3)})`;
+        ctx.lineWidth = lwRing * 0.65;
+        ctx.beginPath();
+        ctx.moveTo(n1.x, n1.y);
+        ctx.lineTo(n3.x, n3.y);
+        ctx.stroke();
+      }
+
+      if (n1.hasPulseRing && rCurr.alpha > 0.06) {
+        const prog = (t * n1.pulseSpeed + n1.pulseOffset) % 1;
+        drawPulseOnLine(n1.x, n1.y, n2.x, n2.y, prog, rCurr.alpha * 0.9, lwRing, PALETTE[1]);
+      }
+
+      if (n1.hasCluster) {
+        const cAlpha = rCurr.alpha * 0.55;
+        ctx.strokeStyle = `rgba(255, 107, 0, ${(cAlpha * 0.65).toFixed(3)})`;
+        ctx.lineWidth = lwRing * 0.6;
+        ctx.beginPath();
+        ctx.moveTo(n1.x, n1.y);
+        ctx.lineTo(n1.cx, n1.cy);
+        ctx.lineTo(n2.x, n2.y);
+        ctx.stroke();
+
+        const cr = Math.max(1.0, rCurr.scale * 3.2);
+        ctx.fillStyle = `rgba(255, 208, 0, ${cAlpha.toFixed(3)})`;
+        ctx.beginPath();
+        ctx.arc(n1.cx, n1.cy, cr, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    for (let s = 0; s < SEGS; s++) {
+      const nd = rCurr.nodes[s];
+      const baseR = Math.max(0.9, rCurr.scale * (nd.isMajor ? 4.4 : 2.8));
+      const haloR = baseR * (nd.isMajor ? 4.2 : 2.8);
+      const nAlpha = rCurr.alpha * (nd.isMajor ? 0.95 : 0.72);
+
+      const hGrad = ctx.createRadialGradient(nd.x, nd.y, 0, nd.x, nd.y, haloR);
+      hGrad.addColorStop(0, `rgba(255, 240, 180, ${nAlpha.toFixed(3)})`);
+      hGrad.addColorStop(0.35, `rgba(${nd.color.r}, ${nd.color.g}, ${nd.color.b}, ${(nAlpha * 0.55).toFixed(3)})`);
+      hGrad.addColorStop(1, 'rgba(208, 0, 0, 0)');
+
+      ctx.fillStyle = hGrad;
+      ctx.beginPath();
+      ctx.arc(nd.x, nd.y, haloR, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = `rgba(255, 252, 230, ${nAlpha.toFixed(3)})`;
+      ctx.beginPath();
+      ctx.arc(nd.x, nd.y, baseR * 0.65, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  for (let i = 0; i < debris.length; i++) {
+    const d = debris[i];
+    let u = (d.uBase - (t * d.speed) / 4) % 1;
+    if (u < 0) u += 1;
+
+    const depthCurve = Math.pow(u, 1.55);
+    const z = Z_NEAR + depthCurve * Z_SPAN;
+    const scale = FOV / z;
+
+    const nearFade = Math.min(1, u / 0.12);
+    const farFade = Math.pow(1 - u, 1.4);
+    const alpha = nearFade * farFade * 0.75;
+    if (alpha <= 0.02) continue;
+
+    const off = getTunnelOffset(z, phase);
+    const cx = W * 0.5 + camSwayX + off.ox * scale;
+    const cy = H * 0.5 + camSwayY + off.oy * scale;
+
+    const orbitAng = d.angle + phase * 0.25;
+    const x = cx + Math.cos(orbitAng) * d.dist * scale;
+    const y = cy + Math.sin(orbitAng) * d.dist * scale;
+
+    if (x < -80 || x > W + 80 || y < -80 || y > H + 80) continue;
+
+    const sz = d.size * scale;
+    const rot = phase * d.rotSpeed + d.rotPhase;
+    const col = d.color;
+
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rot);
+
+    ctx.strokeStyle = `rgba(${col.r}, ${col.g}, ${col.b}, ${alpha.toFixed(3)})`;
+    ctx.fillStyle = `rgba(${col.r}, ${col.g}, ${col.b}, ${(alpha * 0.22).toFixed(3)})`;
+    ctx.lineWidth = Math.max(0.6, scale * 1.4);
+
+    ctx.beginPath();
+    const sides = d.type === 0 ? 3 : (d.type === 1 ? 4 : 6);
+    for (let k = 0; k < sides; k++) {
+      const a = (k / sides) * Math.PI * 2;
+      const px = Math.cos(a) * sz;
+      const py = Math.sin(a) * sz;
+      if (k === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  const corePulse = 1 + 0.08 * Math.sin(phase * 4);
+  const coreRad = 460 * corePulse;
+  const cGrad = ctx.createRadialGradient(vpX, vpY, 0, vpX, vpY, coreRad);
+  cGrad.addColorStop(0, 'rgba(255, 255, 240, 0.96)');
+  cGrad.addColorStop(0.08, 'rgba(255, 225, 90, 0.82)');
+  cGrad.addColorStop(0.24, 'rgba(255, 107, 0, 0.42)');
+  cGrad.addColorStop(0.55, 'rgba(208, 0, 0, 0.14)');
+  cGrad.addColorStop(1, 'rgba(7, 5, 10, 0)');
+
+  ctx.fillStyle = cGrad;
+  ctx.beginPath();
+  ctx.arc(vpX, vpY, coreRad, 0, Math.PI * 2);
+  ctx.fill();
+
+  for (let r = 0; r < 3; r++) {
+    const ringProg = ((t * 2 + r / 3) % 1);
+    const rr = 14 + ringProg * 145;
+    const ra = Math.sin(ringProg * Math.PI) * 0.45;
+    ctx.strokeStyle = `rgba(255, 208, 0, ${ra.toFixed(3)})`;
+    ctx.lineWidth = 1.6 * (1 - ringProg * 0.5);
+    ctx.beginPath();
+    for (let s = 0; s < 6; s++) {
+      const a = (s / 6) * Math.PI * 2 + phase;
+      const px = vpX + Math.cos(a) * rr;
+      const py = vpY + Math.sin(a) * rr;
+      if (s === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    ctx.stroke();
+  }
+
+  ctx.restore();
+
+  const vig = ctx.createRadialGradient(vpX, vpY, W * 0.28, W * 0.5, H * 0.5, W * 0.65);
+  vig.addColorStop(0, 'rgba(7, 5, 10, 0)');
+  vig.addColorStop(0.7, 'rgba(7, 5, 10, 0.25)');
+  vig.addColorStop(1, 'rgba(3, 2, 5, 0.78)');
+  ctx.fillStyle = vig;
+  ctx.fillRect(0, 0, W, H);
+
+  requestAnimationFrame(render);
+}
+
+requestAnimationFrame(render);
+</script>
+</body>
+</html>
