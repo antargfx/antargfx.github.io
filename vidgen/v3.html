@@ -1,0 +1,1011 @@
+---
+permalink: /vidgen/v3/
+---
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HTML to Video Studio — Batch Automation</title>
+<link rel="stylesheet" href="https://antargfx.github.io/main-header.css">
+<style>
+:root{--ink:#292524;--bg:#fff8f4;--bg2:#fff;--card:rgba(255,255,255,.86);--card2:#fff0e8;--ln:#f2c8b6;--tx:#292524;--mut:#78716c;--ac:#ff7033;--ac2:#e85d24;--ok:#15803d;--warn:#b45309;--bad:#dc2626;--shadow:0 10px 30px rgba(124,58,30,.08)}
+*{box-sizing:border-box}
+html {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--ink);
+  background-color: #fff8f4;
+  background-image: linear-gradient(45deg, rgba(255,112,51,.05) 0%, rgba(255,255,255,.33) 48%, rgba(255,112,51,.04) 100%);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: 100% 100%;
+  min-height: 100%;
+}
+html, body { margin: 0; }
+body {
+  background: transparent;
+  color: var(--ink);
+  font-family: inherit;
+  min-height: 100vh;
+  line-height: 1.5;
+}
+a{color:var(--ac)}
+.wrap{max-width:960px;margin:0 auto;padding:12px}
+h1,h2,h3{margin:0 0 8px}
+h2{font-size:18px}h3{font-size:15px}
+.hide{display:none!important}
+.card{background:var(--card);border:1px solid var(--ln);border-radius:16px;padding:14px;margin-bottom:12px;box-shadow:var(--shadow);backdrop-filter:blur(10px)}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.between{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.grow{flex:1}
+.mut{color:var(--mut);font-size:13px}
+label{display:block;font-size:12px;color:var(--mut);margin:10px 0 4px;font-weight:600}
+input,select,textarea{width:100%;background:#fff;color:var(--ink);border:1px solid var(--ln);border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit}
+textarea{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;min-height:130px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--ac);border-color:transparent}
+#appView button{border:0;border-radius:10px;padding:11px 15px;font-weight:700;font-size:13px;color:#fff;background:linear-gradient(135deg,#ff854f,#f05f28);cursor:pointer;box-shadow:0 4px 12px rgba(255,112,51,.18);display:inline-flex;align-items:center;justify-content:center;gap:6px;transition:transform .1s,opacity .15s}
+#appView button:active:not(:disabled){transform:scale(.98)}
+#appView button.sec{background:#fff;border:1px solid var(--ln);color:var(--ink);box-shadow:none}
+#appView button.ok{background:linear-gradient(135deg,#22c55e,#15803d);color:#fff}
+#appView button.bad{background:linear-gradient(135deg,#ef4444,#b91c1c);color:#fff}
+#appView button.sm{padding:7px 11px;font-size:12px;border-radius:8px}
+#appView button.xs{padding:5px 8px;font-size:11px;border-radius:7px}
+#appView button.full{width:100%;margin-top:10px}
+#appView button:disabled{opacity:.45;cursor:not-allowed}
+
+/* nav */
+.top{position:relative;top:0;z-index:20;background:rgba(255,248,244,.92);backdrop-filter:blur(14px)}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;padding:8px 12px;max-width:960px;margin:0 auto}
+.ticker{background:linear-gradient(90deg,#ff7033,#e85d24);color:#fff;overflow:hidden;white-space:nowrap;padding:7px 0;font-weight:700;font-size:14px}
+.tk{display:inline-block;white-space:nowrap;animation:tkm 18s linear infinite;will-change:transform}
+@keyframes tkm{from{transform:translateX(100vw)}to{transform:translateX(-100%)}}
+.ticker.paused .tk{animation-play-state:paused}
+.tab{background:transparent;border:1px solid transparent;color:var(--mut);padding:8px 12px;border-radius:10px;white-space:nowrap;font-weight:600}
+.tab.on{background:#ffe9de;border-color:#f4b89c;color:#9a3412}
+
+/* stage & layout */
+#stage{position:relative;background:#1c1917;border-radius:12px;overflow:hidden;margin:0 auto;border:1px solid var(--ln)}
+#pv{position:absolute;left:0;top:0;border:0;transform-origin:0 0;background:#fff}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+@media(max-width:640px){.grid3,.grid4{grid-template-columns:1fr 1fr}}
+
+/* progress bars */
+.bar-wrap{margin-top:10px}
+.bar-label{display:flex;justify-content:space-between;font-size:12px;color:var(--mut);margin-bottom:4px;font-weight:600}
+.bar{height:10px;background:#fce4d8;border-radius:6px;overflow:hidden}
+.fill{height:100%;width:0;background:linear-gradient(90deg,#ff9a6c,#e85d24);transition:width .15s linear}
+.fill.batch{background:linear-gradient(90deg,#3b82f6,#1d4ed8)}
+#st{font-size:13px;color:var(--mut);margin-top:8px;white-space:pre-line;background:#fffaf7;padding:8px 10px;border-radius:8px;border:1px solid var(--ln)}
+
+/* queue list */
+.q-list{display:flex;flex-direction:column;gap:8px;margin-top:10px;max-height:360px;overflow-y:auto;padding-right:4px}
+.q-empty{text-align:center;padding:22px 12px;color:var(--mut);font-size:13px;background:#fffaf7;border:1px dashed var(--ln);border-radius:12px;margin-top:10px}
+.q-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:12px;background:#fff;border:1px solid var(--ln);transition:border-color .15s,background .15s}
+.q-item.active{border-color:var(--ac);background:#fff7f2;box-shadow:0 2px 10px rgba(255,112,51,.12)}
+.q-item.done{border-color:#bbf7d0;background:#f0fdf4}
+.q-item.err{border-color:#fecaca;background:#fef2f2}
+.q-info{flex:1;min-width:0}
+.q-title{font-weight:700;font-size:13px;color:var(--ink);display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.q-meta{font-size:11px;color:var(--mut);margin-top:2px}
+.q-actions{display:flex;align-items:center;gap:5px;flex-shrink:0}
+.q-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:700}
+.qb-wait{background:#f5f5f4;color:#57534e}
+.qb-run{background:#ffedd5;color:#c2410c}
+.qb-done{background:#dcfce7;color:#15803d}
+.qb-err{background:#fee2e2;color:#b91c1c}
+
+/* output gallery */
+.out-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-top:10px}
+.out-card{background:#fff;border:1px solid var(--ln);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:8px}
+.out-card video{width:100%;border-radius:8px;background:#000;aspect-ratio:16/9;object-fit:contain}
+.out-card .title{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.pre{white-space:pre-wrap;word-break:break-word;font-size:14px}
+.codebox{background:#fffaf7;border:1px dashed var(--ln);border-radius:10px;padding:10px;font-family:ui-monospace,Menlo,monospace;font-size:12px;white-space:pre-wrap;max-height:260px;overflow:auto}
+#toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#292524;color:#fff;border:1px solid #57534e;padding:10px 16px;border-radius:12px;z-index:60;max-width:90%;font-size:14px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+</style>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+</head>
+<body>
+<div style="height: 100px;"></div>
+<div id="ticker" class="ticker hide"><div class="tk" id="tkText"></div></div>
+
+<div id="appView">
+  <div class="top">
+    <div class="tabs" id="tabs">
+      <button class="tab on" data-tab="tool"><i class="fa-solid fa-gears" aria-hidden="true"></i> Batch Automation Tool</button>
+      <button class="tab" data-tab="guide"><i class="fa-solid fa-book-open" aria-hidden="true"></i> Generate Prompt</button>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div id="notice" class="card hide" style="border-color:#d9a441"></div>
+
+    <!-- TOOL -->
+    <section id="p-tool">
+      <!-- PREVIEW STAGE -->
+      <div class="card">
+        <div class="between" style="margin-bottom:8px">
+          <div class="row">
+            <span style="font-weight:700;font-size:14px"><i class="fa-solid fa-tv" style="color:var(--ac)"></i> লাইভ প্রিভিউ ও রেন্ডার স্টেজ</span>
+            <span class="q-badge qb-wait" id="activePreviewTag">Editor Code</span>
+          </div>
+          <div class="row">
+            <button class="sec xs" id="restart"><i class="fa-solid fa-rotate-right"></i> রিস্টার্ট</button>
+            <span class="mut" id="clock" style="min-width:42px;text-align:right">0.0s</span>
+          </div>
+        </div>
+        <div id="stage"><iframe id="pv" sandbox="allow-scripts allow-same-origin"></iframe></div>
+      </div>
+
+      <!-- CODE INPUT & QUEUE BUILDER -->
+      <div class="card">
+        <div class="between">
+          <label style="margin:0"><i class="fa-solid fa-code"></i> HTML কোড এডিটর (এক বা একাধিক কোড যোগ করুন)</label>
+          <span class="mut" style="font-size:11px">টিপস: একসাথে একাধিক কোড পেস্ট করতে মাঝখানে <code>&lt;!-- SPLIT --&gt;</code> লিখুন</span>
+        </div>
+        <div class="row" style="margin-top:6px">
+          <input type="text" id="itemTitle" placeholder="ভিডিওর নাম (ঐচ্ছিক, যেমন: Gold Bokeh Loop)" style="flex:2">
+          <button class="sec sm" id="load" style="flex:1"><i class="fa-solid fa-eye"></i> প্রিভিউ দেখুন</button>
+        </div>
+        <textarea id="src" spellcheck="false" style="margin-top:8px" placeholder="এখানে আপনার HTML কোড পেস্ট করুন..."></textarea>
+
+        <div class="grid4" style="margin-top:8px">
+          <button id="addQueue"><i class="fa-solid fa-plus"></i> কিউতে যোগ করুন</button>
+          <button class="sec" id="uplMulti"><i class="fa-solid fa-file-import"></i> একাধিক HTML ফাইল</button>
+          <button class="sec" id="sample"><i class="fa-solid fa-wand-magic-sparkles"></i> নমুনা যোগ</button>
+          <button class="sec" id="clear"><i class="fa-solid fa-eraser"></i> বক্স মুছুন</button>
+        </div>
+        <input type="file" id="fileMulti" accept=".html,.htm,text/html" multiple hidden>
+      </div>
+
+      <!-- AUTOMATION QUEUE LIST -->
+      <div class="card">
+        <div class="between">
+          <div>
+            <h3 style="margin:0"><i class="fa-solid fa-list-check" style="color:var(--ac)"></i> অটোমেশন কিউ (Batch Queue)</h3>
+            <div class="mut" id="queueSummary">মোট ০টি কোড কিউতে আছে</div>
+          </div>
+          <div class="row">
+            <button class="sec xs" id="resetDone" title="সম্পন্ন হওয়া আইটেমগুলো পুনরায় রেন্ডার করার জন্য প্রস্তুত করুন"><i class="fa-solid fa-arrows-rotate"></i> সবগুলো Reset</button>
+            <button class="sec xs" id="clearQueue"><i class="fa-solid fa-trash-can"></i> সব মুছুন</button>
+          </div>
+        </div>
+        <div id="queueContainer"></div>
+      </div>
+
+      <!-- EXPORT SETTINGS & BATCH TRIGGER -->
+      <div class="card">
+        <h3 style="margin:0 0 6px"><i class="fa-solid fa-sliders" style="color:var(--ac)"></i> HD এক্সপোর্ট এবং অটোমেশন সেটিংস</h3>
+        <div class="grid4">
+          <div>
+            <label>রেজোলিউশন (ডিফল্ট HD 1080p)</label>
+            <select id="fmt"></select>
+          </div>
+          <div>
+            <label>ফ্রেমরেট (FPS)</label>
+            <select id="fps">
+              <option value="24">24 FPS</option>
+              <option value="25">25 FPS</option>
+              <option value="30" selected>30 FPS (Standard)</option>
+              <option value="60">60 FPS (Smooth)</option>
+            </select>
+          </div>
+          <div>
+            <label>সময় (সেকেন্ড)</label>
+            <input type="number" id="dur" value="10" min="1" max="60">
+          </div>
+          <div>
+            <label>ভিডিও কোয়ালিটি (Bitrate)</label>
+            <select id="q">
+              <option value="0.10">স্ট্যান্ডার্ড (Standard)</option>
+              <option value="0.18" selected>হাই HD (High Bitrate)</option>
+              <option value="0.26">ম্যাক্স প্রো (Ultra Quality)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:12px;gap:16px">
+          <label style="display:flex;gap:8px;align-items:center;margin:0;cursor:pointer">
+            <input type="checkbox" id="autoDl" style="width:auto" checked>
+            প্রতিটি ভিডিও শেষ হলেই অটোমেটিক ডাউনলোড হবে (Auto Download 1-by-1)
+          </label>
+        </div>
+
+        <div class="grid2" style="margin-top:12px">
+          <button id="goBatch" class="ok" style="padding:14px"><i class="fa-solid fa-play"></i> অটোমেশন শুরু করুন (Start Batch HD Export)</button>
+          <button id="stopBatch" class="bad" style="padding:14px" disabled><i class="fa-solid fa-stop"></i> অটোমেশন থামান (Stop)</button>
+        </div>
+
+        <!-- Batch Progress -->
+        <div class="bar-wrap">
+          <div class="bar-label"><span>সামগ্রিক ব্যাচ অগ্রগতি (Overall Batch Progress)</span><span id="batchPct">0 / 0</span></div>
+          <div class="bar"><div class="fill batch" id="batchFill"></div></div>
+        </div>
+
+        <!-- Current Video Frame Progress -->
+        <div class="bar-wrap">
+          <div class="bar-label"><span>বর্তমান ভিডিও রেন্ডারিং (Current Video Frame Progress)</span><span id="framePct">0%</span></div>
+          <div class="bar"><div class="fill" id="fill"></div></div>
+        </div>
+
+        <div id="st">প্রস্তুত। একাধিক HTML কোড কিউতে যোগ করে "অটোমেশন শুরু করুন" বাটনে ক্লিক করুন। এক্সপোর্টের সময় এই ট্যাবটি খোলা রাখুন।</div>
+      </div>
+
+      <!-- COMPLETED VIDEOS GALLERY -->
+      <div class="card hide" id="outSection">
+        <div class="between">
+          <h3 style="margin:0"><i class="fa-solid fa-film" style="color:var(--ok)"></i> জেনারেট হওয়া ভিডিওসমূহ (<span id="outCount">0</span>)</h3>
+          <button class="sec sm" id="dlAllBtn"><i class="fa-solid fa-download"></i> সবগুলো একসাথে ডাউনলোড করুন</button>
+        </div>
+        <div class="out-grid" id="outGallery"></div>
+      </div>
+    </section>
+
+    <!-- GUIDE -->
+    <section id="p-guide" class="hide">
+      <div class="card"><h2><i class="fa-solid fa-book-open" aria-hidden="true"></i> Prompt বানানোর নিয়ম</h2><div id="guideText" class="pre"></div></div>
+      <div class="card">
+        <h2 style="margin:8px 0 4px">Type Theme or Idea:</h2>
+        <input type="text" id="themeInput" placeholder="Example: Celebration Background" autocomplete="off">
+        <div style="margin:8px 0 4px"></div>
+        <div id="promptBox" class="codebox" style="cursor:pointer" title="ক্লিক করে কপি করুন"></div>
+        <button class="full sec" id="copyPrompt"><i class="fa-solid fa-copy" aria-hidden="true"></i> Copy Prompt</button>
+      </div>
+    </section>
+  </div>
+</div>
+<div id="toast" class="hide"></div>
+
+<script>
+const VCLOCK = "/* Virtual clock: makes any HTML animation deterministic, frame by frame. */\n(function () {\n  var now = 0, tid = 1, rid = 1, timers = [], rafs = [], seed = 1234567;\n  var base = 1767225600000, D = Date;\n  window.__rafReal = window.requestAnimationFrame.bind(window);\n  Math.random = function () { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };\n  performance.now = function () { return now; };\n  window.Date = class VDate extends D {\n    constructor(...a) { if (a.length === 0) super(base + now); else super(...a); }\n    static now() { return base + now; }\n  };\n  window.setTimeout = function (f, ms) {\n    var a = [].slice.call(arguments, 2), id = tid++;\n    timers.push({ id: id, due: now + (+ms || 0), f: f, a: a, iv: 0 }); return id;\n  };\n  window.setInterval = function (f, ms) {\n    var a = [].slice.call(arguments, 2), id = tid++, iv = Math.max(+ms || 0, 1);\n    timers.push({ id: id, due: now + iv, f: f, a: a, iv: iv }); return id;\n  };\n  window.clearTimeout = window.clearInterval = function (id) { timers = timers.filter(function (t) { return t.id !== id; }); };\n  window.requestAnimationFrame = function (f) { var id = rid++; rafs.push({ id: id, f: f }); return id; };\n  window.cancelAnimationFrame = function (id) { rafs = rafs.filter(function (r) { return r.id !== id; }); };\n  window.__vcAdvance = function (t) {\n    now = t;\n    var guard = 0;\n    while (guard++ < 10000) {\n      var due = timers.filter(function (x) { return x.due <= now; }).sort(function (a, b) { return a.due - b.due; })[0];\n      if (!due) break;\n      if (due.iv) due.due += due.iv; else timers = timers.filter(function (x) { return x !== due; });\n      try { due.f.apply(window, due.a); } catch (e) { console.error(e); }\n    }\n    var list = rafs; rafs = [];\n    list.forEach(function (r) { try { r.f(now); } catch (e) { console.error(e); } });\n    try { document.getAnimations().forEach(function (a) { a.pause(); a.currentTime = now; }); } catch (e) {}\n  };\n})();\n";
+
+const $ = id => document.getElementById(id);
+const esc = value => String(value == null ? '' : value).replace(/[&<>"']/g, c => ({
+  '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+}[c]));
+
+let toastTimer;
+function toast(message) {
+  const el = $('toast');
+  if (!el) return;
+  el.textContent = message;
+  el.classList.remove('hide');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.add('hide'), 2800);
+}
+
+const DEFAULTS = {
+  brand: 'VidGen Studio — Batch Automation',
+  ticker: '',
+  notice: '',
+  guide: '১) AI-কে (ChatGPT, Gemini, Claude ইত্যাদি) নিচের প্রম্পট টেমপ্লেট দিন। ২) THEME অংশে আপনার আইডিয়া লিখুন (রঙ, বিষয়, মুড)। ৩) AI যে HTML কোড দেবে সেটা কপি করে টুলে পেস্ট করে "কিউতে যোগ করুন" চাপুন। এভাবে একাধিক কোড কিউতে জমা করে এক ক্লিকে সবগুলো HD 1080p ভিডিও অটোমেটিক এক্সপোর্ট করুন।',
+  promptTemplate: `Create ONE self-contained HTML file for a seamless looping animation that will be rendered to a 10-second HD video (1920x1080, 30fps).
+
+RULES (follow strictly):
+1. Design on a 1920x1080 stage. Use: html,body{margin:0;width:100%;height:100%;overflow:hidden}. Fill the whole screen.
+2. The loop is exactly 10 seconds and the last frame must flow seamlessly into the first.
+3. Animate ONLY with CSS @keyframes (animation-duration 10s, 5s, 2s or 1s, iteration-count: infinite, linear or ease-in-out) OR with requestAnimationFrame(ts) where all motion is a pure function of ts. Never use video, audio, user input or real clocks.
+4. No SMIL (<animate>), no external files, images or web fonts. Inline everything and use system fonts. Inline SVG, CSS shapes and <canvas> are fine.
+5. Style: clean flat vector graphics (EPS / Adobe Stock style), smooth gradients, no photos, no logos, no copyrighted characters, no text unless I ask.
+6. No buttons, controls or UI. Output only the HTML code, nothing else. Do not add comments in code.
+
+THEME: [describe your idea here]`
+};
+
+const S = { settings: { ...DEFAULTS } };
+const THEME_PLACEHOLDER = '[describe your idea here]';
+
+function buildPrompt() {
+  const idea = ($('themeInput') ? $('themeInput').value : '').trim();
+  const tpl = S.settings.promptTemplate;
+  return idea ? tpl.split(THEME_PLACEHOLDER).join(idea) : tpl;
+}
+
+async function copyFullPrompt() {
+  const text = buildPrompt();
+  try {
+    await navigator.clipboard.writeText(text);
+    toast('প্রম্পট কপি হয়েছে');
+  } catch (error) {
+    const r = document.createRange();
+    r.selectNodeContents($('promptBox'));
+    const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
+    toast('প্রম্পট সিলেক্ট করে কপি করুন');
+  }
+}
+
+function renderGuide() {
+  $('guideText').textContent = S.settings.guide;
+  $('promptBox').textContent = buildPrompt();
+}
+
+function showTab(tab) {
+  document.querySelectorAll('.tab').forEach(button => {
+    button.classList.toggle('on', button.dataset.tab === tab);
+  });
+  ['tool', 'guide'].forEach(name => {
+    $('p-' + name).classList.toggle('hide', name !== tab);
+  });
+  if (tab === 'tool') layoutPreview();
+  if (tab === 'guide') renderGuide();
+}
+
+document.querySelectorAll('.tab').forEach(button => {
+  button.addEventListener('click', () => showTab(button.dataset.tab));
+});
+$('copyPrompt').addEventListener('click', copyFullPrompt);
+$('promptBox').addEventListener('click', copyFullPrompt);
+$('themeInput').addEventListener('input', () => { $('promptBox').textContent = buildPrompt(); });
+
+/* ---------- Resource inlining ---------- */
+async function toDataUrl(url) {
+  const r = await fetch(url); if (!r.ok) throw new Error(r.status);
+  const b = await r.blob();
+  return new Promise(res => { const f = new FileReader(); f.onload = () => res(f.result); f.readAsDataURL(b); });
+}
+async function inlineCssUrls(css, baseUrl, warn) {
+  const re = /url\(\s*(['"]?)([^)'"]+)\1\s*\)/g; const jobs = [];
+  css.replace(re, (m, q, u) => { if (!/^data:|^#/.test(u)) jobs.push(u); return m; });
+  const map = {};
+  await Promise.all([...new Set(jobs)].map(async u => {
+    try { map[u] = await toDataUrl(new URL(u, baseUrl).href); } catch (e) { warn.push(u); }
+  }));
+  return css.replace(re, (m, q, u) => map[u] ? `url("${map[u]}")` : m);
+}
+async function prepareHtml(src) {
+  const warn = [];
+  const d = new DOMParser().parseFromString(src, 'text/html');
+  for (const l of [...d.querySelectorAll('link[rel~="stylesheet"][href]')]) {
+    const href = l.getAttribute('href'); if (!/^https?:/.test(href)) continue;
+    try {
+      const r = await fetch(href); const css = await inlineCssUrls(await r.text(), href, warn);
+      const s = d.createElement('style'); s.textContent = css; l.replaceWith(s);
+    } catch (e) { warn.push(href); }
+  }
+  for (const s of [...d.querySelectorAll('style')]) s.textContent = await inlineCssUrls(s.textContent, location.href, warn);
+  for (const im of [...d.querySelectorAll('img[src]')]) {
+    const u = im.getAttribute('src'); if (!/^https?:/.test(u)) continue;
+    try { im.setAttribute('src', await toDataUrl(u)); } catch (e) { warn.push(u); }
+  }
+  const clk = d.createElement('script'); clk.textContent = VCLOCK; d.head.prepend(clk);
+  return { html: '<!DOCTYPE html>' + d.documentElement.outerHTML, warn };
+}
+
+/* ---------- Formats (Default HD 1080p) ---------- */
+const FORMATS = [
+  ['1920,1080', 'Landscape Full HD 1080p (1920×1080) 💥'],
+  ['1080,1920', 'Portrait Full HD 1080p (1080×1920)'],
+  ['1080,1080', 'Square Full HD 1080p (1080×1080)'],
+  ['1280,720', 'Landscape HD 720p (1280×720)'],
+  ['720,1280', 'Portrait HD 720p (720×1280)'],
+  ['2560,1440', 'Landscape QHD 1440p (2560×1440)'],
+  ['3840,2160', 'Landscape 4K UHD (3840×2160)']
+];
+$('fmt').innerHTML = FORMATS.map(([v, l]) => `<option value="${v}">${l}</option>`).join('');
+$('fmt').value = '1920,1080';
+
+const SAMPLES = [
+  {
+    name: 'Sunset Synthwave Hills',
+    code: `<!doctype html><html><head><meta charset="utf-8"><style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:linear-gradient(160deg,#0f1b4d,#5b2a86 60%,#e0457b)}
+.sun{position:absolute;left:50%;top:58%;width:420px;height:420px;margin:-210px;border-radius:50%;background:#ffd166;animation:pulse 10s ease-in-out infinite}
+.ring{position:absolute;left:50%;top:58%;border-radius:50%;border:6px solid rgba(255,209,102,.6);animation:ring 10s linear infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+@keyframes ring{from{width:420px;height:420px;margin:-210px;opacity:.8}to{width:1500px;height:1500px;margin:-750px;opacity:0}}
+.hill{position:absolute;bottom:-60px;left:-10%;width:120%;border-radius:50% 50% 0 0}
+.h1{height:360px;background:#2b1b57;animation:sway 10s ease-in-out infinite}
+.h2{height:250px;background:#170f35;animation:sway 10s ease-in-out infinite reverse}
+@keyframes sway{0%,100%{transform:translateX(-50px)}50%{transform:translateX(50px)}}
+.star{position:absolute;width:8px;height:8px;border-radius:50%;background:#fff;animation:tw 2s ease-in-out infinite}
+@keyframes tw{0%,100%{opacity:.15}50%{opacity:1}}
+</style></head><body>
+<div class="ring"></div><div class="ring" style="animation-delay:-3.33s"></div><div class="ring" style="animation-delay:-6.66s"></div>
+<div class="sun"></div><div class="hill h1"></div><div class="hill h2"></div>
+<script>
+for(let i=0;i<70;i++){const s=document.createElement('div');s.className='star';
+s.style.left=Math.random()*100+'%';s.style.top=Math.random()*55+'%';s.style.animationDelay=-(Math.random()*2)+'s';document.body.appendChild(s);}
+<\/script></body></html>`
+  },
+  {
+    name: 'Golden Bokeh Waves',
+    code: `<!doctype html><html><head><meta charset="utf-8"><style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:radial-gradient(circle at center,#2c1606,#0c0602)}
+canvas{display:block;width:100%;height:100%}
+</style></head><body><canvas id="c"></canvas><script>
+const c=document.getElementById('c'),ctx=c.getContext('2d');
+c.width=1920;c.height=1080;
+const pts=Array.from({length:85},()=>({x:Math.random()*1920,y:Math.random()*1080,r:12+Math.random()*55,p:Math.random()*Math.PI*2,s:1+Math.random()*2}));
+function draw(ts){
+  const t=(ts/10000)*Math.PI*2;
+  ctx.fillStyle='#120902';ctx.fillRect(0,0,1920,1080);
+  ctx.globalCompositeOperation='lighter';
+  for(const p of pts){
+    const x=(p.x+Math.sin(t+p.p)*90+1920)%1920;
+    const y=(p.y+Math.cos(t*p.s+p.p)*60+1080)%1080;
+    const a=0.25+0.35*(0.5+0.5*Math.sin(t*2+p.p));
+    const g=ctx.createRadialGradient(x,y,0,x,y,p.r);
+    g.addColorStop(0,'rgba(255,215,110,'+a+')');
+    g.addColorStop(1,'rgba(255,140,20,0)');
+    ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,p.r,0,Math.PI*2);ctx.fill();
+  }
+  ctx.globalCompositeOperation='source-over';
+  requestAnimationFrame(draw);
+}
+requestAnimationFrame(draw);
+<\/script></body></html>`
+  }
+];
+
+/* ---------- Queue State & Management ---------- */
+let queue = [];
+let nextId = 1;
+let sampleIdx = 0;
+
+function extractTitleFromHtml(code, fallback) {
+  const m = code.match(/<title[^>]*>([^<]+)<\/title>/i);
+  if (m && m[1].trim()) return m[1].trim();
+  return fallback;
+}
+
+function addItemsToQueue(items) {
+  let added = 0;
+  for (const it of items) {
+    const clean = (it.code || '').trim();
+    if (!clean) continue;
+    const id = nextId++;
+    const title = (it.title || '').trim() || extractTitleFromHtml(clean, `HTML Video #${id}`);
+    queue.push({
+      id,
+      title,
+      code: clean,
+      status: 'pending', // pending | rendering | done | error
+      errorMsg: '',
+      blobUrl: null,
+      blob: null,
+      outName: '',
+      sizeMB: ''
+    });
+    added++;
+  }
+  renderQueue();
+  return added;
+}
+
+function renderQueue() {
+  const box = $('queueContainer');
+  const doneCount = queue.filter(q => q.status === 'done').length;
+  const pendingCount = queue.filter(q => q.status === 'pending').length;
+  $('queueSummary').textContent = `মোট ${queue.length}টি কোড • অপেক্ষমান: ${pendingCount}টি • সম্পন্ন: ${doneCount}টি`;
+
+  if (!queue.length) {
+    box.innerHTML = `<div class="q-empty"><i class="fa-solid fa-layer-group" style="font-size:20px;margin-bottom:6px;display:block;color:var(--ac)"></i>কিউ খালি আছে। উপরের বক্সে HTML কোড পেস্ট করে <b>"কিউতে যোগ করুন"</b> চাপুন অথবা একাধিক HTML ফাইল আপলোড করুন।</div>`;
+    return;
+  }
+
+  box.innerHTML = `<div class="q-list">` + queue.map((item, idx) => {
+    let badge = `<span class="q-badge qb-wait"><i class="fa-regular fa-clock"></i> অপেক্ষমান</span>`;
+    let rowCls = 'q-item';
+    if (item.status === 'rendering') {
+      badge = `<span class="q-badge qb-run"><i class="fa-solid fa-spinner fa-spin"></i> রেন্ডার হচ্ছে...</span>`;
+      rowCls += ' active';
+    } else if (item.status === 'done') {
+      badge = `<span class="q-badge qb-done"><i class="fa-solid fa-check"></i> সম্পন্ন (${item.sizeMB} MB)</span>`;
+      rowCls += ' done';
+    } else if (item.status === 'error') {
+      badge = `<span class="q-badge qb-err" title="${esc(item.errorMsg)}"><i class="fa-solid fa-triangle-exclamation"></i> ত্রুটি</span>`;
+      rowCls += ' err';
+    }
+
+    const dlBtn = item.blobUrl
+      ? `<button class="ok xs" onclick="downloadQueueItem(${item.id})" title="ডাউনলোড"><i class="fa-solid fa-download"></i></button>`
+      : '';
+
+    return `<div class="${rowCls}" id="q-row-${item.id}">
+      <div class="q-info">
+        <div class="q-title"><span>#${idx + 1}</span> <span>${esc(item.title)}</span> ${badge}</div>
+        <div class="q-meta">${item.code.length.toLocaleString()} chars ${item.errorMsg ? '• ' + esc(item.errorMsg) : ''}</div>
+      </div>
+      <div class="q-actions">
+        ${dlBtn}
+        <button class="sec xs" onclick="previewQueueItem(${item.id})" ${busy ? 'disabled' : ''} title="প্রিভিউ ও এডিট"><i class="fa-solid fa-eye"></i></button>
+        <button class="sec xs" onclick="removeQueueItem(${item.id})" ${busy ? 'disabled' : ''} title="মুছে ফেলুন"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+    </div>`;
+  }).join('') + `</div>`;
+}
+
+window.previewQueueItem = function(id) {
+  if (busy) return;
+  const item = queue.find(q => q.id === id);
+  if (!item) return;
+  $('src').value = item.code;
+  $('itemTitle').value = item.title;
+  $('activePreviewTag').textContent = item.title;
+  loadPreview(item.code);
+};
+
+window.removeQueueItem = function(id) {
+  if (busy) return;
+  const idx = queue.findIndex(q => q.id === id);
+  if (idx !== -1) {
+    if (queue[idx].blobUrl) URL.revokeObjectURL(queue[idx].blobUrl);
+    queue.splice(idx, 1);
+    renderQueue();
+    renderGallery();
+  }
+};
+
+window.downloadQueueItem = function(id) {
+  const item = queue.find(q => q.id === id);
+  if (!item || !item.blobUrl) return;
+  triggerDownload(item.blobUrl, item.outName);
+};
+
+function triggerDownload(url, filename) {
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+function renderGallery() {
+  const doneItems = queue.filter(q => q.status === 'done' && q.blobUrl);
+  $('outCount').textContent = doneItems.length;
+  $('outSection').classList.toggle('hide', doneItems.length === 0);
+  $('outGallery').innerHTML = doneItems.map(item => `
+    <div class="out-card">
+      <video src="${item.blobUrl}" controls loop playsinline></video>
+      <div class="between">
+        <div class="title" title="${esc(item.title)}">${esc(item.title)}</div>
+        <span class="mut" style="font-size:11px">${item.sizeMB} MB</span>
+      </div>
+      <button class="sm" onclick="downloadQueueItem(${item.id})"><i class="fa-solid fa-download"></i> ডাউনলোড (${esc(item.outName)})</button>
+    </div>
+  `).join('');
+}
+
+/* ---------- Input Actions ---------- */
+$('src').value = SAMPLES[0].code;
+$('itemTitle').value = SAMPLES[0].name;
+
+$('addQueue').onclick = () => {
+  const raw = $('src').value.trim();
+  if (!raw) { toast('প্রথমে HTML কোড পেস্ট করুন'); return; }
+  const customTitle = $('itemTitle').value.trim();
+  // Support splitting multiple HTML codes by <!-- SPLIT -->
+  const parts = raw.split(/<!--\s*SPLIT\s*-->/i).map(s => s.trim()).filter(Boolean);
+  const items = parts.map((code, i) => ({
+    title: parts.length > 1 ? (customTitle ? `${customTitle} (${i + 1})` : '') : customTitle,
+    code
+  }));
+  const count = addItemsToQueue(items);
+  $('itemTitle').value = '';
+  toast(`${count}টি HTML কোড কিউতে যোগ হয়েছে!`);
+};
+
+$('sample').onclick = () => {
+  const s = SAMPLES[sampleIdx % SAMPLES.length];
+  sampleIdx++;
+  $('src').value = s.code;
+  $('itemTitle').value = s.name;
+  addItemsToQueue([{ title: s.name, code: s.code }]);
+  loadPreview(s.code);
+  toast(`নমুনা "${s.name}" কিউতে যোগ হয়েছে`);
+};
+
+$('clear').onclick = () => {
+  $('src').value = '';
+  $('itemTitle').value = '';
+};
+
+$('uplMulti').onclick = () => $('fileMulti').click();
+$('fileMulti').onchange = async e => {
+  const files = [...e.target.files];
+  if (!files.length) return;
+  const items = [];
+  for (const f of files) {
+    const text = await f.text();
+    const baseName = f.name.replace(/\.html?$/i, '');
+    items.push({ title: baseName, code: text });
+  }
+  const count = addItemsToQueue(items);
+  if (items[0]) {
+    $('src').value = items[0].code;
+    $('itemTitle').value = items[0].title;
+    loadPreview(items[0].code);
+  }
+  e.target.value = '';
+  toast(`${count}টি ফাইল কিউতে যোগ হয়েছে!`);
+};
+
+$('clearQueue').onclick = () => {
+  if (busy) return;
+  queue.forEach(q => { if (q.blobUrl) URL.revokeObjectURL(q.blobUrl); });
+  queue = [];
+  renderQueue();
+  renderGallery();
+  toast('কিউ পরিষ্কার করা হয়েছে');
+};
+
+$('resetDone').onclick = () => {
+  if (busy) return;
+  queue.forEach(q => { q.status = 'pending'; q.errorMsg = ''; });
+  renderQueue();
+  toast('সবগুলো আইটেম পুনরায় রেন্ডারের জন্য প্রস্তুত');
+};
+
+$('dlAllBtn').onclick = async () => {
+  const doneItems = queue.filter(q => q.status === 'done' && q.blobUrl);
+  for (let i = 0; i < doneItems.length; i++) {
+    triggerDownload(doneItems[i].blobUrl, doneItems[i].outName);
+    await new Promise(r => setTimeout(r, 450));
+  }
+};
+
+/* ---------- Preview Stage ---------- */
+const setStatus = s => { $('st').textContent = s; };
+function fmt() {
+  const [W, H] = $('fmt').value.split(',').map(Number);
+  const k = 1080 / Math.min(W, H);
+  return { W, H, lw: Math.round(W * k), lh: Math.round(H * k) };
+}
+
+const pv = $('pv'), stage = $('stage');
+let prepared = null, t0 = 0, busy = false, cancelRequested = false;
+
+function layoutPreview() {
+  const { lw, lh } = fmt(), host = stage.parentElement;
+  if (!host.clientWidth) return;
+  const maxW = Math.min(host.clientWidth - 28, innerHeight * 0.48 * lw / lh);
+  stage.style.width = maxW + 'px';
+  stage.style.height = (maxW * lh / lw) + 'px';
+  pv.style.width = lw + 'px';
+  pv.style.height = lh + 'px';
+  pv.style.transform = `scale(${maxW / lw})`;
+}
+addEventListener('resize', layoutPreview);
+$('fmt').onchange = layoutPreview;
+
+async function loadPreview(customCode) {
+  if (busy) return;
+  const codeToLoad = typeof customCode === 'string' ? customCode : $('src').value;
+  if (!codeToLoad.trim()) return;
+  setStatus('প্রিভিউ প্রস্তুত হচ্ছে...');
+  const { html, warn } = await prepareHtml(codeToLoad);
+  prepared = html;
+  layoutPreview();
+  await new Promise(r => { pv.onload = r; pv.srcdoc = html; });
+  t0 = performance.now();
+  setStatus(warn.length ? `${warn.length}টি বাইরের ফাইল লোড হয়নি। সব ইনলাইন কোড ব্যবহার করুন।` : 'প্রিভিউ চলছে। একাধিক কোড কিউতে যোগ করে এক ক্লিকে অটোমেশন শুরু করুন।');
+}
+
+$('load').onclick = () => {
+  $('activePreviewTag').textContent = $('itemTitle').value.trim() || 'Editor Code';
+  loadPreview($('src').value);
+};
+$('restart').onclick = () => loadPreview();
+
+let stageVisible = true, lastTick = 0;
+try { new IntersectionObserver(es => { stageVisible = es[0].isIntersecting; }).observe(stage); } catch (e) {}
+(function tick(ts) {
+  if (!busy && prepared && stageVisible && !document.hidden && (ts - lastTick) >= 33 && !$('p-tool').classList.contains('hide')) {
+    lastTick = ts;
+    try { pv.contentWindow.__vcAdvance(performance.now() - t0); } catch (e) {}
+    $('clock').textContent = (((performance.now() - t0) / 1000) % (+$('dur').value || 10)).toFixed(1) + 's';
+  }
+  requestAnimationFrame(tick);
+})(0);
+
+/* ---------- Frame capture: live DOM → SVG foreignObject → canvas ---------- */
+async function capture(doc, win, ctx, W, H, lw, lh) {
+  const live = [...doc.documentElement.querySelectorAll('*')];
+  const root = doc.documentElement.cloneNode(true);
+  const cl = [...root.querySelectorAll('*')];
+  const targets = new Set();
+  const animProps = new Map();
+  doc.getAnimations().forEach(a => {
+    const e = a.effect; if (!e || !e.target || e.pseudoElement) return;
+    targets.add(e.target);
+    let m = animProps.get(e.target); if (!m) { m = new Set(); animProps.set(e.target, m); }
+    try { e.getKeyframes().forEach(k => Object.keys(k).forEach(p => { if (!['offset', 'easing', 'composite', 'computedOffset', 'cssFloat'].includes(p)) m.add(p); })); } catch (err) {}
+  });
+  const swaps = [];
+  for (let i = 0; i < live.length; i++) {
+    const el = live[i], c = cl[i];
+    if (el.tagName === 'CANVAS') {
+      let url; try { url = el.toDataURL('image/png'); } catch (e) { continue; }
+      const im = doc.createElement('img'); im.setAttribute('src', url);
+      if (el.id) im.id = el.id; if (el.className) im.className = el.className;
+      im.setAttribute('style', (el.getAttribute('style') || '') + `;width:${el.clientWidth}px;height:${el.clientHeight}px`);
+      swaps.push([c, im]);
+    } else if (targets.has(el)) {
+      const cs = win.getComputedStyle(el);
+      for (const p of animProps.get(el)) { try { c.style[p] = cs[p]; } catch (err) {} }
+      c.style.setProperty('animation', 'none', 'important');
+      c.style.setProperty('transition', 'none', 'important');
+    }
+  }
+  swaps.forEach(([c, im]) => c.replaceWith(im));
+  root.querySelectorAll('script,noscript').forEach(n => n.remove());
+  root.style.width = lw + 'px'; root.style.height = lh + 'px'; root.style.overflow = 'hidden';
+  const xml = new XMLSerializer().serializeToString(root);
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${lw}" height="${lh}"><foreignObject x="0" y="0" width="${lw}" height="${lh}">${xml}</foreignObject></svg>`;
+  const img = new Image();
+  img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  await img.decode();
+  const opaque = c => c && c !== 'rgba(0, 0, 0, 0)' && c !== 'transparent';
+  const hb = win.getComputedStyle(doc.documentElement).backgroundColor, bb = win.getComputedStyle(doc.body).backgroundColor;
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.fillStyle = opaque(hb) ? hb : opaque(bb) ? bb : '#ffffff';
+  ctx.fillRect(0, 0, W, H);
+  ctx.drawImage(img, 0, 0, W, H);
+}
+
+/* ---------- Encoder & Muxer ---------- */
+async function pickConfig(W, H, fps, bpp) {
+  const codecs = ['avc1.640034', 'avc1.640033', 'avc1.640032', 'avc1.64002A', 'avc1.640028', 'avc1.4d0028', 'avc1.42001f'];
+  const bitrate = Math.min(120e6, Math.round(W * H * fps * bpp));
+  for (const codec of codecs) {
+    const cfg = { codec, width: W, height: H, bitrate, framerate: fps };
+    try { const r = await VideoEncoder.isConfigSupported(cfg); if (r.supported) return cfg; } catch (e) {}
+  }
+  return null;
+}
+
+function loadScript(src) {
+  return new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = src; s.onload = res; s.onerror = rej;
+    document.head.appendChild(s);
+  });
+}
+
+async function ensureMuxer() {
+  if (typeof Mp4Muxer !== 'undefined') return true;
+  for (const u of ['https://cdn.jsdelivr.net/npm/mp4-muxer@5.1.3/build/mp4-muxer.js', 'https://unpkg.com/mp4-muxer@5.1.3/build/mp4-muxer.js']) {
+    try { await loadScript(u); if (typeof Mp4Muxer !== 'undefined') return true; } catch (e) {}
+  }
+  return false;
+}
+
+function sanitizeFileName(title, index) {
+  const clean = (title || '').replace(/[^a-zA-Z0-9_\-\u0980-\u09FF ]/g, '').trim().replace(/\s+/g, '_');
+  const stamp = String(Date.now() % 1e5).padStart(5, '0');
+  return `${clean || 'video_' + index}_1080p_${stamp}.mp4`;
+}
+
+/* ---------- Single Item Renderer (Used by Batch Loop) ---------- */
+async function renderSingleItem(item, index, totalToRun) {
+  let ex = null;
+  try {
+    const fps = +$('fps').value;
+    const dur = Math.max(1, Math.min(60, +$('dur').value || 10));
+    const bpp = +$('q').value;
+    let { W, H, lw, lh } = fmt();
+
+    let cfg = await pickConfig(W, H, fps, bpp), note = '';
+    if (!cfg) {
+      for (const k of [2 / 3, 1 / 2]) {
+        const w2 = Math.round(W * k / 2) * 2, h2 = Math.round(H * k / 2) * 2;
+        cfg = await pickConfig(w2, h2, fps, bpp);
+        if (cfg) { W = w2; H = h2; note = `ডিভাইস বড় সাইজ সাপোর্ট করেনি, ${W}×${H} এ রেন্ডার হচ্ছে।\n`; break; }
+      }
+    }
+    if (!cfg) throw new Error('এই ডিভাইসে H.264 ভিডিও এনকোডার পাওয়া যায়নি।');
+
+    setStatus(`[${index}/${totalToRun}] "${item.title}" রিসোর্স প্রস্তুত হচ্ছে...`);
+    const { html } = await prepareHtml(item.code);
+
+    // Also update live stage so user can see the current item rendering
+    $('activePreviewTag').textContent = `Rendering: ${item.title}`;
+    pv.srcdoc = html;
+
+    ex = document.createElement('iframe');
+    ex.setAttribute('sandbox', 'allow-scripts allow-same-origin');
+    ex.style.cssText = `position:fixed;left:0;top:0;width:${lw}px;height:${lh}px;border:0;opacity:0.01;pointer-events:none;z-index:-1`;
+    document.body.appendChild(ex);
+    await new Promise(r => { ex.onload = r; ex.srcdoc = html; });
+
+    const win = ex.contentWindow, doc = ex.contentDocument;
+    try { await doc.fonts.ready; } catch (e) {}
+    await new Promise(r => setTimeout(r, 350));
+    win.__vcAdvance(0);
+    await new Promise(r => setTimeout(r, 150));
+
+    const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+    const ctx = cv.getContext('2d');
+    const muxer = new Mp4Muxer.Muxer({
+      target: new Mp4Muxer.ArrayBufferTarget(),
+      video: { codec: 'avc', width: W, height: H, frameRate: fps },
+      fastStart: 'in-memory'
+    });
+
+    let encErr = null;
+    const enc = new VideoEncoder({
+      output: (ch, meta) => muxer.addVideoChunk(ch, meta),
+      error: e => { encErr = e; }
+    });
+    enc.configure(cfg);
+
+    const N = dur * fps, tStart = performance.now();
+    for (let i = 0; i < N; i++) {
+      if (cancelRequested) throw new Error('ব্যবহারকারী অটোমেশন থামিয়েছেন।');
+      if (encErr) throw encErr;
+
+      const tMs = i * 1000 / fps;
+      win.__vcAdvance(tMs);
+      try { pv.contentWindow.__vcAdvance(tMs); } catch (e) {}
+
+      await capture(doc, win, ctx, W, H, lw, lh);
+      const fr = new VideoFrame(cv, { timestamp: Math.round(i * 1e6 / fps), duration: Math.round(1e6 / fps) });
+      enc.encode(fr, { keyFrame: i % fps === 0 });
+      fr.close();
+
+      while (enc.encodeQueueSize > 4) await new Promise(r => setTimeout(r, 5));
+
+      if (i % 2 === 0 || i === N - 1) {
+        const pct = ((i + 1) / N * 100).toFixed(1);
+        $('fill').style.width = pct + '%';
+        $('framePct').textContent = pct + '%';
+        $('clock').textContent = (tMs / 1000).toFixed(1) + 's';
+        const el = (performance.now() - tStart) / 1000;
+        const eta = Math.max(0, el / (i + 1) * (N - i - 1));
+        setStatus(`${note}ভিডিও [${index}/${totalToRun}]: "${item.title}"\nফ্রেম ${i + 1}/${N} • ${W}×${H} (${fps}fps) • এই ভিডিওর বাকি ≈ ${Math.ceil(eta)} সেকেন্ড`);
+        await new Promise(r => setTimeout(r, 0));
+      }
+    }
+
+    await enc.flush();
+    enc.close();
+    muxer.finalize();
+
+    const blob = new Blob([muxer.target.buffer], { type: 'video/mp4' });
+    if (item.blobUrl) URL.revokeObjectURL(item.blobUrl);
+    item.blob = blob;
+    item.blobUrl = URL.createObjectURL(blob);
+    item.outName = sanitizeFileName(item.title, index);
+    item.sizeMB = (blob.size / 1048576).toFixed(1);
+    item.status = 'done';
+    item.errorMsg = '';
+
+    if ($('autoDl').checked) {
+      triggerDownload(item.blobUrl, item.outName);
+    }
+  } finally {
+    if (ex) ex.remove();
+  }
+}
+
+/* ---------- Batch Automation Controller ---------- */
+$('goBatch').onclick = async () => {
+  if (busy) return;
+
+  // If queue is empty but editor has code, auto-add editor code to queue
+  if (queue.length === 0 && $('src').value.trim()) {
+    $('addQueue').click();
+  }
+
+  // If all items are already done, offer to re-run or only run pending
+  let pending = queue.filter(q => q.status === 'pending' || q.status === 'error');
+  if (pending.length === 0 && queue.length > 0) {
+    queue.forEach(q => { q.status = 'pending'; q.errorMsg = ''; });
+    pending = [...queue];
+  }
+
+  if (pending.length === 0) {
+    toast('কিউতে কোনো HTML কোড নেই!');
+    return;
+  }
+
+  if (!('VideoEncoder' in window)) {
+    setStatus('এই ব্রাউজারে ভিডিও এনকোডার (WebCodecs) নেই। Android বা PC-তে Google Chrome ব্যবহার করুন।');
+    return;
+  }
+  if (!(await ensureMuxer())) {
+    setStatus('ইন্টারনেট সংযোগ প্রয়োজন (mp4-muxer লোড হয়নি)। নেট চালু করে আবার চেষ্টা করুন।');
+    return;
+  }
+
+  busy = true;
+  cancelRequested = false;
+  $('ticker').classList.add('paused');
+  $('goBatch').disabled = true;
+  $('stopBatch').disabled = false;
+  renderQueue();
+
+  let wake = null;
+  try { wake = await navigator.wakeLock.request('screen'); } catch (e) {}
+
+  const totalToRun = pending.length;
+  let completedInRun = 0;
+
+  for (let i = 0; i < pending.length; i++) {
+    if (cancelRequested) break;
+    const item = pending[i];
+    item.status = 'rendering';
+    renderQueue();
+
+    // Scroll active item into view smoothly
+    const rowEl = $('q-row-' + item.id);
+    if (rowEl) rowEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    $('fill').style.width = '0%';
+    $('framePct').textContent = '0%';
+    $('batchPct').textContent = `${i} / ${totalToRun}`;
+    $('batchFill').style.width = (i / totalToRun * 100).toFixed(1) + '%';
+
+    try {
+      await renderSingleItem(item, i + 1, totalToRun);
+      completedInRun++;
+    } catch (err) {
+      if (cancelRequested) {
+        item.status = 'pending';
+        item.errorMsg = 'বাতিল করা হয়েছে';
+      } else {
+        item.status = 'error';
+        item.errorMsg = err.message || String(err);
+      }
+    }
+
+    renderQueue();
+    renderGallery();
+
+    const doneAfter = i + 1;
+    $('batchPct').textContent = `${doneAfter} / ${totalToRun}`;
+    $('batchFill').style.width = (doneAfter / totalToRun * 100).toFixed(1) + '%';
+
+    // Short pause between consecutive videos so browser garbage-collects resources cleanly
+    if (i < pending.length - 1 && !cancelRequested) {
+      await new Promise(r => setTimeout(r, 700));
+    }
+  }
+
+  if (wake) { try { wake.release(); } catch (e) {} }
+  busy = false;
+  $('ticker').classList.remove('paused');
+  $('goBatch').disabled = false;
+  $('stopBatch').disabled = true;
+  renderQueue();
+
+  if (cancelRequested) {
+    setStatus(`অটোমেশন থামানো হয়েছে। ${completedInRun}টি ভিডিও সম্পন্ন হয়েছে।`);
+    toast('অটোমেশন থামানো হয়েছে');
+  } else {
+    setStatus(`অটোমেশন সম্পন্ন! মোট ${completedInRun}/${totalToRun}টি HD ভিডিও সফলভাবে জেনারেট হয়েছে।`);
+    toast(`সবগুলো (${completedInRun}টি) ভিডিও এক্সপোর্ট সম্পন্ন!`);
+  }
+  t0 = performance.now();
+};
+
+$('stopBatch').onclick = () => {
+  if (!busy) return;
+  cancelRequested = true;
+  $('stopBatch').disabled = true;
+  setStatus('অটোমেশন থামানো হচ্ছে... অনুগ্রহ করে অপেক্ষা করুন।');
+};
+
+try { $('autoDl').checked = localStorage.getItem('vf_autodl') !== '0'; } catch (e) { $('autoDl').checked = true; }
+$('autoDl').onchange = () => { try { localStorage.setItem('vf_autodl', $('autoDl').checked ? '1' : '0'); } catch (e) {} };
+
+/* ---------- Boot ---------- */
+(function boot() {
+  document.title = S.settings.brand;
+  addItemsToQueue([
+    { title: SAMPLES[0].name, code: SAMPLES[0].code },
+    { title: SAMPLES[1].name, code: SAMPLES[1].code }
+  ]);
+  showTab('tool');
+  loadPreview(SAMPLES[0].code);
+})();
+</script>
+<script src="https://antargfx.github.io/main-header.js"></script>
+<script src="https://antargfx.github.io/main-footer.js"></script>
+</body>
+</html>
