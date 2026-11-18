@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#090c16"><meta name="description" content="NEURA AI - multi-provider AI workspace">
+<title>NEURA AI 2.0 — Final Edition</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="manifest" href="manifest.webmanifest"><link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar" id="sidebar">
+ <div class="brand"><div class="brand-logo">N</div><div><b>NEURA<span> AI</span></b><small>One workspace. Many models.</small></div></div>
+ <button type="button" class="new-chat" id="newChat">＋ New chat</button>
+ <div class="nav-caption">WORKSPACE</div>
+ <button type="button" class="nav active" data-view="chat"><i>◈</i> Chat</button>
+ <button type="button" class="nav" data-view="arena"><i>⚔</i> Model Arena</button>
+ <button type="button" class="nav" data-view="projects"><i>▣</i> Chat Projects</button>
+ <button type="button" class="nav" data-view="files"><i>▤</i> File Analyzer</button>
+ <div class="nav-caption gap-top">INTELLIGENCE</div>
+ <button type="button" class="nav" data-view="models"><i>▦</i> Model Library</button>
+ <button type="button" class="nav" data-view="prompts"><i>✧</i> Prompt Studio</button>
+ <button type="button" class="nav" data-view="usage"><i>◷</i> Usage Dashboard</button>
+ <div class="nav-caption gap-top">CONFIGURATION</div>
+ <button type="button" class="nav" data-view="providers"><i>⌘</i> API Manager <em id="navProviderCount">0</em></button>
+ <button type="button" class="nav" data-view="settings"><i>⚙</i> Settings</button>
+ <div class="side-bottom"><div class="health"><span id="healthDot"></span><span id="healthText">No API connected</span></div><small>NEURA AI 2.0 · Browser Edition</small></div>
+</aside>
+<div class="sidebar-backdrop hidden" id="sidebarBackdrop"></div>
+<main class="main">
+<header class="topbar"><button type="button" id="mobileMenu" class="mobile-menu" aria-label="Open menu">☰</button><div class="breadcrumb">Workspace <span>/</span> <b id="viewName">Chat</b></div><div class="top-right"><span class="local-label">LOCAL BROWSER WORKSPACE</span><button type="button" class="icon-button" id="themeToggle" title="Toggle theme" aria-label="Toggle theme">◐</button><div class="avatar">N</div></div></header>
+<div class="content">
+<section class="view" id="view-chat">
+ <div class="hero"><div><div class="eyebrow">MULTI-PROVIDER AI WORKSPACE</div><h1>Think bigger. <span>Build smarter.</span></h1><p>One prompt, the right model, and a backup route when an API is unavailable.</p></div><div class="active-card"><span class="live-dot" id="activeRouteDot"></span><div><small>ACTIVE ROUTING</small><b id="activeRouteLabel">Auto model selection</b><small id="activeRouteSub">Waiting for your prompt</small></div></div></div>
+ <div class="chat-toolbar">
+  <div class="route-picker-wrap">
+   <label for="chatModel">MODEL ROUTING</label>
+   <select id="chatModel" class="native-model-select"><option value="auto">✦ Auto-select best model</option></select>
+   <div class="route-picker" id="routePicker">
+    <button type="button" class="route-trigger" id="routeTrigger" aria-expanded="false">
+     <span class="route-trigger-main"><i>✦</i><span><b id="routeChosenName">Auto-select best model</b><small id="routeChosenMeta">NEURA recommends a model for each task</small></span></span>
+     <span class="route-chevron">⌄</span>
+    </button>
+    <div class="route-menu hidden" id="routeMenu">
+     <div class="route-menu-top"><b>Choose a provider</b><small>Hover or tap a provider to view its models</small></div>
+     <div class="route-menu-body">
+      <div class="route-provider-list" id="routeProviderList"></div>
+      <div class="route-model-panel" id="routeModelPanel"><div class="route-empty"><span>✦</span><b>Pick a provider</b><small>Its available models will appear here</small></div></div>
+     </div>
+    </div>
+   </div>
+  </div>
+  <div class="toolbar-actions">
+   <label class="switch-label"><input type="checkbox" id="autoFallback" checked><span class="switch"></span> Auto fallback</label>
+   <button type="button" class="soft-btn" id="chatHistoryBtn">Chats (<span id="chatCountBadge">1</span>)</button>
+   <button type="button" class="soft-btn" id="exportCurrent">Export chat ↓</button>
+  </div>
+ </div>
+ <div class="chat-workspace" id="chatWorkspace">
+  <div class="chat-area" id="chatArea">
+   <div class="welcome" id="chatWelcome">
+    <div class="welcome-symbol">✧</div>
+    <h2>Your AI workspace is ready.</h2>
+    <p>Add API accounts, discover their models, then let NEURA choose a suitable model for each task.</p>
+    <div class="welcome-cards">
+     <button type="button" class="suggestion" data-prompt="Explain a difficult topic in simple steps with examples."><b>✦ Learn something</b><small>Clear explanations and examples</small></button>
+     <button type="button" class="suggestion" data-prompt="Create a responsive landing page using HTML, CSS and JavaScript."><b>⌘ Build with code</b><small>Plan, code and debug a project</small></button>
+     <button type="button" class="suggestion" data-prompt="Compare the advantages and disadvantages of three possible solutions."><b>◫ Analyze an idea</b><small>Structured reasoning and comparison</small></button>
+    </div>
+   </div>
+  </div>
+  <aside class="code-preview hidden" id="codePreview">
+   <div class="preview-head">
+    <div><b id="previewTitle">Live Code Preview</b><small id="previewMeta">Sandboxed HTML/CSS/JS output</small></div>
+    <div class="preview-actions">
+     <button type="button" class="mini-btn" id="refreshPreview" title="Reload preview">↻ Refresh</button>
+     <button type="button" class="mini-btn" id="mobilePreview" title="Toggle mobile preview">Mobile</button>
+     <button type="button" class="mini-btn" id="openPreviewTab" title="Open in new tab">↗ New tab</button>
+     <button type="button" class="mini-btn" id="expandPreview">Expand</button>
+     <button type="button" class="mini-btn" id="closePreview" title="Close preview">✕</button>
+    </div>
+   </div>
+   <iframe id="previewFrame" title="Live code preview" sandbox="allow-scripts allow-modals"></iframe>
+  </aside>
+ </div>
+ <div class="composer-shell" id="composerShell">
+  <div class="attached-context" id="attachedContext"></div>
+  <div class="composer">
+   <label class="attach-btn attach-picker" id="attachBtn" title="Attach images or files" aria-label="Attach images or files">
+    <span aria-hidden="true">＋</span>
+    <input type="file" id="chatFileInput" accept="image/png,image/jpeg,image/webp,image/gif,.txt,.md,.csv,.json,.html,.pdf,application/pdf" multiple aria-label="Choose images or documents">
+   </label>
+   <textarea id="messageInput" rows="1" placeholder="Ask anything…"></textarea>
+   <button type="button" class="send-btn" id="sendMessage" title="Send" aria-label="Send message">↑</button>
+  </div>
+  <div class="composer-bottom"><span id="routeHint">Auto mode chooses from your connected model catalog.</span><span>Enter to send · Shift + Enter for new line</span></div>
+ </div>
+</section>
+
+<section class="view hidden" id="view-providers">
+ <div class="page-head"><div><div class="eyebrow">CONNECTION CONTROL</div><h1>API <span>Manager</span></h1><p>Connect multiple accounts, discover models and configure failover priority.</p></div><button type="button" class="primary-btn" id="addProvider">＋ Add API account</button></div>
+ <div class="callout"><b>Automatic failover</b><p>NEURA can retry another enabled account when a request reports quota, billing, rate-limit, network or server errors. The backup account must support the same model ID for same-model fallback.</p></div>
+ <div id="providerCards" class="stack"></div>
+</section>
+
+<section class="view hidden" id="view-models">
+ <div class="page-head"><div><div class="eyebrow">DISCOVERED CATALOG</div><h1>Model <span>Library</span></h1><p>Review models by provider and assign task capabilities for smarter routing.</p></div><button type="button" class="secondary-btn" id="refreshModels">↻ Refresh all</button></div>
+ <div class="model-intro"><div class="model-intro-icon">✦</div><div><b>Model capability tags</b><p>Choose what each model is good at. NEURA uses these tags to route tasks more intelligently. Changes are saved automatically in this browser.</p></div><div class="model-intro-note">LOCAL<br>SETTINGS</div></div>
+ <div class="model-overview" id="modelOverview"><div class="model-metric"><span>CONNECTED PROVIDERS</span><b id="capProviderCount">0</b></div><div class="model-metric"><span>AVAILABLE MODELS</span><b id="capModelCount">0</b></div><div class="model-metric"><span>TAGGED MODELS</span><b id="capTaggedCount">0</b></div><div class="model-metric"><span>VISION ENABLED</span><b id="capVisionCount">0</b></div></div>
+ <div class="model-tools"><div class="model-search"><span>⌕</span><input id="modelSearch" type="search" placeholder="Search model or provider…" autocomplete="off"></div><span class="model-tools-hint">Test models, mark working, and manage cooldowns</span></div>
+ <div class="model-library-controls"><div class="model-library-tabs" id="modelLibraryTabs"><button type="button" class="active" data-model-filter="all">All Models</button><button type="button" data-model-filter="working">Working Models</button><button type="button" data-model-filter="free">Free Tier</button><button type="button" data-model-filter="paid">Paid Models</button><button type="button" data-model-filter="cooldown">Cooldown</button></div><button type="button" class="secondary-btn" id="testAllModels">▶ Test all models</button><button type="button" class="secondary-btn" id="testWorkingModels">↻ Test working</button><button type="button" class="secondary-btn" id="toggleFreeAuto">⚡ Free-only Auto: Off</button></div>
+ <div id="modelScanStatus" class="model-scan-status" aria-live="polite"></div>
+ <div id="modelCatalog" class="model-catalog stack"></div>
+</section>
+
+<section class="view hidden" id="view-arena">
+ <div class="page-head"><div><div class="eyebrow">SIDE-BY-SIDE EVALUATION</div><h1>Model <span>Arena</span></h1><p>Send one prompt to up to three models and compare their responses.</p></div></div>
+ <div class="panel arena-panel"><label for="arenaPrompt">TEST PROMPT</label><textarea id="arenaPrompt" rows="4" placeholder="Write a prompt to compare models…"></textarea><div class="arena-controls"><div id="arenaSelectors" class="arena-selectors"></div><button type="button" class="primary-btn" id="runArena">Run comparison</button></div></div>
+ <div id="arenaResults" class="arena-results"></div>
+</section>
+
+<section class="view hidden" id="view-projects">
+ <div class="page-head"><div><div class="eyebrow">ORGANIZE YOUR WORK</div><h1>Chat <span>Projects</span></h1><p>Group conversations with local project labels.</p></div><button type="button" class="primary-btn" id="newProject">＋ New project</button></div>
+ <div id="projectList" class="project-grid"></div>
+</section>
+
+<section class="view hidden" id="view-files">
+ <div class="page-head"><div><div class="eyebrow">DOCUMENT WORKSPACE</div><h1>File <span>Analyzer</span></h1><p>Read supported local documents and send their extracted text to an AI model.</p></div></div>
+ <div class="panel file-panel"><div class="drop-zone" id="dropZone"><div class="drop-icon">⇧</div><b>Drop a file here or browse</b><small>Images, TXT, MD, CSV, JSON, HTML, PDF (including scanned PDFs with OCR)</small><input type="file" id="fileInput" accept="image/png,image/jpeg,image/webp,image/gif,.txt,.md,.csv,.json,.html,.pdf,application/pdf"></div><div id="filePreview" class="file-preview">No file selected.</div><div class="file-actions"><button type="button" class="secondary-btn" id="copyFileText">Copy extracted text</button><button type="button" class="primary-btn" id="askAboutFile">Ask AI about this file</button></div></div>
+</section>
+
+<section class="view hidden" id="view-prompts">
+ <div class="page-head"><div><div class="eyebrow">PROMPT WORKBENCH</div><h1>Prompt <span>Studio</span></h1><p>Save reusable instructions and insert them into your chat.</p></div><button type="button" class="primary-btn" id="addPrompt">＋ New prompt</button></div>
+ <div id="promptLibrary" class="prompt-grid"></div>
+</section>
+
+<section class="view hidden" id="view-usage">
+ <div class="page-head"><div><div class="eyebrow">LOCAL TELEMETRY</div><h1>Usage <span>Dashboard</span></h1><p>Track requests, estimated tokens and reported provider usage.</p></div><button type="button" class="secondary-btn" id="clearUsage">Clear usage data</button></div>
+ <div class="stats-grid"><div class="stat-card"><small>TOTAL REQUESTS</small><b id="statRequests">0</b></div><div class="stat-card"><small>ESTIMATED TOKENS</small><b id="statTokens">0</b></div><div class="stat-card"><small>CONNECTED ACCOUNTS</small><b id="statAccounts">0</b></div><div class="stat-card"><small>AVAILABLE MODELS</small><b id="statModels">0</b></div></div>
+ <div class="panel"><div class="panel-title">Recent activity</div><div id="usageRows" class="usage-rows"></div><p class="muted tiny">Token estimates are approximate when the provider does not return usage metadata. Costs are not calculated unless you enter pricing yourself.</p></div>
+</section>
+
+<section class="view hidden" id="view-settings">
+ <div class="page-head"><div><div class="eyebrow">PREFERENCES & DATA</div><h1>Workspace <span>Settings</span></h1><p>Manage local preferences and export your browser workspace.</p></div></div>
+ <div class="settings-grid"><div class="panel"><div class="panel-title">Routing preferences</div><label class="setting-row"><span><b>Automatic model selection</b><small>Choose a model from task type and capability tags.</small></span><input type="checkbox" id="settingAuto" checked></label><label class="setting-row"><span><b>Automatic API fallback</b><small>Retry compatible accounts after retryable failures.</small></span><input type="checkbox" id="settingFallback" checked></label><label class="setting-row"><span><b>Confirm before model arena calls</b><small>Model Arena may use several API requests.</small></span><input type="checkbox" id="settingConfirm" checked></label></div>
+ <div class="panel"><div class="panel-title">Data management</div><p class="muted small">Export your local workspace as JSON. This includes account configuration and API keys, so keep the file private.</p><div class="button-row"><button type="button" class="primary-btn" id="backupData">Export workspace JSON</button><button type="button" class="secondary-btn" id="restoreData">Import workspace JSON</button><input type="file" id="restoreFile" accept=".json" hidden></div><button type="button" class="danger-btn" id="wipeData">Delete all local NEURA data</button></div>
+ <div class="panel"><div class="panel-title">Security notice</div><p class="muted small">This is a static GitHub Pages app. API keys saved in this browser are not encrypted and can be inspected by anyone with access to this browser profile or developer tools. Never commit API keys to GitHub. For secure multi-user accounts, cloud sync or server-side routing, add a backend.</p></div></div>
+</section>
+</div>
+<footer class="footer">NEURA AI 2.0 <span>·</span> Static GitHub Pages edition <span>·</span> Your API keys are your responsibility</footer>
+</main></div>
+
+<div class="modal-backdrop hidden" id="providerModal"><div class="modal"><div class="modal-head"><div><div class="eyebrow">PROVIDER CONFIGURATION</div><h2 id="providerModalTitle">Add API account</h2></div><button type="button" class="icon-button" id="closeProviderModal" aria-label="Close">✕</button></div>
+<form id="providerForm"><input type="hidden" id="providerId"><div class="form-grid">
+<label>Provider format<select id="providerType"><option value="openai">OpenAI-compatible</option><option value="gemini">Google Gemini</option></select></label>
+<label>Account display name<input id="providerName" placeholder="e.g. Main account" required></label>
+<label class="wide">Base URL<input id="providerBase" placeholder="https://api.openai.com/v1" required></label>
+<label class="wide">API key<input id="providerKey" type="password" autocomplete="off" placeholder="Paste API key"><small>Saved in local browser storage; not encrypted. Do not use on shared devices.</small></label>
+<label>Priority (1 is highest)<input id="providerPriority" type="number" min="1" value="1"></label>
+<label>Credit balance (optional)<input id="providerCredit" type="number" min="0" step="0.01" placeholder="e.g. 12.50"><small>Enter the balance shown in your provider dashboard.</small></label>
+<label>Credit currency<select id="providerCurrency"><option>USD</option><option>BDT</option><option>EUR</option><option>GBP</option></select></label>
+<label>Account status<select id="providerEnabled"><option value="true">Enabled</option><option value="false">Disabled</option></select></label>
+<label class="wide">Optional model IDs<input id="providerManualModels" placeholder="model-one, model-two"><small>Used if model discovery is blocked or unsupported.</small></label>
+</div><div class="modal-actions"><button type="button" class="secondary-btn" id="fetchModelsInModal">Fetch models</button><button type="submit" class="primary-btn">Save account</button></div><div id="providerFormStatus" class="form-status"></div></form></div></div>
+
+<div class="modal-backdrop hidden" id="genericModal"><div class="modal small-modal"><div class="modal-head"><h2 id="genericTitle">Create</h2><button type="button" class="icon-button" id="closeGeneric" aria-label="Close">✕</button></div><div id="genericBody"></div></div></div>
+<div id="toast" class="toast"></div>
+<script src="app.js"></script>
+</body></html>
