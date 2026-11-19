@@ -459,3 +459,89 @@ body.light .route-model.selected .route-model-check{background:#e3dcff;color:#55
 @media(max-width:600px){.provider-head-row{gap:5px;padding-right:7px}.provider-test-all{padding:7px 8px;font-size:10px}.provider-head-row .model-group-head{padding:11px 8px;gap:7px}.provider-head-row .provider-meta{max-width:42vw;overflow:hidden;text-overflow:ellipsis}}
 .route-model-cooling{opacity:.58;cursor:not-allowed}
 .route-model-cooling .route-model-copy small{color:#d97706}
+/* NEURA mobile usability refresh */
+@media(max-width:650px){
+ html,body{width:100%;max-width:100%;overflow-x:hidden} *{box-sizing:border-box}
+ .content,.main-content,.page,.panel,.card,.modal{max-width:100%;min-width:0}
+ .page-head,.hero{gap:12px}.page-head>button,.hero>button{width:100%;min-height:44px}
+ .model-library-controls{display:flex;flex-direction:column;align-items:stretch;gap:9px}
+ .model-library-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%;gap:7px}
+ .model-library-tabs button{min-height:42px;font-size:12px;padding:8px 6px;white-space:normal}
+ .model-library-controls>.secondary-btn{width:100%;min-height:44px}
+ .model-group,.model-item,.model-health-item{min-width:0;width:100%}.model-group-head{flex-wrap:wrap;gap:10px}
+ .provider-heading,.model-item-info{min-width:0;overflow-wrap:anywhere}.model-list{grid-template-columns:minmax(0,1fr);gap:10px}
+ .model-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.model-actions button{min-height:42px;white-space:normal;overflow-wrap:anywhere}
+ .capability-options{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .route-menu{position:fixed!important;left:8px!important;right:8px!important;top:calc(env(safe-area-inset-top,0px) + 58px)!important;bottom:auto!important;width:auto!important;max-width:none!important;max-height:calc(100dvh - 76px)!important;overflow:hidden;border-radius:16px}
+ .route-menu-body{display:flex!important;flex-direction:column!important;height:min(72dvh,650px)!important;max-height:none!important;min-height:0!important}
+ .route-provider-panel{height:auto!important;max-height:30dvh!important;min-height:100px!important;flex:none!important;overflow:auto}
+ .route-provider-list{height:auto!important;max-height:26dvh!important;min-height:0!important;overflow:auto}
+ .route-model-panel{height:auto!important;flex:1!important;min-height:0!important;overflow:auto!important;padding:12px!important}
+ .route-provider{min-height:44px;padding:8px 10px;gap:8px}.route-provider-logo{width:32px;height:32px;flex-basis:32px}
+ .route-provider-copy b{font-size:12px}.route-credit{max-width:none;font-size:9px}
+ .route-model{min-height:48px;padding:10px;gap:9px}.route-model-copy>b{font-size:12px;line-height:1.35}
+ .route-model-copy>small{font-size:10px;overflow-wrap:anywhere}.route-model-tags i{font-size:9px}
+ .route-picker,.route-trigger{width:100%;max-width:100%;min-width:0}.route-trigger{min-height:46px}
+ .route-apply,.apply-route,.route-menu .primary-btn{min-height:48px;width:100%;position:sticky;bottom:0}
+ .chat-area{height:min(55dvh,480px);min-height:250px}.chat-input,.composer,.chat-composer{width:100%;min-width:0}
+ textarea,input,select{font-size:16px!important;max-width:100%}
+ .chat-toolbar button,.toolbar-actions button,.button-row button,.file-actions button{min-height:44px}
+ .button-row,.file-actions{display:flex;flex-direction:column;align-items:stretch}.button-row button,.file-actions button{width:100%}
+ .modal-backdrop{padding:env(safe-area-inset-top,12px) 10px env(safe-area-inset-bottom,12px);align-items:flex-start;overflow:auto}
+ .modal{width:100%!important;max-width:100%!important;margin:auto 0;max-height:calc(100dvh - 24px);overflow:auto;border-radius:16px}
+ .modal-head{position:sticky;top:0;z-index:2}.modal-actions{display:grid;grid-template-columns:1fr;gap:8px}
+ .modal-actions button{width:100%;min-height:46px}.form-grid{display:grid;grid-template-columns:minmax(0,1fr)!important}.form-grid>*{min-width:0}
+ .settings-grid,.stats-grid,.model-overview{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .provider-top,.arena-controls{flex-direction:column;align-items:stretch}.arena-controls button{width:100%;min-height:44px}
+ .drop-zone{padding:20px 12px}.code-preview{height:45dvh;min-height:260px}
+}
+@media(max-width:380px){.model-library-tabs{grid-template-columns:1fr 1fr}.model-actions{grid-template-columns:1fr}
+ .settings-grid,.stats-grid,.model-overview{grid-template-columns:1fr}.route-menu-body{height:75dvh!important}}
+
+/* Fix mobile sidebar clipping and model-picker overlap */
+@media(max-width:650px){
+ .sidebar{width:min(82vw,300px)!important;max-width:300px!important;left:calc(-1 * min(82vw,300px))!important;overflow-y:auto!important;overflow-x:hidden!important;padding:16px 12px!important;height:100dvh!important;box-sizing:border-box!important}
+ .sidebar.open{left:0!important}
+ .sidebar>*{min-width:0;max-width:100%}
+ .route-picker-wrap,.route-picker{width:100%!important;max-width:100%!important;min-width:0!important;position:relative!important}
+ .route-trigger{width:100%!important;max-width:100%!important;box-sizing:border-box!important}
+ .route-menu{position:fixed!important;z-index:100!important;left:8px!important;right:8px!important;top:calc(env(safe-area-inset-top,0px) + 62px)!important;width:auto!important;max-width:none!important;box-sizing:border-box!important}
+ .sidebar .route-menu{left:8px!important;right:8px!important;width:auto!important}
+ .sidebar-backdrop{z-index:39!important}
+}
+/* Mobile-first sidebar and model selector containment */
+@media(max-width:650px){
+ .sidebar{display:flex!important;flex-direction:column!important;gap:4px!important;overflow-y:auto!important;overscroll-behavior:contain!important;padding-bottom:calc(18px + env(safe-area-inset-bottom))!important}
+ .sidebar .route-picker{position:static!important;order:20!important;display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;flex:0 0 auto!important;margin:12px 0!important;z-index:1!important}
+ .sidebar .route-trigger{position:static!important;display:flex!important;width:100%!important;min-width:0!important;max-width:100%!important;margin:0!important}
+ .sidebar .route-menu{position:fixed!important;inset:70px 8px auto 8px!important;width:auto!important;max-width:none!important;max-height:calc(100dvh - 86px)!important;z-index:110!important}
+ .sidebar .route-menu-body{display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:minmax(115px,30dvh) minmax(0,1fr)!important;height:min(70dvh,620px)!important;min-height:0!important;max-height:70dvh!important}
+ .sidebar .route-provider-list{border-right:0!important;border-bottom:1px solid var(--line)!important;max-height:none!important;height:auto!important;overflow:auto!important}
+ .sidebar .route-model-panel{min-height:0!important;height:auto!important;max-height:none!important;overflow:auto!important}
+ .sidebar .route-picker.open{z-index:2!important}
+ .sidebar .nav,.sidebar .new-chat{flex:0 0 auto!important;min-height:44px!important}
+ .sidebar .nav-caption{flex:0 0 auto!important}
+ .sidebar .side-bottom{margin-top:12px!important;position:static!important;flex:0 0 auto!important}
+}
+@media(max-width:380px){.sidebar{width:88vw!important;max-width:88vw!important}.sidebar .route-menu-body{grid-template-rows:minmax(100px,27dvh) minmax(0,1fr)!important}}
+/* Definitive mobile sidebar model-picker overlay fix */
+@media(max-width:650px){
+ .sidebar .route-picker-wrap{position:static!important;display:block!important;float:none!important;transform:none!important;inset:auto!important;order:20!important;width:100%!important;max-width:100%!important;min-width:0!important;margin:10px 0 12px!important;padding:0!important;flex:none!important;align-self:stretch!important;box-sizing:border-box!important;z-index:auto!important}
+ .sidebar .route-picker{position:static!important;display:block!important;float:none!important;transform:none!important;inset:auto!important;width:100%!important;max-width:100%!important;min-width:0!important;margin:0!important;box-sizing:border-box!important;overflow:visible!important}
+ .sidebar #routeTrigger{position:relative!important;inset:auto!important;transform:none!important;width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important}
+ .sidebar #routePicker:not(.open),.sidebar .route-picker:not(.open){overflow:visible!important}
+ .sidebar .route-menu{position:fixed!important;left:8px!important;right:8px!important;top:calc(env(safe-area-inset-top,0px) + 60px)!important;bottom:auto!important;transform:none!important;width:auto!important;max-width:none!important;box-sizing:border-box!important;z-index:1000!important}
+}
+
+/* Root cause fix: chat model picker belongs to MAIN, not the mobile drawer.
+   Keep the entire main layer beneath the open drawer/backdrop on small screens. */
+@media (max-width:650px){
+  .layout{position:relative;isolation:isolate;overflow-x:clip}
+  .main{position:relative;z-index:1;min-width:0;overflow-x:clip}
+  .sidebar{z-index:500!important;width:min(88vw,320px)!important;max-width:min(88vw,320px)!important;left:calc(-1 * min(88vw,320px))!important;right:auto!important}
+  .sidebar.open{left:0!important}
+  .sidebar-backdrop{z-index:450!important}
+  .main .route-picker-wrap,.main .route-picker,.main .route-trigger{z-index:1!important}
+  .main .route-menu{z-index:10!important}
+  .topbar,.content{position:relative;z-index:1}
+}
