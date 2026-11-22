@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spherical Lens-Bent Microchip Grid Fisheye Nano-Tech Circuitry Seamless Loop</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#070D1F}
+canvas{display:block;width:100%;height:100%}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+(function(){
+const W=1920,H=1080,CX=960,CY=540,PERIOD=10000,K=0.45,EXP=-0.42;
+const PLATE_W=288,PLATE_H=168;
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d');
+const bgCanvas=document.createElement('canvas');
+const bgCtx=bgCanvas.getContext('2d');
+
+function mulberry32(a){
+  return function(){
+    a|=0;a=a+0x6D2B79F5|0;
+    let t=Math.imul(a^a>>>15,1|a);
+    t=t+Math.imul(t^t>>>7,61|t)^t;
+    return((t^t>>>14)>>>0)/4294967296;
+  };
+}
+const rand=mulberry32(409619);
+
+function warp(x,y,kVal){
+  const nx=(x-CX)/960;
+  const ny=(y-CY)/960;
+  const r2=nx*nx+ny*ny;
+  const k=kVal===undefined?K:kVal;
+  const s=Math.pow(1+k*r2,EXP);
+  return[CX+nx*s*960,CY+ny*s*960,r2];
+}
+
+function strokeWarpedPath(g,pts,kVal){
+  if(pts.length<2)return;
+  g.beginPath();
+  let first=true;
+  for(let i=0;i<pts.length-1;i++){
+    const x1=pts[i][0],y1=pts[i][1],x2=pts[i+1][0],y2=pts[i+1][1];
+    const dist=Math.hypot(x2-x1,y2-y1);
+    const steps=Math.max(1,Math.ceil(dist/28));
+    for(let s=0;s<=steps;s++){
+      if(i>0&&s===0)continue;
+      const t=s/steps;
+      const p=warp(x1+(x2-x1)*t,y1+(y2-y1)*t,kVal);
+      if(first){g.moveTo(p[0],p[1]);first=false;}
+      else g.lineTo(p[0],p[1]);
+    }
+  }
+  g.stroke();
+}
+
+function traceWarpedRect(g,x,y,w,h,kVal,sub){
+  const n=sub||2;
+  g.beginPath();
+  for(let i=0;i<=n;i++){
+    const p=warp(x+w*(i/n),y,kVal);
+    if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);
+  }
+  for(let i=1;i<=n;i++){
+    const p=warp(x+w,y+h*(i/n),kVal);
+    g.lineTo(p[0],p[1]);
+  }
+  for(let i=1;i<=n;i++){
+    const p=warp(x+w*(1-i/n),y+h,kVal);
+    g.lineTo(p[0],p[1]);
+  }
+  for(let i=1;i<n;i++){
+    const p=warp(x,y+h*(1-i/n),kVal);
+    g.lineTo(p[0],p[1]);
+  }
+  g.closePath();
+}
+
+function traceWarpedChamferRect(g,cx,cy,hw,hh,ch,kVal){
+  const corners=[
+    [cx-hw+ch,cy-hh],[cx+hw-ch,cy-hh],
+    [cx+hw,cy-hh+ch],[cx+hw,cy+hh-ch],
+    [cx+hw-ch,cy+hh],[cx-hw+ch,cy+hh],
+    [cx-hw,cy+hh-ch],[cx-hw,cy-hh+ch]
+  ];
+  g.beginPath();
+  let first=true;
+  for(let i=0;i<corners.length;i++){
+    const a=corners[i],b=corners[(i+1)%corners.length];
+    const dist=Math.hypot(b[0]-a[0],b[1]-a[1]);
+    const steps=Math.max(1,Math.ceil(dist/24));
+    for(let s=0;s<steps;s++){
+      const t=s/steps;
+      const p=warp(a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,kVal);
+      if(first){g.moveTo(p[0],p[1]);first=false;}
+      else g.lineTo(p[0],p[1]);
+    }
+  }
+  g.closePath();
+}
+
+function insidePlate(x,y,pad){
+  return Math.abs(x-CX)<PLATE_W+pad&&Math.abs(y-CY)<PLATE_H+pad;
+}
+
+const staticTracks=[];
+const animTracks=[];
+const junctions=[];
+const capacitors=[];
+const logicGates=[];
+
+function buildPathObj(pts,closed,cycleSec,phase,lenPx,count,speedDir){
+  const p=closed?pts.concat([pts[0]]):pts;
+  const cum=[0];
+  let total=0;
+  for(let i=1;i<p.length;i++){
+    total+=Math.hypot(p[i][0]-p[i-1][0],p[i][1]-p[i-1][1]);
+    cum.push(total);
+  }
+  const corners=[];
+  for(let i=1;i<p.length-1;i++){
+    corners.push({x:p[i][0],y:p[i][1],d:cum[i]});
+  }
+  return{pts:p,cum:cum,total:total,closed:closed,cycle:cycleSec*1000,phase:phase,lenPx:lenPx,count:count,dir:speedDir||1,corners:corners};
+}
+
+function samplePath(path,dist){
+  let d=dist;
+  if(path.closed){
+    d=((d%path.total)+path.total)%path.total;
+  }else{
+    if(d<0||d>path.total)return null;
+  }
+  const cum=path.cum;
+  const pts=path.pts;
+  for(let i=0;i<cum.length-1;i++){
+    if(d>=cum[i]&&d<=cum[i+1]){
+      const seg=cum[i+1]-cum[i];
+      const t=seg>0?(d-cum[i])/seg:0;
+      return[
+        pts[i][0]+(pts[i+1][0]-pts[i][0])*t,
+        pts[i][1]+(pts[i+1][1]-pts[i][1])*t
+      ];
+    }
+  }
+  return pts[pts.length-1];
+}
+
+const G=48;
+
+for(let side=0;side<4;side++){
+  const isVert=side===0||side===2;
+  const sign=(side===1||side===2)?1:-1;
+  const lanes=isVert?11:7;
+  for(let i=0;i<lanes;i++){
+    const idx=i-(lanes-1)/2;
+    const offset=idx*G;
+    const pts=[];
+    if(isVert){
+      const sx=CX+offset;
+      const sy=CY+sign*PLATE_H;
+      pts.push([sx,sy-sign*16]);
+      const step1=120+Math.abs(idx)*32+((i%3)*48);
+      const y1=sy+sign*step1;
+      pts.push([sx,y1]);
+      const bend=(idx===0?(i%2?1:-1):Math.sign(idx))*(96+Math.floor(Math.abs(idx))*48);
+      const x2=sx+bend;
+      pts.push([x2,y1]);
+      const y2=y1+sign*(260+((i*37)%180));
+      pts.push([x2,y2]);
+      const x3=x2+(bend>=0?1:-1)*(144+((i%2)*96));
+      pts.push([x3,y2]);
+      pts.push([x3,CY+sign*1280]);
+    }else{
+      const sx=CX+sign*PLATE_W;
+      const sy=CY+offset;
+      pts.push([sx-sign*16,sy]);
+      const step1=160+Math.abs(idx)*44+((i%3)*48);
+      const x1=sx+sign*step1;
+      pts.push([x1,sy]);
+      const bend=(idx===0?(side===1?1:-1):Math.sign(idx))*(96+Math.floor(Math.abs(idx))*48);
+      const y2=sy+bend;
+      pts.push([x1,y2]);
+      const x2=x1+sign*(340+((i*53)%220));
+      pts.push([x2,y2]);
+      const y3=y2+(bend>=0?1:-1)*(96+((i%2)*96));
+      pts.push([x2,y3]);
+      pts.push([CX+sign*1860,y3]);
+    }
+    staticTracks.push({pts:pts,w:(i%3===0)?2.2:1.4,alpha:(i%3===0)?0.68:0.42});
+    for(let k=1;k<pts.length-1;k++){
+      junctions.push([pts[k][0],pts[k][1]]);
+    }
+    if(i%2===0||Math.abs(idx)<=1){
+      const cyc=(i%2===0)?5:10;
+      const ph=((side*0.23+i*0.17)%1);
+      animTracks.push(buildPathObj(pts,false,cyc,ph,cyc===5?96:132,1,1));
+    }
+  }
+}
+
+const rings=[
+  {hw:PLATE_W+96,hh:PLATE_H+96,cyc:5,ph:0.0,dir:1,cnt:2},
+  {hw:PLATE_W+216,hh:PLATE_H+192,cyc:10,ph:0.25,dir:-1,cnt:3},
+  {hw:PLATE_W+384,hh:PLATE_H+312,cyc:10,ph:0.55,dir:1,cnt:4},
+  {hw:PLATE_W+624,hh:PLATE_H+456,cyc:10,ph:0.12,dir:-1,cnt:4},
+  {hw:PLATE_W+912,hh:PLATE_H+624,cyc:10,ph:0.42,dir:1,cnt:5}
+];
+for(let r=0;r<rings.length;r++){
+  const rg=rings[r];
+  const pts=[
+    [CX-rg.hw,CY-rg.hh],
+    [CX+rg.hw,CY-rg.hh],
+    [CX+rg.hw,CY+rg.hh],
+    [CX-rg.hw,CY+rg.hh]
+  ];
+  staticTracks.push({pts:pts.concat([pts[0]]),w:r%2===0?2.0:1.3,alpha:0.55});
+  for(let k=0;k<4;k++)junctions.push(pts[k]);
+  animTracks.push(buildPathObj(pts,true,rg.cyc,rg.ph,110,rg.cnt,rg.dir));
+}
+
+const quadLoops=[
+  [[-1,-1,384,264,336,216,5,0.1,1],
+   [1,-1,384,264,336,216,5,0.6,-1],
+   [-1,1,384,264,336,216,5,0.35,-1],
+   [1,1,384,264,336,216,5,0.85,1]],
+  [[-1,-1,816,456,432,264,10,0.05,-1],
+   [1,-1,816,456,432,264,10,0.3,1],
+   [-1,1,816,456,432,264,10,0.55,1],
+   [1,1,816,456,432,264,10,0.8,-1]]
+];
+for(let q=0;q<quadLoops.length;q++){
+  for(let j=0;j<quadLoops[q].length;j++){
+    const d=quadLoops[q][j];
+    const sx=d[0],sy=d[1],ox=d[2],oy=d[3],rw=d[4],rh=d[5];
+    const x0=CX+sx*ox,y0=CY+sy*oy;
+    const x1=CX+sx*(ox+rw),y1=CY+sy*(oy+rh);
+    const pts=[[x0,y0],[x1,y0],[x1,y1],[x0,y1]];
+    staticTracks.push({pts:pts.concat([pts[0]]),w:1.8,alpha:0.58});
+    for(let k=0;k<4;k++)junctions.push(pts[k]);
+    animTracks.push(buildPathObj(pts,true,d[6],d[7],96,2,d[8]));
+  }
+}
+
+for(let gy=-16;gy<=16;gy++){
+  for(let gx=-26;gx<=26;gx++){
+    const x=CX+gx*G;
+    const y=CY+gy*G;
+    if(insidePlate(x,y,54))continue;
+    const r=rand();
+    if(r<0.075){
+      const horiz=rand()>0.5;
+      const w=horiz?34:18;
+      const h=horiz?18:34;
+      capacitors.push({
+        x:x-w/2,y:y-h/2,w:w,h:h,horiz:horiz,
+        pulse:rand()<0.35,
+        freq:rand()<0.5?2:5,
+        phase:rand()*Math.PI*2
+      });
+    }else if(r>0.965&&!insidePlate(x,y,130)){
+      const w=72,h=48;
+      logicGates.push({x:x-w/2,y:y-h/2,w:w,h:h,pins:rand()>0.5?4:3,style:Math.floor(rand()*3)});
+    }
+  }
+}
+
+for(let i=0;i<68;i++){
+  const sx=Math.floor((rand()-0.5)*50)*G+CX;
+  const sy=Math.floor((rand()-0.5)*30)*G+CY;
+  if(insidePlate(sx,sy,72))continue;
+  const pts=[[sx,sy]];
+  let cx=sx,cy=sy;
+  const segs=2+Math.floor(rand()*3);
+  let horiz=rand()>0.5;
+  for(let s=0;s<segs;s++){
+    const step=(1+Math.floor(rand()*4))*G*(rand()>0.5?1:-1);
+    const nx=horiz?cx+step:cx;
+    const ny=horiz?cy:cy+step;
+    if(insidePlate(nx,ny,42))break;
+    pts.push([nx,ny]);
+    cx=nx;cy=ny;horiz=!horiz;
+  }
+  if(pts.length>=2){
+    staticTracks.push({pts:pts,w:1.1,alpha:0.32});
+    junctions.push(pts[0]);
+    junctions.push(pts[pts.length-1]);
+  }
+}
+
+function renderStaticBoard(pw,ph){
+  bgCanvas.width=pw;
+  bgCanvas.height=ph;
+  const g=bgCtx;
+  g.setTransform(pw/W,0,0,ph/H,0,0);
+
+  const bgGrad=g.createRadialGradient(CX,CY,80,CX,CY,1180);
+  bgGrad.addColorStop(0,'#0B1533');
+  bgGrad.addColorStop(0.45,'#070D1F');
+  bgGrad.addColorStop(1,'#030611');
+  g.fillStyle=bgGrad;
+  g.fillRect(0,0,W,H);
+
+  g.lineWidth=0.8;
+  g.strokeStyle='rgba(30,64,175,0.16)';
+  for(let gx=-1728;gx<=1728;gx+=G){
+    strokeWarpedPath(g,[[CX+gx,CY-1152],[CX+gx,CY+1152]]);
+  }
+  for(let gy=-1152;gy<=1152;gy+=G){
+    strokeWarpedPath(g,[[CX-1728,CY+gy],[CX+1728,CY+gy]]);
+  }
+
+  g.lineCap='square';
+  g.lineJoin='miter';
+
+  for(let i=0;i<staticTracks.length;i++){
+    const tr=staticTracks[i];
+    g.lineWidth=tr.w;
+    g.strokeStyle='rgba(0,187,249,'+(tr.alpha*0.24)+')';
+    strokeWarpedPath(g,tr.pts,K-0.022);
+    g.strokeStyle='rgba(99,102,241,'+(tr.alpha*0.24)+')';
+    strokeWarpedPath(g,tr.pts,K+0.022);
+  }
+
+  for(let i=0;i<staticTracks.length;i++){
+    const tr=staticTracks[i];
+    g.lineWidth=tr.w;
+    g.strokeStyle='rgba(30,64,175,'+tr.alpha+')';
+    strokeWarpedPath(g,tr.pts);
+  }
+
+  for(let i=0;i<logicGates.length;i++){
+    const lg=logicGates[i];
+    traceWarpedRect(g,lg.x,lg.y,lg.w,lg.h,K,3);
+    g.fillStyle='#081026';
+    g.fill();
+    g.lineWidth=1.5;
+    g.strokeStyle='#1E40AF';
+    g.stroke();
+
+    traceWarpedRect(g,lg.x+7,lg.y+7,lg.w-14,lg.h-14,K,2);
+    g.fillStyle='#0C1838';
+    g.fill();
+    g.lineWidth=0.9;
+    g.strokeStyle='rgba(0,187,249,0.28)';
+    g.stroke();
+
+    g.strokeStyle='#1E40AF';
+    g.lineWidth=2.0;
+    for(let p=0;p<lg.pins;p++){
+      const px=lg.x+(lg.w/(lg.pins+1))*(p+1);
+      strokeWarpedPath(g,[[px,lg.y-7],[px,lg.y]]);
+      strokeWarpedPath(g,[[px,lg.y+lg.h],[px,lg.y+lg.h+7]]);
+    }
+    const dot=warp(lg.x+14,lg.y+14);
+    g.fillStyle='rgba(0,187,249,0.45)';
+    g.fillRect(dot[0]-2,dot[1]-2,4,4);
+  }
+
+  for(let i=0;i<capacitors.length;i++){
+    const c=capacitors[i];
+    traceWarpedRect(g,c.x,c.y,c.w,c.h,K,2);
+    g.fillStyle='#09132E';
+    g.fill();
+    g.lineWidth=1.2;
+    g.strokeStyle='#1E40AF';
+    g.stroke();
+
+    g.fillStyle='#2563EB';
+    if(c.horiz){
+      traceWarpedRect(g,c.x,c.y,6,c.h,K,1);g.fill();
+      traceWarpedRect(g,c.x+c.w-6,c.y,6,c.h,K,1);g.fill();
+    }else{
+      traceWarpedRect(g,c.x,c.y,c.w,6,K,1);g.fill();
+      traceWarpedRect(g,c.x,c.y+c.h-6,c.w,6,K,1);g.fill();
+    }
+  }
+
+  for(let i=0;i<junctions.length;i++){
+    const j=junctions[i];
+    if(insidePlate(j[0],j[1],4))continue;
+    const p=warp(j[0],j[1]);
+    if(p[0]<-20||p[0]>W+20||p[1]<-20||p[1]>H+20)continue;
+    g.fillStyle='#070D1F';
+    g.fillRect(p[0]-4,p[1]-4,8,8);
+    g.strokeStyle='#1E40AF';
+    g.lineWidth=1.4;
+    g.strokeRect(p[0]-4,p[1]-4,8,8);
+  }
+
+  drawCentralPlate(g);
+}
+
+function drawCentralPlate(g){
+  traceWarpedChamferRect(g,CX,CY,PLATE_W+10,PLATE_H+10,24,K);
+  g.fillStyle='#040814';
+  g.fill();
+  g.lineWidth=2.0;
+  g.strokeStyle='rgba(30,64,175,0.75)';
+  g.stroke();
+
+  const plateGrad=g.createRadialGradient(CX,CY-40,20,CX,CY,340);
+  plateGrad.addColorStop(0,'#0A132C');
+  plateGrad.addColorStop(0.7,'#070D1F');
+  plateGrad.addColorStop(1,'#040814');
+  traceWarpedChamferRect(g,CX,CY,PLATE_W,PLATE_H,18,K);
+  g.fillStyle=plateGrad;
+  g.fill();
+  g.lineWidth=1.6;
+  g.strokeStyle='#1E40AF';
+  g.stroke();
+
+  traceWarpedChamferRect(g,CX,CY,PLATE_W-14,PLATE_H-14,12,K);
+  g.lineWidth=0.9;
+  g.strokeStyle='rgba(0,187,249,0.28)';
+  g.stroke();
+
+  const pinColor='#2563EB';
+  g.fillStyle=pinColor;
+  for(let i=-5;i<=5;i++){
+    const px=CX+i*G;
+    traceWarpedRect(g,px-5,CY-PLATE_H-9,10,9,K,1);g.fill();
+    traceWarpedRect(g,px-5,CY+PLATE_H,10,9,K,1);g.fill();
+  }
+  for(let i=-3;i<=3;i++){
+    const py=CY+i*G;
+    traceWarpedRect(g,CX-PLATE_W-9,py-5,9,10,K,1);g.fill();
+    traceWarpedRect(g,CX+PLATE_W,py-5,9,10,K,1);g.fill();
+  }
+
+  const m=24;
+  const corners=[
+    [CX-PLATE_W+m,CY-PLATE_H+m,1,1],
+    [CX+PLATE_W-m,CY-PLATE_H+m,-1,1],
+    [CX+PLATE_W-m,CY+PLATE_H-m,-1,-1],
+    [CX-PLATE_W+m,CY+PLATE_H-m,1,-1]
+  ];
+  g.strokeStyle='rgba(0,187,249,0.45)';
+  g.lineWidth=1.5;
+  for(let i=0;i<4;i++){
+    const c=corners[i];
+    strokeWarpedPath(g,[[c[0],c[1]+c[3]*14],[c[0],c[1]],[c[0]+c[2]*14,c[1]]]);
+  }
+}
+
+function drawWarpedPixel(g,x,y,halfSize,kVal){
+  const p0=warp(x-halfSize,y-halfSize,kVal);
+  const p1=warp(x+halfSize,y-halfSize,kVal);
+  const p2=warp(x+halfSize,y+halfSize,kVal);
+  const p3=warp(x-halfSize,y+halfSize,kVal);
+  g.beginPath();
+  g.moveTo(p0[0],p0[1]);
+  g.lineTo(p1[0],p1[1]);
+  g.lineTo(p2[0],p2[1]);
+  g.lineTo(p3[0],p3[1]);
+  g.closePath();
+  g.fill();
+  return p0;
+}
+
+let lastW=0,lastH=0;
+
+function render(ts){
+  const dpr=window.devicePixelRatio||1;
+  const pw=Math.max(1,Math.round(window.innerWidth*dpr));
+  const ph=Math.max(1,Math.round(window.innerHeight*dpr));
+  if(pw!==lastW||ph!==lastH){
+    canvas.width=pw;
+    canvas.height=ph;
+    lastW=pw;
+    lastH=ph;
+    renderStaticBoard(pw,ph);
+  }
+
+  const t10=(((ts%PERIOD)+PERIOD)%PERIOD)/PERIOD;
+  const t5=(((ts%5000)+5000)%5000)/5000;
+  const t2=(((ts%2000)+2000)%2000)/2000;
+
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.drawImage(bgCanvas,0,0);
+  ctx.setTransform(pw/W,0,0,ph/H,0,0);
+
+  ctx.save();
+  ctx.globalCompositeOperation='lighter';
+
+  for(let i=0;i<capacitors.length;i++){
+    const c=capacitors[i];
+    if(!c.pulse)continue;
+    const u=c.freq===2?t2:t5;
+    const val=0.5+0.5*Math.sin(u*Math.PI*2+c.phase);
+    if(val<0.35)continue;
+    const a=(val-0.35)*0.65;
+    ctx.fillStyle='rgba(0,187,249,'+a.toFixed(3)+')';
+    traceWarpedRect(ctx,c.x+4,c.y+4,c.w-8,c.h-8,K,1);
+    ctx.fill();
+  }
+
+  const activeJunctions=[];
+
+  for(let i=0;i<animTracks.length;i++){
+    const tr=animTracks[i];
+    const u=tr.cycle===5000?t5:t10;
+    for(let c=0;c<tr.count;c++){
+      let frac=(u*tr.dir+tr.phase+c/tr.count)%1;
+      if(frac<0)frac+=1;
+      const headDist=tr.closed?frac*tr.total:(frac*(tr.total+tr.lenPx*2)-tr.lenPx);
+
+      const headPt=samplePath(tr,headDist);
+      if(headPt&&!insidePlate(headPt[0],headPt[1],2)){
+        const wp=warp(headPt[0],headPt[1]);
+        if(wp[0]>-90&&wp[0]<W+90&&wp[1]>-90&&wp[1]<H+90){
+          const bloomR=wp[2]>0.6?28:38;
+          const grad=ctx.createRadialGradient(wp[0],wp[1],1,wp[0],wp[1],bloomR);
+          grad.addColorStop(0,'rgba(255,255,255,0.65)');
+          grad.addColorStop(0.28,'rgba(0,187,249,0.45)');
+          grad.addColorStop(1,'rgba(0,187,249,0)');
+          ctx.fillStyle=grad;
+          ctx.beginPath();
+          ctx.arc(wp[0],wp[1],bloomR,0,Math.PI*2);
+          ctx.fill();
+        }
+      }
+
+      const blocks=12;
+      const step=tr.lenPx/blocks;
+      for(let b=0;b<blocks;b++){
+        const d=headDist-b*step*tr.dir;
+        const pt=samplePath(tr,d);
+        if(!pt)continue;
+        if(insidePlate(pt[0],pt[1],2))continue;
+        const wp=warp(pt[0],pt[1]);
+        if(wp[0]<-30||wp[0]>W+30||wp[1]<-30||wp[1]>H+30)continue;
+
+        const ratio=1-b/blocks;
+        const hs=b===0?4.6:(b<3?3.8:2.8*ratio+1.4);
+
+        if(wp[2]>0.42&&b<6){
+          const ca=ratio*0.38*Math.min(1,(wp[2]-0.42)*1.2);
+          ctx.fillStyle='rgba(0,187,249,'+ca.toFixed(3)+')';
+          drawWarpedPixel(ctx,pt[0],pt[1],hs,K-0.026);
+          ctx.fillStyle='rgba(129,140,248,'+(ca*0.85).toFixed(3)+')';
+          drawWarpedPixel(ctx,pt[0],pt[1],hs,K+0.026);
+        }
+
+        if(b===0){
+          ctx.fillStyle='#FFFFFF';
+        }else if(b===1){
+          ctx.fillStyle='rgba(220,248,255,0.96)';
+        }else if(b<6){
+          ctx.fillStyle='rgba(0,187,249,'+(0.95*ratio+0.05).toFixed(3)+')';
+        }else{
+          ctx.fillStyle='rgba(30,110,235,'+(0.75*ratio).toFixed(3)+')';
+        }
+        drawWarpedPixel(ctx,pt[0],pt[1],hs,K);
+      }
+
+      for(let k=0;k<tr.corners.length;k++){
+        const cn=tr.corners[k];
+        let diff=Math.abs(headDist-cn.d);
+        if(tr.closed)diff=Math.min(diff,tr.total-diff);
+        if(diff<38){
+          activeJunctions.push({x:cn.x,y:cn.y,i:1-diff/38});
+        }
+      }
+    }
+  }
+
+  for(let i=0;i<activeJunctions.length;i++){
+    const aj=activeJunctions[i];
+    if(insidePlate(aj.x,aj.y,2))continue;
+    const p=warp(aj.x,aj.y);
+    if(p[0]<-40||p[0]>W+40||p[1]<-40||p[1]>H+40)continue;
+    const rad=16+aj.i*14;
+    const g=ctx.createRadialGradient(p[0],p[1],1,p[0],p[1],rad);
+    g.addColorStop(0,'rgba(255,255,255,'+(aj.i*0.85).toFixed(3)+')');
+    g.addColorStop(0.4,'rgba(0,187,249,'+(aj.i*0.55).toFixed(3)+')');
+    g.addColorStop(1,'rgba(0,187,249,0)');
+    ctx.fillStyle=g;
+    ctx.beginPath();
+    ctx.arc(p[0],p[1],rad,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.fillStyle='rgba(255,255,255,'+(aj.i*0.95).toFixed(3)+')';
+    ctx.fillRect(p[0]-4,p[1]-4,8,8);
+  }
+
+  const pulse=0.04+0.03*Math.sin(t10*Math.PI*2);
+  traceWarpedChamferRect(ctx,CX,CY,PLATE_W,PLATE_H,18,K);
+  ctx.lineWidth=2.5;
+  ctx.strokeStyle='rgba(0,187,249,'+(0.18+pulse*2.2).toFixed(3)+')';
+  ctx.stroke();
+
+  ctx.restore();
+
+  const vig=ctx.createRadialGradient(CX,CY,380,CX,CY,1180);
+  vig.addColorStop(0,'rgba(7,13,31,0)');
+  vig.addColorStop(0.72,'rgba(4,8,20,0.22)');
+  vig.addColorStop(1,'rgba(2,4,12,0.72)');
+  ctx.fillStyle=vig;
+  ctx.fillRect(0,0,W,H);
+
+  requestAnimationFrame(render);
+}
+
+requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>

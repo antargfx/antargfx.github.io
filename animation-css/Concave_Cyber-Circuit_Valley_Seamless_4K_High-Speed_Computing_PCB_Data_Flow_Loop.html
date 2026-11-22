@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Concave Cyber-Circuit Valley — Seamless 4K High-Speed Computing &amp; PCB Data Flow Loop</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#030712}
+canvas{display:block;width:100%;height:100%}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+(function(){
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d');
+const W=1920,H=1080,CX=960,CY=485;
+const PERIOD=10000;
+const Z_MIN=0.75,Z_SPAN=24,Z_MAX=Z_MIN+Z_SPAN;
+const CYCLE_TILES=8,NUM_TILES=24;
+const FOCAL=980,RX=1.68,RY=1.22,U_MAX=1.18;
+
+function resize(){
+const dpr=Math.min(window.devicePixelRatio||1,2);
+const cw=Math.max(1,Math.round(window.innerWidth*dpr));
+const ch=Math.max(1,Math.round(window.innerHeight*dpr));
+if(canvas.width!==cw||canvas.height!==ch){
+canvas.width=cw;
+canvas.height=ch;
+}
+}
+resize();
+window.addEventListener('resize',resize);
+
+function project(u,z){
+const th=u*1.74;
+const x3=RX*Math.sin(th);
+const y3=RY*Math.cos(th)+0.06;
+const s=FOCAL/z;
+return [CX+x3*s,CY+y3*s,s];
+}
+
+function hash(n){
+const x=Math.sin(n*127.1+311.7)*43758.5453123;
+return x-Math.floor(x);
+}
+
+const LANES=[];
+const LANE_COUNT=26;
+for(let i=-LANE_COUNT;i<=LANE_COUNT;i++){
+const u=(i/LANE_COUNT)*U_MAX;
+LANES.push({u:u,idx:i,major:i%3===0,highway:Math.abs(i)%4===1||Math.abs(i)%4===2});
+}
+
+const TILE_CHIPS=[];
+for(let p=0;p<CYCLE_TILES;p++){
+const list=[];
+const slots=[-1.02,-0.78,-0.54,-0.30,0.0,0.30,0.54,0.78,1.02];
+for(let s=0;s<slots.length;s++){
+const h=hash(p*19+s*7+3);
+if(h>0.36){
+const uCenter=slots[s];
+const uHalf=s===4?0.105:0.082;
+const zLen=0.52+(hash(p*31+s*11)*0.24);
+const zOff=0.12+(hash(p*41+s*13)*0.18);
+const mint=hash(p*53+s*17)>0.5;
+const pins=s===4?5:4;
+list.push({u:uCenter,uHalf:uHalf,zLen:zLen,zOff:zOff,mint:mint,pins:pins});
+}
+}
+const vias=[];
+for(let v=0;v<10;v++){
+const vu=(hash(p*67+v*23)*2-1)*U_MAX*0.96;
+const vz=0.1+hash(p*71+v*29)*0.8;
+vias.push({u:vu,zOff:vz,mint:hash(p*79+v*3)>0.55});
+}
+TILE_CHIPS.push({chips:list,vias:vias});
+}
+
+const PACKETS=[];
+for(let i=0;i<68;i++){
+const side=i%2===0?1:-1;
+const laneIdx=1+Math.floor(hash(i*13+5)*(LANE_COUNT-1));
+const u=(i%9===0)?0:side*(laneIdx/LANE_COUNT)*U_MAX;
+const speed=2+Math.floor(hash(i*29+7)*3);
+const phase=hash(i*43+11);
+const blocks=4+Math.floor(hash(i*59+17)*6);
+const mint=hash(i*83+19)>0.46;
+const width=0.014+hash(i*97+23)*0.014;
+const stepZ=0.22+hash(i*101+31)*0.14;
+PACKETS.push({u:u,speed:speed,phase:phase,blocks:blocks,mint:mint,width:width,stepZ:stepZ});
+}
+
+function drawQuad(p1,p2,p3,p4){
+ctx.beginPath();
+ctx.moveTo(p1[0],p1[1]);
+ctx.lineTo(p2[0],p2[1]);
+ctx.lineTo(p3[0],p3[1]);
+ctx.lineTo(p4[0],p4[1]);
+ctx.closePath();
+}
+
+function drawBackground(t){
+ctx.fillStyle='#030712';
+ctx.fillRect(0,0,W,H);
+
+const pulse=0.5+0.5*Math.sin(t*Math.PI*2);
+const bgGrad=ctx.createRadialGradient(CX,CY,20,CX,CY,920);
+bgGrad.addColorStop(0,'rgba(56,189,248,'+(0.22+pulse*0.05)+')');
+bgGrad.addColorStop(0.22,'rgba(30,58,138,0.28)');
+bgGrad.addColorStop(0.55,'rgba(12,24,62,0.16)');
+bgGrad.addColorStop(1,'rgba(3,7,18,0)');
+ctx.fillStyle=bgGrad;
+ctx.fillRect(0,0,W,H);
+
+const stripCount=48;
+for(let i=0;i<stripCount;i++){
+const u0=-U_MAX+(i/stripCount)*(U_MAX*2);
+const u1=-U_MAX+((i+1)/stripCount)*(U_MAX*2);
+const p00=project(u0,Z_MIN);
+const p10=project(u1,Z_MIN);
+const p11=project(u1,Z_MAX);
+const p01=project(u0,Z_MAX);
+const edgeFactor=Math.abs((u0+u1)*0.5)/U_MAX;
+const g=ctx.createLinearGradient(p00[0],p00[1],CX,CY);
+const r0=Math.round(6+edgeFactor*8);
+const g0=Math.round(14+edgeFactor*16);
+const b0=Math.round(38+edgeFactor*36);
+g.addColorStop(0,'rgb('+r0+','+g0+','+b0+')');
+g.addColorStop(0.72,'#0A193A');
+g.addColorStop(1,'#14306B');
+drawQuad(p00,p10,p11,p01);
+ctx.fillStyle=g;
+ctx.fill();
+}
+}
+
+function drawLongitudinalTracks(t){
+const dashOffset=t*8;
+for(let i=0;i<LANES.length;i++){
+const lane=LANES[i];
+const pNear=project(lane.u,Z_MIN);
+const pFar=project(lane.u,Z_MAX);
+const edgeFade=1-0.25*Math.pow(Math.abs(lane.u)/U_MAX,2);
+const grad=ctx.createLinearGradient(pNear[0],pNear[1],pFar[0],pFar[1]);
+if(lane.major){
+grad.addColorStop(0,'rgba(56,189,248,'+(0.34*edgeFade)+')');
+grad.addColorStop(0.45,'rgba(30,58,138,'+(0.88*edgeFade)+')');
+grad.addColorStop(0.85,'rgba(56,189,248,'+(0.42*edgeFade)+')');
+grad.addColorStop(1,'rgba(56,189,248,0)');
+ctx.lineWidth=2.1;
+}else{
+grad.addColorStop(0,'rgba(30,58,138,'+(0.62*edgeFade)+')');
+grad.addColorStop(0.6,'rgba(30,58,138,'+(0.52*edgeFade)+')');
+grad.addColorStop(1,'rgba(30,58,138,0)');
+ctx.lineWidth=1.1;
+}
+ctx.strokeStyle=grad;
+ctx.beginPath();
+ctx.moveTo(pNear[0],pNear[1]);
+ctx.lineTo(pFar[0],pFar[1]);
+ctx.stroke();
+
+if(lane.highway){
+const uOff=lane.u+(lane.idx>=0?0.011:-0.011);
+const qNear=project(uOff,Z_MIN);
+const qFar=project(uOff,Z_MAX);
+ctx.strokeStyle='rgba(30,58,138,'+(0.35*edgeFade)+')';
+ctx.lineWidth=0.85;
+ctx.beginPath();
+ctx.moveTo(qNear[0],qNear[1]);
+ctx.lineTo(qFar[0],qFar[1]);
+ctx.stroke();
+}
+}
+void dashOffset;
+}
+
+function drawTilesAndChips(t,packetStates){
+const shift=t*CYCLE_TILES;
+const tiles=[];
+for(let i=0;i<NUM_TILES;i++){
+const z=Z_MIN+(((i-shift)%Z_SPAN)+Z_SPAN)%Z_SPAN;
+tiles.push({i:i,pat:i%CYCLE_TILES,z:z});
+}
+tiles.sort(function(a,b){return b.z-a.z;});
+
+for(let k=0;k<tiles.length;k++){
+const tile=tiles[k];
+const z=tile.z;
+const depthFade=Math.min(1,Math.max(0,(Z_MAX-z)/6.5));
+const nearFade=Math.min(1,Math.max(0,(z-Z_MIN)/0.45));
+const alpha=depthFade*nearFade;
+if(alpha<=0.005)continue;
+
+ctx.beginPath();
+const segs=44;
+for(let s=0;s<=segs;s++){
+const u=-U_MAX+(s/segs)*(U_MAX*2);
+const pt=project(u,z);
+if(s===0)ctx.moveTo(pt[0],pt[1]);
+else ctx.lineTo(pt[0],pt[1]);
+}
+const isAccentRib=tile.pat%2===0;
+ctx.strokeStyle=isAccentRib?'rgba(56,189,248,'+(0.22*alpha)+')':'rgba(30,58,138,'+(0.58*alpha)+')';
+ctx.lineWidth=Math.max(0.6,(isAccentRib?2.2:1.3)*(3.2/z));
+ctx.stroke();
+
+const data=TILE_CHIPS[tile.pat];
+
+for(let v=0;v<data.vias.length;v++){
+const via=data.vias[v];
+const vz=z+via.zOff;
+if(vz>=Z_MAX-0.5)continue;
+const vp=project(via.u,vz);
+const rad=Math.max(0.8,5.2/vz);
+const vAlpha=Math.min(1,Math.max(0,(Z_MAX-vz)/6))*nearFade;
+ctx.beginPath();
+ctx.arc(vp[0],vp[1],rad,0,Math.PI*2);
+ctx.fillStyle=via.mint?'rgba(45,212,191,'+(0.35*vAlpha)+')':'rgba(56,189,248,'+(0.32*vAlpha)+')';
+ctx.fill();
+if(rad>1.8){
+ctx.beginPath();
+ctx.arc(vp[0],vp[1],rad*0.42,0,Math.PI*2);
+ctx.fillStyle='#030712';
+ctx.fill();
+}
+}
+
+for(let c=0;c<data.chips.length;c++){
+const ch=data.chips[c];
+const z0=z+ch.zOff;
+const z1=z0+ch.zLen;
+if(z1>=Z_MAX-0.4||z0<Z_MIN)continue;
+const cFade=Math.min(1,Math.max(0,(Z_MAX-z1)/5.5))*Math.min(1,Math.max(0,(z0-Z_MIN)/0.4));
+if(cFade<=0.01)continue;
+
+let glow=0;
+let glowMint=ch.mint;
+for(let p=0;p<packetStates.length;p++){
+const ps=packetStates[p];
+const du=Math.abs(ps.u-ch.u);
+if(du<0.24){
+const dz=Math.abs(ps.z-(z0+z1)*0.5);
+if(dz<2.1){
+const gVal=(1-du/0.24)*(1-dz/2.1);
+if(gVal>glow){
+glow=gVal;
+glowMint=ps.mint;
+}
+}
+}
+}
+glow=Math.min(1,glow*1.35);
+
+const u0=ch.u-ch.uHalf;
+const u1=ch.u+ch.uHalf;
+const p00=project(u0,z0);
+const p10=project(u1,z0);
+const p11=project(u1,z1);
+const p01=project(u0,z1);
+
+const pinSpan=0.022;
+const pinColor=glow>0.05
+?(glowMint?'rgba(45,212,191,'+((0.35+glow*0.65)*cFade)+')':'rgba(56,189,248,'+((0.35+glow*0.65)*cFade)+')')
+:'rgba(30,58,138,'+(0.85*cFade)+')';
+ctx.strokeStyle=pinColor;
+ctx.lineWidth=Math.max(0.8,(2.2+glow*1.4)*(2.8/z0));
+
+for(let pn=0;pn<ch.pins;pn++){
+const frac=(pn+0.5)/ch.pins;
+const pz=z0+(z1-z0)*frac;
+const pl0=project(u0,pz);
+const pl1=project(u0-pinSpan,pz);
+const pr0=project(u1,pz);
+const pr1=project(u1+pinSpan,pz);
+ctx.beginPath();
+ctx.moveTo(pl0[0],pl0[1]);
+ctx.lineTo(pl1[0],pl1[1]);
+ctx.moveTo(pr0[0],pr0[1]);
+ctx.lineTo(pr1[0],pr1[1]);
+ctx.stroke();
+
+if(glow>0.25&&z0<12){
+const dotR=Math.max(1,2.6*(2.5/z0));
+ctx.fillStyle=glowMint?'rgba(153,246,228,'+(glow*cFade)+')':'rgba(186,230,253,'+(glow*cFade)+')';
+ctx.beginPath();
+ctx.arc(pl1[0],pl1[1],dotR,0,Math.PI*2);
+ctx.arc(pr1[0],pr1[1],dotR,0,Math.PI*2);
+ctx.fill();
+}
+}
+
+drawQuad(p00,p10,p11,p01);
+ctx.fillStyle=glow>0.1
+?'rgba(13,34,78,'+(0.94*cFade)+')'
+:'rgba(7,17,42,'+(0.92*cFade)+')';
+ctx.fill();
+
+ctx.strokeStyle=glow>0.08
+?(glowMint?'rgba(45,212,191,'+((0.45+glow*0.55)*cFade)+')':'rgba(56,189,248,'+((0.45+glow*0.55)*cFade)+')')
+:'rgba(30,58,138,'+(0.95*cFade)+')';
+ctx.lineWidth=Math.max(0.8,(1.6+glow*1.2)*(3.0/z0));
+ctx.stroke();
+
+const iu0=u0+ch.uHalf*0.32;
+const iu1=u1-ch.uHalf*0.32;
+const iz0=z0+ch.zLen*0.24;
+const iz1=z1-ch.zLen*0.24;
+const ip00=project(iu0,iz0);
+const ip10=project(iu1,iz0);
+const ip11=project(iu1,iz1);
+const ip01=project(iu0,iz1);
+drawQuad(ip00,ip10,ip11,ip01);
+ctx.fillStyle=glow>0.15
+?(glowMint?'rgba(45,212,191,'+(0.26*glow*cFade)+')':'rgba(56,189,248,'+(0.26*glow*cFade)+')')
+:'rgba(18,38,88,'+(0.55*cFade)+')';
+ctx.fill();
+ctx.strokeStyle=glow>0.15
+?(glowMint?'rgba(153,246,228,'+(0.65*glow*cFade)+')':'rgba(186,230,253,'+(0.65*glow*cFade)+')')
+:'rgba(30,58,138,'+(0.55*cFade)+')';
+ctx.lineWidth=Math.max(0.6,1.1*(2.8/z0));
+ctx.stroke();
+}
+}
+}
+
+function drawPackets(t){
+const states=[];
+for(let i=0;i<PACKETS.length;i++){
+const p=PACKETS[i];
+const frac=(p.phase+t*p.speed)%1;
+const headZ=Z_MIN+frac*Z_SPAN;
+states.push({u:p.u,z:headZ,mint:p.mint});
+
+for(let b=0;b<p.blocks;b++){
+const bz1=headZ-b*p.stepZ;
+const bz0=bz1-p.stepZ*0.72;
+if(bz1<=Z_MIN+0.05||bz0>=Z_MAX-0.2)continue;
+const cz0=Math.max(Z_MIN,bz0);
+const cz1=Math.min(Z_MAX,bz1);
+const tailFade=1-(b/p.blocks);
+const distFade=Math.min(1,Math.max(0,(Z_MAX-cz1)/4.2))*Math.min(1,Math.max(0,(cz0-Z_MIN)/0.5));
+const alpha=tailFade*distFade;
+if(alpha<=0.01)continue;
+
+const hw=p.width*(b===0?1.18:0.92);
+const p00=project(p.u-hw,cz0);
+const p10=project(p.u+hw,cz0);
+const p11=project(p.u+hw,cz1);
+const p01=project(p.u-hw,cz1);
+
+drawQuad(p00,p10,p11,p01);
+if(b===0){
+ctx.fillStyle=p.mint?'rgba(180,254,244,'+(0.96*alpha)+')':'rgba(210,242,255,'+(0.96*alpha)+')';
+}else{
+ctx.fillStyle=p.mint?'rgba(45,212,191,'+(0.88*alpha)+')':'rgba(56,189,248,'+(0.88*alpha)+')';
+}
+ctx.fill();
+
+if(b<=1&&cz0<15){
+const gw=hw*2.4;
+const g00=project(p.u-gw,cz0);
+const g10=project(p.u+gw,cz0);
+const g11=project(p.u+gw,cz1);
+const g01=project(p.u-gw,cz1);
+drawQuad(g00,g10,g11,g01);
+ctx.fillStyle=p.mint?'rgba(45,212,191,'+(0.22*alpha)+')':'rgba(56,189,248,'+(0.22*alpha)+')';
+ctx.fill();
+}
+}
+}
+return states;
+}
+
+function drawHorizonAndNanoCluster(t){
+const p1=0.5+0.5*Math.sin(t*Math.PI*2);
+const p2=0.5+0.5*Math.sin(t*Math.PI*4+1.2);
+const p3=0.5+0.5*Math.cos(t*Math.PI*6);
+
+const haze=ctx.createRadialGradient(CX,CY,12,CX,CY,430);
+haze.addColorStop(0,'rgba(186,230,253,'+(0.42+p1*0.1)+')');
+haze.addColorStop(0.16,'rgba(56,189,248,'+(0.34+p2*0.08)+')');
+haze.addColorStop(0.38,'rgba(45,212,191,0.14)');
+haze.addColorStop(0.65,'rgba(30,58,138,0.10)');
+haze.addColorStop(1,'rgba(3,7,18,0)');
+ctx.fillStyle=haze;
+ctx.beginPath();
+ctx.arc(CX,CY,430,0,Math.PI*2);
+ctx.fill();
+
+const wingGrad=ctx.createLinearGradient(CX-520,CY,CX+520,CY);
+wingGrad.addColorStop(0,'rgba(56,189,248,0)');
+wingGrad.addColorStop(0.35,'rgba(56,189,248,0.16)');
+wingGrad.addColorStop(0.5,'rgba(45,212,191,0.28)');
+wingGrad.addColorStop(0.65,'rgba(56,189,248,0.16)');
+wingGrad.addColorStop(1,'rgba(56,189,248,0)');
+ctx.fillStyle=wingGrad;
+ctx.fillRect(CX-520,CY-14,1040,28);
+
+ctx.save();
+ctx.translate(CX,CY);
+
+const rings=[142,108,78];
+for(let r=0;r<rings.length;r++){
+const rad=rings[r]+(r===0?p1*4:r===1?-p2*3:p3*2);
+ctx.strokeStyle=r===1?'rgba(45,212,191,0.34)':'rgba(56,189,248,0.28)';
+ctx.lineWidth=r===2?2:1.2;
+ctx.beginPath();
+const sides=8;
+for(let s=0;s<=sides;s++){
+const a=(s/sides)*Math.PI*2+Math.PI/8;
+const x=Math.cos(a)*rad;
+const y=Math.sin(a)*rad;
+if(s===0)ctx.moveTo(x,y);
+else ctx.lineTo(x,y);
+}
+ctx.stroke();
+}
+
+const satCoords=[[-122,-42],[122,-42],[-134,26],[134,26],[0,-118],[-68,-94],[68,-94]];
+for(let i=0;i<satCoords.length;i++){
+const sx=satCoords[i][0],sy=satCoords[i][1];
+const active=0.5+0.5*Math.sin(t*Math.PI*2*2+i*1.1);
+ctx.strokeStyle='rgba(56,189,248,'+(0.25+active*0.45)+')';
+ctx.lineWidth=1.4;
+ctx.beginPath();
+ctx.moveTo(sx*0.48,sy*0.48);
+ctx.lineTo(sx,sy);
+ctx.stroke();
+
+const sz=i<4?18:14;
+ctx.fillStyle='#07142E';
+ctx.strokeStyle=i%2===0?'rgba(56,189,248,'+(0.55+active*0.45)+')':'rgba(45,212,191,'+(0.55+active*0.45)+')';
+ctx.lineWidth=1.6;
+ctx.fillRect(sx-sz*0.5,sy-sz*0.5,sz,sz);
+ctx.strokeRect(sx-sz*0.5,sy-sz*0.5,sz,sz);
+ctx.fillStyle=i%2===0?'rgba(56,189,248,'+(0.35+active*0.6)+')':'rgba(45,212,191,'+(0.35+active*0.6)+')';
+ctx.fillRect(sx-sz*0.22,sy-sz*0.22,sz*0.44,sz*0.44);
+}
+
+const die=56;
+for(let k=-3;k<=3;k++){
+const o=k*13;
+const pinGlow=0.45+0.55*Math.sin(t*Math.PI*4+k*0.9);
+ctx.strokeStyle=Math.abs(k)%2===0?'rgba(56,189,248,'+pinGlow+')':'rgba(45,212,191,'+pinGlow+')';
+ctx.lineWidth=2.2;
+ctx.beginPath();
+ctx.moveTo(o,-die);ctx.lineTo(o,-die-14);
+ctx.moveTo(o,die);ctx.lineTo(o,die+14);
+ctx.moveTo(-die,o);ctx.lineTo(-die-14,o);
+ctx.moveTo(die,o);ctx.lineTo(die+14,o);
+ctx.stroke();
+}
+
+ctx.fillStyle='#06122A';
+ctx.strokeStyle='#38BDF8';
+ctx.lineWidth=2.6;
+ctx.fillRect(-die,-die,die*2,die*2);
+ctx.strokeRect(-die,-die,die*2,die*2);
+
+ctx.strokeStyle='#2DD4BF';
+ctx.lineWidth=1.6;
+ctx.strokeRect(-die+11,-die+11,(die-11)*2,(die-11)*2);
+
+const cell=10,gap=4,gridN=4;
+const start=-((gridN*cell+(gridN-1)*gap)*0.5);
+for(let gx=0;gx<gridN;gx++){
+for(let gy=0;gy<gridN;gy++){
+const phase=gx*0.7+gy*1.1;
+const lit=0.35+0.65*(0.5+0.5*Math.sin(t*Math.PI*4+phase));
+const isCenter=(gx===1||gx===2)&&(gy===1||gy===2);
+ctx.fillStyle=isCenter
+?'rgba(186,230,253,'+(0.55+lit*0.45)+')'
+:((gx+gy)%2===0?'rgba(56,189,248,'+(0.3+lit*0.65)+')':'rgba(45,212,191,'+(0.3+lit*0.65)+')');
+ctx.fillRect(start+gx*(cell+gap),start+gy*(cell+gap),cell,cell);
+}
+}
+
+ctx.restore();
+}
+
+function drawVignette(){
+const vig=ctx.createRadialGradient(CX,CY,340,CX,CY,1140);
+vig.addColorStop(0,'rgba(3,7,18,0)');
+vig.addColorStop(0.62,'rgba(3,7,18,0.16)');
+vig.addColorStop(0.86,'rgba(3,7,18,0.58)');
+vig.addColorStop(1,'rgba(3,7,18,0.88)');
+ctx.fillStyle=vig;
+ctx.fillRect(0,0,W,H);
+}
+
+function render(ts){
+const t=(((ts%PERIOD)+PERIOD)%PERIOD)/PERIOD;
+ctx.save();
+ctx.scale(canvas.width/W,canvas.height/H);
+
+drawBackground(t);
+drawLongitudinalTracks(t);
+
+const packetStates=[];
+for(let i=0;i<PACKETS.length;i++){
+const p=PACKETS[i];
+const frac=(p.phase+t*p.speed)%1;
+packetStates.push({u:p.u,z:Z_MIN+frac*Z_SPAN,mint:p.mint});
+}
+
+drawTilesAndChips(t,packetStates);
+drawPackets(t);
+drawHorizonAndNanoCluster(t);
+drawVignette();
+
+ctx.restore();
+requestAnimationFrame(render);
+}
+
+requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cylindrical Motherboard Wrap Tubular Circuit Flow Seamless Loop</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#030816}
+canvas{display:block;width:100%;height:100%}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+(function(){
+  const canvas = document.getElementById('c');
+  const ctx = canvas.getContext('2d', { alpha: false });
+  const W = 1920;
+  const H = 1080;
+  const LOOP_MS = 10000;
+
+  function resize(){
+    const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+    const targetW = Math.max(W, Math.round(window.innerWidth * dpr));
+    const targetH = Math.max(H, Math.round(window.innerHeight * dpr));
+    if(canvas.width !== targetW || canvas.height !== targetH){
+      canvas.width = targetW;
+      canvas.height = targetH;
+    }
+    ctx.setTransform(canvas.width / W, 0, 0, canvas.height / H, 0, 0);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  function hash(n){
+    const x = Math.sin(n * 127.1 + 311.7) * 43758.5453123;
+    return x - Math.floor(x);
+  }
+
+  const R = 520;
+  const FOCAL = 1180;
+  const Z_START = 340;
+  const Z_END = 3600;
+  const Z_SPAN = Z_END - Z_START;
+  const TILES_ALONG_Z = 6;
+  const TILE_LEN = Z_SPAN / TILES_ALONG_Z;
+
+  const YAW = -0.34;
+  const PITCH = 0.25;
+  const ROLL = -0.26;
+
+  const cosY = Math.cos(YAW), sinY = Math.sin(YAW);
+  const cosP = Math.cos(PITCH), sinP = Math.sin(PITCH);
+  const cosR = Math.cos(ROLL), sinR = Math.sin(ROLL);
+
+  const CAM_X = -110;
+  const CAM_Y = 670;
+  const CAM_Z = 0;
+
+  function projectCyl(theta, zWorld){
+    const lx = R * Math.sin(theta);
+    const ly = R * Math.cos(theta);
+    const lz = zWorld;
+
+    const rx = lx * cosR - ly * sinR;
+    const ry = lx * sinR + ly * cosR;
+    const rz = lz;
+
+    const py = ry * cosP - rz * sinP;
+    const pz = ry * sinP + rz * cosP;
+    const px = rx;
+
+    const wx = px * cosY + pz * sinY - CAM_X;
+    const wy = py - CAM_Y;
+    const wz = -px * sinY + pz * cosY - CAM_Z;
+
+    const invZ = FOCAL / Math.max(40, wz);
+    return {
+      x: W * 0.52 + wx * invZ,
+      y: H * 0.56 - wy * invZ,
+      scale: invZ,
+      wz: wz
+    };
+  }
+
+  const THETA_MIN = -1.46;
+  const THETA_MAX = 1.46;
+  const NUM_LANES = 44;
+
+  const lanes = [];
+  for(let i = 0; i < NUM_LANES; i++){
+    const frac = i / (NUM_LANES - 1);
+    const theta = THETA_MIN + frac * (THETA_MAX - THETA_MIN);
+    const r1 = hash(i * 13 + 1);
+    const r2 = hash(i * 19 + 7);
+    const r3 = hash(i * 29 + 3);
+    const r4 = hash(i * 41 + 11);
+
+    const isBusGroup = (i % 5 === 1 || i % 5 === 2 || i % 5 === 3);
+    const width = isBusGroup ? 2.4 : (r1 > 0.5 ? 1.7 : 3.1);
+    const hasImpulse = r2 > 0.28;
+    const harmonic = r3 > 0.48 ? 3 : 2;
+    const impulseCount = r4 > 0.55 ? 2 : 1;
+    const phaseOffset = hash(i * 53 + 17);
+    const segCount = 4 + Math.floor(hash(i * 61 + 23) * 4);
+
+    const vias = [];
+    const viaSlots = 2 + Math.floor(hash(i * 71 + 5) * 2);
+    for(let v = 0; v < viaSlots; v++){
+      const uVia = ((v + 0.25 + hash(i * 83 + v * 17) * 0.5) / viaSlots) % 1;
+      vias.push({
+        u: uVia,
+        radius: 6.2 + hash(i * 97 + v) * 2.8,
+        goldRing: hash(i * 101 + v * 3) > 0.22
+      });
+    }
+
+    const resistors = [];
+    if(!isBusGroup || r1 > 0.72){
+      const resCount = 1 + Math.floor(hash(i * 113 + 9) * 2);
+      for(let k = 0; k < resCount; k++){
+        const uRes = ((k + 0.15 + hash(i * 127 + k * 31) * 0.65) / resCount) % 1;
+        resistors.push({
+          u: uRes,
+          len: 22 + hash(i * 131 + k) * 16,
+          wid: 7.5 + hash(i * 137 + k) * 3.5,
+          isGoldCap: hash(i * 149 + k) > 0.35
+        });
+      }
+    }
+
+    const jogs = [];
+    if(i > 1 && i < NUM_LANES - 2 && hash(i * 163 + 4) > 0.58){
+      const dir = hash(i * 173 + 2) > 0.5 ? 1 : -1;
+      const dTheta = dir * ((THETA_MAX - THETA_MIN) / (NUM_LANES - 1)) * 0.85;
+      const uStart = 0.18 + hash(i * 181 + 6) * 0.45;
+      jogs.push({
+        u0: uStart,
+        u1: uStart + 0.14,
+        dTheta: dTheta
+      });
+    }
+
+    lanes.push({
+      index: i,
+      theta: theta,
+      width: width,
+      isBusGroup: isBusGroup,
+      hasImpulse: hasImpulse,
+      harmonic: harmonic,
+      impulseCount: impulseCount,
+      phaseOffset: phaseOffset,
+      segCount: segCount,
+      vias: vias,
+      resistors: resistors,
+      jogs: jogs
+    });
+  }
+
+  const ringArcs = [];
+  for(let r = 0; r < 14; r++){
+    const uRing = (r + 0.5) / 14;
+    const t0 = THETA_MIN + 0.08 + hash(r * 37 + 3) * 0.65;
+    const span = 0.28 + hash(r * 43 + 9) * 0.55;
+    const t1 = Math.min(THETA_MAX - 0.08, t0 + span);
+    ringArcs.push({
+      u: uRing,
+      t0: t0,
+      t1: t1,
+      goldEnds: hash(r * 59 + 1) > 0.3
+    });
+  }
+
+  function laneThetaAt(lane, uTile){
+    let t = lane.theta;
+    for(let j = 0; j < lane.jogs.length; j++){
+      const jog = lane.jogs[j];
+      if(uTile > jog.u0){
+        if(uTile >= jog.u1){
+          t += jog.dTheta;
+        } else {
+          const f = (uTile - jog.u0) / (jog.u1 - jog.u0);
+          t += jog.dTheta * f;
+        }
+      }
+    }
+    return t;
+  }
+
+  function drawCylinderBody(){
+    const bgGrad = ctx.createLinearGradient(0, 0, W, H);
+    bgGrad.addColorStop(0, '#020614');
+    bgGrad.addColorStop(0.5, '#040C20');
+    bgGrad.addColorStop(1, '#01040E');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, W, H);
+
+    const zSteps = 44;
+    const tSteps = 56;
+
+    const leftEdge = [];
+    const rightEdge = [];
+    for(let zi = 0; zi <= zSteps; zi++){
+      const z = Z_START - 260 + (zi / zSteps) * (Z_SPAN + 620);
+      leftEdge.push(projectCyl(-Math.PI * 0.5, z));
+      rightEdge.push(projectCyl(Math.PI * 0.5, z));
+    }
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(leftEdge[0].x, leftEdge[0].y);
+    for(let zi = 1; zi <= zSteps; zi++) ctx.lineTo(leftEdge[zi].x, leftEdge[zi].y);
+    for(let zi = zSteps; zi >= 0; zi--) ctx.lineTo(rightEdge[zi].x, rightEdge[zi].y);
+    ctx.closePath();
+    ctx.clip();
+
+    const baseFill = ctx.createLinearGradient(250, 950, 1680, 120);
+    baseFill.addColorStop(0, '#061329');
+    baseFill.addColorStop(0.55, '#051024');
+    baseFill.addColorStop(1, '#020714');
+    ctx.fillStyle = baseFill;
+    ctx.fillRect(0, 0, W, H);
+
+    for(let zi = 0; zi < zSteps; zi++){
+      const z0 = Z_START - 260 + (zi / zSteps) * (Z_SPAN + 620);
+      const z1 = Z_START - 260 + ((zi + 1) / zSteps) * (Z_SPAN + 620);
+      const zMid = 0.5 * (z0 + z1);
+      const depthFade = Math.max(0.08, Math.min(1, 1 - (zMid - Z_START) / (Z_SPAN + 450)));
+
+      for(let ti = 0; ti < tSteps; ti++){
+        const t0 = -Math.PI * 0.5 + (ti / tSteps) * Math.PI;
+        const t1 = -Math.PI * 0.5 + ((ti + 1) / tSteps) * Math.PI;
+        const tMid = 0.5 * (t0 + t1);
+
+        const p00 = projectCyl(t0, z0);
+        const p10 = projectCyl(t1, z0);
+        const p11 = projectCyl(t1, z1);
+        const p01 = projectCyl(t0, z1);
+
+        const crestAlign = Math.cos(tMid + 0.14);
+        const diffuse = Math.pow(Math.max(0, crestAlign), 1.45);
+        const spec = Math.pow(Math.max(0, Math.cos((tMid + 0.16) * 2.2)), 6.0);
+
+        const rCol = Math.round((6 + diffuse * 18 + spec * 36) * depthFade + 2 * (1 - depthFade));
+        const gCol = Math.round((19 + diffuse * 52 + spec * 125) * depthFade + 5 * (1 - depthFade));
+        const bCol = Math.round((41 + diffuse * 138 + spec * 195) * depthFade + 16 * (1 - depthFade));
+
+        ctx.fillStyle = 'rgb(' + rCol + ',' + gCol + ',' + bCol + ')';
+        ctx.beginPath();
+        ctx.moveTo(p00.x, p00.y);
+        ctx.lineTo(p10.x, p10.y);
+        ctx.lineTo(p11.x, p11.y);
+        ctx.lineTo(p01.x, p01.y);
+        ctx.closePath();
+        ctx.fill();
+      }
+    }
+
+    const specBand = [];
+    const specWidth = 0.24;
+    for(let zi = 0; zi <= zSteps; zi++){
+      const z = Z_START - 260 + (zi / zSteps) * (Z_SPAN + 620);
+      specBand.push({
+        a: projectCyl(-0.16 - specWidth, z),
+        b: projectCyl(-0.16 + specWidth, z),
+        c: projectCyl(-0.16, z),
+        z: z
+      });
+    }
+    for(let zi = 0; zi < zSteps; zi++){
+      const s0 = specBand[zi];
+      const s1 = specBand[zi + 1];
+      const fade = Math.max(0, 1 - (s0.z - Z_START) / (Z_SPAN + 300));
+      const g = ctx.createLinearGradient(s0.a.x, s0.a.y, s0.b.x, s0.b.y);
+      g.addColorStop(0, 'rgba(34,211,238,0)');
+      g.addColorStop(0.5, 'rgba(56,189,248,' + (0.14 * fade).toFixed(4) + ')');
+      g.addColorStop(1, 'rgba(34,211,238,0)');
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.moveTo(s0.a.x, s0.a.y);
+      ctx.lineTo(s0.b.x, s0.b.y);
+      ctx.lineTo(s1.b.x, s1.b.y);
+      ctx.lineTo(s1.a.x, s1.a.y);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    ctx.restore();
+
+    ctx.save();
+    ctx.strokeStyle = 'rgba(29,78,216,0.32)';
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    for(let zi = 0; zi <= zSteps; zi++){
+      if(zi === 0) ctx.moveTo(leftEdge[zi].x, leftEdge[zi].y);
+      else ctx.lineTo(leftEdge[zi].x, leftEdge[zi].y);
+    }
+    ctx.stroke();
+
+    ctx.strokeStyle = 'rgba(15,23,42,0.85)';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    for(let zi = 0; zi <= zSteps; zi++){
+      if(zi === 0) ctx.moveTo(rightEdge[zi].x, rightEdge[zi].y);
+      else ctx.lineTo(rightEdge[zi].x, rightEdge[zi].y);
+    }
+    ctx.stroke();
+    ctx.restore();
+
+    return { leftEdge: leftEdge, rightEdge: rightEdge, zSteps: zSteps };
+  }
+
+  function clipToCylinder(edges){
+    ctx.beginPath();
+    ctx.moveTo(edges.leftEdge[0].x, edges.leftEdge[0].y);
+    for(let zi = 1; zi <= edges.zSteps; zi++) ctx.lineTo(edges.leftEdge[zi].x, edges.leftEdge[zi].y);
+    for(let zi = edges.zSteps; zi >= 0; zi--) ctx.lineTo(edges.rightEdge[zi].x, edges.rightEdge[zi].y);
+    ctx.closePath();
+    ctx.clip();
+  }
+
+  function drawSurfaceEllipse(theta, zWorld, rxWorld, rzWorld, fillStyle, strokeStyle, lineWidth){
+    const steps = 16;
+    ctx.beginPath();
+    for(let s = 0; s <= steps; s++){
+      const ang = (s / steps) * Math.PI * 2;
+      const dt = (rxWorld / R) * Math.cos(ang);
+      const dz = rzWorld * Math.sin(ang);
+      const pt = projectCyl(theta + dt, zWorld + dz);
+      if(s === 0) ctx.moveTo(pt.x, pt.y);
+      else ctx.lineTo(pt.x, pt.y);
+    }
+    ctx.closePath();
+    if(fillStyle){
+      ctx.fillStyle = fillStyle;
+      ctx.fill();
+    }
+    if(strokeStyle){
+      ctx.strokeStyle = strokeStyle;
+      ctx.lineWidth = lineWidth;
+      ctx.stroke();
+    }
+  }
+
+  function drawSurfaceRect(theta, zWorld, wThetaWorld, lZWorld, fillStyle, strokeStyle, lineWidth){
+    const dt = (wThetaWorld * 0.5) / R;
+    const dz = lZWorld * 0.5;
+    const p0 = projectCyl(theta - dt, zWorld - dz);
+    const p1 = projectCyl(theta + dt, zWorld - dz);
+    const p2 = projectCyl(theta + dt, zWorld + dz);
+    const p3 = projectCyl(theta - dt, zWorld + dz);
+
+    ctx.beginPath();
+    ctx.moveTo(p0.x, p0.y);
+    ctx.lineTo(p1.x, p1.y);
+    ctx.lineTo(p2.x, p2.y);
+    ctx.lineTo(p3.x, p3.y);
+    ctx.closePath();
+    if(fillStyle){
+      ctx.fillStyle = fillStyle;
+      ctx.fill();
+    }
+    if(strokeStyle){
+      ctx.strokeStyle = strokeStyle;
+      ctx.lineWidth = lineWidth;
+      ctx.stroke();
+    }
+  }
+
+  function renderFrame(ts){
+    const loopFrac = ((ts % LOOP_MS) + LOOP_MS) % LOOP_MS / LOOP_MS;
+    const boardShiftZ = loopFrac * TILE_LEN;
+
+    const edges = drawCylinderBody();
+
+    ctx.save();
+    clipToCylinder(edges);
+
+    for(let tileIdx = -1; tileIdx <= TILES_ALONG_Z + 1; tileIdx++){
+      const tileBaseZ = Z_START + tileIdx * TILE_LEN + boardShiftZ;
+      if(tileBaseZ + TILE_LEN < Z_START - 220 || tileBaseZ > Z_END + 220) continue;
+
+      for(let r = 0; r < ringArcs.length; r++){
+        const arc = ringArcs[r];
+        const zRing = tileBaseZ + arc.u * TILE_LEN;
+        if(zRing < Z_START - 180 || zRing > Z_END + 180) continue;
+
+        const depthFade = Math.max(0.06, Math.min(1, 1 - (zRing - Z_START) / (Z_SPAN + 320)));
+        const arcSegs = 14;
+        ctx.beginPath();
+        for(let s = 0; s <= arcSegs; s++){
+          const th = arc.t0 + (s / arcSegs) * (arc.t1 - arc.t0);
+          const p = projectCyl(th, zRing);
+          if(s === 0) ctx.moveTo(p.x, p.y);
+          else ctx.lineTo(p.x, p.y);
+        }
+        const midShade = Math.max(0.2, Math.cos((arc.t0 + arc.t1) * 0.5 + 0.14));
+        ctx.strokeStyle = 'rgba(29,78,216,' + (0.48 * depthFade * midShade).toFixed(3) + ')';
+        ctx.lineWidth = Math.max(0.8, 2.1 * (FOCAL / Math.max(200, zRing)));
+        ctx.stroke();
+
+        if(arc.goldEnds){
+          const shade0 = Math.max(0.15, Math.cos(arc.t0 + 0.14)) * depthFade;
+          const shade1 = Math.max(0.15, Math.cos(arc.t1 + 0.14)) * depthFade;
+          drawSurfaceEllipse(arc.t0, zRing, 4.5, 4.5, 'rgba(250,204,21,' + (0.72 * shade0).toFixed(3) + ')', null, 0);
+          drawSurfaceEllipse(arc.t1, zRing, 4.5, 4.5, 'rgba(250,204,21,' + (0.72 * shade1).toFixed(3) + ')', null, 0);
+        }
+      }
+
+      for(let i = 0; i < lanes.length; i++){
+        const lane = lanes[i];
+        const shade = Math.max(0.14, Math.cos(lane.theta + 0.14));
+
+        const subSteps = 10;
+        ctx.beginPath();
+        let started = false;
+        let avgFade = 0;
+        for(let s = 0; s <= subSteps; s++){
+          const u = s / subSteps;
+          const zPt = tileBaseZ + u * TILE_LEN;
+          const th = laneThetaAt(lane, u);
+          const p = projectCyl(th, zPt);
+          if(!started){
+            ctx.moveTo(p.x, p.y);
+            started = true;
+          } else {
+            ctx.lineTo(p.x, p.y);
+          }
+          avgFade += Math.max(0.06, Math.min(1, 1 - (zPt - Z_START) / (Z_SPAN + 340)));
+        }
+        avgFade /= (subSteps + 1);
+        const midZ = tileBaseZ + TILE_LEN * 0.5;
+        const perspScale = FOCAL / Math.max(220, midZ);
+
+        ctx.strokeStyle = lane.isBusGroup
+          ? 'rgba(29,78,216,' + (0.74 * shade * avgFade).toFixed(3) + ')'
+          : 'rgba(37,99,235,' + (0.56 * shade * avgFade).toFixed(3) + ')';
+        ctx.lineWidth = Math.max(0.7, lane.width * perspScale * 1.15);
+        ctx.stroke();
+
+        for(let k = 0; k < lane.resistors.length; k++){
+          const res = lane.resistors[k];
+          const zRes = tileBaseZ + res.u * TILE_LEN;
+          if(zRes < Z_START - 160 || zRes > Z_END + 160) continue;
+
+          const thRes = laneThetaAt(lane, res.u);
+          const rShade = Math.max(0.14, Math.cos(thRes + 0.14));
+          const rFade = Math.max(0.06, Math.min(1, 1 - (zRes - Z_START) / (Z_SPAN + 320)));
+          const alpha = rShade * rFade;
+
+          const capLen = res.len * 0.24;
+          const capCol = res.isGoldCap
+            ? 'rgba(250,204,21,' + (0.85 * alpha).toFixed(3) + ')'
+            : 'rgba(56,189,248,' + (0.65 * alpha).toFixed(3) + ')';
+
+          drawSurfaceRect(thRes, zRes - res.len * 0.38, res.wid * 1.08, capLen, capCol, null, 0);
+          drawSurfaceRect(thRes, zRes + res.len * 0.38, res.wid * 1.08, capLen, capCol, null, 0);
+          drawSurfaceRect(
+            thRes,
+            zRes,
+            res.wid,
+            res.len * 0.58,
+            'rgba(4,12,28,' + (0.95 * rFade).toFixed(3) + ')',
+            'rgba(29,78,216,' + (0.8 * alpha).toFixed(3) + ')',
+            Math.max(0.6, 1.1 * (FOCAL / Math.max(240, zRes)))
+          );
+        }
+      }
+    }
+
+    const activeImpulses = [];
+    for(let i = 0; i < lanes.length; i++){
+      const lane = lanes[i];
+      if(!lane.hasImpulse) continue;
+
+      const cyclesPerLoop = lane.harmonic;
+      const impShiftZ = loopFrac * cyclesPerLoop * TILE_LEN;
+      const stride = TILE_LEN / lane.impulseCount;
+
+      for(let tileIdx = -cyclesPerLoop - 1; tileIdx <= TILES_ALONG_Z + 1; tileIdx++){
+        for(let c = 0; c < lane.impulseCount; c++){
+          const headZ = Z_START + tileIdx * TILE_LEN + (c + lane.phaseOffset) * stride + impShiftZ;
+          const segStep = 14;
+          const totalLen = lane.segCount * segStep;
+          if(headZ + 40 < Z_START - 200 || headZ - totalLen - 40 > Z_END + 200) continue;
+
+          activeImpulses.push({
+            laneIndex: i,
+            headZ: headZ,
+            segCount: lane.segCount,
+            segStep: segStep
+          });
+
+          for(let s = 0; s < lane.segCount; s++){
+            const segZ = headZ - s * segStep;
+            if(segZ < Z_START - 180 || segZ > Z_END + 180) continue;
+
+            const uTile = (((segZ - Z_START - boardShiftZ) % TILE_LEN) + TILE_LEN) % TILE_LEN / TILE_LEN;
+            const th = laneThetaAt(lane, uTile);
+            const shade = Math.max(0.18, Math.cos(th + 0.14));
+            const fade = Math.max(0.06, Math.min(1, 1 - (segZ - Z_START) / (Z_SPAN + 320)));
+            const tailRatio = 1 - s / lane.segCount;
+            const alpha = (0.28 + 0.72 * tailRatio) * shade * fade;
+
+            const p0 = projectCyl(th, segZ - segStep * 0.34);
+            const p1 = projectCyl(th, segZ + segStep * 0.34);
+            const persp = FOCAL / Math.max(220, segZ);
+
+            ctx.strokeStyle = 'rgba(34,211,238,' + (alpha * 0.36).toFixed(3) + ')';
+            ctx.lineWidth = Math.max(1.8, (lane.width + 5.5) * persp);
+            ctx.lineCap = 'butt';
+            ctx.beginPath();
+            ctx.moveTo(p0.x, p0.y);
+            ctx.lineTo(p1.x, p1.y);
+            ctx.stroke();
+
+            ctx.strokeStyle = s === 0
+              ? 'rgba(207,250,254,' + Math.min(1, alpha * 1.15).toFixed(3) + ')'
+              : 'rgba(34,211,238,' + alpha.toFixed(3) + ')';
+            ctx.lineWidth = Math.max(1.0, (lane.width + 1.3) * persp);
+            ctx.beginPath();
+            ctx.moveTo(p0.x, p0.y);
+            ctx.lineTo(p1.x, p1.y);
+            ctx.stroke();
+          }
+        }
+      }
+    }
+
+    const impulsesByLane = new Array(NUM_LANES);
+    for(let i = 0; i < NUM_LANES; i++) impulsesByLane[i] = [];
+    for(let a = 0; a < activeImpulses.length; a++){
+      impulsesByLane[activeImpulses[a].laneIndex].push(activeImpulses[a]);
+    }
+
+    for(let tileIdx = -1; tileIdx <= TILES_ALONG_Z + 1; tileIdx++){
+      const tileBaseZ = Z_START + tileIdx * TILE_LEN + boardShiftZ;
+      if(tileBaseZ + TILE_LEN < Z_START - 200 || tileBaseZ > Z_END + 200) continue;
+
+      for(let i = 0; i < lanes.length; i++){
+        const lane = lanes[i];
+        const laneImps = impulsesByLane[i];
+
+        for(let v = 0; v < lane.vias.length; v++){
+          const via = lane.vias[v];
+          const zVia = tileBaseZ + via.u * TILE_LEN;
+          if(zVia < Z_START - 160 || zVia > Z_END + 160) continue;
+
+          const thVia = laneThetaAt(lane, via.u);
+          const vShade = Math.max(0.16, Math.cos(thVia + 0.14));
+          const vFade = Math.max(0.06, Math.min(1, 1 - (zVia - Z_START) / (Z_SPAN + 320)));
+          const alpha = vShade * vFade;
+
+          let flash = 0;
+          for(let m = 0; m < laneImps.length; m++){
+            const imp = laneImps[m];
+            const tailZ = imp.headZ - imp.segCount * imp.segStep;
+            if(zVia <= imp.headZ + 22 && zVia >= tailZ - 14){
+              const distHead = Math.abs(zVia - imp.headZ);
+              const pulse = Math.max(0.35, 1 - distHead / (imp.segCount * imp.segStep + 26));
+              if(pulse > flash) flash = pulse;
+            }
+          }
+
+          const persp = FOCAL / Math.max(220, zVia);
+          const ringStroke = flash > 0.05
+            ? 'rgba(34,211,238,' + Math.min(1, (0.55 + flash * 0.45) * vFade).toFixed(3) + ')'
+            : (via.goldRing
+              ? 'rgba(250,204,21,' + (0.86 * alpha).toFixed(3) + ')'
+              : 'rgba(29,78,216,' + (0.85 * alpha).toFixed(3) + ')');
+
+          if(flash > 0.05){
+            drawSurfaceEllipse(
+              thVia,
+              zVia,
+              via.radius * (1.85 + flash * 0.9),
+              via.radius * (1.85 + flash * 0.9),
+              'rgba(34,211,238,' + (0.34 * flash * vFade).toFixed(3) + ')',
+              null,
+              0
+            );
+          }
+
+          drawSurfaceEllipse(
+            thVia,
+            zVia,
+            via.radius,
+            via.radius,
+            flash > 0.05
+              ? 'rgba(165,243,252,' + (0.88 * flash * vFade).toFixed(3) + ')'
+              : 'rgba(2,7,19,' + (0.96 * vFade).toFixed(3) + ')',
+            ringStroke,
+            Math.max(0.9, (2.2 + flash * 1.2) * persp)
+          );
+
+          if(flash <= 0.05){
+            drawSurfaceEllipse(
+              thVia,
+              zVia,
+              via.radius * 0.42,
+              via.radius * 0.42,
+              'rgba(1,4,12,' + (0.98 * vFade).toFixed(3) + ')',
+              null,
+              0
+            );
+          }
+        }
+      }
+    }
+
+    const vigGrad = ctx.createRadialGradient(W * 0.48, H * 0.52, 260, W * 0.5, H * 0.5, 1180);
+    vigGrad.addColorStop(0, 'rgba(2,6,23,0)');
+    vigGrad.addColorStop(0.68, 'rgba(2,6,23,0.18)');
+    vigGrad.addColorStop(1, 'rgba(1,4,15,0.72)');
+    ctx.fillStyle = vigGrad;
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.restore();
+  }
+
+  function loop(ts){
+    renderFrame(ts);
+    requestAnimationFrame(loop);
+  }
+
+  renderFrame(0);
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

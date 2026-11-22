@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Curved Silicon Wafer Horizon - Convex Nano-Processor Microchip 4K Looping Background</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#040B1A}
+canvas{display:block;width:100%;height:100%}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+(function(){
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d');
+const W=1920,H=1080,LOOP=10000;
+const RU=3100,RV=2500,CAMX=110,CAMY=660,CAMZ=1520,F=1480;
+const PITCH=0.465,COSP=Math.cos(PITCH),SINP=Math.sin(PITCH);
+const ROLL=-0.055,COSR=Math.cos(ROLL),SINR=Math.sin(ROLL);
+const CHIPU=-230,CHIPV=190,HALF_W=148,HALF_H=138;
+
+let seed=421987;
+function rand(){
+seed|=0;seed=(seed+0x6D2B79F5)|0;
+let t=Math.imul(seed^(seed>>>15),1|seed);
+t=(t+Math.imul(t^(t>>>7),61|t))^t;
+return((t^(t>>>14))>>>0)/4294967296;
+}
+
+function horizonV(u){
+const disc=CAMZ*CAMZ+2*RV*(CAMY+(u/RU)*CAMX-(u*u)/(2*RU));
+if(disc<=0)return 0;
+return CAMZ-Math.sqrt(disc);
+}
+
+function project(u,v,elev){
+const e=elev||0;
+const y=-(u*u)/(2*RU)-(v*v)/(2*RV)+e;
+const dx=u-CAMX,dy=y-CAMY,dz=CAMZ-v;
+const ry=dy*COSP+dz*SINP;
+const rz=-dy*SINP+dz*COSP;
+if(rz<30)return null;
+const scale=F/rz;
+const px=dx*scale,py=-ry*scale;
+const sx=960+px*COSR-py*SINR;
+const sy=540+px*SINR+py*COSR;
+const nx=u/RU,nz=v/RV;
+const dot=nx*(-dx)+1*(-dy)+nz*(-dz);
+return{x:sx,y:sy,s:scale,rz:rz,vis:dot>-20};
+}
+
+function focusFactor(u,v){
+const du=(u-CHIPU)/950;
+const dv=(v-CHIPV)/720;
+const d=Math.sqrt(du*du+dv*dv);
+return Math.max(0,Math.min(1,(d-0.42)/0.95));
+}
+
+const traces=[];
+const vias=[];
+const smds=[];
+const pinPads=[];
+
+function addTrace(pts,width,primary,side,pinIdx){
+const sampled=[];
+let totalLen=0;
+for(let i=0;i<pts.length-1;i++){
+const a=pts[i],b=pts[i+1];
+const segLen=Math.hypot(b[0]-a[0],b[1]-a[1]);
+const steps=Math.max(2,Math.ceil(segLen/28));
+for(let s=0;s<=steps;s++){
+if(i>0&&s===0)continue;
+const t=s/steps;
+const u=a[0]+(b[0]-a[0])*t;
+const v=a[1]+(b[1]-a[1])*t;
+const hv=horizonV(u);
+if(v<hv-12){
+if(sampled.length>0){
+const prev=sampled[sampled.length-1];
+const clV=hv-4;
+const p=project(u,clV,0);
+if(p){
+totalLen+=Math.hypot(u-prev.u,clV-prev.v);
+sampled.push({u:u,v:clV,x:p.x,y:p.y,s:p.s,l:totalLen,f:focusFactor(u,clV)});
+}
+}
+i=pts.length;
+break;
+}
+const p=project(u,v,0);
+if(!p||p.rz<80)break;
+if(sampled.length>0){
+const prev=sampled[sampled.length-1];
+totalLen+=Math.hypot(u-prev.u,v-prev.v);
+}
+sampled.push({u:u,v:v,x:p.x,y:p.y,s:p.s,l:totalLen,f:focusFactor(u,v)});
+}
+}
+if(sampled.length>=3&&totalLen>80){
+traces.push({pts:sampled,len:totalLen,w:width,primary:primary,side:side,pinIdx:pinIdx});
+}
+}
+
+function buildBoardGeometry(){
+const pinsPerSide=26;
+const padSpanW=HALF_W*1.76;
+const padSpanH=HALF_H*1.76;
+
+for(let i=0;i<pinsPerSide;i++){
+const frac=(i/(pinsPerSide-1))-0.5;
+const absF=Math.abs(frac);
+const sign=frac<0?-1:1;
+
+const nu=CHIPU+frac*padSpanW;
+const nv=CHIPV-HALF_H;
+pinPads.push({u:nu,v:nv,du:0,dv:-1,side:0,idx:i});
+const stubN=42+(0.5-absF)*95+(i%3)*12;
+const diagN=75+absF*460;
+const jogN=110+((i*37)%140);
+const pN=[[nu,nv-10],[nu,nv-stubN],[nu+sign*diagN,nv-stubN-diagN],[nu+sign*diagN,nv-stubN-diagN-jogN],[nu+sign*(diagN+180),nv-stubN-diagN-jogN-180],[nu+sign*(diagN+180),nv-1450]];
+addTrace(pN,i%4===0?2.6:1.7,true,0,i);
+if(i%3===0)vias.push({u:nu+sign*diagN,v:nv-stubN-diagN-jogN*0.5,r:6.5});
+
+const su=CHIPU+frac*padSpanW;
+const sv=CHIPV+HALF_H;
+pinPads.push({u:su,v:sv,du:0,dv:1,side:1,idx:i});
+const stubS=44+(0.5-absF)*85+(i%3)*14;
+const diagS=70+absF*420;
+const jogS=120+((i*29)%150);
+const pS=[[su,sv+10],[su,sv+stubS],[su+sign*diagS,sv+stubS+diagS],[su+sign*diagS,sv+stubS+diagS+jogS],[su+sign*(diagS+220),sv+stubS+diagS+jogS+220],[su+sign*(diagS+220),sv+1200]];
+addTrace(pS,i%4===1?2.5:1.7,true,1,i);
+if(i%3===1)vias.push({u:su+sign*diagS,v:sv+stubS+diagS+jogS*0.5,r:6.5});
+
+const eu=CHIPU+HALF_W;
+const ev=CHIPV+frac*padSpanH;
+pinPads.push({u:eu,v:ev,du:1,dv:0,side:2,idx:i});
+const stubE=50+(0.5-absF)*130+(i%3)*16;
+const diagE=95+absF*520;
+const runE=260+((i*53)%220);
+const pE=[[eu+10,ev],[eu+stubE,ev],[eu+stubE+diagE,ev+sign*diagE],[eu+stubE+diagE+runE,ev+sign*diagE],[eu+stubE+diagE+runE+260,ev+sign*(diagE+260)],[eu+2450,ev+sign*(diagE+260)]];
+addTrace(pE,i%3===0?2.7:1.8,true,2,i);
+if(i%2===0)vias.push({u:eu+stubE+diagE+runE*0.5,v:ev+sign*diagE,r:7});
+
+const wu=CHIPU-HALF_W;
+const wv=CHIPV+frac*padSpanH;
+pinPads.push({u:wu,v:wv,du:-1,dv:0,side:3,idx:i});
+const stubW=48+(0.5-absF)*120+(i%3)*14;
+const diagW=85+absF*480;
+const runW=210+((i*41)%190);
+const pW=[[wu-10,wv],[wu-stubW,wv],[wu-stubW-diagW,wv+sign*diagW],[wu-stubW-diagW-runW,wv+sign*diagW],[wu-stubW-diagW-runW-240,wv+sign*(diagW+240)],[wu-2200,wv+sign*(diagW+240)]];
+addTrace(pW,i%3===0?2.6:1.7,true,3,i);
+if(i%2===1)vias.push({u:wu-stubW-diagW-runW*0.5,v:wv+sign*diagW,r:7});
+}
+
+for(let b=0;b<34;b++){
+const off=b*28;
+const startU=CHIPU+HALF_W+180+off*1.3;
+const startV=CHIPV-HALF_H-20-off*0.55;
+addTrace([[startU,startV],[startU+190,startV-190],[startU+520,startV-190],[startU+920,startV-590],[startU+1350,startV-590]],1.5,false,2,b);
+
+const bU=CHIPU+HALF_W+210+off*1.15;
+const bV=CHIPV+HALF_H+30+off*0.6;
+addTrace([[bU,bV],[bU+220,bV+220],[bU+680,bV+220],[bU+1080,bV+620]],1.6,false,2,b);
+
+const lU=CHIPU-HALF_W-160-off*1.2;
+const lV=CHIPV-HALF_H-15-off*0.55;
+addTrace([[lU,lV],[lU-180,lV-180],[lU-520,lV-180],[lU-880,lV-540]],1.5,false,3,b);
+
+const lbU=CHIPU-HALF_W-150-off*1.1;
+const lbV=CHIPV+HALF_H+40+off*0.5;
+addTrace([[lbU,lbV],[lbU-200,lbV+200],[lbU-620,lbV+200],[lbU-950,lbV+530]],1.5,false,3,b);
+}
+
+for(let k=0;k<46;k++){
+const ang=rand()*Math.PI*2;
+const dist=290+rand()*1050;
+const u=CHIPU+Math.cos(ang)*dist*1.35;
+const v=CHIPV+Math.sin(ang)*dist*0.82;
+if(v>horizonV(u)+60&&Math.abs(u-CHIPU)>HALF_W+55||Math.abs(v-CHIPV)>HALF_H+55){
+if(v>horizonV(u)+50&&v<980){
+smds.push({u:u,v:v,w:18+rand()*16,h:10+rand()*8,rot:rand()>0.5?0:1});
+}
+}
+}
+for(let k=0;k<65;k++){
+const u=-1650+rand()*3500;
+const hv=horizonV(u);
+const v=hv+70+rand()*(920-hv);
+if(Math.abs(u-CHIPU)<HALF_W+45&&Math.abs(v-CHIPV)<HALF_H+45)continue;
+vias.push({u:u,v:v,r:4.5+rand()*4.5});
+}
+}
+
+buildBoardGeometry();
+
+const pulses=[];
+const arrivalBeats=[];
+const BEAT_COUNT=10;
+
+for(let i=0;i<traces.length;i++){
+const tr=traces[i];
+const prob=tr.primary?0.72:0.32;
+if(rand()>prob)continue;
+const dir=tr.primary?(rand()<0.55?-1:1):(rand()<0.5?-1:1);
+const cycles=rand()<0.58?1:(rand()<0.82?2:3);
+let offset;
+if(dir===-1&&tr.primary&&rand()<0.7){
+const beatIdx=Math.floor(rand()*BEAT_COUNT);
+const targetArrive=(beatIdx/BEAT_COUNT)+(rand()-0.5)*0.025;
+offset=((1-(targetArrive*cycles)%1)+1)%1;
+}else{
+offset=rand();
+}
+const streakLen=95+rand()*155;
+const blockCount=6+Math.floor(rand()*6);
+const widthScale=0.85+rand()*0.55;
+pulses.push({
+trace:tr,
+dir:dir,
+cycles:cycles,
+offset:offset,
+streakLen:streakLen,
+blockCount:blockCount,
+widthScale:widthScale
+});
+if(dir===-1&&tr.primary){
+for(let c=0;c<cycles;c++){
+const arr=(((c+1)-offset)/cycles)%1;
+arrivalBeats.push({t:(arr+1)%1,side:tr.side,weight:0.55+rand()*0.45});
+}
+}
+}
+
+const sharpBoard=document.createElement('canvas');
+const blurBoard=document.createElement('canvas');
+const dofBoard=document.createElement('canvas');
+let cw=W,ch=H,sxScale=1,syScale=1;
+
+function drawHorizonCurve(g,extendBottom){
+g.beginPath();
+let started=false;
+for(let u=-2600;u<=2600;u+=40){
+const hv=horizonV(u);
+const p=project(u,hv,0);
+if(!p)continue;
+if(!started){g.moveTo(p.x,p.y);started=true;}
+else g.lineTo(p.x,p.y);
+}
+if(extendBottom){
+g.lineTo(W+200,H+200);
+g.lineTo(-200,H+200);
+g.closePath();
+}
+}
+
+function drawQuad3D(g,u1,v1,e1,u2,v2,e2,u3,v3,e3,u4,v4,e4){
+const p1=project(u1,v1,e1);
+const p2=project(u2,v2,e2);
+const p3=project(u3,v3,e3);
+const p4=project(u4,v4,e4);
+if(!p1||!p2||!p3||!p4)return false;
+g.beginPath();
+g.moveTo(p1.x,p1.y);
+g.lineTo(p2.x,p2.y);
+g.lineTo(p3.x,p3.y);
+g.lineTo(p4.x,p4.y);
+g.closePath();
+return true;
+}
+
+function renderStaticBoard(){
+sharpBoard.width=cw;sharpBoard.height=ch;
+blurBoard.width=cw;blurBoard.height=ch;
+dofBoard.width=cw;dofBoard.height=ch;
+
+const g=sharpBoard.getContext('2d');
+g.setTransform(sxScale,0,0,syScale,0,0);
+
+const skyGrad=g.createLinearGradient(0,0,0,H*0.58);
+skyGrad.addColorStop(0,'#020611');
+skyGrad.addColorStop(0.55,'#040B1A');
+skyGrad.addColorStop(0.86,'#081833');
+skyGrad.addColorStop(1,'#0F2952');
+g.fillStyle=skyGrad;
+g.fillRect(0,0,W,H);
+
+const apex=project(0,horizonV(0),0);
+const atmo=g.createRadialGradient(apex.x,apex.y+40,40,apex.x,apex.y+90,980);
+atmo.addColorStop(0,'rgba(0,240,255,0.22)');
+atmo.addColorStop(0.35,'rgba(15,65,135,0.16)');
+atmo.addColorStop(0.7,'rgba(8,24,54,0.06)');
+atmo.addColorStop(1,'rgba(4,11,26,0)');
+g.fillStyle=atmo;
+g.fillRect(0,0,W,H);
+
+g.save();
+drawHorizonCurve(g,true);
+const boardGrad=g.createRadialGradient(720,520,80,860,640,1320);
+boardGrad.addColorStop(0,'#0C2147');
+boardGrad.addColorStop(0.32,'#081734');
+boardGrad.addColorStop(0.68,'#040D20');
+boardGrad.addColorStop(1,'#020713');
+g.fillStyle=boardGrad;
+g.fill();
+g.clip();
+
+g.strokeStyle='rgba(18,52,102,0.28)';
+g.lineWidth=1;
+for(let u=-2200;u<=2200;u+=140){
+const hv=horizonV(u);
+g.beginPath();
+let st=false;
+for(let v=hv;v<=1150;v+=55){
+const p=project(u,v,0);
+if(!p)continue;
+if(!st){g.moveTo(p.x,p.y);st=true;}else g.lineTo(p.x,p.y);
+}
+g.stroke();
+}
+for(let v=-820;v<=1100;v+=120){
+g.beginPath();
+let st=false;
+for(let u=-2200;u<=2200;u+=65){
+if(v<horizonV(u))continue;
+const p=project(u,v,0);
+if(!p)continue;
+if(!st){g.moveTo(p.x,p.y);st=true;}else g.lineTo(p.x,p.y);
+}
+g.stroke();
+}
+
+for(let i=0;i<traces.length;i++){
+const tr=traces[i];
+const pts=tr.pts;
+g.beginPath();
+g.moveTo(pts[0].x,pts[0].y);
+for(let j=1;j<pts.length;j++)g.lineTo(pts[j].x,pts[j].y);
+g.lineCap='round';
+g.lineJoin='round';
+g.strokeStyle=tr.primary?'#0F2952':'#0B1F40';
+g.lineWidth=tr.w*1.35;
+g.stroke();
+
+if(tr.primary){
+g.strokeStyle='rgba(36,88,160,0.48)';
+g.lineWidth=tr.w*0.55;
+g.stroke();
+}
+}
+
+for(let i=0;i<vias.length;i++){
+const vi=vias[i];
+const p=project(vi.u,vi.v,0);
+if(!p||!p.vis)continue;
+const r=vi.r*p.s;
+if(r<0.8)continue;
+g.beginPath();
+g.ellipse(p.x,p.y,r,r*0.58,ROLL,0,Math.PI*2);
+g.fillStyle='#1C4378';
+g.fill();
+g.strokeStyle='#3568A8';
+g.lineWidth=Math.max(0.6,r*0.22);
+g.stroke();
+g.beginPath();
+g.ellipse(p.x,p.y,r*0.42,r*0.25,ROLL,0,Math.PI*2);
+g.fillStyle='#040B1A';
+g.fill();
+}
+
+for(let i=0;i<smds.length;i++){
+const c=smds[i];
+const hw=c.rot?c.h*0.5:c.w*0.5;
+const hh=c.rot?c.w*0.5:c.h*0.5;
+const elev=5.5;
+if(drawQuad3D(g,c.u-hw,c.v-hh,elev,c.u+hw,c.v-hh,elev,c.u+hw,c.v+hh,elev,c.u-hw,c.v+hh,elev)){
+g.fillStyle='#0B1F3F';
+g.fill();
+g.strokeStyle='#244E87';
+g.lineWidth=0.9;
+g.stroke();
+}
+const cap=c.rot?hh*0.32:hw*0.32;
+if(c.rot){
+if(drawQuad3D(g,c.u-hw,c.v-hh,elev+0.4,c.u+hw,c.v-hh,elev+0.4,c.u+hw,c.v-hh+cap,elev+0.4,c.u-hw,c.v-hh+cap,elev+0.4)){
+g.fillStyle='#78A3CC';g.fill();
+}
+if(drawQuad3D(g,c.u-hw,c.v+hh-cap,elev+0.4,c.u+hw,c.v+hh-cap,elev+0.4,c.u+hw,c.v+hh,elev+0.4,c.u-hw,c.v+hh,elev+0.4)){
+g.fillStyle='#5B82AB';g.fill();
+}
+}else{
+if(drawQuad3D(g,c.u-hw,c.v-hh,elev+0.4,c.u-hw+cap,c.v-hh,elev+0.4,c.u-hw+cap,c.v+hh,elev+0.4,c.u-hw,c.v+hh,elev+0.4)){
+g.fillStyle='#78A3CC';g.fill();
+}
+if(drawQuad3D(g,c.u+hw-cap,c.v-hh,elev+0.4,c.u+hw,c.v-hh,elev+0.4,c.u+hw,c.v+hh,elev+0.4,c.u+hw-cap,c.v+hh,elev+0.4)){
+g.fillStyle='#5B82AB';g.fill();
+}
+}
+}
+
+g.restore();
+
+g.save();
+drawHorizonCurve(g,false);
+g.strokeStyle='rgba(0,240,255,0.55)';
+g.lineWidth=2.4;
+g.shadowColor='#00F0FF';
+g.shadowBlur=18;
+g.stroke();
+g.strokeStyle='rgba(224,247,250,0.75)';
+g.lineWidth=0.9;
+g.shadowBlur=0;
+g.stroke();
+g.restore();
+
+const bg=blurBoard.getContext('2d');
+bg.clearRect(0,0,cw,ch);
+bg.filter='blur('+(7.5*sxScale).toFixed(1)+'px)';
+bg.drawImage(sharpBoard,0,0);
+bg.filter='none';
+
+const dg=dofBoard.getContext('2d');
+dg.clearRect(0,0,cw,ch);
+dg.drawImage(sharpBoard,0,0);
+
+const maskCanvas=document.createElement('canvas');
+maskCanvas.width=cw;maskCanvas.height=ch;
+const mg=maskCanvas.getContext('2d');
+mg.drawImage(blurBoard,0,0);
+mg.globalCompositeOperation='destination-out';
+const chipScreen=project(CHIPU,CHIPV,10);
+const fx=chipScreen.x*sxScale,fy=chipScreen.y*syScale;
+const rad=mg.createRadialGradient(fx,fy,190*sxScale,fx+110*sxScale,fy-10*syScale,940*sxScale);
+rad.addColorStop(0,'rgba(0,0,0,1)');
+rad.addColorStop(0.45,'rgba(0,0,0,0.94)');
+rad.addColorStop(0.76,'rgba(0,0,0,0.28)');
+rad.addColorStop(1,'rgba(0,0,0,0)');
+mg.fillStyle=rad;
+mg.fillRect(0,0,cw,ch);
+
+dg.drawImage(maskCanvas,0,0);
+
+const vig=dg.createRadialGradient(fx+120*sxScale,fy-20*syScale,340*sxScale,960*sxScale,540*syScale,1240*sxScale);
+vig.addColorStop(0,'rgba(4,11,26,0)');
+vig.addColorStop(0.72,'rgba(4,11,26,0.18)');
+vig.addColorStop(1,'rgba(2,6,17,0.68)');
+dg.fillStyle=vig;
+dg.fillRect(0,0,cw,ch);
+}
+
+function getCorePulse(phase){
+let total=0;
+const sideEnergy=[0,0,0,0];
+for(let i=0;i<arrivalBeats.length;i++){
+const b=arrivalBeats[i];
+const dt=(phase-b.t+1)%1;
+if(dt<0.14){
+const e=Math.exp(-dt*26)*b.weight;
+total+=e;
+sideEnergy[b.side]+=e;
+}
+}
+const breath=0.14+0.08*Math.sin(phase*Math.PI*4);
+return{
+core:Math.min(1,breath+total*0.24),
+sides:sideEnergy.map(v=>Math.min(1,v*0.42))
+};
+}
+
+function drawMicrochip(g,phase,pulseState){
+const coreP=pulseState.core;
+const sides=pulseState.sides;
+const sheenPos=((phase*2)%1)*2.4-0.7;
+
+const padElev=2;
+for(let i=0;i<pinPads.length;i++){
+const pd=pinPads[i];
+const w=pd.du!==0?16:3.6;
+const h=pd.dv!==0?16:3.6;
+const cx=pd.u+pd.du*6;
+const cy=pd.v+pd.dv*6;
+if(drawQuad3D(g,cx-w*0.5,cy-h*0.5,padElev,cx+w*0.5,cy-h*0.5,padElev,cx+w*0.5,cy+h*0.5,padElev,cx-w*0.5,cy+h*0.5,padElev)){
+const normPos=((pd.u-CHIPU)+(pd.v-CHIPV))/340;
+const glint=Math.max(0,1-Math.abs(normPos-sheenPos)*3.2);
+const sideGlow=sides[pd.side]*0.45;
+const lum=Math.min(1,0.38+glint*0.52+sideGlow);
+const r=Math.round(45+lum*175);
+const gr=Math.round(90+lum*155);
+const b=Math.round(145+lum*110);
+g.fillStyle='rgb('+r+','+gr+','+b+')';
+g.fill();
+}
+}
+
+const pShadow=project(CHIPU+12,CHIPV+16,0);
+if(pShadow){
+g.save();
+if(drawQuad3D(g,CHIPU-HALF_W-14,CHIPV-HALF_H-10,0,CHIPU+HALF_W+18,CHIPV-HALF_H-10,0,CHIPU+HALF_W+18,CHIPV+HALF_H+20,0,CHIPU-HALF_W-14,CHIPV+HALF_H+20,0)){
+g.fillStyle='rgba(1,4,12,0.72)';
+g.fill();
+}
+g.restore();
+}
+
+const baseH=14;
+if(drawQuad3D(g,CHIPU-HALF_W,CHIPV+HALF_H,0,CHIPU+HALF_W,CHIPV+HALF_H,0,CHIPU+HALF_W,CHIPV+HALF_H,baseH,CHIPU-HALF_W,CHIPV+HALF_H,baseH)){
+g.fillStyle='#051024';
+g.fill();
+g.strokeStyle='#153666';
+g.lineWidth=1;
+g.stroke();
+}
+if(drawQuad3D(g,CHIPU+HALF_W,CHIPV-HALF_H,0,CHIPU+HALF_W,CHIPV+HALF_H,0,CHIPU+HALF_W,CHIPV+HALF_H,baseH,CHIPU+HALF_W,CHIPV-HALF_H,baseH)){
+g.fillStyle='#071733';
+g.fill();
+g.strokeStyle='#1A4178';
+g.lineWidth=1;
+g.stroke();
+}
+
+const pTL=project(CHIPU-HALF_W,CHIPV-HALF_H,baseH);
+const pTR=project(CHIPU+HALF_W,CHIPV-HALF_H,baseH);
+const pBR=project(CHIPU+HALF_W,CHIPV+HALF_H,baseH);
+const pBL=project(CHIPU-HALF_W,CHIPV+HALF_H,baseH);
+if(pTL&&pTR&&pBR&&pBL){
+const pkgGrad=g.createLinearGradient(pTL.x,pTL.y,pBR.x,pBR.y);
+pkgGrad.addColorStop(0,'#112C57');
+pkgGrad.addColorStop(0.42,'#091A38');
+pkgGrad.addColorStop(1,'#040C1E');
+g.beginPath();
+g.moveTo(pTL.x,pTL.y);g.lineTo(pTR.x,pTR.y);g.lineTo(pBR.x,pBR.y);g.lineTo(pBL.x,pBL.y);
+g.closePath();
+g.fillStyle=pkgGrad;
+g.fill();
+g.strokeStyle='rgba(0,240,255,'+(0.25+coreP*0.35).toFixed(3)+')';
+g.lineWidth=1.5;
+g.stroke();
+}
+
+const bevelW=HALF_W*0.84,bevelH=HALF_H*0.84,dieH=21;
+if(drawQuad3D(g,CHIPU-bevelW,CHIPV+bevelH,baseH,CHIPU+bevelW,CHIPV+bevelH,baseH,CHIPU+bevelW,CHIPV+bevelH,dieH,CHIPU-bevelW,CHIPV+bevelH,dieH)){
+g.fillStyle='#081C3D';
+g.fill();
+}
+if(drawQuad3D(g,CHIPU+bevelW,CHIPV-bevelH,baseH,CHIPU+bevelW,CHIPV+bevelH,baseH,CHIPU+bevelW,CHIPV+bevelH,dieH,CHIPU+bevelW,CHIPV-bevelH,dieH)){
+g.fillStyle='#0F2F61';
+g.fill();
+}
+
+const dTL=project(CHIPU-bevelW,CHIPV-bevelH,dieH);
+const dTR=project(CHIPU+bevelW,CHIPV-bevelH,dieH);
+const dBR=project(CHIPU+bevelW,CHIPV+bevelH,dieH);
+const dBL=project(CHIPU-bevelW,CHIPV+bevelH,dieH);
+if(dTL&&dTR&&dBR&&dBL){
+g.save();
+g.beginPath();
+g.moveTo(dTL.x,dTL.y);g.lineTo(dTR.x,dTR.y);g.lineTo(dBR.x,dBR.y);g.lineTo(dBL.x,dBL.y);
+g.closePath();
+
+const dieGrad=g.createLinearGradient(dTL.x,dTL.y,dBR.x,dBR.y);
+dieGrad.addColorStop(0,'#173E78');
+dieGrad.addColorStop(0.28,'#0B2145');
+dieGrad.addColorStop(0.55,'#06142D');
+dieGrad.addColorStop(0.82,'#102C59');
+dieGrad.addColorStop(1,'#051024');
+g.fillStyle=dieGrad;
+g.fill();
+g.clip();
+
+const sweep=Math.sin(phase*Math.PI*2)*0.22;
+const shGrad=g.createLinearGradient(dTL.x,dTL.y,dBR.x,dBR.y);
+const sCenter=0.45+sweep;
+shGrad.addColorStop(Math.max(0,sCenter-0.22),'rgba(224,247,250,0)');
+shGrad.addColorStop(sCenter,'rgba(224,247,250,0.16)');
+shGrad.addColorStop(Math.min(1,sCenter+0.22),'rgba(224,247,250,0)');
+g.fillStyle=shGrad;
+g.fillRect(Math.min(dTL.x,dBL.x)-20,Math.min(dTL.y,dTR.y)-20,420,340);
+
+const subW=bevelW*0.86,subH=bevelH*0.86;
+g.strokeStyle='rgba(26,74,138,0.55)';
+g.lineWidth=1;
+for(let r=-3;r<=3;r++){
+const yOff=r*(subH/3.5);
+const a=project(CHIPU-subW,CHIPV+yOff,dieH+0.3);
+const b=project(CHIPU+subW,CHIPV+yOff,dieH+0.3);
+if(a&&b){g.beginPath();g.moveTo(a.x,a.y);g.lineTo(b.x,b.y);g.stroke();}
+}
+for(let c=-3;c<=3;c++){
+const xOff=c*(subW/3.5);
+const a=project(CHIPU+xOff,CHIPV-subH,dieH+0.3);
+const b=project(CHIPU+xOff,CHIPV+subH,dieH+0.3);
+if(a&&b){g.beginPath();g.moveTo(a.x,a.y);g.lineTo(b.x,b.y);g.stroke();}
+}
+
+const blocks=[
+[-0.78,-0.78,0.44,0.44],[0.34,-0.78,0.44,0.44],
+[-0.78,0.34,0.44,0.44],[0.34,0.34,0.44,0.44]
+];
+for(let bi=0;bi<blocks.length;bi++){
+const bl=blocks[bi];
+const u1=CHIPU+bl[0]*bevelW,v1=CHIPV+bl[1]*bevelH;
+const u2=u1+bl[2]*bevelW,v2=v1+bl[3]*bevelH;
+if(drawQuad3D(g,u1,v1,dieH+0.5,u2,v1,dieH+0.5,u2,v2,dieH+0.5,u1,v2,dieH+0.5)){
+const bGlow=0.12+coreP*0.28+sides[bi]*0.25;
+g.fillStyle='rgba(0,240,255,'+bGlow.toFixed(3)+')';
+g.fill();
+g.strokeStyle='rgba(0,240,255,'+(0.35+coreP*0.5).toFixed(3)+')';
+g.lineWidth=1.1;
+g.stroke();
+}
+}
+
+g.restore();
+
+g.beginPath();
+g.moveTo(dTL.x,dTL.y);g.lineTo(dTR.x,dTR.y);g.lineTo(dBR.x,dBR.y);g.lineTo(dBL.x,dBL.y);
+g.closePath();
+g.strokeStyle='rgba(125,220,255,'+(0.42+coreP*0.48).toFixed(3)+')';
+g.lineWidth=1.6;
+g.stroke();
+}
+
+const coreCenter=project(CHIPU,CHIPV,dieH+1);
+if(coreCenter){
+g.save();
+g.globalCompositeOperation='lighter';
+
+const glowR=115+coreP*105;
+const cGrad=g.createRadialGradient(coreCenter.x,coreCenter.y,4,coreCenter.x,coreCenter.y,glowR);
+cGrad.addColorStop(0,'rgba(224,247,250,'+(0.38+coreP*0.58).toFixed(3)+')');
+cGrad.addColorStop(0.28,'rgba(0,240,255,'+(0.22+coreP*0.48).toFixed(3)+')');
+cGrad.addColorStop(0.65,'rgba(0,140,255,'+(0.06+coreP*0.16).toFixed(3)+')');
+cGrad.addColorStop(1,'rgba(0,240,255,0)');
+g.fillStyle=cGrad;
+g.beginPath();
+g.arc(coreCenter.x,coreCenter.y,glowR,0,Math.PI*2);
+g.fill();
+
+const ringSizes=[0.54,0.34,0.16];
+for(let ri=0;ri<ringSizes.length;ri++){
+const rs=ringSizes[ri];
+const rw=bevelW*rs,rh=bevelH*rs;
+if(drawQuad3D(g,CHIPU-rw,CHIPV-rh,dieH+1,CHIPU+rw,CHIPV-rh,dieH+1,CHIPU+rw,CHIPV+rh,dieH+1,CHIPU-rw,CHIPV+rh,dieH+1)){
+if(ri===2){
+g.fillStyle='rgba(224,247,250,'+(0.45+coreP*0.55).toFixed(3)+')';
+g.fill();
+}
+g.strokeStyle=ri===2?'rgba(224,247,250,'+(0.6+coreP*0.4).toFixed(3)+')':'rgba(0,240,255,'+(0.28+coreP*(0.65-ri*0.1)).toFixed(3)+')';
+g.lineWidth=ri===0?1.8:(ri===1?2.2:1.5);
+g.stroke();
+}
+}
+
+const crossL=bevelW*0.72,crossH=bevelH*0.72;
+const cN=project(CHIPU,CHIPV-crossH,dieH+1),cS=project(CHIPU,CHIPV+crossH,dieH+1);
+const cW=project(CHIPU-crossL,CHIPV,dieH+1),cE=project(CHIPU+crossL,CHIPV,dieH+1);
+g.strokeStyle='rgba(0,240,255,'+(0.25+coreP*0.65).toFixed(3)+')';
+g.lineWidth=2;
+if(cN&&cS){g.beginPath();g.moveTo(cN.x,cN.y);g.lineTo(cS.x,cS.y);g.stroke();}
+if(cW&&cE){g.beginPath();g.moveTo(cW.x,cW.y);g.lineTo(cE.x,cE.y);g.stroke();}
+
+g.restore();
+}
+}
+
+function sampleAtDist(tr,dist){
+const pts=tr.pts;
+if(dist<=0)return{x:pts[0].x,y:pts[0].y,dx:pts[1].x-pts[0].x,dy:pts[1].y-pts[0].y,s:pts[0].s,f:pts[0].f};
+const last=pts.length-1;
+if(dist>=tr.len)return{x:pts[last].x,y:pts[last].y,dx:pts[last].x-pts[last-1].x,dy:pts[last].y-pts[last-1].y,s:pts[last].s,f:pts[last].f};
+let lo=0,hi=last;
+while(lo<hi-1){
+const mid=(lo+hi)>>1;
+if(pts[mid].l<=dist)lo=mid;else hi=mid;
+}
+const a=pts[lo],b=pts[hi];
+const span=b.l-a.l||1;
+const t=(dist-a.l)/span;
+return{
+x:a.x+(b.x-a.x)*t,
+y:a.y+(b.y-a.y)*t,
+dx:b.x-a.x,
+dy:b.y-a.y,
+s:a.s+(b.s-a.s)*t,
+f:a.f+(b.f-a.f)*t
+};
+}
+
+function drawPulses(g,phase){
+g.save();
+g.globalCompositeOperation='lighter';
+
+for(let i=0;i<pulses.length;i++){
+const pl=pulses[i];
+const tr=pl.trace;
+const rawP=(phase*pl.cycles+pl.offset)%1;
+const posFrac=pl.dir===1?rawP:(1-rawP);
+const headDist=posFrac*tr.len;
+
+let edgeFade=1;
+if(posFrac>0.88)edgeFade=(1-posFrac)/0.12;
+else if(posFrac<0.04&&!tr.primary)edgeFade=posFrac/0.04;
+if(edgeFade<=0.01)continue;
+
+const headPt=sampleAtDist(tr,headDist);
+const dofAlpha=1-headPt.f*0.42;
+const alphaBase=edgeFade*dofAlpha;
+
+const tailSign=-pl.dir;
+const trailSegs=12;
+g.beginPath();
+let moved=false;
+for(let s=0;s<=trailSegs;s++){
+const d=headDist+tailSign*(s/trailSegs)*pl.streakLen;
+if(d<0||d>tr.len)continue;
+const pt=sampleAtDist(tr,d);
+if(!moved){g.moveTo(pt.x,pt.y);moved=true;}
+else g.lineTo(pt.x,pt.y);
+}
+if(moved){
+g.lineCap='butt';
+g.strokeStyle='rgba(0,240,255,'+(0.22*alphaBase).toFixed(3)+')';
+g.lineWidth=(4.8+headPt.f*4.5)*pl.widthScale*Math.min(1.3,headPt.s*1.1);
+g.stroke();
+
+g.strokeStyle='rgba(0,240,255,'+(0.68*alphaBase).toFixed(3)+')';
+g.lineWidth=1.8*pl.widthScale*Math.min(1.2,headPt.s*1.1);
+g.stroke();
+}
+
+const blockStep=pl.streakLen/(pl.blockCount+1.5);
+for(let b=0;b<pl.blockCount;b++){
+const d=headDist+tailSign*(b*blockStep);
+if(d<0||d>tr.len)continue;
+const pt=sampleAtDist(tr,d);
+const lenD=Math.hypot(pt.dx,pt.dy)||1;
+const ux=pt.dx/lenD,uy=pt.dy/lenD;
+const decay=1-(b/pl.blockCount);
+const isHead=b===0;
+const bw=(isHead?9.5:(7.2*decay+2.2))*pl.widthScale*Math.min(1.25,pt.s*1.15);
+const bh=(isHead?4.2:(3.0*decay+1.2))*pl.widthScale*Math.min(1.25,pt.s*1.15);
+
+g.save();
+g.translate(pt.x,pt.y);
+g.rotate(Math.atan2(uy,ux));
+if(isHead){
+const hGlow=g.createRadialGradient(0,0,0.5,0,0,bw*2.1);
+hGlow.addColorStop(0,'rgba(224,247,250,'+(0.85*alphaBase).toFixed(3)+')');
+hGlow.addColorStop(0.35,'rgba(0,240,255,'+(0.55*alphaBase).toFixed(3)+')');
+hGlow.addColorStop(1,'rgba(0,240,255,0)');
+g.fillStyle=hGlow;
+g.beginPath();
+g.arc(0,0,bw*2.1,0,Math.PI*2);
+g.fill();
+
+g.fillStyle='rgba(224,247,250,'+(0.98*alphaBase).toFixed(3)+')';
+g.fillRect(-bw*0.5,-bh*0.5,bw,bh);
+}else{
+g.fillStyle='rgba(0,240,255,'+(0.85*decay*decay*alphaBase).toFixed(3)+')';
+g.fillRect(-bw*0.5,-bh*0.5,bw,bh);
+}
+g.restore();
+}
+}
+
+g.restore();
+}
+
+function resize(){
+const dpr=Math.min(2,window.devicePixelRatio||1);
+cw=Math.max(1,Math.round(window.innerWidth*dpr));
+ch=Math.max(1,Math.round(window.innerHeight*dpr));
+canvas.width=cw;
+canvas.height=ch;
+sxScale=cw/W;
+syScale=ch/H;
+renderStaticBoard();
+}
+
+window.addEventListener('resize',resize);
+resize();
+
+function render(ts){
+const phase=((ts||0)%LOOP)/LOOP;
+const pulseState=getCorePulse(phase);
+
+ctx.setTransform(1,0,0,1,0,0);
+ctx.drawImage(dofBoard,0,0);
+
+ctx.setTransform(sxScale,0,0,syScale,0,0);
+drawPulses(ctx,phase);
+drawMicrochip(ctx,phase,pulseState);
+
+requestAnimationFrame(render);
+}
+
+requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>

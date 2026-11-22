@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Isometric Wave-Bent Flexible Circuit Ribbon Animation | 4K Seamless Electronics Loop</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#030916}
+canvas{display:block;width:100%;height:100%}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+(() => {
+  const canvas = document.getElementById('c');
+  const ctx = canvas.getContext('2d');
+  const W = 1920;
+  const H = 1080;
+  const LOOP_MS = 10000;
+  const X_MIN = -1420;
+  const X_MAX = 1420;
+  const Y_HALF = 255;
+  const THICK = 18;
+  const SEGS = 128;
+
+  const L = norm3([0.62, -0.28, 0.73]);
+  const V = norm3([-0.42, 0.66, 0.62]);
+  const H_VEC = norm3([L[0] + V[0], L[1] + V[1], L[2] + V[2]]);
+
+  function norm3(a) {
+    const l = Math.hypot(a[0], a[1], a[2]) || 1;
+    return [a[0] / l, a[1] / l, a[2] / l];
+  }
+
+  function dot3(a, b) {
+    return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+  }
+
+  function cross3(a, b) {
+    return [
+      a[1] * b[2] - a[2] * b[1],
+      a[2] * b[0] - a[0] * b[2],
+      a[0] * b[1] - a[1] * b[0]
+    ];
+  }
+
+  function iso(x, y, z) {
+    return {
+      x: 960 + x * 0.866 + y * 0.72,
+      y: 540 - x * 0.40 + y * 0.46 - z
+    };
+  }
+
+  function depthOf(x, y, z) {
+    return x * -0.42 + y * 0.66 + z * 0.62;
+  }
+
+  function waveZ(u, v, omega) {
+    const a1 = u * Math.PI * 3.0 - omega;
+    const a2 = u * Math.PI * 6.0 - omega * 2.0 + 0.55;
+    return 96 * Math.sin(a1) + 16 * Math.sin(a2) + 10 * Math.cos(v * Math.PI * 0.5) * Math.sin(a1);
+  }
+
+  function surfPt(u, v, omega, zOff = 0) {
+    const x = X_MIN + u * (X_MAX - X_MIN);
+    const y = v * Y_HALF;
+    const z = waveZ(u, v, omega) + zOff;
+    return [x, y, z];
+  }
+
+  function surfFrame(u, v, omega) {
+    const eps = 0.0015;
+    const p = surfPt(u, v, omega);
+    const pu = surfPt(u + eps, v, omega);
+    const pv = surfPt(u, v + eps, omega);
+    const tu = norm3([pu[0] - p[0], pu[1] - p[1], pu[2] - p[2]]);
+    const tv0 = [pv[0] - p[0], pv[1] - p[1], pv[2] - p[2]];
+    const n = norm3(cross3(tu, tv0));
+    const tv = norm3(cross3(n, tu));
+    return { p, tu, tv, n };
+  }
+
+  function lerp(a, b, k) {
+    return a + (b - a) * k;
+  }
+
+  function mixRGB(c1, c2, k) {
+    const t = Math.max(0, Math.min(1, k));
+    return `rgb(${Math.round(lerp(c1[0], c2[0], t))},${Math.round(lerp(c1[1], c2[1], t))},${Math.round(lerp(c1[2], c2[2], t))})`;
+  }
+
+  const traces = [
+    { pts: [[0, -0.84], [1, -0.84]], w: 2.2, bright: 0.75 },
+    { pts: [[0, -0.76], [0.22, -0.76], [0.25, -0.68], [0.58, -0.68], [0.61, -0.76], [1, -0.76]], w: 1.8, bright: 0.65 },
+    { pts: [[0, -0.66], [0.16, -0.66], [0.19, -0.58], [0.42, -0.58], [0.45, -0.66], [0.76, -0.66], [0.79, -0.58], [1, -0.58]], w: 1.6, bright: 0.55 },
+    { pts: [[0, -0.52], [0.30, -0.52], [0.33, -0.44], [0.68, -0.44], [0.71, -0.52], [1, -0.52]], w: 2.0, bright: 0.8 },
+    { pts: [[0, -0.36], [1, -0.36]], w: 1.5, bright: 0.5 },
+    { pts: [[0, -0.24], [0.26, -0.24], [0.29, -0.16], [0.52, -0.16], [0.55, -0.24], [1, -0.24]], w: 2.2, bright: 0.85 },
+    { pts: [[0, -0.10], [0.40, -0.10], [0.43, -0.02], [0.80, -0.02], [0.83, -0.10], [1, -0.10]], w: 1.9, bright: 0.7 },
+    { pts: [[0, 0.04], [1, 0.04]], w: 2.4, bright: 0.9 },
+    { pts: [[0, 0.16], [0.20, 0.16], [0.23, 0.24], [0.62, 0.24], [0.65, 0.16], [1, 0.16]], w: 1.8, bright: 0.65 },
+    { pts: [[0, 0.28], [0.36, 0.28], [0.39, 0.36], [0.74, 0.36], [0.77, 0.28], [1, 0.28]], w: 2.1, bright: 0.8 },
+    { pts: [[0, 0.42], [1, 0.42]], w: 1.6, bright: 0.55 },
+    { pts: [[0, 0.54], [0.24, 0.54], [0.27, 0.62], [0.56, 0.62], [0.59, 0.54], [0.84, 0.54], [0.87, 0.62], [1, 0.62]], w: 2.0, bright: 0.78 },
+    { pts: [[0, 0.70], [0.44, 0.70], [0.47, 0.78], [0.82, 0.78], [0.85, 0.70], [1, 0.70]], w: 1.7, bright: 0.6 },
+    { pts: [[0, 0.84], [1, 0.84]], w: 2.3, bright: 0.82 }
+  ];
+
+  function traceVAt(tr, u) {
+    const pts = tr.pts;
+    if (u <= pts[0][0]) return pts[0][1];
+    for (let i = 0; i < pts.length - 1; i++) {
+      const a = pts[i];
+      const b = pts[i + 1];
+      if (u >= a[0] && u <= b[0]) {
+        const k = (u - a[0]) / (b[0] - a[0] || 1);
+        return lerp(a[1], b[1], k);
+      }
+    }
+    return pts[pts.length - 1][1];
+  }
+
+  const pulses = [
+    { tr: 0, u0: 0.05, speed: 2, len: 8, dir: 1 },
+    { tr: 0, u0: 0.55, speed: 2, len: 6, dir: 1 },
+    { tr: 1, u0: 0.18, speed: 3, len: 9, dir: 1 },
+    { tr: 2, u0: 0.42, speed: 2, len: 7, dir: -1 },
+    { tr: 3, u0: 0.12, speed: 3, len: 10, dir: 1 },
+    { tr: 3, u0: 0.64, speed: 3, len: 7, dir: 1 },
+    { tr: 4, u0: 0.78, speed: 2, len: 6, dir: -1 },
+    { tr: 5, u0: 0.08, speed: 4, len: 11, dir: 1 },
+    { tr: 5, u0: 0.52, speed: 4, len: 8, dir: 1 },
+    { tr: 6, u0: 0.31, speed: 2, len: 8, dir: -1 },
+    { tr: 7, u0: 0.00, speed: 3, len: 12, dir: 1 },
+    { tr: 7, u0: 0.48, speed: 3, len: 9, dir: 1 },
+    { tr: 8, u0: 0.22, speed: 2, len: 7, dir: 1 },
+    { tr: 9, u0: 0.14, speed: 3, len: 10, dir: 1 },
+    { tr: 9, u0: 0.68, speed: 3, len: 7, dir: 1 },
+    { tr: 10, u0: 0.85, speed: 2, len: 6, dir: -1 },
+    { tr: 11, u0: 0.27, speed: 3, len: 9, dir: 1 },
+    { tr: 12, u0: 0.60, speed: 2, len: 7, dir: -1 },
+    { tr: 13, u0: 0.10, speed: 2, len: 9, dir: 1 },
+    { tr: 13, u0: 0.58, speed: 2, len: 7, dir: 1 }
+  ];
+
+  const vias = [
+    [0.14, -0.84], [0.22, -0.76], [0.33, -0.44], [0.45, -0.66], [0.58, -0.68], [0.71, -0.52], [0.84, -0.84],
+    [0.20, 0.16], [0.29, -0.16], [0.43, -0.02], [0.55, -0.24], [0.65, 0.16], [0.77, 0.28], [0.87, 0.62],
+    [0.18, 0.84], [0.39, 0.36], [0.56, 0.62], [0.74, 0.36], [0.85, 0.70], [0.47, 0.78]
+  ];
+
+  const chips = [
+    { type: 'ic', u: 0.22, v: -0.22, lu: 118, lv: 112, h: 24, pinsU: 7, pinsV: 7, pulsePhase: 0.0 },
+    { type: 'ic', u: 0.42, v: 0.18, lu: 156, lv: 144, h: 30, pinsU: 9, pinsV: 8, pulsePhase: 1.4, hero: true },
+    { type: 'ic', u: 0.58, v: -0.34, lu: 108, lv: 92, h: 22, pinsU: 6, pinsV: 5, pulsePhase: 2.8 },
+    { type: 'ic', u: 0.74, v: 0.08, lu: 142, lv: 132, h: 28, pinsU: 8, pinsV: 8, pulsePhase: 4.1, hero: true },
+    { type: 'ic', u: 0.88, v: -0.26, lu: 102, lv: 96, h: 22, pinsU: 6, pinsV: 6, pulsePhase: 5.2 },
+    { type: 'smd', u: 0.16, v: 0.38, lu: 30, lv: 16, h: 11 },
+    { type: 'smd', u: 0.27, v: 0.54, lu: 26, lv: 14, h: 10 },
+    { type: 'smd', u: 0.32, v: -0.58, lu: 32, lv: 16, h: 11 },
+    { type: 'smd', u: 0.35, v: -0.44, lu: 24, lv: 14, h: 10 },
+    { type: 'smd', u: 0.48, v: -0.64, lu: 30, lv: 16, h: 11 },
+    { type: 'smd', u: 0.51, v: 0.62, lu: 34, lv: 18, h: 12 },
+    { type: 'smd', u: 0.54, v: 0.52, lu: 24, lv: 14, h: 10 },
+    { type: 'smd', u: 0.65, v: 0.46, lu: 30, lv: 16, h: 11 },
+    { type: 'smd', u: 0.66, v: -0.62, lu: 26, lv: 14, h: 10 },
+    { type: 'smd', u: 0.81, v: 0.52, lu: 32, lv: 16, h: 11 },
+    { type: 'smd', u: 0.83, v: -0.64, lu: 28, lv: 15, h: 10 },
+    { type: 'smd', u: 0.30, v: 0.12, lu: 24, lv: 14, h: 10 },
+    { type: 'smd', u: 0.64, v: -0.06, lu: 26, lv: 15, h: 10 }
+  ];
+
+  const bgDots = [];
+  for (let gx = -12; gx <= 12; gx++) {
+    for (let gy = -8; gy <= 8; gy++) {
+      const p = iso(gx * 165, gy * 165, -240);
+      if (p.x > -40 && p.x < W + 40 && p.y > -40 && p.y < H + 40) {
+        bgDots.push(p);
+      }
+    }
+  }
+
+  function localPt(frame, lx, ly, lz) {
+    return [
+      frame.p[0] + frame.tu[0] * lx + frame.tv[0] * ly + frame.n[0] * lz,
+      frame.p[1] + frame.tu[1] * lx + frame.tv[1] * ly + frame.n[1] * lz,
+      frame.p[2] + frame.tu[2] * lx + frame.tv[2] * ly + frame.n[2] * lz
+    ];
+  }
+
+  function poly2D(pts) {
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x, pts[0].y);
+    for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+    ctx.closePath();
+  }
+
+  function drawBackground(omega) {
+    const bg = ctx.createLinearGradient(0, H, W, 0);
+    bg.addColorStop(0, '#020712');
+    bg.addColorStop(0.5, '#040D1E');
+    bg.addColorStop(1, '#091E3C');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+
+    const rimGlow = ctx.createRadialGradient(W * 0.86, H * 0.12, 40, W * 0.86, H * 0.12, 980);
+    rimGlow.addColorStop(0, 'rgba(2,132,199,0.22)');
+    rimGlow.addColorStop(0.45, 'rgba(0,245,212,0.06)');
+    rimGlow.addColorStop(1, 'rgba(2,132,199,0)');
+    ctx.fillStyle = rimGlow;
+    ctx.fillRect(0, 0, W, H);
+
+    const lowGlow = ctx.createRadialGradient(W * 0.22, H * 0.82, 20, W * 0.22, H * 0.82, 680);
+    lowGlow.addColorStop(0, 'rgba(2,132,199,0.09)');
+    lowGlow.addColorStop(1, 'rgba(2,132,199,0)');
+    ctx.fillStyle = lowGlow;
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.fillStyle = 'rgba(2,132,199,0.12)';
+    for (let i = 0; i < bgDots.length; i++) {
+      const d = bgDots[i];
+      ctx.beginPath();
+      ctx.arc(d.x, d.y, 1.4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    const sweep = 0.5 + 0.5 * Math.sin(omega);
+    ctx.strokeStyle = `rgba(2,132,199,${0.045 + sweep * 0.015})`;
+    ctx.lineWidth = 1;
+    for (let g = -6; g <= 6; g++) {
+      const a = iso(-1500, g * 240, -240);
+      const b = iso(1500, g * 240, -240);
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(b.x, b.y);
+      ctx.stroke();
+    }
+  }
+
+  function drawRibbonShadow(omega) {
+    const layers = [
+      { spread: 54, alpha: 0.16, dz: -175 },
+      { spread: 30, alpha: 0.24, dz: -175 },
+      { spread: 10, alpha: 0.34, dz: -175 }
+    ];
+    for (let l = 0; l < layers.length; l++) {
+      const lay = layers[l];
+      const topPts = [];
+      const botPts = [];
+      for (let i = 0; i <= 64; i++) {
+        const u = i / 64;
+        const x = X_MIN + u * (X_MAX - X_MIN);
+        const zMid = waveZ(u, 0, omega);
+        const shiftX = -75 - (zMid + 110) * 0.32;
+        const shiftY = 48 + (zMid + 110) * 0.24;
+        topPts.push(iso(x + shiftX, -Y_HALF - lay.spread + shiftY, lay.dz));
+        botPts.push(iso(x + shiftX, Y_HALF + lay.spread + shiftY, lay.dz));
+      }
+      ctx.beginPath();
+      ctx.moveTo(topPts[0].x, topPts[0].y);
+      for (let i = 1; i < topPts.length; i++) ctx.lineTo(topPts[i].x, topPts[i].y);
+      for (let i = botPts.length - 1; i >= 0; i--) ctx.lineTo(botPts[i].x, botPts[i].y);
+      ctx.closePath();
+      ctx.fillStyle = `rgba(1,5,14,${lay.alpha})`;
+      ctx.fill();
+    }
+  }
+
+  function drawRibbonSubstrate(omega) {
+    const du = 1 / SEGS;
+    for (let i = 0; i < SEGS; i++) {
+      const u0 = i * du;
+      const u1 = (i + 1) * du + du * 0.18;
+      const um = (u0 + u1) * 0.5;
+
+      const fr = surfFrame(um, 0, omega);
+      const diff = Math.max(0, dot3(fr.n, L));
+      const spec = Math.pow(Math.max(0, dot3(fr.n, H_VEC)), 16);
+
+      const p00 = iso(...surfPt(u0, -1, omega));
+      const p10 = iso(...surfPt(u1, -1, omega));
+      const p11 = iso(...surfPt(u1, 1, omega));
+      const p01 = iso(...surfPt(u0, 1, omega));
+
+      const grad = ctx.createLinearGradient(p00.x, p00.y, p01.x, p01.y);
+      const baseTop = mixRGB([5, 16, 36], [15, 48, 92], diff * 0.72 + spec * 0.65);
+      const baseMid = mixRGB([5, 16, 36], [11, 36, 74], diff * 0.55 + spec * 0.45);
+      const baseBot = mixRGB([3, 11, 26], [8, 28, 58], diff * 0.45 + spec * 0.25);
+
+      grad.addColorStop(0, baseTop);
+      grad.addColorStop(0.42, baseMid);
+      grad.addColorStop(1, baseBot);
+
+      poly2D([p00, p10, p11, p01]);
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      if (spec > 0.08) {
+        ctx.fillStyle = `rgba(125,211,252,${Math.min(0.28, spec * 0.34)})`;
+        ctx.fill();
+      }
+
+      const b0 = iso(...surfPt(u0, 1, omega, -THICK));
+      const b1 = iso(...surfPt(u1, 1, omega, -THICK));
+      poly2D([p01, p11, b1, b0]);
+      ctx.fillStyle = mixRGB([2, 8, 20], [9, 32, 62], diff * 0.45);
+      ctx.fill();
+
+      const m0 = iso(...surfPt(u0, 1, omega, -THICK * 0.48));
+      const m1 = iso(...surfPt(u1, 1, omega, -THICK * 0.48));
+      const m2 = iso(...surfPt(u1, 1, omega, -THICK * 0.64));
+      const m3 = iso(...surfPt(u0, 1, omega, -THICK * 0.64));
+      poly2D([m0, m1, m2, m3]);
+      ctx.fillStyle = `rgba(2,132,199,${0.32 + spec * 0.45})`;
+      ctx.fill();
+    }
+
+    ctx.beginPath();
+    for (let i = 0; i <= SEGS; i++) {
+      const u = i / SEGS;
+      const p = iso(...surfPt(u, -1, omega, 0.8));
+      if (i === 0) ctx.moveTo(p.x, p.y);
+      else ctx.lineTo(p.x, p.y);
+    }
+    ctx.strokeStyle = 'rgba(203,213,225,0.52)';
+    ctx.lineWidth = 2.2;
+    ctx.stroke();
+
+    ctx.beginPath();
+    for (let i = 0; i <= SEGS; i++) {
+      const u = i / SEGS;
+      const p = iso(...surfPt(u, 1, omega, 0.5));
+      if (i === 0) ctx.moveTo(p.x, p.y);
+      else ctx.lineTo(p.x, p.y);
+    }
+    ctx.strokeStyle = 'rgba(2,132,199,0.68)';
+    ctx.lineWidth = 1.8;
+    ctx.stroke();
+
+    const rails = [-0.93, 0.93];
+    for (let r = 0; r < rails.length; r++) {
+      ctx.beginPath();
+      for (let i = 0; i <= SEGS; i++) {
+        const u = i / SEGS;
+        const p = iso(...surfPt(u, rails[r], omega, 1.2));
+        if (i === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      }
+      ctx.strokeStyle = 'rgba(2,132,199,0.42)';
+      ctx.lineWidth = 3.2;
+      ctx.stroke();
+    }
+  }
+
+  function drawTracesAndVias(omega) {
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    for (let tIdx = 0; tIdx < traces.length; tIdx++) {
+      const tr = traces[tIdx];
+      ctx.beginPath();
+      for (let i = 0; i <= SEGS; i++) {
+        const u = i / SEGS;
+        const v = traceVAt(tr, u);
+        const p = iso(...surfPt(u, v, omega, 1.4));
+        if (i === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      }
+      ctx.strokeStyle = `rgba(2,132,199,${0.32 + tr.bright * 0.48})`;
+      ctx.lineWidth = tr.w;
+      ctx.stroke();
+    }
+
+    for (let i = 0; i < vias.length; i++) {
+      const u = vias[i][0];
+      const v = vias[i][1];
+      const fr = surfFrame(u, v, omega);
+      const ptsOut = [];
+      const ptsIn = [];
+      for (let k = 0; k < 8; k++) {
+        const ang = (k / 8) * Math.PI * 2;
+        const ca = Math.cos(ang);
+        const sa = Math.sin(ang);
+        ptsOut.push(iso(...localPt(fr, ca * 6.5, sa * 6.5, 1.8)));
+        ptsIn.push(iso(...localPt(fr, ca * 3.0, sa * 3.0, 2.0)));
+      }
+      poly2D(ptsOut);
+      ctx.fillStyle = '#0284C7';
+      ctx.fill();
+      ctx.strokeStyle = '#CBD5E1';
+      ctx.lineWidth = 1.1;
+      ctx.stroke();
+      poly2D(ptsIn);
+      ctx.fillStyle = '#051024';
+      ctx.fill();
+    }
+  }
+
+  function drawPixelImpulses(t, omega) {
+    const pixelStepU = 0.0082;
+    const pixelLenU = 0.0056;
+    const pixelHalfV = 0.011;
+
+    for (let i = 0; i < pulses.length; i++) {
+      const pl = pulses[i];
+      const tr = traces[pl.tr];
+      const headU = ((pl.u0 + t * pl.speed * pl.dir) % 1 + 1) % 1;
+
+      ctx.beginPath();
+      let started = false;
+      for (let s = 0; s <= pl.len + 3; s++) {
+        const su = headU - s * pixelStepU * 0.9 * pl.dir;
+        if (su < 0 || su > 1) continue;
+        const sv = traceVAt(tr, su);
+        const sp = iso(...surfPt(su, sv, omega, 2.0));
+        if (!started) {
+          ctx.moveTo(sp.x, sp.y);
+          started = true;
+        } else {
+          ctx.lineTo(sp.x, sp.y);
+        }
+      }
+      if (started) {
+        ctx.strokeStyle = 'rgba(0,245,212,0.20)';
+        ctx.lineWidth = 9;
+        ctx.stroke();
+        ctx.strokeStyle = 'rgba(0,245,212,0.42)';
+        ctx.lineWidth = 3.5;
+        ctx.stroke();
+      }
+
+      for (let k = 0; k < pl.len; k++) {
+        const uCenter = headU - k * pixelStepU * pl.dir;
+        const uA = uCenter - pixelLenU * 0.5;
+        const uB = uCenter + pixelLenU * 0.5;
+        if (uA < 0.002 || uB > 0.998) continue;
+
+        const vA = traceVAt(tr, uA);
+        const vB = traceVAt(tr, uB);
+        const fade = 1 - k / pl.len;
+        const hv = pixelHalfV * (0.65 + 0.45 * fade);
+
+        const q0 = iso(...surfPt(uA, vA - hv, omega, 2.2));
+        const q1 = iso(...surfPt(uB, vB - hv, omega, 2.2));
+        const q2 = iso(...surfPt(uB, vB + hv, omega, 2.2));
+        const q3 = iso(...surfPt(uA, vA + hv, omega, 2.2));
+
+        poly2D([q0, q1, q2, q3]);
+        if (k === 0) {
+          ctx.fillStyle = '#E6FFFA';
+        } else if (k === 1) {
+          ctx.fillStyle = '#00F5D4';
+        } else {
+          ctx.fillStyle = `rgba(0,245,212,${(fade * 0.92).toFixed(3)})`;
+        }
+        ctx.fill();
+      }
+    }
+  }
+
+  function drawPin(fr, lx, ly, dirU, dirV, pinLen, pinW, pinH) {
+    const pad0 = iso(...localPt(fr, lx + dirU * 4 - dirV * pinW * 0.8, ly + dirV * 4 - dirU * pinW * 0.8, 1.5));
+    const pad1 = iso(...localPt(fr, lx + dirU * (pinLen + 4) - dirV * pinW * 0.8, ly + dirV * (pinLen + 4) - dirU * pinW * 0.8, 1.5));
+    const pad2 = iso(...localPt(fr, lx + dirU * (pinLen + 4) + dirV * pinW * 0.8, ly + dirV * (pinLen + 4) + dirU * pinW * 0.8, 1.5));
+    const pad3 = iso(...localPt(fr, lx + dirU * 4 + dirV * pinW * 0.8, ly + dirV * 4 + dirU * pinW * 0.8, 1.5));
+    poly2D([pad0, pad1, pad2, pad3]);
+    ctx.fillStyle = 'rgba(203,213,225,0.34)';
+    ctx.fill();
+
+    const w2 = pinW * 0.5;
+    const pIn = [
+      iso(...localPt(fr, lx - dirV * w2, ly - dirU * w2, pinH)),
+      iso(...localPt(fr, lx + dirU * (pinLen * 0.55) - dirV * w2, ly + dirV * (pinLen * 0.55) - dirU * w2, pinH)),
+      iso(...localPt(fr, lx + dirU * (pinLen * 0.55) + dirV * w2, ly + dirV * (pinLen * 0.55) + dirU * w2, pinH)),
+      iso(...localPt(fr, lx + dirV * w2, ly + dirU * w2, pinH))
+    ];
+    const pKnee = [
+      pIn[1],
+      iso(...localPt(fr, lx + dirU * pinLen - dirV * w2, ly + dirV * pinLen - dirU * w2, 2.2)),
+      iso(...localPt(fr, lx + dirU * pinLen + dirV * w2, ly + dirV * pinLen + dirU * w2, 2.2)),
+      pIn[2]
+    ];
+    const pSide = [
+      iso(...localPt(fr, lx + dirV * w2, ly + dirU * w2, pinH)),
+      iso(...localPt(fr, lx + dirU * (pinLen * 0.55) + dirV * w2, ly + dirV * (pinLen * 0.55) + dirU * w2, pinH)),
+      iso(...localPt(fr, lx + dirU * pinLen + dirV * w2, ly + dirV * pinLen + dirU * w2, 2.2)),
+      iso(...localPt(fr, lx + dirU * (pinLen * 0.5) + dirV * w2, ly + dirV * (pinLen * 0.5) + dirU * w2, 1.8))
+    ];
+
+    poly2D(pSide);
+    ctx.fillStyle = '#64748B';
+    ctx.fill();
+
+    poly2D(pKnee);
+    ctx.fillStyle = '#CBD5E1';
+    ctx.fill();
+
+    poly2D(pIn);
+    ctx.fillStyle = '#E2E8F0';
+    ctx.fill();
+  }
+
+  function drawIC(c, omega) {
+    const fr = surfFrame(c.u, c.v, omega);
+    const hu = c.lu * 0.5;
+    const hv = c.lv * 0.5;
+    const h = c.h;
+
+    const shOffU = -14;
+    const shOffV = 16;
+    const sh = [
+      iso(...localPt(fr, -hu + shOffU, -hv + shOffV, 1.2)),
+      iso(...localPt(fr, hu + shOffU, -hv + shOffV, 1.2)),
+      iso(...localPt(fr, hu + shOffU, hv + shOffV, 1.2)),
+      iso(...localPt(fr, -hu + shOffU, hv + shOffV, 1.2))
+    ];
+    poly2D(sh);
+    ctx.fillStyle = 'rgba(2,7,18,0.52)';
+    ctx.fill();
+
+    for (let i = 0; i < c.pinsU; i++) {
+      const k = c.pinsU === 1 ? 0 : (i / (c.pinsU - 1)) * 2 - 1;
+      drawPin(fr, k * (hu - 12), -hv, 0, -1, 14, 4.4, 7.5);
+    }
+    for (let i = 0; i < c.pinsV; i++) {
+      const k = c.pinsV === 1 ? 0 : (i / (c.pinsV - 1)) * 2 - 1;
+      drawPin(fr, hu, k * (hv - 12), 1, 0, 14, 4.4, 7.5);
+    }
+
+    const b00 = iso(...localPt(fr, -hu, -hv, 2));
+    const b10 = iso(...localPt(fr, hu, -hv, 2));
+    const b11 = iso(...localPt(fr, hu, hv, 2));
+    const b01 = iso(...localPt(fr, -hu, hv, 2));
+
+    const t00 = iso(...localPt(fr, -hu, -hv, h));
+    const t10 = iso(...localPt(fr, hu, -hv, h));
+    const t11 = iso(...localPt(fr, hu, hv, h));
+    const t01 = iso(...localPt(fr, -hu, hv, h));
+
+    const diffTop = Math.max(0, dot3(fr.n, L));
+    const specTop = Math.pow(Math.max(0, dot3(fr.n, H_VEC)), 12);
+    const diffLeft = Math.max(0, dot3([-fr.tu[0], -fr.tu[1], -fr.tu[2]], L));
+    const diffFront = Math.max(0, dot3(fr.tv, L));
+
+    poly2D([b00, b01, t01, t00]);
+    ctx.fillStyle = mixRGB([4, 12, 26], [12, 32, 60], diffLeft * 0.7);
+    ctx.fill();
+
+    poly2D([b01, b11, t11, t01]);
+    ctx.fillStyle = mixRGB([6, 18, 38], [16, 46, 84], diffFront * 0.8 + 0.12);
+    ctx.fill();
+
+    const topGrad = ctx.createLinearGradient(t01.x, t01.y, t10.x, t10.y);
+    topGrad.addColorStop(0, mixRGB([8, 22, 46], [16, 44, 82], diffTop * 0.65));
+    topGrad.addColorStop(0.65, mixRGB([11, 29, 58], [26, 68, 118], diffTop * 0.85));
+    topGrad.addColorStop(1, mixRGB([18, 46, 86], [56, 130, 196], diffTop * 0.7 + specTop * 0.7));
+    poly2D([t00, t10, t11, t01]);
+    ctx.fillStyle = topGrad;
+    ctx.fill();
+
+    const inU = hu * 0.74;
+    const inV = hv * 0.74;
+    const i00 = iso(...localPt(fr, -inU, -inV, h + 0.6));
+    const i10 = iso(...localPt(fr, inU, -inV, h + 0.6));
+    const i11 = iso(...localPt(fr, inU, inV, h + 0.6));
+    const i01 = iso(...localPt(fr, -inU, inV, h + 0.6));
+    poly2D([i00, i10, i11, i01]);
+    ctx.fillStyle = 'rgba(4,14,32,0.55)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(2,132,199,0.55)';
+    ctx.lineWidth = 1.4;
+    ctx.stroke();
+
+    if (c.hero) {
+      const cU = hu * 0.36;
+      const cV = hv * 0.36;
+      const pulse = 0.5 + 0.5 * Math.sin(omega * 2 + c.pulsePhase);
+      const c00 = iso(...localPt(fr, -cU, -cV, h + 1.0));
+      const c10 = iso(...localPt(fr, cU, -cV, h + 1.0));
+      const c11 = iso(...localPt(fr, cU, cV, h + 1.0));
+      const c01 = iso(...localPt(fr, -cU, cV, h + 1.0));
+      poly2D([c00, c10, c11, c01]);
+      ctx.fillStyle = `rgba(0,245,212,${0.08 + pulse * 0.16})`;
+      ctx.fill();
+      ctx.strokeStyle = `rgba(0,245,212,${0.48 + pulse * 0.42})`;
+      ctx.lineWidth = 1.6;
+      ctx.stroke();
+
+      const lines = [
+        [[-inU * 0.85, 0], [-cU, 0]],
+        [[cU, 0], [inU * 0.85, 0]],
+        [[0, -inV * 0.85], [0, -cV]],
+        [[0, cV], [0, inV * 0.85]]
+      ];
+      ctx.strokeStyle = 'rgba(2,132,199,0.65)';
+      ctx.lineWidth = 1.3;
+      for (let l = 0; l < lines.length; l++) {
+        const a = iso(...localPt(fr, lines[l][0][0], lines[l][0][1], h + 1.0));
+        const b = iso(...localPt(fr, lines[l][1][0], lines[l][1][1], h + 1.0));
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(b.x, b.y);
+        ctx.stroke();
+      }
+    }
+
+    const dotP = iso(...localPt(fr, -hu * 0.58, hv * 0.56, h + 1.0));
+    const dotPulse = 0.55 + 0.45 * Math.sin(omega * 2 + c.pulsePhase);
+    ctx.beginPath();
+    ctx.arc(dotP.x, dotP.y, 3.2, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(0,245,212,${dotPulse})`;
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(t00.x, t00.y);
+    ctx.lineTo(t10.x, t10.y);
+    ctx.lineTo(t11.x, t11.y);
+    ctx.strokeStyle = `rgba(203,213,225,${0.55 + specTop * 0.45})`;
+    ctx.lineWidth = 2.0;
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(t00.x, t00.y);
+    ctx.lineTo(t01.x, t01.y);
+    ctx.lineTo(t11.x, t11.y);
+    ctx.strokeStyle = 'rgba(2,132,199,0.55)';
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+
+    for (let i = 0; i < c.pinsV; i++) {
+      const k = c.pinsV === 1 ? 0 : (i / (c.pinsV - 1)) * 2 - 1;
+      drawPin(fr, -hu, k * (hv - 12), -1, 0, 14, 4.4, 7.5);
+    }
+    for (let i = 0; i < c.pinsU; i++) {
+      const k = c.pinsU === 1 ? 0 : (i / (c.pinsU - 1)) * 2 - 1;
+      drawPin(fr, k * (hu - 12), hv, 0, 1, 14, 4.4, 7.5);
+    }
+  }
+
+  function drawSMD(c, omega) {
+    const fr = surfFrame(c.u, c.v, omega);
+    const hu = c.lu * 0.5;
+    const hv = c.lv * 0.5;
+    const h = c.h;
+
+    const sh = [
+      iso(...localPt(fr, -hu - 5, -hv + 6, 1.1)),
+      iso(...localPt(fr, hu - 5, -hv + 6, 1.1)),
+      iso(...localPt(fr, hu - 5, hv + 6, 1.1)),
+      iso(...localPt(fr, -hu - 5, hv + 6, 1.1))
+    ];
+    poly2D(sh);
+    ctx.fillStyle = 'rgba(2,7,18,0.45)';
+    ctx.fill();
+
+    const parts = [
+      { u0: -hu, u1: -hu * 0.42, top: '#E2E8F0', front: '#CBD5E1', left: '#94A3B8' },
+      { u0: -hu * 0.42, u1: hu * 0.42, top: '#13315C', front: '#0B2040', left: '#06142A' },
+      { u0: hu * 0.42, u1: hu, top: '#F1F5F9', front: '#CBD5E1', left: '#94A3B8' }
+    ];
+
+    for (let i = 0; i < parts.length; i++) {
+      const pt = parts[i];
+      const b00 = iso(...localPt(fr, pt.u0, -hv, 1.5));
+      const b10 = iso(...localPt(fr, pt.u1, -hv, 1.5));
+      const b11 = iso(...localPt(fr, pt.u1, hv, 1.5));
+      const b01 = iso(...localPt(fr, pt.u0, hv, 1.5));
+      const t00 = iso(...localPt(fr, pt.u0, -hv, h));
+      const t10 = iso(...localPt(fr, pt.u1, -hv, h));
+      const t11 = iso(...localPt(fr, pt.u1, hv, h));
+      const t01 = iso(...localPt(fr, pt.u0, hv, h));
+
+      if (i === 0) {
+        poly2D([b00, b01, t01, t00]);
+        ctx.fillStyle = pt.left;
+        ctx.fill();
+      }
+      poly2D([b01, b11, t11, t01]);
+      ctx.fillStyle = pt.front;
+      ctx.fill();
+      poly2D([t00, t10, t11, t01]);
+      ctx.fillStyle = pt.top;
+      ctx.fill();
+    }
+  }
+
+  function resize() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.round(window.innerWidth * dpr);
+    canvas.height = Math.round(window.innerHeight * dpr);
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+
+  function render(ts) {
+    const t = (((ts % LOOP_MS) + LOOP_MS) % LOOP_MS) / LOOP_MS;
+    const omega = t * Math.PI * 2;
+
+    const cw = canvas.width;
+    const ch = canvas.height;
+    const scale = Math.max(cw / W, ch / H);
+    const ox = (cw - W * scale) * 0.5;
+    const oy = (ch - H * scale) * 0.5;
+
+    ctx.setTransform(scale, 0, 0, scale, ox, oy);
+
+    drawBackground(omega);
+    drawRibbonShadow(omega);
+    drawRibbonSubstrate(omega);
+    drawTracesAndVias(omega);
+    drawPixelImpulses(t, omega);
+
+    const sorted = chips.map(c => {
+      const p = surfPt(c.u, c.v, omega, c.h * 0.5);
+      return { c, d: depthOf(p[0], p[1], p[2]) };
+    }).sort((a, b) => a.d - b.d);
+
+    for (let i = 0; i < sorted.length; i++) {
+      const item = sorted[i].c;
+      if (item.type === 'ic') drawIC(item, omega);
+      else drawSMD(item, omega);
+    }
+
+    requestAnimationFrame(render);
+  }
+
+  requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>

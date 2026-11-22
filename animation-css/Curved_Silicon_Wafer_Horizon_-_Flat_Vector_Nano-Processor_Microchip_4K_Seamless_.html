@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Curved Silicon Wafer Horizon - Flat Vector Nano-Processor Microchip 4K Seamless Loop</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#040918}
+svg{display:block;width:100%;height:100%}
+</style>
+</head>
+<body>
+<svg id="scene" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0%" stop-color="#030714"/>
+<stop offset="48%" stop-color="#07132B"/>
+<stop offset="82%" stop-color="#0E244D"/>
+<stop offset="100%" stop-color="#173A73"/>
+</linearGradient>
+<radialGradient id="horizonHalo" cx="52%" cy="35%" r="55%">
+<stop offset="0%" stop-color="#00F0FF" stop-opacity="0.34"/>
+<stop offset="32%" stop-color="#1B56B5" stop-opacity="0.2"/>
+<stop offset="68%" stop-color="#091B3D" stop-opacity="0.06"/>
+<stop offset="100%" stop-color="#030714" stop-opacity="0"/>
+</radialGradient>
+<radialGradient id="waferGrad" cx="62%" cy="54%" r="72%">
+<stop offset="0%" stop-color="#133163"/>
+<stop offset="34%" stop-color="#0B1F45"/>
+<stop offset="70%" stop-color="#06122B"/>
+<stop offset="100%" stop-color="#030917"/>
+</radialGradient>
+<linearGradient id="pkgTopGrad" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0%" stop-color="#193E7A"/>
+<stop offset="45%" stop-color="#0E2652"/>
+<stop offset="100%" stop-color="#071530"/>
+</linearGradient>
+<linearGradient id="dieSurfaceGrad" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0%" stop-color="#225299"/>
+<stop offset="28%" stop-color="#102C5C"/>
+<stop offset="62%" stop-color="#081A3B"/>
+<stop offset="100%" stop-color="#14366E"/>
+</linearGradient>
+<linearGradient id="goldPinGrad" x1="0" y1="0" x2="1" y2="0">
+<stop offset="0%" stop-color="#9E7432"/>
+<stop offset="50%" stop-color="#F7CF79"/>
+<stop offset="100%" stop-color="#8C6429"/>
+</linearGradient>
+<linearGradient id="sheenGrad" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0%" stop-color="#E0F7FA" stop-opacity="0"/>
+<stop offset="46%" stop-color="#E0F7FA" stop-opacity="0"/>
+<stop offset="50%" stop-color="#E0F7FA" stop-opacity="0.34"/>
+<stop offset="54%" stop-color="#00F0FF" stop-opacity="0.14"/>
+<stop offset="60%" stop-color="#E0F7FA" stop-opacity="0"/>
+<stop offset="100%" stop-color="#E0F7FA" stop-opacity="0"/>
+</linearGradient>
+<radialGradient id="coreGlowGrad" cx="50%" cy="50%" r="50%">
+<stop offset="0%" stop-color="#E0F7FA" stop-opacity="1"/>
+<stop offset="28%" stop-color="#00F0FF" stop-opacity="0.82"/>
+<stop offset="65%" stop-color="#1E88FF" stop-opacity="0.22"/>
+<stop offset="100%" stop-color="#00F0FF" stop-opacity="0"/>
+</radialGradient>
+<filter id="farBlur" x="-10%" y="-10%" width="120%" height="120%">
+<feGaussianBlur stdDeviation="3.4"/>
+</filter>
+<filter id="nearBlur" x="-10%" y="-10%" width="120%" height="120%">
+<feGaussianBlur stdDeviation="2.4"/>
+</filter>
+<filter id="neonGlow" x="-40%" y="-40%" width="180%" height="180%">
+<feGaussianBlur stdDeviation="4.5" result="b"/>
+<feMerge>
+<feMergeNode in="b"/>
+<feMergeNode in="SourceGraphic"/>
+</feMerge>
+</filter>
+<filter id="rimGlow" x="-10%" y="-40%" width="120%" height="180%">
+<feGaussianBlur stdDeviation="7" result="b"/>
+<feMerge>
+<feMergeNode in="b"/>
+<feMergeNode in="SourceGraphic"/>
+</feMerge>
+</filter>
+<clipPath id="waferClip"><path id="waferClipPath"/></clipPath>
+<clipPath id="dieClip"><polygon id="dieClipPoly"/></clipPath>
+</defs>
+<rect width="1920" height="1080" fill="url(#skyGrad)"/>
+<rect width="1920" height="1080" fill="url(#horizonHalo)"/>
+<g id="skyDecor"></g>
+<g clip-path="url(#waferClip)">
+<path id="waferFill" fill="url(#waferGrad)"/>
+<g id="waferGrid"></g>
+<g id="farTraces" filter="url(#farBlur)"></g>
+<g id="midTraces"></g>
+<g id="nearTraces" filter="url(#nearBlur)"></g>
+<g id="boardDetails"></g>
+<g id="farPulses" filter="url(#farBlur)" style="mix-blend-mode:screen"></g>
+<g id="midPulses" style="mix-blend-mode:screen"></g>
+<g id="nearPulses" filter="url(#nearBlur)" style="mix-blend-mode:screen"></g>
+</g>
+<path id="horizonRimOuter" fill="none" stroke="#00F0FF" stroke-width="4" opacity="0.65" filter="url(#rimGlow)"/>
+<path id="horizonRimInner" fill="none" stroke="#E0F7FA" stroke-width="1.3" opacity="0.88"/>
+<g id="chipLayer"></g>
+<g id="vignetteLayer" pointer-events="none"></g>
+</svg>
+<script>
+(function(){
+const NS='http://www.w3.org/2000/svg';
+const LOOP=10000;
+const RU=2750,RV=2150,CAMX=-80,CAMY=595,CAMZ=1480,F=1420;
+const PITCH=0.445,COSP=Math.cos(PITCH),SINP=Math.sin(PITCH);
+const ROLL=0.042,COSR=Math.cos(ROLL),SINR=Math.sin(ROLL);
+const CHIPU=255,CHIPV=165,HW=154,HH=142;
+
+let seed=834921;
+function rand(){
+seed|=0;seed=(seed+0x6D2B79F5)|0;
+let t=Math.imul(seed^(seed>>>15),1|seed);
+t=(t+Math.imul(t^(t>>>7),61|t))^t;
+return((t^(t>>>14))>>>0)/4294967296;
+}
+
+function el(tag,attrs,parent){
+const n=document.createElementNS(NS,tag);
+if(attrs){for(const k in attrs)n.setAttribute(k,attrs[k]);}
+if(parent)parent.appendChild(n);
+return n;
+}
+
+function horizonV(u){
+const disc=CAMZ*CAMZ+2*RV*(CAMY+(u/RU)*CAMX-(u*u)/(2*RU));
+if(disc<=0)return 0;
+return CAMZ-Math.sqrt(disc);
+}
+
+function project(u,v,elev){
+const e=elev||0;
+const y=-(u*u)/(2*RU)-(v*v)/(2*RV)+e;
+const dx=u-CAMX,dy=y-CAMY,dz=CAMZ-v;
+const ry=dy*COSP+dz*SINP;
+const rz=-dy*SINP+dz*COSP;
+if(rz<40)return null;
+const s=F/rz;
+const px=dx*s,py=-ry*s;
+const sx=960+px*COSR-py*SINR;
+const sy=540+px*SINR+py*COSR;
+return{x:sx,y:sy,s:s,rz:rz};
+}
+
+function quadPoints(u1,v1,e1,u2,v2,e2,u3,v3,e3,u4,v4,e4){
+const p1=project(u1,v1,e1),p2=project(u2,v2,e2),p3=project(u3,v3,e3),p4=project(u4,v4,e4);
+if(!p1||!p2||!p3||!p4)return null;
+return p1.x.toFixed(1)+','+p1.y.toFixed(1)+' '+p2.x.toFixed(1)+','+p2.y.toFixed(1)+' '+p3.x.toFixed(1)+','+p3.y.toFixed(1)+' '+p4.x.toFixed(1)+','+p4.y.toFixed(1);
+}
+
+function buildHorizonPath(closeBottom){
+let d='';
+for(let u=-2550;u<=2550;u+=36){
+const p=project(u,horizonV(u),0);
+if(!p)continue;
+d+=(d===''?'M':'L')+p.x.toFixed(1)+' '+p.y.toFixed(1)+' ';
+}
+if(closeBottom)d+='L2120 1280 L-200 1280 Z';
+return d;
+}
+
+const rimD=buildHorizonPath(false);
+const fillD=buildHorizonPath(true);
+document.getElementById('waferClipPath').setAttribute('d',fillD);
+document.getElementById('waferFill').setAttribute('d',fillD);
+document.getElementById('horizonRimOuter').setAttribute('d',rimD);
+document.getElementById('horizonRimInner').setAttribute('d',rimD);
+
+const skyDecor=document.getElementById('skyDecor');
+const apexP=project(0,horizonV(0),0);
+for(let r=1;r<=4;r++){
+el('ellipse',{
+cx:(apexP.x+40).toFixed(1),
+cy:(apexP.y+680).toFixed(1),
+rx:(880+r*195).toFixed(0),
+ry:(660+r*62).toFixed(0),
+fill:'none',
+stroke:r===1?'#00F0FF':'#2859A8',
+'stroke-width':r===1?'1.1':'0.8',
+'stroke-dasharray':r%2===0?'10 14':'none',
+opacity:(0.22-r*0.04).toFixed(2)
+},skyDecor);
+}
+
+const waferGrid=document.getElementById('waferGrid');
+for(let u=-2100;u<=2100;u+=150){
+const hv=horizonV(u);
+let d='';
+for(let v=hv;v<=1120;v+=55){
+const p=project(u,v,0);
+if(!p)continue;
+d+=(d===''?'M':'L')+p.x.toFixed(1)+' '+p.y.toFixed(1)+' ';
+}
+if(d)el('path',{d:d,fill:'none',stroke:'#163970','stroke-width':'1',opacity:'0.32'},waferGrid);
+}
+for(let v=-650;v<=1050;v+=130){
+let d='';
+for(let u=-2100;u<=2100;u+=60){
+if(v<horizonV(u))continue;
+const p=project(u,v,0);
+if(!p)continue;
+d+=(d===''?'M':'L')+p.x.toFixed(1)+' '+p.y.toFixed(1)+' ';
+}
+if(d)el('path',{d:d,fill:'none',stroke:'#163970','stroke-width':'1',opacity:'0.28'},waferGrid);
+}
+
+const traces=[];
+const vias=[];
+const pinPads=[];
+
+function depthBand(u,v){
+const du=(u-CHIPU)/920;
+const dv=(v-CHIPV)/640;
+const d=Math.hypot(du,dv);
+if(v<-220||d>1.28)return 0;
+if(v>720)return 2;
+return 1;
+}
+
+function addTrace(pts,width,primary,side,pinIdx){
+const sampled=[];
+let totalLen=0;
+for(let i=0;i<pts.length-1;i++){
+const a=pts[i],b=pts[i+1];
+const seg=Math.hypot(b[0]-a[0],b[1]-a[1]);
+const steps=Math.max(2,Math.ceil(seg/30));
+for(let s=0;s<=steps;s++){
+if(i>0&&s===0)continue;
+const t=s/steps;
+const u=a[0]+(b[0]-a[0])*t;
+const v=a[1]+(b[1]-a[1])*t;
+const hv=horizonV(u);
+if(v<hv-10){
+if(sampled.length>0){
+const prev=sampled[sampled.length-1];
+const clV=hv-2;
+const p=project(u,clV,0);
+if(p){
+totalLen+=Math.hypot(u-prev.u,clV-prev.v);
+sampled.push({u:u,v:clV,x:p.x,y:p.y,s:p.s,l:totalLen});
+}
+}
+i=pts.length;
+break;
+}
+const p=project(u,v,0);
+if(!p||p.rz<90)break;
+if(sampled.length>0){
+const prev=sampled[sampled.length-1];
+totalLen+=Math.hypot(u-prev.u,v-prev.v);
+}
+sampled.push({u:u,v:v,x:p.x,y:p.y,s:p.s,l:totalLen});
+}
+}
+if(sampled.length>=3&&totalLen>90){
+const mid=sampled[Math.floor(sampled.length*0.55)];
+traces.push({
+pts:sampled,
+len:totalLen,
+w:width,
+primary:primary,
+side:side,
+pinIdx:pinIdx,
+band:depthBand(mid.u,mid.v)
+});
+}
+}
+
+const pinsPerSide=24;
+const spanW=HW*1.74,spanH=HH*1.74;
+for(let i=0;i<pinsPerSide;i++){
+const frac=(i/(pinsPerSide-1))-0.5;
+const absF=Math.abs(frac);
+const sign=frac<0?-1:1;
+
+const nu=CHIPU+frac*spanW,nv=CHIPV-HH;
+pinPads.push({u:nu,v:nv,du:0,dv:-1,side:0,idx:i});
+const sN=42+(0.5-absF)*90+(i%3)*12,dN=80+absF*440,jN=110+((i*31)%130);
+addTrace([[nu,nv-10],[nu,nv-sN],[nu+sign*dN,nv-sN-dN],[nu+sign*dN,nv-sN-dN-jN],[nu+sign*(dN+180),nv-sN-dN-jN-180],[nu+sign*(dN+180),nv-1350]],i%4===0?2.8:1.8,true,0,i);
+if(i%3===0)vias.push({u:nu+sign*dN,v:nv-sN-dN-jN*0.5,r:6.2});
+
+const su=CHIPU+frac*spanW,sv=CHIPV+HH;
+pinPads.push({u:su,v:sv,du:0,dv:1,side:1,idx:i});
+const sS=45+(0.5-absF)*82+(i%3)*14,dS=75+absF*410,jS=120+((i*23)%140);
+addTrace([[su,sv+10],[su,sv+sS],[su+sign*dS,sv+sS+dS],[su+sign*dS,sv+sS+dS+jS],[su+sign*(dS+210),sv+sS+dS+jS+210],[su+sign*(dS+210),sv+1150]],i%4===1?2.7:1.8,true,1,i);
+if(i%3===1)vias.push({u:su+sign*dS,v:sv+sS+dS+jS*0.5,r:6.2});
+
+const wu=CHIPU-HW,wv=CHIPV+frac*spanH;
+pinPads.push({u:wu,v:wv,du:-1,dv:0,side:2,idx:i});
+const sW=55+(0.5-absF)*135+(i%3)*18,dW=105+absF*520,rW=290+((i*47)%240);
+addTrace([[wu-10,wv],[wu-sW,wv],[wu-sW-dW,wv+sign*dW],[wu-sW-dW-rW,wv+sign*dW],[wu-sW-dW-rW-280,wv+sign*(dW+280)],[wu-2550,wv+sign*(dW+280)]],i%3===0?2.9:1.9,true,2,i);
+if(i%2===0)vias.push({u:wu-sW-dW-rW*0.5,v:wv+sign*dW,r:7});
+
+const eu=CHIPU+HW,ev=CHIPV+frac*spanH;
+pinPads.push({u:eu,v:ev,du:1,dv:0,side:3,idx:i});
+const sE=48+(0.5-absF)*110+(i%3)*15,dE=85+absF*460,rE=210+((i*37)%190);
+addTrace([[eu+10,ev],[eu+sE,ev],[eu+sE+dE,ev+sign*dE],[eu+sE+dE+rE,ev+sign*dE],[eu+sE+dE+rE+240,ev+sign*(dE+240)],[eu+2100,ev+sign*(dE+240)]],i%3===0?2.8:1.8,true,3,i);
+if(i%2===1)vias.push({u:eu+sE+dE+rE*0.5,v:ev+sign*dE,r:7});
+}
+
+for(let b=0;b<32;b++){
+const off=b*30;
+const lu=CHIPU-HW-200-off*1.35,lv=CHIPV-HH-25-off*0.52;
+addTrace([[lu,lv],[lu-210,lv-210],[lu-640,lv-210],[lu-1020,lv-590],[lu-1450,lv-590]],1.6,false,2,b);
+
+const lbu=CHIPU-HW-220-off*1.2,lbv=CHIPV+HH+35+off*0.56;
+addTrace([[lbu,lbv],[lbu-230,lbv+230],[lbu-720,lbv+230],[lbu-1120,lbv+630]],1.6,false,2,b);
+
+const ru=CHIPU+HW+165+off*1.15,rv=CHIPV-HH-15-off*0.55;
+addTrace([[ru,rv],[ru+190,rv-190],[ru+540,rv-190],[ru+880,rv-530]],1.5,false,3,b);
+
+const rbu=CHIPU+HW+155+off*1.1,rbv=CHIPV+HH+40+off*0.5;
+addTrace([[rbu,rbv],[rbu+200,rbv+200],[rbu+580,rbv+200],[rbu+920,rbv+540]],1.5,false,3,b);
+}
+
+const farTracesG=document.getElementById('farTraces');
+const midTracesG=document.getElementById('midTraces');
+const nearTracesG=document.getElementById('nearTraces');
+const traceGroups=[farTracesG,midTracesG,nearTracesG];
+
+for(let i=0;i<traces.length;i++){
+const tr=traces[i];
+const pts=tr.pts;
+let d='M'+pts[0].x.toFixed(1)+' '+pts[0].y.toFixed(1);
+for(let j=1;j<pts.length;j++)d+=' L'+pts[j].x.toFixed(1)+' '+pts[j].y.toFixed(1);
+const parent=traceGroups[tr.band];
+el('path',{
+d:d,
+fill:'none',
+stroke:tr.primary?'#133469':'#0D244A',
+'stroke-width':(tr.w*1.35).toFixed(2),
+'stroke-linecap':'round',
+'stroke-linejoin':'round'
+},parent);
+if(tr.primary){
+el('path',{
+d:d,
+fill:'none',
+stroke:'#2862AD',
+'stroke-width':(tr.w*0.5).toFixed(2),
+'stroke-linecap':'round',
+'stroke-linejoin':'round',
+opacity:'0.58'
+},parent);
+}
+}
+
+const boardDetails=document.getElementById('boardDetails');
+for(let k=0;k<52;k++){
+const u=-1750+rand()*3400;
+const hv=horizonV(u);
+const v=hv+75+rand()*(900-hv);
+if(Math.abs(u-CHIPU)<HW+55&&Math.abs(v-CHIPV)<HH+55)continue;
+vias.push({u:u,v:v,r:4.5+rand()*4});
+}
+for(let i=0;i<vias.length;i++){
+const vi=vias[i];
+const p=project(vi.u,vi.v,0);
+if(!p)continue;
+const r=vi.r*p.s;
+if(r<1.1)continue;
+const g=el('g',{transform:'translate('+p.x.toFixed(1)+','+p.y.toFixed(1)+') rotate(2.4)'},boardDetails);
+el('ellipse',{cx:0,cy:0,rx:r.toFixed(1),ry:(r*0.56).toFixed(1),fill:'#1C4680',stroke:'#4786CC','stroke-width':Math.max(0.7,r*0.2).toFixed(2)},g);
+el('ellipse',{cx:0,cy:0,rx:(r*0.42).toFixed(1),ry:(r*0.24).toFixed(1),fill:'#040B1A'},g);
+}
+
+for(let k=0;k<38;k++){
+const ang=rand()*Math.PI*2;
+const dist=300+rand()*1080;
+const u=CHIPU+Math.cos(ang)*dist*1.4;
+const v=CHIPV+Math.sin(ang)*dist*0.82;
+if(v<=horizonV(u)+65||v>940)continue;
+if(Math.abs(u-CHIPU)<HW+65&&Math.abs(v-CHIPV)<HH+65)continue;
+const rot=rand()>0.5;
+const hw=rot?7+rand()*4:12+rand()*9;
+const hh=rot?12+rand()*9:7+rand()*4;
+const elev=6;
+const bodyQ=quadPoints(u-hw,v-hh,elev,u+hw,v-hh,elev,u+hw,v+hh,elev,u-hw,v+hh,elev);
+if(bodyQ){
+el('polygon',{points:bodyQ,fill:'#0D244D',stroke:'#2A5D9E','stroke-width':'1'},boardDetails);
+const cap=rot?hh*0.34:hw*0.34;
+const c1=rot?quadPoints(u-hw,v-hh,elev+0.4,u+hw,v-hh,elev+0.4,u+hw,v-hh+cap,elev+0.4,u-hw,v-hh+cap,elev+0.4):quadPoints(u-hw,v-hh,elev+0.4,u-hw+cap,v-hh,elev+0.4,u-hw+cap,v+hh,elev+0.4,u-hw,v+hh,elev+0.4);
+const c2=rot?quadPoints(u-hw,v+hh-cap,elev+0.4,u+hw,v+hh-cap,elev+0.4,u+hw,v+hh,elev+0.4,u-hw,v+hh,elev+0.4):quadPoints(u+hw-cap,v-hh,elev+0.4,u+hw,v-hh,elev+0.4,u+hw,v+hh,elev+0.4,u+hw-cap,v+hh,elev+0.4);
+if(c1)el('polygon',{points:c1,fill:'url(#goldPinGrad)'},boardDetails);
+if(c2)el('polygon',{points:c2,fill:'url(#goldPinGrad)'},boardDetails);
+}
+}
+
+const chipLayer=document.getElementById('chipLayer');
+const pinEls=[];
+const baseH=16,dieH=24,bw=HW*0.83,bh=HH*0.83;
+
+const shadowQ=quadPoints(CHIPU-HW-20,CHIPV-HH-12,0,CHIPU+HW+22,CHIPV-HH-12,0,CHIPU+HW+22,CHIPV+HH+24,0,CHIPU-HW-20,CHIPV+HH+24,0);
+if(shadowQ)el('polygon',{points:shadowQ,fill:'#020612',opacity:'0.78'},chipLayer);
+
+for(let i=0;i<pinPads.length;i++){
+const pd=pinPads[i];
+const w=pd.du!==0?18:3.8;
+const h=pd.dv!==0?18:3.8;
+const cx=pd.u+pd.du*7,cy=pd.v+pd.dv*7;
+const q=quadPoints(cx-w*0.5,cy-h*0.5,2.5,cx+w*0.5,cy-h*0.5,2.5,cx+w*0.5,cy+h*0.5,2.5,cx-w*0.5,cy+h*0.5,2.5);
+if(q){
+const poly=el('polygon',{points:q,fill:'#5C8CC2'},chipLayer);
+const normPos=((pd.u-CHIPU)+(pd.v-CHIPV))/340;
+pinEls.push({el:poly,side:pd.side,normPos:normPos});
+}
+}
+
+const frontWall=quadPoints(CHIPU-HW,CHIPV+HH,0,CHIPU+HW,CHIPV+HH,0,CHIPU+HW,CHIPV+HH,baseH,CHIPU-HW,CHIPV+HH,baseH);
+const leftWall=quadPoints(CHIPU-HW,CHIPV-HH,0,CHIPU-HW,CHIPV+HH,0,CHIPU-HW,CHIPV+HH,baseH,CHIPU-HW,CHIPV-HH,baseH);
+if(frontWall)el('polygon',{points:frontWall,fill:'#06142E',stroke:'#1D4A85','stroke-width':'1.2'},chipLayer);
+if(leftWall)el('polygon',{points:leftWall,fill:'#0A1F47',stroke:'#225699','stroke-width':'1.2'},chipLayer);
+
+const pkgTopQ=quadPoints(CHIPU-HW,CHIPV-HH,baseH,CHIPU+HW,CHIPV-HH,baseH,CHIPU+HW,CHIPV+HH,baseH,CHIPU-HW,CHIPV+HH,baseH);
+const pkgTopEl=el('polygon',{points:pkgTopQ,fill:'url(#pkgTopGrad)',stroke:'#00F0FF','stroke-width':'1.6','stroke-opacity':'0.45'},chipLayer);
+
+const dieFront=quadPoints(CHIPU-bw,CHIPV+bh,baseH,CHIPU+bw,CHIPV+bh,baseH,CHIPU+bw,CHIPV+bh,dieH,CHIPU-bw,CHIPV+bh,dieH);
+const dieLeft=quadPoints(CHIPU-bw,CHIPV-bh,baseH,CHIPU-bw,CHIPV+bh,baseH,CHIPU-bw,CHIPV+bh,dieH,CHIPU-bw,CHIPV-bh,dieH);
+if(dieFront)el('polygon',{points:dieFront,fill:'#0A224A'},chipLayer);
+if(dieLeft)el('polygon',{points:dieLeft,fill:'#123670'},chipLayer);
+
+const dieTopQ=quadPoints(CHIPU-bw,CHIPV-bh,dieH,CHIPU+bw,CHIPV-bh,dieH,CHIPU+bw,CHIPV+bh,dieH,CHIPU-bw,CHIPV+bh,dieH);
+document.getElementById('dieClipPoly').setAttribute('points',dieTopQ);
+el('polygon',{points:dieTopQ,fill:'url(#dieSurfaceGrad)'},chipLayer);
+
+const dieInnerG=el('g',{'clip-path':'url(#dieClip)'},chipLayer);
+const dieSheenRect=el('rect',{x:'900',y:'300',width:'650',height:'550',fill:'url(#sheenGrad)'},dieInnerG);
+
+const subW=bw*0.86,subH=bh*0.86;
+for(let r=-4;r<=4;r++){
+const yOff=r*(subH/4.5);
+const a=project(CHIPU-subW,CHIPV+yOff,dieH+0.2),b=project(CHIPU+subW,CHIPV+yOff,dieH+0.2);
+if(a&&b)el('line',{x1:a.x.toFixed(1),y1:a.y.toFixed(1),x2:b.x.toFixed(1),y2:b.y.toFixed(1),stroke:'#245BA3','stroke-width':'1',opacity:'0.52'},dieInnerG);
+}
+for(let c=-4;c<=4;c++){
+const xOff=c*(subW/4.5);
+const a=project(CHIPU+xOff,CHIPV-subH,dieH+0.2),b=project(CHIPU+xOff,CHIPV+subH,dieH+0.2);
+if(a&&b)el('line',{x1:a.x.toFixed(1),y1:a.y.toFixed(1),x2:b.x.toFixed(1),y2:b.y.toFixed(1),stroke:'#245BA3','stroke-width':'1',opacity:'0.52'},dieInnerG);
+}
+
+const quadBlocks=[
+[-0.82,-0.82,0.44,0.44],[0.38,-0.82,0.44,0.44],
+[-0.82,0.38,0.44,0.44],[0.38,0.38,0.44,0.44]
+];
+const sectorEls=[];
+for(let bi=0;bi<quadBlocks.length;bi++){
+const bl=quadBlocks[bi];
+const u1=CHIPU+bl[0]*bw,v1=CHIPV+bl[1]*bh;
+const u2=u1+bl[2]*bw,v2=v1+bl[3]*bh;
+const q=quadPoints(u1,v1,dieH+0.4,u2,v1,dieH+0.4,u2,v2,dieH+0.4,u1,v2,dieH+0.4);
+if(q){
+sectorEls.push(el('polygon',{points:q,fill:'#00F0FF','fill-opacity':'0.16',stroke:'#00F0FF','stroke-width':'1.2','stroke-opacity':'0.55'},dieInnerG));
+}
+}
+
+const dieBorderEl=el('polygon',{points:dieTopQ,fill:'none',stroke:'#7DE2FF','stroke-width':'1.8','stroke-opacity':'0.65'},chipLayer);
+
+const coreCenter=project(CHIPU,CHIPV,dieH+1);
+const coreGlowEl=el('circle',{cx:coreCenter.x.toFixed(1),cy:coreCenter.y.toFixed(1),r:'135',fill:'url(#coreGlowGrad)',opacity:'0.45',style:'mix-blend-mode:screen'},chipLayer);
+
+const coreRings=[];
+const ringFracs=[0.56,0.38,0.22];
+for(let ri=0;ri<ringFracs.length;ri++){
+const f=ringFracs[ri];
+const q=quadPoints(CHIPU-bw*f,CHIPV-bh*f,dieH+1,CHIPU+bw*f,CHIPV-bh*f,dieH+1,CHIPU+bw*f,CHIPV+bh*f,dieH+1,CHIPU-bw*f,CHIPV+bh*f,dieH+1);
+coreRings.push(el('polygon',{
+points:q,
+fill:ri===2?'#E0F7FA':'none',
+'fill-opacity':ri===2?'0.75':'0',
+stroke:ri===2?'#E0F7FA':'#00F0FF',
+'stroke-width':ri===1?'2.4':'1.6',
+filter:'url(#neonGlow)'
+},chipLayer));
+}
+
+const crossLines=[];
+const cN=project(CHIPU,CHIPV-bh*0.74,dieH+1),cS=project(CHIPU,CHIPV+bh*0.74,dieH+1);
+const cW=project(CHIPU-bw*0.74,CHIPV,dieH+1),cE=project(CHIPU+bw*0.74,CHIPV,dieH+1);
+if(cN&&cS)crossLines.push(el('line',{x1:cN.x.toFixed(1),y1:cN.y.toFixed(1),x2:cS.x.toFixed(1),y2:cS.y.toFixed(1),stroke:'#00F0FF','stroke-width':'2.2',filter:'url(#neonGlow)'},chipLayer));
+if(cW&&cE)crossLines.push(el('line',{x1:cW.x.toFixed(1),y1:cW.y.toFixed(1),x2:cE.x.toFixed(1),y2:cE.y.toFixed(1),stroke:'#00F0FF','stroke-width':'2.2',filter:'url(#neonGlow)'},chipLayer));
+
+const pulseWaveEl=el('polygon',{points:dieTopQ,fill:'none',stroke:'#E0F7FA','stroke-width':'2.2',opacity:'0',filter:'url(#neonGlow)'},chipLayer);
+
+const vigLayer=document.getElementById('vignetteLayer');
+const vigGrad=el('radialGradient',{id:'vigG',cx:'58%',cy:'52%',r:'68%'},document.querySelector('defs'));
+el('stop',{offset:'0%','stop-color':'#040918','stop-opacity':'0'},vigGrad);
+el('stop',{offset:'72%','stop-color':'#040918','stop-opacity':'0.14'},vigGrad);
+el('stop',{offset:'100%','stop-color':'#020510','stop-opacity':'0.72'},vigGrad);
+el('rect',{width:'1920',height:'1080',fill:'url(#vigG)'},vigLayer);
+
+const farPulsesG=document.getElementById('farPulses');
+const midPulsesG=document.getElementById('midPulses');
+const nearPulsesG=document.getElementById('nearPulses');
+const pulseGroups=[farPulsesG,midPulsesG,nearPulsesG];
+
+const pulses=[];
+const arrivalBeats=[];
+const BEAT_COUNT=10;
+
+for(let i=0;i<traces.length;i++){
+const tr=traces[i];
+const prob=tr.primary?0.62:0.24;
+if(rand()>prob)continue;
+const dir=tr.primary?(rand()<0.58?-1:1):(rand()<0.5?-1:1);
+const cycles=rand()<0.55?1:(rand()<0.84?2:3);
+let offset;
+if(dir===-1&&tr.primary&&rand()<0.75){
+const beatIdx=Math.floor(rand()*BEAT_COUNT);
+const targetArrive=(beatIdx/BEAT_COUNT)+(rand()-0.5)*0.022;
+offset=((1-(targetArrive*cycles)%1)+1)%1;
+}else{
+offset=rand();
+}
+const streakLen=100+rand()*150;
+const blockCount=5+Math.floor(rand()*4);
+const wScale=0.9+rand()*0.5;
+const parent=pulseGroups[tr.band];
+const trailGlow=el('path',{fill:'none',stroke:'#00F0FF','stroke-width':'5','stroke-linecap':'butt',opacity:'0'},parent);
+const trailCore=el('path',{fill:'none',stroke:'#00F0FF','stroke-width':'1.8','stroke-linecap':'butt',opacity:'0'},parent);
+const blocks=[];
+for(let b=0;b<blockCount;b++){
+const isHead=b===0;
+const rect=el('rect',{
+x:'-5',y:'-2',width:'10',height:'4',
+fill:isHead?'#E0F7FA':'#00F0FF',
+opacity:'0'
+},parent);
+blocks.push(rect);
+}
+pulses.push({
+tr:tr,dir:dir,cycles:cycles,offset:offset,
+streakLen:streakLen,blockCount:blockCount,wScale:wScale,
+trailGlow:trailGlow,trailCore:trailCore,blocks:blocks
+});
+if(dir===-1&&tr.primary){
+for(let c=0;c<cycles;c++){
+const arr=(((c+1)-offset)/cycles)%1;
+arrivalBeats.push({t:(arr+1)%1,side:tr.side,weight:0.55+rand()*0.45});
+}
+}
+}
+
+function sampleAtDist(tr,dist){
+const pts=tr.pts;
+if(dist<=0)return{x:pts[0].x,y:pts[0].y,dx:pts[1].x-pts[0].x,dy:pts[1].y-pts[0].y,s:pts[0].s};
+const last=pts.length-1;
+if(dist>=tr.len)return{x:pts[last].x,y:pts[last].y,dx:pts[last].x-pts[last-1].x,dy:pts[last].y-pts[last-1].y,s:pts[last].s};
+let lo=0,hi=last;
+while(lo<hi-1){
+const mid=(lo+hi)>>1;
+if(pts[mid].l<=dist)lo=mid;else hi=mid;
+}
+const a=pts[lo],b=pts[hi];
+const span=b.l-a.l||1;
+const t=(dist-a.l)/span;
+return{
+x:a.x+(b.x-a.x)*t,
+y:a.y+(b.y-a.y)*t,
+dx:b.x-a.x,
+dy:b.y-a.y,
+s:a.s+(b.s-a.s)*t
+};
+}
+
+function getCorePulse(phase){
+let total=0;
+const sides=[0,0,0,0];
+for(let i=0;i<arrivalBeats.length;i++){
+const b=arrivalBeats[i];
+const dt=(phase-b.t+1)%1;
+if(dt<0.13){
+const e=Math.exp(-dt*28)*b.weight;
+total+=e;
+sides[b.side]+=e;
+}
+}
+const breath=0.14+0.07*Math.sin(phase*Math.PI*4);
+return{
+core:Math.min(1,breath+total*0.26),
+sides:sides.map(v=>Math.min(1,v*0.45))
+};
+}
+
+function render(ts){
+const phase=((ts||0)%LOOP)/LOOP;
+const ps=getCorePulse(phase);
+const coreP=ps.core;
+
+for(let i=0;i<pulses.length;i++){
+const pl=pulses[i];
+const tr=pl.tr;
+const rawP=(phase*pl.cycles+pl.offset)%1;
+const posFrac=pl.dir===1?rawP:(1-rawP);
+const headDist=posFrac*tr.len;
+
+let fade=1;
+if(posFrac>0.88)fade=(1-posFrac)/0.12;
+else if(posFrac<0.04&&!tr.primary)fade=posFrac/0.04;
+
+if(fade<=0.02){
+pl.trailGlow.setAttribute('opacity','0');
+pl.trailCore.setAttribute('opacity','0');
+for(let b=0;b<pl.blockCount;b++)pl.blocks[b].setAttribute('opacity','0');
+continue;
+}
+
+const tailSign=-pl.dir;
+let d='';
+const segs=8;
+for(let s=0;s<=segs;s++){
+const dist=headDist+tailSign*(s/segs)*pl.streakLen;
+if(dist<0||dist>tr.len)continue;
+const pt=sampleAtDist(tr,dist);
+d+=(d===''?'M':'L')+pt.x.toFixed(1)+' '+pt.y.toFixed(1)+' ';
+}
+const headPt=sampleAtDist(tr,headDist);
+const sc=Math.min(1.25,headPt.s*1.12)*pl.wScale;
+pl.trailGlow.setAttribute('d',d);
+pl.trailGlow.setAttribute('stroke-width',(5.2*sc).toFixed(1));
+pl.trailGlow.setAttribute('opacity',(0.24*fade).toFixed(2));
+pl.trailCore.setAttribute('d',d);
+pl.trailCore.setAttribute('stroke-width',(1.8*sc).toFixed(1));
+pl.trailCore.setAttribute('opacity',(0.72*fade).toFixed(2));
+
+const step=pl.streakLen/(pl.blockCount+1.2);
+for(let b=0;b<pl.blockCount;b++){
+const dist=headDist+tailSign*(b*step);
+const rect=pl.blocks[b];
+if(dist<0||dist>tr.len){
+rect.setAttribute('opacity','0');
+continue;
+}
+const pt=sampleAtDist(tr,dist);
+const ang=Math.atan2(pt.dy,pt.dx)*57.2958;
+const decay=1-(b/pl.blockCount);
+const isHead=b===0;
+const w=(isHead?11.5:(8.2*decay+2.4))*sc;
+const h=(isHead?4.6:(3.2*decay+1.2))*sc;
+rect.setAttribute('x',(-w*0.5).toFixed(1));
+rect.setAttribute('y',(-h*0.5).toFixed(1));
+rect.setAttribute('width',w.toFixed(1));
+rect.setAttribute('height',h.toFixed(1));
+rect.setAttribute('transform','translate('+pt.x.toFixed(1)+','+pt.y.toFixed(1)+') rotate('+ang.toFixed(1)+')');
+rect.setAttribute('opacity',(isHead?0.98*fade:0.86*decay*decay*fade).toFixed(2));
+}
+}
+
+const sheenShift=Math.sin(phase*Math.PI*2)*135;
+dieSheenRect.setAttribute('transform','translate('+sheenShift.toFixed(1)+',0)');
+
+const pinSheen=((phase*2)%1)*2.4-0.7;
+for(let i=0;i<pinEls.length;i++){
+const p=pinEls[i];
+const glint=Math.max(0,1-Math.abs(p.normPos-pinSheen)*3.2);
+const sg=ps.sides[p.side]*0.55;
+if(sg>0.22){
+p.el.setAttribute('fill','#00F0FF');
+}else if(glint>0.42){
+p.el.setAttribute('fill','#F7DF9C');
+}else{
+p.el.setAttribute('fill','#7CA8D6');
+}
+}
+
+pkgTopEl.setAttribute('stroke-opacity',(0.32+coreP*0.55).toFixed(2));
+dieBorderEl.setAttribute('stroke-opacity',(0.45+coreP*0.5).toFixed(2));
+coreGlowEl.setAttribute('r',(115+coreP*105).toFixed(1));
+coreGlowEl.setAttribute('opacity',(0.32+coreP*0.62).toFixed(2));
+
+for(let i=0;i<sectorEls.length;i++){
+const e=0.12+coreP*0.3+ps.sides[i]*0.32;
+sectorEls[i].setAttribute('fill-opacity',Math.min(0.75,e).toFixed(2));
+sectorEls[i].setAttribute('stroke-opacity',Math.min(1,0.38+e).toFixed(2));
+}
+
+coreRings[0].setAttribute('stroke-opacity',(0.35+coreP*0.6).toFixed(2));
+coreRings[1].setAttribute('stroke-opacity',(0.48+coreP*0.52).toFixed(2));
+coreRings[2].setAttribute('fill-opacity',(0.55+coreP*0.45).toFixed(2));
+for(let i=0;i<crossLines.length;i++){
+crossLines[i].setAttribute('opacity',(0.28+coreP*0.72).toFixed(2));
+}
+
+const waveT=(phase*5)%1;
+const wf=0.22+waveT*0.68;
+const wq=quadPoints(CHIPU-bw*wf,CHIPV-bh*wf,dieH+1.2,CHIPU+bw*wf,CHIPV-bh*wf,dieH+1.2,CHIPU+bw*wf,CHIPV+bh*wf,dieH+1.2,CHIPU-bw*wf,CHIPV+bh*wf,dieH+1.2);
+if(wq){
+pulseWaveEl.setAttribute('points',wq);
+pulseWaveEl.setAttribute('opacity',((1-waveT)*(0.18+coreP*0.65)).toFixed(2));
+}
+
+requestAnimationFrame(render);
+}
+
+requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>
