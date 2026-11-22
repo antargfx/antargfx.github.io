@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Luxury Gold Particles and Shimmering Light Waves Seamless Background Animation</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0b0704}
+canvas{display:block;width:100%;height:100%}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+(function(){
+const W=1920,H=1080,LOOP=10000,TAU=Math.PI*2;
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d',{alpha:false});
+
+function resize(){
+const dpr=Math.min(window.devicePixelRatio||1,2);
+const cw=Math.max(1,Math.round(window.innerWidth*dpr));
+const ch=Math.max(1,Math.round(window.innerHeight*dpr));
+if(canvas.width!==cw||canvas.height!==ch){
+canvas.width=cw;
+canvas.height=ch;
+}
+}
+resize();
+window.addEventListener('resize',resize);
+
+function mulberry32(a){
+return function(){
+let t=a+=0x6D2B79F5;
+t=Math.imul(t^t>>>15,t|1);
+t^=t+Math.imul(t^t>>>7,t|61);
+return((t^t>>>14)>>>0)/4294967296;
+};
+}
+const rnd=mulberry32(982451);
+
+function makeSprite(size,fn){
+const s=document.createElement('canvas');
+s.width=size;
+s.height=size;
+fn(s.getContext('2d'),size);
+return s;
+}
+
+const sprDustGold=makeSprite(32,(g,sz)=>{
+const c=sz/2,gr=g.createRadialGradient(c,c,0,c,c,c);
+gr.addColorStop(0,'rgba(255,250,224,1)');
+gr.addColorStop(0.28,'rgba(255,214,102,0.9)');
+gr.addColorStop(0.6,'rgba(230,152,32,0.3)');
+gr.addColorStop(1,'rgba(230,152,32,0)');
+g.fillStyle=gr;
+g.fillRect(0,0,sz,sz);
+});
+
+const sprEmberAmber=makeSprite(64,(g,sz)=>{
+const c=sz/2,gr=g.createRadialGradient(c,c,0,c,c,c);
+gr.addColorStop(0,'rgba(255,248,214,1)');
+gr.addColorStop(0.2,'rgba(255,204,76,0.95)');
+gr.addColorStop(0.5,'rgba(235,142,24,0.45)');
+gr.addColorStop(0.8,'rgba(176,88,12,0.12)');
+gr.addColorStop(1,'rgba(176,88,12,0)');
+g.fillStyle=gr;
+g.fillRect(0,0,sz,sz);
+});
+
+const sprEmberChampagne=makeSprite(64,(g,sz)=>{
+const c=sz/2,gr=g.createRadialGradient(c,c,0,c,c,c);
+gr.addColorStop(0,'rgba(255,254,244,1)');
+gr.addColorStop(0.22,'rgba(255,232,158,0.95)');
+gr.addColorStop(0.55,'rgba(242,184,72,0.35)');
+gr.addColorStop(1,'rgba(242,184,72,0)');
+g.fillStyle=gr;
+g.fillRect(0,0,sz,sz);
+});
+
+const sprBokehCream=makeSprite(128,(g,sz)=>{
+const c=sz/2,r=c*0.92;
+const gr=g.createRadialGradient(c,c,0,c,c,r);
+gr.addColorStop(0,'rgba(255,244,205,0.42)');
+gr.addColorStop(0.58,'rgba(255,212,118,0.32)');
+gr.addColorStop(0.84,'rgba(245,178,66,0.46)');
+gr.addColorStop(0.94,'rgba(255,226,145,0.18)');
+gr.addColorStop(1,'rgba(255,200,90,0)');
+g.fillStyle=gr;
+g.beginPath();
+g.arc(c,c,r,0,TAU);
+g.fill();
+});
+
+const sprBokehWarm=makeSprite(128,(g,sz)=>{
+const c=sz/2,r=c*0.92;
+const gr=g.createRadialGradient(c,c,0,c,c,r);
+gr.addColorStop(0,'rgba(255,225,140,0.34)');
+gr.addColorStop(0.65,'rgba(232,156,42,0.22)');
+gr.addColorStop(0.88,'rgba(255,198,86,0.36)');
+gr.addColorStop(1,'rgba(220,130,20,0)');
+g.fillStyle=gr;
+g.beginPath();
+g.arc(c,c,r,0,TAU);
+g.fill();
+});
+
+const sprStar=makeSprite(64,(g,sz)=>{
+const c=sz/2;
+const gr=g.createRadialGradient(c,c,0,c,c,c*0.75);
+gr.addColorStop(0,'rgba(255,253,240,0.95)');
+gr.addColorStop(0.3,'rgba(255,224,132,0.5)');
+gr.addColorStop(1,'rgba(255,190,64,0)');
+g.fillStyle=gr;
+g.fillRect(0,0,sz,sz);
+g.fillStyle='rgba(255,252,235,0.96)';
+g.beginPath();
+g.moveTo(c,2);
+g.quadraticCurveTo(c,c,sz-2,c);
+g.quadraticCurveTo(c,c,c,sz-2);
+g.quadraticCurveTo(c,c,2,c);
+g.quadraticCurveTo(c,c,c,2);
+g.closePath();
+g.fill();
+});
+
+const waves=[
+{y0:0.12,cycles:1,amp1:62,k1:0.0028,ph1:0.4,f1:1,amp2:28,k2:0.0061,ph2:1.7,f2:2,thick:210,strength:0.85,alpha:0.24,hue:'gold'},
+{y0:0.32,cycles:1,amp1:78,k1:0.0022,ph1:2.1,f1:1,amp2:34,k2:0.0053,ph2:0.6,f2:1,thick:250,strength:0.95,alpha:0.22,hue:'amber'},
+{y0:0.54,cycles:1,amp1:55,k1:0.0033,ph1:4.2,f1:2,amp2:24,k2:0.0072,ph2:3.1,f2:1,thick:190,strength:0.9,alpha:0.26,hue:'champagne'},
+{y0:0.76,cycles:1,amp1:70,k1:0.0025,ph1:5.3,f1:1,amp2:30,k2:0.0048,ph2:4.9,f2:2,thick:240,strength:0.8,alpha:0.2,hue:'gold'},
+{y0:0.92,cycles:2,amp1:46,k1:0.0038,ph1:1.2,f1:2,amp2:22,k2:0.0068,ph2:2.4,f2:2,thick:160,strength:0.75,alpha:0.18,hue:'champagne'}
+];
+
+function evalWaveY(w,x,u,baseY){
+return baseY+w.amp1*Math.sin(x*w.k1+w.ph1+TAU*w.f1*u)+w.amp2*Math.cos(x*w.k2+w.ph2-TAU*w.f2*u);
+}
+
+function getWaveLight(x,y,u,waveBases,waveAlphas){
+let total=0;
+for(let i=0;i<waves.length;i++){
+const w=waves[i];
+const wy=evalWaveY(w,x,u,waveBases[i]);
+const d=Math.abs(y-wy);
+if(d<w.thick){
+const f=1-d/w.thick;
+total+=f*f*w.strength*waveAlphas[i];
+}
+}
+const horizonBoost=Math.max(0,1-(H-y)/340);
+total+=horizonBoost*horizonBoost*0.85;
+return Math.min(1.8,total);
+}
+
+const bgBokeh=[];
+for(let i=0;i<58;i++){
+const size=38+rnd()*92;
+bgBokeh.push({
+x0:rnd()*W,
+y0:rnd(),
+pad:size+40,
+cycles:1,
+size:size,
+amp1:18+rnd()*46,
+f1:1,
+ph1:rnd()*TAU,
+amp2:8+rnd()*20,
+f2:2,
+ph2:rnd()*TAU,
+twFreq:1+Math.floor(rnd()*2),
+twPh:rnd()*TAU,
+baseAlpha:0.12+rnd()*0.22,
+spr:rnd()<0.55?sprBokehCream:sprBokehWarm
+});
+}
+
+const dust=[];
+for(let i=0;i<1450;i++){
+const bias=Math.pow(rnd(),1.4);
+const size=2.2+bias*5.4;
+dust.push({
+x0:rnd()*W,
+y0:rnd(),
+pad:24,
+cycles:rnd()<0.78?1:2,
+size:size,
+amp1:14+rnd()*58,
+f1:1,
+ph1:rnd()*TAU,
+amp2:6+rnd()*24,
+f2:rnd()<0.5?2:3,
+ph2:rnd()*TAU,
+twFreq:2+Math.floor(rnd()*4),
+twPh:rnd()*TAU,
+baseAlpha:0.16+rnd()*0.38
+});
+}
+
+const embers=[];
+for(let i=0;i<620;i++){
+const size=6+Math.pow(rnd(),1.7)*14;
+embers.push({
+x0:rnd()*W,
+y0:rnd(),
+pad:36,
+cycles:rnd()<0.65?1:2,
+size:size,
+amp1:20+rnd()*75,
+f1:1,
+ph1:rnd()*TAU,
+amp2:10+rnd()*30,
+f2:2,
+ph2:rnd()*TAU,
+twFreq:2+Math.floor(rnd()*3),
+twPh:rnd()*TAU,
+baseAlpha:0.28+rnd()*0.48,
+spr:rnd()<0.52?sprEmberAmber:sprEmberChampagne
+});
+}
+
+const stars=[];
+for(let i=0;i<115;i++){
+const size=14+Math.pow(rnd(),1.8)*28;
+stars.push({
+x0:rnd()*W,
+y0:rnd(),
+pad:48,
+cycles:rnd()<0.7?1:2,
+size:size,
+amp1:18+rnd()*60,
+f1:1,
+ph1:rnd()*TAU,
+amp2:8+rnd()*22,
+f2:2,
+ph2:rnd()*TAU,
+twFreq:2+Math.floor(rnd()*4),
+twPh:rnd()*TAU,
+rotDir:rnd()<0.5?1:-1,
+rotPh:rnd()*TAU,
+baseAlpha:0.18+rnd()*0.32
+});
+}
+
+const fgBokeh=[];
+for(let i=0;i<22;i++){
+const size=72+rnd()*108;
+fgBokeh.push({
+x0:rnd()*W,
+y0:rnd(),
+pad:size+60,
+cycles:1,
+size:size,
+amp1:28+rnd()*64,
+f1:1,
+ph1:rnd()*TAU,
+amp2:12+rnd()*28,
+f2:2,
+ph2:rnd()*TAU,
+twFreq:1+Math.floor(rnd()*2),
+twPh:rnd()*TAU,
+baseAlpha:0.1+rnd()*0.18,
+spr:rnd()<0.65?sprBokehCream:sprBokehWarm
+});
+}
+
+const waveSteps=48;
+const waveStepX=W/waveSteps;
+const topPts=new Float32Array(waveSteps+1);
+const botPts=new Float32Array(waveSteps+1);
+
+function drawWave(w,u,baseY,edgeAlpha){
+if(edgeAlpha<=0.004)return;
+const half=w.thick*0.85;
+let minY=H+400,maxY=-400;
+for(let s=0;s<=waveSteps;s++){
+const x=s*waveStepX;
+const cy=evalWaveY(w,x,u,baseY);
+const ty=cy-half;
+const by=cy+half;
+topPts[s]=ty;
+botPts[s]=by;
+if(ty<minY)minY=ty;
+if(by>maxY)maxY=by;
+}
+const grad=ctx.createLinearGradient(0,minY,0,maxY);
+const a=w.alpha*edgeAlpha;
+if(w.hue==='champagne'){
+grad.addColorStop(0,'rgba(255,228,150,0)');
+grad.addColorStop(0.35,`rgba(255,214,116,${(a*0.55).toFixed(4)})`);
+grad.addColorStop(0.5,`rgba(255,242,190,${a.toFixed(4)})`);
+grad.addColorStop(0.65,`rgba(245,184,72,${(a*0.55).toFixed(4)})`);
+grad.addColorStop(1,'rgba(230,145,30,0)');
+}else if(w.hue==='amber'){
+grad.addColorStop(0,'rgba(225,132,24,0)');
+grad.addColorStop(0.35,`rgba(236,154,36,${(a*0.55).toFixed(4)})`);
+grad.addColorStop(0.5,`rgba(255,204,88,${a.toFixed(4)})`);
+grad.addColorStop(0.65,`rgba(224,132,24,${(a*0.55).toFixed(4)})`);
+grad.addColorStop(1,'rgba(180,92,12,0)');
+}else{
+grad.addColorStop(0,'rgba(240,170,40,0)');
+grad.addColorStop(0.35,`rgba(252,196,76,${(a*0.55).toFixed(4)})`);
+grad.addColorStop(0.5,`rgba(255,228,136,${a.toFixed(4)})`);
+grad.addColorStop(0.65,`rgba(240,168,46,${(a*0.55).toFixed(4)})`);
+grad.addColorStop(1,'rgba(210,120,20,0)');
+}
+ctx.beginPath();
+ctx.moveTo(0,topPts[0]);
+for(let s=1;s<=waveSteps;s++)ctx.lineTo(s*waveStepX,topPts[s]);
+for(let s=waveSteps;s>=0;s--)ctx.lineTo(s*waveStepX,botPts[s]);
+ctx.closePath();
+ctx.fillStyle=grad;
+ctx.fill();
+
+ctx.beginPath();
+for(let s=0;s<=waveSteps;s++){
+const x=s*waveStepX;
+const cy=(topPts[s]+botPts[s])*0.5;
+if(s===0)ctx.moveTo(x,cy);
+else ctx.lineTo(x,cy);
+}
+ctx.strokeStyle=`rgba(255,244,198,${(a*0.65).toFixed(4)})`;
+ctx.lineWidth=3.5;
+ctx.stroke();
+}
+
+function edgeFade(y){
+let f=1;
+if(y<160)f*=Math.max(0,y/160);
+if(y>H-110)f*=Math.max(0,(H+30-y)/140);
+return f;
+}
+
+function render(ts){
+const u=(((ts||0)%LOOP)+LOOP)%LOOP/LOOP;
+const sx=canvas.width/W;
+const sy=canvas.height/H;
+ctx.setTransform(sx,0,0,sy,0,0);
+
+ctx.globalCompositeOperation='source-over';
+ctx.globalAlpha=1;
+
+const bgGrad=ctx.createLinearGradient(0,0,0,H);
+bgGrad.addColorStop(0,'#090604');
+bgGrad.addColorStop(0.34,'#140d07');
+bgGrad.addColorStop(0.68,'#261709');
+bgGrad.addColorStop(0.88,'#472a0d');
+bgGrad.addColorStop(1,'#7d4b14');
+ctx.fillStyle=bgGrad;
+ctx.fillRect(0,0,W,H);
+
+const pulse1=0.5+0.5*Math.sin(TAU*u);
+const pulse2=0.5+0.5*Math.sin(TAU*2*u+1.1);
+
+ctx.globalCompositeOperation='lighter';
+
+const horShiftX=Math.sin(TAU*u)*90;
+ctx.save();
+ctx.translate(W*0.5+horShiftX,H+110);
+ctx.scale(1.9,0.58);
+const hGrad1=ctx.createRadialGradient(0,0,40,0,0,760);
+hGrad1.addColorStop(0,`rgba(255,246,204,${(0.72+pulse1*0.14).toFixed(4)})`);
+hGrad1.addColorStop(0.28,`rgba(255,198,74,${(0.5+pulse2*0.1).toFixed(4)})`);
+hGrad1.addColorStop(0.58,`rgba(218,128,22,${(0.24+pulse1*0.06).toFixed(4)})`);
+hGrad1.addColorStop(1,'rgba(160,82,10,0)');
+ctx.fillStyle=hGrad1;
+ctx.beginPath();
+ctx.arc(0,0,760,0,TAU);
+ctx.fill();
+ctx.restore();
+
+ctx.save();
+ctx.translate(W*0.5-horShiftX*0.7,H+20);
+ctx.scale(2.4,0.22);
+const hGrad2=ctx.createRadialGradient(0,0,10,0,0,580);
+hGrad2.addColorStop(0,`rgba(255,252,232,${(0.82+pulse2*0.12).toFixed(4)})`);
+hGrad2.addColorStop(0.4,`rgba(255,212,96,${(0.45+pulse1*0.1).toFixed(4)})`);
+hGrad2.addColorStop(1,'rgba(255,168,36,0)');
+ctx.fillStyle=hGrad2;
+ctx.beginPath();
+ctx.arc(0,0,580,0,TAU);
+ctx.fill();
+ctx.restore();
+
+const waveBases=new Float32Array(waves.length);
+const waveAlphas=new Float32Array(waves.length);
+for(let i=0;i<waves.length;i++){
+const w=waves[i];
+const wy=((w.y0-w.cycles*u)%1+1)%1;
+waveBases[i]=-180+wy*(H+360);
+waveAlphas[i]=Math.pow(Math.sin(wy*Math.PI),0.85);
+drawWave(w,u,waveBases[i],waveAlphas[i]);
+}
+
+for(let i=0;i<bgBokeh.length;i++){
+const p=bgBokeh[i];
+const prog=((p.y0-p.cycles*u)%1+1)%1;
+const y=-p.pad+prog*(H+p.pad*2);
+const x=p.x0+p.amp1*Math.sin(TAU*(p.f1*u+p.ph1))+p.amp2*Math.cos(TAU*(p.f2*u+p.ph2));
+const wl=getWaveLight(x,y,u,waveBases,waveAlphas);
+const tw=0.65+0.35*Math.sin(TAU*(p.twFreq*u+p.twPh));
+const alpha=Math.min(0.85,p.baseAlpha*(0.7+wl*0.75)*tw*edgeFade(y));
+if(alpha>0.01){
+const s=p.size*(0.94+0.12*tw+wl*0.06);
+ctx.globalAlpha=alpha;
+ctx.drawImage(p.spr,x-s*0.5,y-s*0.5,s,s);
+}
+}
+
+for(let i=0;i<dust.length;i++){
+const p=dust[i];
+const prog=((p.y0-p.cycles*u)%1+1)%1;
+const y=-p.pad+prog*(H+p.pad*2);
+const x=p.x0+p.amp1*Math.sin(TAU*(p.f1*u+p.ph1))+p.amp2*Math.cos(TAU*(p.f2*u+p.ph2));
+const wl=getWaveLight(x,y,u,waveBases,waveAlphas);
+const tw=0.35+0.65*Math.pow(0.5+0.5*Math.sin(TAU*(p.twFreq*u+p.twPh)),1.6);
+const alpha=Math.min(1,p.baseAlpha*(0.45+wl*1.15)*tw*edgeFade(y));
+if(alpha>0.02){
+const s=p.size*(0.85+wl*0.45);
+ctx.globalAlpha=alpha;
+ctx.drawImage(sprDustGold,x-s*0.5,y-s*0.5,s,s);
+}
+}
+
+for(let i=0;i<embers.length;i++){
+const p=embers[i];
+const prog=((p.y0-p.cycles*u)%1+1)%1;
+const y=-p.pad+prog*(H+p.pad*2);
+const x=p.x0+p.amp1*Math.sin(TAU*(p.f1*u+p.ph1))+p.amp2*Math.cos(TAU*(p.f2*u+p.ph2));
+const wl=getWaveLight(x,y,u,waveBases,waveAlphas);
+const tw=0.45+0.55*Math.pow(0.5+0.5*Math.sin(TAU*(p.twFreq*u+p.twPh)),1.4);
+const alpha=Math.min(1,p.baseAlpha*(0.5+wl*1.05)*tw*edgeFade(y));
+if(alpha>0.02){
+const s=p.size*(0.85+wl*0.38+tw*0.18);
+ctx.globalAlpha=alpha;
+ctx.drawImage(p.spr,x-s*0.5,y-s*0.5,s,s);
+}
+}
+
+for(let i=0;i<stars.length;i++){
+const p=stars[i];
+const prog=((p.y0-p.cycles*u)%1+1)%1;
+const y=-p.pad+prog*(H+p.pad*2);
+const x=p.x0+p.amp1*Math.sin(TAU*(p.f1*u+p.ph1))+p.amp2*Math.cos(TAU*(p.f2*u+p.ph2));
+const wl=getWaveLight(x,y,u,waveBases,waveAlphas);
+const tw=Math.pow(0.5+0.5*Math.sin(TAU*(p.twFreq*u+p.twPh)),2.4);
+const alpha=Math.min(1,(p.baseAlpha+wl*0.55)*tw*edgeFade(y));
+if(alpha>0.03){
+const s=p.size*(0.65+wl*0.55+tw*0.35);
+const rot=p.rotPh+p.rotDir*TAU*u;
+ctx.save();
+ctx.translate(x,y);
+ctx.rotate(rot);
+ctx.globalAlpha=alpha;
+ctx.drawImage(sprStar,-s*0.5,-s*0.5,s,s);
+ctx.restore();
+}
+}
+
+for(let i=0;i<fgBokeh.length;i++){
+const p=fgBokeh[i];
+const prog=((p.y0-p.cycles*u)%1+1)%1;
+const y=-p.pad+prog*(H+p.pad*2);
+const x=p.x0+p.amp1*Math.sin(TAU*(p.f1*u+p.ph1))+p.amp2*Math.cos(TAU*(p.f2*u+p.ph2));
+const wl=getWaveLight(x,y,u,waveBases,waveAlphas);
+const tw=0.7+0.3*Math.sin(TAU*(p.twFreq*u+p.twPh));
+const alpha=Math.min(0.68,p.baseAlpha*(0.65+wl*0.65)*tw*edgeFade(y));
+if(alpha>0.01){
+const s=p.size*(0.92+0.12*tw+wl*0.08);
+ctx.globalAlpha=alpha;
+ctx.drawImage(p.spr,x-s*0.5,y-s*0.5,s,s);
+}
+}
+
+ctx.globalCompositeOperation='source-over';
+ctx.globalAlpha=1;
+const vig=ctx.createRadialGradient(W*0.5,H*0.58,H*0.32,W*0.5,H*0.5,W*0.72);
+vig.addColorStop(0,'rgba(0,0,0,0)');
+vig.addColorStop(0.72,'rgba(8,4,2,0.18)');
+vig.addColorStop(1,'rgba(5,2,1,0.58)');
+ctx.fillStyle=vig;
+ctx.fillRect(0,0,W,H);
+
+requestAnimationFrame(render);
+}
+
+requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Abstract Swirling Golden Dust Wave Seamless Loop Background</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#080503}
+canvas{display:block;width:100%;height:100%}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+(function(){
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d');
+const W=1920,H=1080,LOOP=10000,TAU=Math.PI*2;
+const MARGIN=260,SPAN=W+MARGIN*2;
+
+function resize(){
+const dpr=Math.min(window.devicePixelRatio||1,2);
+const cw=Math.max(1,Math.round(window.innerWidth*dpr));
+const ch=Math.max(1,Math.round(window.innerHeight*dpr));
+if(canvas.width!==cw||canvas.height!==ch){
+canvas.width=cw;
+canvas.height=ch;
+}
+}
+window.addEventListener('resize',resize);
+resize();
+
+let seed=20261122;
+function rand(){
+seed=(seed*1664525+1013904223)>>>0;
+return seed/4294967296;
+}
+function wrap01(v){
+return ((v%1)+1)%1;
+}
+
+function waveY(nx,u){
+const a=TAU*(nx-u);
+const b=TAU*(2*nx-u)+0.85;
+const c=TAU*(nx+u)-0.4;
+return H*0.5+195*Math.sin(a)+62*Math.sin(b)+26*Math.cos(c);
+}
+
+function waveSlope(nx,u){
+const a=TAU*(nx-u);
+const b=TAU*(2*nx-u)+0.85;
+const c=TAU*(nx+u)-0.4;
+return (195*TAU*Math.cos(a)+62*2*TAU*Math.cos(b)-26*TAU*Math.sin(c))/SPAN;
+}
+
+const bgBokeh=[];
+for(let i=0;i<44;i++){
+bgBokeh.push({
+x0:rand(),
+speed:1,
+yOff:(rand()-0.5)*760,
+r:20+rand()*58,
+ampY:10+rand()*26,
+phase:rand()*TAU,
+freq:rand()<0.5?1:2,
+hue:34+rand()*16,
+alpha:0.035+rand()*0.095
+});
+}
+
+const dust=[];
+const strands=7;
+for(let i=0;i<780;i++){
+const s=i%strands;
+const bandSpread=18+s*22;
+const coreBias=Math.pow(rand(),1.6)*(rand()<0.5?1:-1);
+dust.push({
+x0:rand(),
+speed:rand()<0.78?1:2,
+strand:s,
+spread:coreBias*(30+bandSpread*1.35),
+twistAmp:14+rand()*54,
+twistFreq:1+Math.floor(rand()*3),
+twistPhase:rand()*TAU,
+r:0.85+Math.pow(rand(),2.2)*2.9,
+twinkleFreq:1+Math.floor(rand()*4),
+twinklePhase:rand()*TAU,
+tone:rand(),
+baseAlpha:0.28+rand()*0.62
+});
+}
+
+const specks=[];
+for(let i=0;i<145;i++){
+const side=(rand()-0.5)*2;
+specks.push({
+x0:rand(),
+speed:1,
+offset:side*Math.pow(rand(),1.2)*195,
+floatAmp:8+rand()*24,
+floatFreq:rand()<0.6?1:2,
+floatPhase:rand()*TAU,
+r:2.4+rand()*4.8,
+pulseFreq:1+Math.floor(rand()*3),
+pulsePhase:rand()*TAU,
+warmth:rand()
+});
+}
+
+const sparkles=[];
+for(let i=0;i<58;i++){
+sparkles.push({
+x0:rand(),
+speed:1,
+offset:(rand()-0.5)*155,
+size:6+rand()*15,
+flareFreq:1+Math.floor(rand()*3),
+flarePhase:rand()*TAU,
+rotBase:rand()*TAU,
+rotDir:rand()<0.5?1:-1
+});
+}
+
+const fgBokeh=[];
+for(let i=0;i<16;i++){
+fgBokeh.push({
+x0:rand(),
+speed:2,
+yOff:(rand()-0.5)*560,
+r:34+rand()*64,
+ampY:14+rand()*28,
+phase:rand()*TAU,
+alpha:0.03+rand()*0.065
+});
+}
+
+const ribbons=[
+{width:230,phase:0.0,amp:34,alpha:0.15,c1:'rgba(176,104,28,0)',c2:'rgba(240,170,62,0.55)',c3:'rgba(255,222,138,0.18)'},
+{width:155,phase:1.1,amp:48,alpha:0.19,c1:'rgba(198,122,34,0)',c2:'rgba(255,196,86,0.62)',c3:'rgba(255,235,168,0.22)'},
+{width:96,phase:2.4,amp:62,alpha:0.22,c1:'rgba(220,145,42,0)',c2:'rgba(255,216,118,0.68)',c3:'rgba(255,244,196,0.26)'},
+{width:54,phase:3.9,amp:42,alpha:0.24,c1:'rgba(245,178,68,0)',c2:'rgba(255,236,162,0.75)',c3:'rgba(255,250,224,0.34)'},
+{width:24,phase:5.1,amp:28,alpha:0.28,c1:'rgba(255,204,96,0)',c2:'rgba(255,246,205,0.85)',c3:'rgba(255,252,238,0.42)'}
+];
+
+function drawBackground(u){
+const bg=ctx.createLinearGradient(0,0,W,H);
+bg.addColorStop(0,'#080503');
+bg.addColorStop(0.32,'#140c06');
+bg.addColorStop(0.62,'#1f1309');
+bg.addColorStop(1,'#090603');
+ctx.fillStyle=bg;
+ctx.fillRect(0,0,W,H);
+
+const gx=W*(0.48+0.12*Math.sin(TAU*u));
+const gy=H*(0.52+0.08*Math.cos(TAU*u));
+const amb=ctx.createRadialGradient(gx,gy,40,gx,gy,980);
+amb.addColorStop(0,'rgba(128,74,20,0.26)');
+amb.addColorStop(0.45,'rgba(72,38,10,0.14)');
+amb.addColorStop(1,'rgba(8,5,3,0)');
+ctx.fillStyle=amb;
+ctx.fillRect(0,0,W,H);
+}
+
+function drawRibbons(u){
+ctx.save();
+ctx.globalCompositeOperation='screen';
+const steps=84;
+for(let rIdx=0;rIdx<ribbons.length;rIdx++){
+const rb=ribbons[rIdx];
+const topPts=[];
+const botPts=[];
+for(let s=0;s<=steps;s++){
+const nx=s/steps;
+const x=-MARGIN+nx*SPAN;
+const cy=waveY(nx,u)+Math.sin(TAU*(2*nx-u)+rb.phase)*rb.amp;
+const pinch=0.58+0.42*Math.sin(TAU*(nx-u)+rb.phase*0.7);
+const halfW=rb.width*0.5*pinch;
+topPts.push([x,cy-halfW]);
+botPts.push([x,cy+halfW]);
+}
+ctx.beginPath();
+ctx.moveTo(topPts[0][0],topPts[0][1]);
+for(let s=1;s<=steps;s++){
+ctx.lineTo(topPts[s][0],topPts[s][1]);
+}
+for(let s=steps;s>=0;s--){
+ctx.lineTo(botPts[s][0],botPts[s][1]);
+}
+ctx.closePath();
+
+const grad=ctx.createLinearGradient(0,H*0.18,0,H*0.82);
+grad.addColorStop(0,rb.c1);
+grad.addColorStop(0.32,rb.c3);
+grad.addColorStop(0.5,rb.c2);
+grad.addColorStop(0.68,rb.c3);
+grad.addColorStop(1,rb.c1);
+ctx.globalAlpha=rb.alpha;
+ctx.fillStyle=grad;
+ctx.fill();
+}
+ctx.restore();
+}
+
+function getCores(u){
+const nx1=wrap01(u+0.12);
+const nx2=wrap01(u+0.62);
+return [
+{nx:nx1,x:-MARGIN+nx1*SPAN,y:waveY(nx1,u),power:1.0,radius:520},
+{nx:nx2,x:-MARGIN+nx2*SPAN,y:waveY(nx2,u),power:0.68,radius:420}
+];
+}
+
+function coreInfluence(x,y,cores){
+let inf=0;
+for(let i=0;i<cores.length;i++){
+const c=cores[i];
+const dx=x-c.x;
+const dy=y-c.y;
+const d2=dx*dx+dy*dy;
+const r2=c.radius*c.radius;
+if(d2<r2){
+const t=1-Math.sqrt(d2)/c.radius;
+inf=Math.max(inf,t*t*c.power);
+}
+}
+return inf;
+}
+
+function drawCores(cores,u){
+ctx.save();
+ctx.globalCompositeOperation='screen';
+for(let i=0;i<cores.length;i++){
+const c=cores[i];
+const pulse=0.92+0.08*Math.sin(TAU*(2*u)+i*2.1);
+const rad=c.radius*pulse;
+const g=ctx.createRadialGradient(c.x,c.y,0,c.x,c.y,rad);
+g.addColorStop(0,'rgba(255,248,214,'+(0.52*c.power)+')');
+g.addColorStop(0.18,'rgba(255,212,112,'+(0.38*c.power)+')');
+g.addColorStop(0.46,'rgba(224,138,38,'+(0.17*c.power)+')');
+g.addColorStop(0.76,'rgba(148,74,14,'+(0.05*c.power)+')');
+g.addColorStop(1,'rgba(90,40,8,0)');
+ctx.fillStyle=g;
+ctx.beginPath();
+ctx.arc(c.x,c.y,rad,0,TAU);
+ctx.fill();
+
+const ang=Math.atan(waveSlope(c.nx,u));
+ctx.save();
+ctx.translate(c.x,c.y);
+ctx.rotate(ang);
+ctx.scale(2.1,0.52);
+const g2=ctx.createRadialGradient(0,0,0,0,0,rad*0.42);
+g2.addColorStop(0,'rgba(255,252,232,'+(0.42*c.power)+')');
+g2.addColorStop(0.45,'rgba(255,204,92,'+(0.18*c.power)+')');
+g2.addColorStop(1,'rgba(255,168,48,0)');
+ctx.fillStyle=g2;
+ctx.beginPath();
+ctx.arc(0,0,rad*0.42,0,TAU);
+ctx.fill();
+ctx.restore();
+}
+ctx.restore();
+}
+
+function drawBokehLayer(list,u,cores){
+ctx.save();
+ctx.globalCompositeOperation='screen';
+for(let i=0;i<list.length;i++){
+const b=list[i];
+const nx=wrap01(b.x0+b.speed*u);
+const x=-MARGIN+nx*SPAN;
+if(x<-b.r-20||x>W+b.r+20)continue;
+const y=waveY(nx,u)+b.yOff+Math.sin(TAU*(b.freq*u)+b.phase)*b.ampY;
+const inf=coreInfluence(x,y,cores);
+const alpha=Math.min(0.45,b.alpha*(1+inf*1.35));
+const r=b.r*(1+inf*0.14);
+const g=ctx.createRadialGradient(x,y,r*0.08,x,y,r);
+g.addColorStop(0,'rgba(255,228,154,'+alpha+')');
+g.addColorStop(0.55,'rgba(235,158,52,'+(alpha*0.58)+')');
+g.addColorStop(0.85,'rgba(196,108,24,'+(alpha*0.18)+')');
+g.addColorStop(1,'rgba(160,82,16,0)');
+ctx.fillStyle=g;
+ctx.beginPath();
+ctx.arc(x,y,r,0,TAU);
+ctx.fill();
+}
+ctx.restore();
+}
+
+function drawDust(u,cores){
+ctx.save();
+ctx.globalCompositeOperation='lighter';
+for(let i=0;i<dust.length;i++){
+const p=dust[i];
+const nx=wrap01(p.x0+p.speed*u);
+const x=-MARGIN+nx*SPAN;
+if(x<-20||x>W+20)continue;
+const twist=Math.sin(TAU*(p.twistFreq*nx-u)+p.twistPhase)*p.twistAmp;
+const y=waveY(nx,u)+p.spread+twist;
+const inf=coreInfluence(x,y,cores);
+const tw=0.45+0.55*Math.sin(TAU*(p.twinkleFreq*u)+p.twinklePhase);
+const alpha=Math.min(1,p.baseAlpha*(0.42+0.58*tw)*(0.75+inf*1.55));
+const rad=p.r*(0.85+0.25*tw+inf*0.55);
+
+let rCol,gCol,bCol;
+if(inf>0.38||p.tone>0.78){
+rCol=255;gCol=246;bCol=208;
+}else if(p.tone>0.35){
+rCol=255;gCol=204;bCol=98;
+}else{
+rCol=232;gCol=136;bCol=38;
+}
+
+ctx.fillStyle='rgba('+rCol+','+gCol+','+bCol+','+alpha+')';
+ctx.beginPath();
+ctx.arc(x,y,rad,0,TAU);
+ctx.fill();
+
+if(rad>2.0||inf>0.45){
+const hr=rad*3.1;
+const hg=ctx.createRadialGradient(x,y,0,x,y,hr);
+hg.addColorStop(0,'rgba(255,236,172,'+(alpha*0.42)+')');
+hg.addColorStop(1,'rgba(255,176,56,0)');
+ctx.fillStyle=hg;
+ctx.beginPath();
+ctx.arc(x,y,hr,0,TAU);
+ctx.fill();
+}
+}
+ctx.restore();
+}
+
+function drawSpecks(u,cores){
+ctx.save();
+ctx.globalCompositeOperation='screen';
+for(let i=0;i<specks.length;i++){
+const s=specks[i];
+const nx=wrap01(s.x0+s.speed*u);
+const x=-MARGIN+nx*SPAN;
+if(x<-40||x>W+40)continue;
+const y=waveY(nx,u)+s.offset+Math.sin(TAU*(s.floatFreq*u)+s.floatPhase)*s.floatAmp;
+const inf=coreInfluence(x,y,cores);
+const pulse=0.55+0.45*Math.sin(TAU*(s.pulseFreq*u)+s.pulsePhase);
+const r=s.r*(0.88+0.24*pulse+inf*0.35);
+const hr=r*3.8;
+const alpha=Math.min(0.95,(0.34+0.42*pulse)*(0.75+inf*1.35));
+
+const g=ctx.createRadialGradient(x,y,0,x,y,hr);
+if(s.warmth>0.5){
+g.addColorStop(0,'rgba(255,248,214,'+alpha+')');
+g.addColorStop(0.28,'rgba(255,196,76,'+(alpha*0.65)+')');
+g.addColorStop(1,'rgba(214,112,20,0)');
+}else{
+g.addColorStop(0,'rgba(255,232,164,'+alpha+')');
+g.addColorStop(0.32,'rgba(240,152,42,'+(alpha*0.58)+')');
+g.addColorStop(1,'rgba(176,82,12,0)');
+}
+ctx.fillStyle=g;
+ctx.beginPath();
+ctx.arc(x,y,hr,0,TAU);
+ctx.fill();
+
+ctx.fillStyle='rgba(255,250,228,'+Math.min(1,alpha*1.15)+')';
+ctx.beginPath();
+ctx.arc(x,y,r*0.42,0,TAU);
+ctx.fill();
+}
+ctx.restore();
+}
+
+function drawStar(x,y,size,rot,alpha){
+ctx.save();
+ctx.translate(x,y);
+ctx.rotate(rot);
+const inner=size*0.14;
+ctx.beginPath();
+for(let i=0;i<8;i++){
+const ang=i*Math.PI/4;
+const rad=i%2===0?size:inner;
+const px=Math.cos(ang)*rad;
+const py=Math.sin(ang)*rad;
+if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);
+}
+ctx.closePath();
+ctx.fillStyle='rgba(255,250,224,'+alpha+')';
+ctx.fill();
+
+const g=ctx.createRadialGradient(0,0,0,0,0,size*1.15);
+g.addColorStop(0,'rgba(255,252,234,'+(alpha*0.85)+')');
+g.addColorStop(0.35,'rgba(255,214,116,'+(alpha*0.38)+')');
+g.addColorStop(1,'rgba(255,176,56,0)');
+ctx.fillStyle=g;
+ctx.beginPath();
+ctx.arc(0,0,size*1.15,0,TAU);
+ctx.fill();
+ctx.restore();
+}
+
+function drawSparkles(u,cores){
+ctx.save();
+ctx.globalCompositeOperation='lighter';
+for(let i=0;i<sparkles.length;i++){
+const sp=sparkles[i];
+const nx=wrap01(sp.x0+sp.speed*u);
+const x=-MARGIN+nx*SPAN;
+if(x<-40||x>W+40)continue;
+const y=waveY(nx,u)+sp.offset;
+const inf=coreInfluence(x,y,cores);
+const raw=0.5+0.5*Math.sin(TAU*(sp.flareFreq*u)+sp.flarePhase);
+const crestBoost=0.5+0.5*Math.cos(TAU*(nx-u));
+const flare=Math.pow(raw,5)*(0.25+0.45*crestBoost+inf*1.55);
+if(flare<0.04)continue;
+const alpha=Math.min(1,flare);
+const sz=sp.size*(0.55+0.85*alpha);
+const rot=sp.rotBase+sp.rotDir*TAU*u*0.25;
+drawStar(x,y,sz,rot,alpha);
+}
+ctx.restore();
+}
+
+function drawVignette(){
+const vg=ctx.createRadialGradient(W*0.5,H*0.5,W*0.22,W*0.5,H*0.5,W*0.68);
+vg.addColorStop(0,'rgba(0,0,0,0)');
+vg.addColorStop(1,'rgba(4,2,1,0.58)');
+ctx.fillStyle=vg;
+ctx.fillRect(0,0,W,H);
+}
+
+function render(ts){
+const u=((ts%LOOP)+LOOP)%LOOP/LOOP;
+ctx.setTransform(canvas.width/W,0,0,canvas.height/H,0,0);
+const cores=getCores(u);
+drawBackground(u);
+drawBokehLayer(bgBokeh,u,cores);
+drawRibbons(u);
+drawCores(cores,u);
+drawDust(u,cores);
+drawSpecks(u,cores);
+drawSparkles(u,cores);
+drawBokehLayer(fgBokeh,u,cores);
+drawVignette();
+requestAnimationFrame(render);
+}
+requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>

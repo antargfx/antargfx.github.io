@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Champagne Gold Snowfall Bokeh and Sweeping Golden Spotlights Luxury Background</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden}
+body{background:#060505}
+canvas{display:block;width:100%;height:100%}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+(function(){
+const W=1920,H=1080,DUR=10000,TAU=Math.PI*2;
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d');
+let cw=W,ch=H;
+
+function resize(){
+const dpr=Math.min(window.devicePixelRatio||1,2);
+const vw=window.innerWidth||W;
+const vh=window.innerHeight||H;
+cw=Math.round(vw*dpr);
+ch=Math.round(vh*dpr);
+if(canvas.width!==cw||canvas.height!==ch){
+canvas.width=cw;
+canvas.height=ch;
+}
+}
+resize();
+window.addEventListener('resize',resize);
+
+function mulberry32(a){
+return function(){
+a|=0;a=a+0x6D2B79F5|0;
+let t=Math.imul(a^a>>>15,1|a);
+t=t+Math.imul(t^t>>>7,61|t)^t;
+return((t^t>>>14)>>>0)/4294967296;
+};
+}
+const rand=mulberry32(9283741);
+
+const palette=[
+[255,244,214],
+[248,220,152],
+[236,192,102],
+[218,162,72],
+[255,232,184],
+[196,138,54]
+];
+
+function pickColor(){
+return palette[Math.floor(rand()*palette.length)];
+}
+
+const farBokeh=[];
+for(let i=0;i<30;i++){
+farBokeh.push({
+x0:rand()*W,
+y0:rand()*(H+320),
+r:44+rand()*92,
+cycles:1,
+swayAmp:18+rand()*36,
+swayFreq:1+Math.floor(rand()*2),
+swayPhase:rand()*TAU,
+alpha:0.045+rand()*0.075,
+col:pickColor(),
+ring:rand()>0.45,
+pulsePhase:rand()*TAU
+});
+}
+
+const midBokeh=[];
+for(let i=0;i<56;i++){
+midBokeh.push({
+x0:rand()*W,
+y0:rand()*(H+200),
+r:12+rand()*28,
+cycles:rand()>0.65?2:1,
+swayAmp:14+rand()*32,
+swayFreq:1+Math.floor(rand()*2),
+swayPhase:rand()*TAU,
+alpha:0.09+rand()*0.14,
+col:pickColor(),
+ring:rand()>0.35,
+pulsePhase:rand()*TAU
+});
+}
+
+const dust=[];
+for(let i=0;i<160;i++){
+dust.push({
+x0:rand()*W,
+y0:rand()*(H+120),
+r:1.2+rand()*3.0,
+cycles:rand()>0.55?2:1,
+swayAmp:10+rand()*26,
+swayFreq:1+Math.floor(rand()*3),
+swayPhase:rand()*TAU,
+twinkleFreq:2+Math.floor(rand()*4),
+twinklePhase:rand()*TAU,
+baseAlpha:0.22+rand()*0.42,
+col:pickColor()
+});
+}
+
+const flakes=[];
+for(let i=0;i<52;i++){
+flakes.push({
+x0:rand()*W,
+y0:rand()*(H+240),
+size:4.2+rand()*6.8,
+cycles:rand()>0.6?2:1,
+swayAmp:22+rand()*48,
+swayFreq:1+Math.floor(rand()*2),
+swayPhase:rand()*TAU,
+rot0:rand()*TAU,
+rotCycles:(rand()>0.5?1:-1)*(1+Math.floor(rand()*3)),
+twinkleFreq:2+Math.floor(rand()*4),
+twinklePhase:rand()*TAU,
+shape:Math.floor(rand()*3),
+col:pickColor(),
+trailLen:7+Math.floor(rand()*4)
+});
+}
+
+const foreBokeh=[];
+for(let i=0;i<12;i++){
+foreBokeh.push({
+x0:rand()*W,
+y0:rand()*(H+380),
+r:75+rand()*115,
+cycles:2,
+swayAmp:26+rand()*45,
+swayFreq:1,
+swayPhase:rand()*TAU,
+alpha:0.03+rand()*0.055,
+col:pickColor(),
+pulsePhase:rand()*TAU
+});
+}
+
+function getSpotlights(t){
+const a1=0.92+Math.sin(TAU*t)*0.30;
+const a2=Math.PI-0.92-Math.sin(TAU*t+0.85)*0.30;
+return[
+{sx:-90,sy:-120,angle:a1,dx:Math.cos(a1),dy:Math.sin(a1),half:0.28,len:2450,warmth:[255,222,148]},
+{sx:W+90,sy:-120,angle:a2,dx:Math.cos(a2),dy:Math.sin(a2),half:0.28,len:2450,warmth:[255,208,122]}
+];
+}
+
+function spotIllum(x,y,spots){
+let total=0;
+for(let i=0;i<spots.length;i++){
+const s=spots[i];
+const vx=x-s.sx,vy=y-s.sy;
+const dist=Math.hypot(vx,vy)||1;
+const cosA=(vx*s.dx+vy*s.dy)/dist;
+const minCos=Math.cos(s.half);
+if(cosA>minCos){
+const angFactor=(cosA-minCos)/(1-minCos);
+const distFactor=Math.max(0,1-dist/s.len);
+total+=Math.pow(angFactor,1.65)*Math.pow(distFactor,0.75);
+}
+}
+return Math.min(1,total);
+}
+
+function drawSpotlight(s){
+ctx.save();
+ctx.translate(s.sx,s.sy);
+ctx.rotate(s.angle);
+const layers=[
+{half:s.half*1.12,len:s.len,a0:0.12,a1:0.045},
+{half:s.half*0.72,len:s.len*0.95,a0:0.17,a1:0.06},
+{half:s.half*0.36,len:s.len*0.86,a0:0.16,a1:0.04}
+];
+for(let i=0;i<layers.length;i++){
+const L=layers[i];
+const ySpan=Math.tan(L.half)*L.len;
+const g=ctx.createLinearGradient(0,0,L.len,0);
+g.addColorStop(0,'rgba(255,244,210,'+(L.a0*1.15).toFixed(3)+')');
+g.addColorStop(0.22,'rgba('+s.warmth[0]+','+s.warmth[1]+','+s.warmth[2]+','+L.a0.toFixed(3)+')');
+g.addColorStop(0.62,'rgba(222,168,74,'+L.a1.toFixed(3)+')');
+g.addColorStop(1,'rgba(180,122,36,0)');
+ctx.fillStyle=g;
+ctx.beginPath();
+ctx.moveTo(0,-24);
+ctx.lineTo(L.len,-ySpan);
+ctx.lineTo(L.len,ySpan);
+ctx.lineTo(0,24);
+ctx.closePath();
+ctx.fill();
+}
+const rays=[-0.42,-0.16,0.12,0.38];
+for(let i=0;i<rays.length;i++){
+const rAng=rays[i]*s.half;
+const rHalf=s.half*0.085;
+const rLen=s.len*0.88;
+const y1=Math.tan(rAng-rHalf)*rLen;
+const y2=Math.tan(rAng+rHalf)*rLen;
+const rg=ctx.createLinearGradient(0,0,rLen,0);
+rg.addColorStop(0,'rgba(255,248,225,0.09)');
+rg.addColorStop(0.45,'rgba(255,220,145,0.045)');
+rg.addColorStop(1,'rgba(235,180,82,0)');
+ctx.fillStyle=rg;
+ctx.beginPath();
+ctx.moveTo(0,0);
+ctx.lineTo(rLen,y1);
+ctx.lineTo(rLen,y2);
+ctx.closePath();
+ctx.fill();
+}
+const srcGlow=ctx.createRadialGradient(0,0,10,0,0,460);
+srcGlow.addColorStop(0,'rgba(255,248,226,0.52)');
+srcGlow.addColorStop(0.35,'rgba(248,210,130,0.18)');
+srcGlow.addColorStop(1,'rgba(240,188,92,0)');
+ctx.fillStyle=srcGlow;
+ctx.beginPath();
+ctx.arc(0,0,460,0,TAU);
+ctx.fill();
+ctx.restore();
+}
+
+function drawIntersectionGlow(spots){
+const s1=spots[0],s2=spots[1];
+const det=s1.dx*s2.dy-s1.dy*s2.dx;
+if(Math.abs(det)<0.001)return;
+const rx=s2.sx-s1.sx,ry=s2.sy-s1.sy;
+const u=(rx*s2.dy-ry*s2.dx)/det;
+const ix=s1.sx+u*s1.dx;
+const iy=s1.sy+u*s1.dy;
+const g=ctx.createRadialGradient(ix,iy,10,ix,iy,540);
+g.addColorStop(0,'rgba(255,238,190,0.20)');
+g.addColorStop(0.38,'rgba(242,196,108,0.09)');
+g.addColorStop(0.72,'rgba(196,138,52,0.03)');
+g.addColorStop(1,'rgba(160,102,28,0)');
+ctx.fillStyle=g;
+ctx.beginPath();
+ctx.arc(ix,iy,540,0,TAU);
+ctx.fill();
+}
+
+function drawBokehCircle(x,y,r,col,alpha,ring){
+const g=ctx.createRadialGradient(x,y,r*0.05,x,y,r);
+const rgb=col[0]+','+col[1]+','+col[2];
+if(ring){
+g.addColorStop(0,'rgba('+rgb+','+(alpha*0.38).toFixed(3)+')');
+g.addColorStop(0.68,'rgba('+rgb+','+(alpha*0.58).toFixed(3)+')');
+g.addColorStop(0.86,'rgba(255,246,220,'+(alpha*0.95).toFixed(3)+')');
+g.addColorStop(0.95,'rgba('+rgb+','+(alpha*0.35).toFixed(3)+')');
+g.addColorStop(1,'rgba('+rgb+',0)');
+}else{
+g.addColorStop(0,'rgba(255,248,228,'+(alpha*0.95).toFixed(3)+')');
+g.addColorStop(0.45,'rgba('+rgb+','+(alpha*0.62).toFixed(3)+')');
+g.addColorStop(0.82,'rgba('+rgb+','+(alpha*0.18).toFixed(3)+')');
+g.addColorStop(1,'rgba('+rgb+',0)');
+}
+ctx.fillStyle=g;
+ctx.beginPath();
+ctx.arc(x,y,r,0,TAU);
+ctx.fill();
+}
+
+function flakePos(f,tNorm){
+const wrap=H+240;
+const tWrap=((tNorm%1)+1)%1;
+const y=((f.y0+tWrap*f.cycles*wrap)%wrap)-120;
+const x=((f.x0+Math.sin(tWrap*TAU*f.swayFreq+f.swayPhase)*f.swayAmp)%W+W)%W;
+return{x:x,y:y};
+}
+
+function drawStarFlare(x,y,size,alpha){
+ctx.save();
+ctx.translate(x,y);
+ctx.fillStyle='rgba(255,250,235,'+alpha.toFixed(3)+')';
+ctx.beginPath();
+const inner=size*0.18;
+for(let i=0;i<8;i++){
+const ang=i*Math.PI/4;
+const rad=i%2===0?size:inner;
+const px=Math.cos(ang)*rad;
+const py=Math.sin(ang)*rad;
+if(i===0)ctx.moveTo(px,py);
+else ctx.lineTo(px,py);
+}
+ctx.closePath();
+ctx.fill();
+ctx.restore();
+}
+
+function drawFlakeShape(x,y,size,rot,shape,col,alpha,illum){
+ctx.save();
+ctx.translate(x,y);
+ctx.rotate(rot);
+const r=Math.min(255,Math.round(col[0]+(255-col[0])*illum*0.65));
+const g=Math.min(255,Math.round(col[1]+(248-col[1])*illum*0.65));
+const b=Math.min(255,Math.round(col[2]+(224-col[2])*illum*0.65));
+ctx.fillStyle='rgba('+r+','+g+','+b+','+alpha.toFixed(3)+')';
+ctx.beginPath();
+if(shape===0){
+ctx.moveTo(0,-size);
+ctx.lineTo(size*0.65,0);
+ctx.lineTo(0,size);
+ctx.lineTo(-size*0.65,0);
+ctx.closePath();
+}else if(shape===1){
+for(let i=0;i<6;i++){
+const a=i*TAU/6;
+const px=Math.cos(a)*size*0.85;
+const py=Math.sin(a)*size*0.85;
+if(i===0)ctx.moveTo(px,py);
+else ctx.lineTo(px,py);
+}
+ctx.closePath();
+}else{
+for(let i=0;i<8;i++){
+const a=i*Math.PI/4;
+const rad=i%2===0?size*1.05:size*0.32;
+const px=Math.cos(a)*rad;
+const py=Math.sin(a)*rad;
+if(i===0)ctx.moveTo(px,py);
+else ctx.lineTo(px,py);
+}
+ctx.closePath();
+}
+ctx.fill();
+ctx.restore();
+}
+
+function render(ts){
+const t=(((ts%DUR)+DUR)%DUR)/DUR;
+ctx.setTransform(cw/W,0,0,ch/H,0,0);
+
+const bg=ctx.createRadialGradient(W*0.5,H*0.26,60,W*0.5,H*0.52,W*0.78);
+bg.addColorStop(0,'#1b150e');
+bg.addColorStop(0.42,'#0e0b08');
+bg.addColorStop(0.8,'#070606');
+bg.addColorStop(1,'#040303');
+ctx.fillStyle=bg;
+ctx.fillRect(0,0,W,H);
+
+const spots=getSpotlights(t);
+
+ctx.save();
+ctx.globalCompositeOperation='lighter';
+
+for(let i=0;i<farBokeh.length;i++){
+const b=farBokeh[i];
+const wrap=H+320;
+const y=((b.y0+t*b.cycles*wrap)%wrap)-160;
+const x=b.x0+Math.sin(t*TAU*b.swayFreq+b.swayPhase)*b.swayAmp;
+const illum=spotIllum(x,y,spots);
+const pulse=0.85+0.15*Math.sin(t*TAU+b.pulsePhase);
+const a=b.alpha*(0.55+illum*1.35)*pulse;
+drawBokehCircle(x,y,b.r,b.col,a,b.ring);
+}
+
+drawSpotlight(spots[0]);
+drawSpotlight(spots[1]);
+drawIntersectionGlow(spots);
+
+for(let i=0;i<midBokeh.length;i++){
+const b=midBokeh[i];
+const wrap=H+200;
+const y=((b.y0+t*b.cycles*wrap)%wrap)-100;
+const x=b.x0+Math.sin(t*TAU*b.swayFreq+b.swayPhase)*b.swayAmp;
+const illum=spotIllum(x,y,spots);
+const pulse=0.82+0.18*Math.sin(t*TAU*2+b.pulsePhase);
+const a=b.alpha*(0.48+illum*1.55)*pulse;
+drawBokehCircle(x,y,b.r,b.col,a,b.ring);
+}
+
+for(let i=0;i<dust.length;i++){
+const d=dust[i];
+const wrap=H+120;
+const y=((d.y0+t*d.cycles*wrap)%wrap)-60;
+const x=d.x0+Math.sin(t*TAU*d.swayFreq+d.swayPhase)*d.swayAmp;
+const illum=spotIllum(x,y,spots);
+const tw=0.45+0.55*Math.sin(t*TAU*d.twinkleFreq+d.twinklePhase);
+const a=Math.min(1,d.baseAlpha*(0.35+illum*1.75)*tw);
+const rad=d.r*(0.85+illum*0.45);
+const g=ctx.createRadialGradient(x,y,0,x,y,rad*2.6);
+g.addColorStop(0,'rgba(255,248,226,'+a.toFixed(3)+')');
+g.addColorStop(0.45,'rgba('+d.col[0]+','+d.col[1]+','+d.col[2]+','+(a*0.65).toFixed(3)+')');
+g.addColorStop(1,'rgba('+d.col[0]+','+d.col[1]+','+d.col[2]+',0)');
+ctx.fillStyle=g;
+ctx.beginPath();
+ctx.arc(x,y,rad*2.6,0,TAU);
+ctx.fill();
+}
+
+for(let i=0;i<flakes.length;i++){
+const f=flakes[i];
+const pos=flakePos(f,t);
+const illum=spotIllum(pos.x,pos.y,spots);
+const tw=0.52+0.48*Math.sin(t*TAU*f.twinkleFreq+f.twinklePhase);
+
+for(let k=1;k<=f.trailLen;k++){
+const prev=flakePos(f,t-k*0.0052);
+if(Math.abs(pos.y-prev.y)>200)continue;
+const frac=1-k/(f.trailLen+1);
+const tIllum=spotIllum(prev.x,prev.y,spots);
+const ta=frac*frac*(0.14+tIllum*0.46)*tw;
+const tr=f.size*0.34*frac;
+const tg=ctx.createRadialGradient(prev.x,prev.y,0,prev.x,prev.y,tr*2.2);
+tg.addColorStop(0,'rgba(255,244,210,'+ta.toFixed(3)+')');
+tg.addColorStop(0.5,'rgba('+f.col[0]+','+f.col[1]+','+f.col[2]+','+(ta*0.6).toFixed(3)+')');
+tg.addColorStop(1,'rgba('+f.col[0]+','+f.col[1]+','+f.col[2]+',0)');
+ctx.fillStyle=tg;
+ctx.beginPath();
+ctx.arc(prev.x,prev.y,tr*2.2,0,TAU);
+ctx.fill();
+}
+
+const haloR=f.size*(2.4+illum*2.2);
+const haloA=Math.min(0.75,(0.16+illum*0.52)*tw);
+const hg=ctx.createRadialGradient(pos.x,pos.y,0,pos.x,pos.y,haloR);
+hg.addColorStop(0,'rgba(255,248,225,'+haloA.toFixed(3)+')');
+hg.addColorStop(0.45,'rgba('+f.col[0]+','+f.col[1]+','+f.col[2]+','+(haloA*0.45).toFixed(3)+')');
+hg.addColorStop(1,'rgba('+f.col[0]+','+f.col[1]+','+f.col[2]+',0)');
+ctx.fillStyle=hg;
+ctx.beginPath();
+ctx.arc(pos.x,pos.y,haloR,0,TAU);
+ctx.fill();
+
+const rot=f.rot0+t*TAU*f.rotCycles;
+const flakeA=Math.min(1,(0.42+illum*0.58)*(0.65+0.35*tw));
+drawFlakeShape(pos.x,pos.y,f.size,rot,f.shape,f.col,flakeA,illum);
+
+if(illum>0.28&&tw>0.62){
+const flareA=Math.min(0.95,(illum-0.28)*1.35*(tw-0.55)*1.8);
+drawStarFlare(pos.x,pos.y,f.size*(2.2+illum*1.8),flareA);
+}
+}
+
+for(let i=0;i<foreBokeh.length;i++){
+const b=foreBokeh[i];
+const wrap=H+380;
+const y=((b.y0+t*b.cycles*wrap)%wrap)-190;
+const x=b.x0+Math.sin(t*TAU*b.swayFreq+b.swayPhase)*b.swayAmp;
+const illum=spotIllum(x,y,spots);
+const pulse=0.86+0.14*Math.sin(t*TAU+b.pulsePhase);
+const a=b.alpha*(0.55+illum*1.2)*pulse;
+drawBokehCircle(x,y,b.r,b.col,a,false);
+}
+
+const floorMist=ctx.createLinearGradient(0,H*0.72,0,H);
+floorMist.addColorStop(0,'rgba(218,162,72,0)');
+floorMist.addColorStop(1,'rgba(218,162,72,0.065)');
+ctx.fillStyle=floorMist;
+ctx.fillRect(0,H*0.72,W,H*0.28);
+
+ctx.restore();
+
+const vig=ctx.createRadialGradient(W*0.5,H*0.48,W*0.28,W*0.5,H*0.5,W*0.72);
+vig.addColorStop(0,'rgba(0,0,0,0)');
+vig.addColorStop(0.72,'rgba(4,3,3,0.22)');
+vig.addColorStop(1,'rgba(3,2,2,0.62)');
+ctx.fillStyle=vig;
+ctx.fillRect(0,0,W,H);
+
+requestAnimationFrame(render);
+}
+
+requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>
