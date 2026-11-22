@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Constellation Star-Map and Milky Way Astro-Vector Network Seamless Loop Animation</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#030816}
+canvas{display:block;width:100%;height:100%}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+(function(){
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d');
+const W=1920,H=1080,LOOP=10000,TAU=Math.PI*2;
+
+let seed=42817;
+function rnd(){
+seed=(seed*1664525+1013904223)>>>0;
+return seed/4294967296;
+}
+
+function bandCenterY(x){
+const t=x/W;
+return H*(0.96-0.88*t)+Math.sin(t*Math.PI*1.65-0.4)*95;
+}
+
+const nebulae=[
+{x:180,y:960,rx:460,ry:260,rot:-0.52,c1:'rgba(29,78,216,0.22)',c2:'rgba(29,78,216,0)',ox:16,oy:10,ph:0.2},
+{x:540,y:780,rx:520,ry:290,rot:-0.48,c1:'rgba(37,99,235,0.20)',c2:'rgba(29,78,216,0)',ox:20,oy:14,ph:1.4},
+{x:960,y:540,rx:620,ry:320,rot:-0.45,c1:'rgba(56,189,248,0.14)',c2:'rgba(29,78,216,0)',ox:22,oy:15,ph:2.6},
+{x:980,y:520,rx:420,ry:210,rot:-0.46,c1:'rgba(29,78,216,0.24)',c2:'rgba(3,8,22,0)',ox:14,oy:12,ph:3.9},
+{x:1380,y:320,rx:540,ry:280,rot:-0.49,c1:'rgba(37,99,235,0.19)',c2:'rgba(29,78,216,0)',ox:18,oy:12,ph:4.7},
+{x:1740,y:130,rx:460,ry:250,rot:-0.53,c1:'rgba(56,189,248,0.12)',c2:'rgba(29,78,216,0)',ox:15,oy:10,ph:5.5},
+{x:720,y:660,rx:340,ry:180,rot:-0.44,c1:'rgba(56,189,248,0.10)',c2:'rgba(3,8,22,0)',ox:12,oy:9,ph:0.9},
+{x:1220,y:400,rx:360,ry:190,rot:-0.48,c1:'rgba(56,189,248,0.11)',c2:'rgba(3,8,22,0)',ox:14,oy:11,ph:3.1}
+];
+
+const dust=[];
+for(let i=0;i<165;i++){
+const inBand=rnd()<0.72;
+let x,y;
+if(inBand){
+x=rnd()*(W+160)-80;
+const spread=(rnd()-0.5)+(rnd()-0.5);
+y=bandCenterY(x)+spread*340;
+}else{
+x=rnd()*W;
+y=rnd()*H;
+}
+dust.push({
+x,y,
+r:0.6+rnd()*1.5,
+ox:4+rnd()*12,
+oy:3+rnd()*10,
+ph:rnd()*TAU,
+twPh:rnd()*TAU,
+twFreq:rnd()<0.5?1:2,
+baseA:0.15+rnd()*0.42,
+cyan:rnd()<0.38
+});
+}
+
+const bgNodes=[];
+const bgCount=54;
+for(let i=0;i<bgCount;i++){
+const u=(i+0.5)/bgCount;
+const x=-40+u*(W+80)+(rnd()-0.5)*95;
+const spread=((rnd()-0.5)+(rnd()-0.5))*310;
+const y=bandCenterY(x)+spread;
+bgNodes.push({
+bx:x,by:y,
+ox:6+rnd()*9,
+oy:5+rnd()*8,
+ph:rnd()*TAU,
+dir:rnd()<0.5?1:-1,
+r:1.5+rnd()*1.8
+});
+}
+
+const bgEdges=[];
+for(let i=0;i<bgNodes.length;i++){
+for(let j=i+1;j<bgNodes.length;j++){
+const dx=bgNodes[i].bx-bgNodes[j].bx;
+const dy=bgNodes[i].by-bgNodes[j].by;
+const d=Math.hypot(dx,dy);
+if(d<235){
+bgEdges.push({a:i,b:j,d});
+}
+}
+}
+
+const bgTriangles=[];
+const bgAdj=Array.from({length:bgNodes.length},()=>new Set());
+for(const e of bgEdges){
+bgAdj[e.a].add(e.b);
+bgAdj[e.b].add(e.a);
+}
+for(let i=0;i<bgNodes.length;i++){
+for(const j of bgAdj[i]){
+if(j<=i)continue;
+for(const k of bgAdj[j]){
+if(k<=j)continue;
+if(bgAdj[i].has(k)){
+const d1=Math.hypot(bgNodes[i].bx-bgNodes[j].bx,bgNodes[i].by-bgNodes[j].by);
+const d2=Math.hypot(bgNodes[j].bx-bgNodes[k].bx,bgNodes[j].by-bgNodes[k].by);
+const d3=Math.hypot(bgNodes[i].bx-bgNodes[k].bx,bgNodes[i].by-bgNodes[k].by);
+if(d1<215&&d2<215&&d3<215){
+bgTriangles.push({a:i,b:j,c:k,ph:rnd()*TAU});
+}
+}
+}
+}
+}
+
+const fgRaw=[
+[40,1035,0],[135,915,1],[195,1025,0],[275,855,0],[340,950,0],
+[410,765,1],[485,875,0],[535,690,0],[615,795,1],[670,635,0],
+[745,730,0],[785,540,1],[865,645,0],[905,465,0],[975,555,1],
+[1035,415,0],[1095,525,0],[1145,355,1],[1225,445,0],[1265,285,0],
+[1345,375,1],[1395,215,0],[1475,305,0],[1535,165,1],[1615,245,0],
+[1675,105,0],[1755,175,1],[1835,60,0],[1895,135,0],
+[260,720,0],[460,605,0],[660,480,0],[855,350,1],[1065,260,0],
+[1275,165,0],[1505,65,0],[735,845,0],[965,710,0],[1185,590,0],
+[1415,470,0],[1645,355,0]
+];
+
+const fgNodes=fgRaw.map((p,idx)=>({
+bx:p[0],
+by:p[1],
+major:p[2]===1,
+reticle:p[2]===1&&(idx%2===1),
+ox:4.5+rnd()*6.5,
+oy:4+rnd()*6,
+ph:rnd()*TAU,
+dir:idx%2===0?1:-1,
+pulsePh:rnd()*TAU,
+ringFreq:1,
+r:p[2]===1?(4.2+rnd()*1.6):(2.2+rnd()*1.3)
+}));
+
+const fgEdges=[];
+const fgAdj=Array.from({length:fgNodes.length},()=>new Set());
+for(let i=0;i<fgNodes.length;i++){
+for(let j=i+1;j<fgNodes.length;j++){
+const d=Math.hypot(fgNodes[i].bx-fgNodes[j].bx,fgNodes[i].by-fgNodes[j].by);
+if(d<255){
+fgEdges.push({
+a:i,b:j,d,
+bright:fgNodes[i].major||fgNodes[j].major,
+ph:rnd()*TAU
+});
+fgAdj[i].add(j);
+fgAdj[j].add(i);
+}
+}
+}
+
+const fgTriangles=[];
+for(let i=0;i<fgNodes.length;i++){
+for(const j of fgAdj[i]){
+if(j<=i)continue;
+for(const k of fgAdj[j]){
+if(k<=j)continue;
+if(fgAdj[i].has(k)){
+const d1=Math.hypot(fgNodes[i].bx-fgNodes[j].bx,fgNodes[i].by-fgNodes[j].by);
+const d2=Math.hypot(fgNodes[j].bx-fgNodes[k].bx,fgNodes[j].by-fgNodes[k].by);
+const d3=Math.hypot(fgNodes[i].bx-fgNodes[k].bx,fgNodes[i].by-fgNodes[k].by);
+if(d1<230&&d2<230&&d3<230){
+fgTriangles.push({a:i,b:j,c:k,ph:rnd()*TAU});
+}
+}
+}
+}
+}
+
+const impulses=[];
+for(let i=0;i<fgEdges.length;i++){
+if(i%3===0||fgEdges[i].bright){
+impulses.push({
+edge:i,
+reverse:rnd()<0.5,
+offset:rnd(),
+freq:rnd()<0.35?2:1,
+span:0.26+rnd()*0.18,
+width:1.8+rnd()*1.1
+});
+}
+}
+
+const arcs=[
+{cx:1580,cy:1280,r:980,a1:Math.PI*1.08,a2:Math.PI*1.46,w:1.0,op:0.12,dir:1},
+{cx:1580,cy:1280,r:1180,a1:Math.PI*1.12,a2:Math.PI*1.44,w:0.8,op:0.09,dir:-1},
+{cx:340,cy:-220,r:940,a1:Math.PI*0.06,a2:Math.PI*0.44,w:1.0,op:0.11,dir:1},
+{cx:340,cy:-220,r:1160,a1:Math.PI*0.10,a2:Math.PI*0.42,w:0.8,op:0.08,dir:-1}
+];
+
+function resize(){
+const dpr=Math.min(window.devicePixelRatio||1,2);
+const w=window.innerWidth;
+const h=window.innerHeight;
+if(canvas.width!==Math.round(w*dpr)||canvas.height!==Math.round(h*dpr)){
+canvas.width=Math.round(w*dpr);
+canvas.height=Math.round(h*dpr);
+}
+}
+window.addEventListener('resize',resize);
+resize();
+
+function drawFourPointStar(x,y,rOuter,rInner,rot){
+ctx.save();
+ctx.translate(x,y);
+ctx.rotate(rot);
+ctx.beginPath();
+for(let i=0;i<8;i++){
+const r=i%2===0?rOuter:rInner;
+const a=(i*Math.PI)/4;
+const px=Math.cos(a)*r;
+const py=Math.sin(a)*r;
+if(i===0)ctx.moveTo(px,py);
+else ctx.lineTo(px,py);
+}
+ctx.closePath();
+ctx.fill();
+ctx.restore();
+}
+
+function render(ts){
+resize();
+const cw=canvas.width,ch=canvas.height;
+ctx.setTransform(cw/W,0,0,ch/H,0,0);
+
+const p=(((ts%LOOP)+LOOP)%LOOP)/LOOP;
+const ang=p*TAU;
+
+const bgGrad=ctx.createLinearGradient(0,0,W,H);
+bgGrad.addColorStop(0,'#020612');
+bgGrad.addColorStop(0.5,'#030816');
+bgGrad.addColorStop(1,'#020612');
+ctx.fillStyle=bgGrad;
+ctx.fillRect(0,0,W,H);
+
+for(let i=0;i<nebulae.length;i++){
+const n=nebulae[i];
+const nx=n.x+Math.cos(ang+n.ph)*n.ox;
+const ny=n.y+Math.sin(ang+n.ph)*n.oy;
+const pulse=0.88+0.12*Math.sin(ang+n.ph*1.3);
+ctx.save();
+ctx.translate(nx,ny);
+ctx.rotate(n.rot);
+ctx.scale(1,n.ry/n.rx);
+const g=ctx.createRadialGradient(0,0,0,0,0,n.rx);
+g.addColorStop(0,n.c1);
+g.addColorStop(1,n.c2);
+ctx.globalAlpha=pulse;
+ctx.fillStyle=g;
+ctx.beginPath();
+ctx.arc(0,0,n.rx,0,TAU);
+ctx.fill();
+ctx.restore();
+}
+
+ctx.save();
+for(let i=0;i<arcs.length;i++){
+const a=arcs[i];
+const drift=Math.sin(ang)*0.015*a.dir;
+ctx.strokeStyle='#1D4ED8';
+ctx.globalAlpha=a.op;
+ctx.lineWidth=a.w;
+ctx.setLineDash([6,10]);
+ctx.beginPath();
+ctx.arc(a.cx,a.cy,a.r,a.a1+drift,a.a2+drift);
+ctx.stroke();
+}
+ctx.setLineDash([]);
+ctx.restore();
+
+for(let i=0;i<dust.length;i++){
+const d=dust[i];
+const dx=d.x+Math.cos(ang+d.ph)*d.ox;
+const dy=d.y+Math.sin(ang+d.ph)*d.oy;
+const tw=0.45+0.55*(0.5+0.5*Math.sin(ang*d.twFreq+d.twPh));
+ctx.fillStyle=d.cyan?'#38BDF8':'#E0F2FE';
+ctx.globalAlpha=d.baseA*tw;
+ctx.beginPath();
+ctx.arc(dx,dy,d.r,0,TAU);
+ctx.fill();
+}
+ctx.globalAlpha=1;
+
+const bgPos=new Array(bgNodes.length);
+for(let i=0;i<bgNodes.length;i++){
+const n=bgNodes[i];
+bgPos[i]={
+x:n.bx+Math.cos(ang*n.dir+n.ph)*n.ox,
+y:n.by+Math.sin(ang*n.dir+n.ph)*n.oy
+};
+}
+
+for(let i=0;i<bgTriangles.length;i++){
+const t=bgTriangles[i];
+const pa=bgPos[t.a],pb=bgPos[t.b],pc=bgPos[t.c];
+const a=0.022+0.018*(0.5+0.5*Math.sin(ang+t.ph));
+ctx.fillStyle=`rgba(29,78,216,${a.toFixed(4)})`;
+ctx.beginPath();
+ctx.moveTo(pa.x,pa.y);
+ctx.lineTo(pb.x,pb.y);
+ctx.lineTo(pc.x,pc.y);
+ctx.closePath();
+ctx.fill();
+}
+
+ctx.lineWidth=0.95;
+for(let i=0;i<bgEdges.length;i++){
+const e=bgEdges[i];
+const pa=bgPos[e.a],pb=bgPos[e.b];
+const fade=Math.max(0.08,1-e.d/245);
+ctx.strokeStyle=`rgba(29,78,216,${(0.46*fade).toFixed(3)})`;
+ctx.beginPath();
+ctx.moveTo(pa.x,pa.y);
+ctx.lineTo(pb.x,pb.y);
+ctx.stroke();
+}
+
+for(let i=0;i<bgNodes.length;i++){
+const pos=bgPos[i];
+ctx.fillStyle='rgba(59,130,246,0.55)';
+ctx.beginPath();
+ctx.arc(pos.x,pos.y,bgNodes[i].r,0,TAU);
+ctx.fill();
+}
+
+const fgPos=new Array(fgNodes.length);
+for(let i=0;i<fgNodes.length;i++){
+const n=fgNodes[i];
+fgPos[i]={
+x:n.bx+Math.cos(ang*n.dir+n.ph)*n.ox,
+y:n.by+Math.sin(ang*n.dir+n.ph)*n.oy
+};
+}
+
+for(let i=0;i<fgTriangles.length;i++){
+const t=fgTriangles[i];
+const pa=fgPos[t.a],pb=fgPos[t.b],pc=fgPos[t.c];
+const a=0.016+0.020*(0.5+0.5*Math.sin(ang+t.ph));
+ctx.fillStyle=`rgba(56,189,248,${a.toFixed(4)})`;
+ctx.beginPath();
+ctx.moveTo(pa.x,pa.y);
+ctx.lineTo(pb.x,pb.y);
+ctx.lineTo(pc.x,pc.y);
+ctx.closePath();
+ctx.fill();
+}
+
+for(let i=0;i<fgEdges.length;i++){
+const e=fgEdges[i];
+const pa=fgPos[e.a],pb=fgPos[e.b];
+const distFade=Math.max(0.22,1-e.d/280);
+const shimmer=0.82+0.18*Math.sin(ang+e.ph);
+const alpha=(e.bright?0.58:0.34)*distFade*shimmer;
+ctx.strokeStyle=`rgba(56,189,248,${alpha.toFixed(3)})`;
+ctx.lineWidth=e.bright?1.45:1.0;
+ctx.beginPath();
+ctx.moveTo(pa.x,pa.y);
+ctx.lineTo(pb.x,pb.y);
+ctx.stroke();
+}
+
+ctx.lineCap='round';
+for(let i=0;i<impulses.length;i++){
+const imp=impulses[i];
+const e=fgEdges[imp.edge];
+const pa=imp.reverse?fgPos[e.b]:fgPos[e.a];
+const pb=imp.reverse?fgPos[e.a]:fgPos[e.b];
+const cycle=(p*imp.freq+imp.offset)%1;
+if(cycle<imp.span){
+const u=cycle/imp.span;
+const head=u;
+const tail=Math.max(0,u-0.28);
+const x1=pa.x+(pb.x-pa.x)*tail;
+const y1=pa.y+(pb.y-pa.y)*tail;
+const x2=pa.x+(pb.x-pa.x)*head;
+const y2=pa.y+(pb.y-pa.y)*head;
+const env=Math.sin(u*Math.PI);
+const lg=ctx.createLinearGradient(x1,y1,x2,y2);
+lg.addColorStop(0,'rgba(56,189,248,0)');
+lg.addColorStop(0.65,`rgba(56,189,248,${(0.75*env).toFixed(3)})`);
+lg.addColorStop(1,`rgba(224,242,254,${(0.98*env).toFixed(3)})`);
+ctx.strokeStyle=lg;
+ctx.lineWidth=imp.width;
+ctx.beginPath();
+ctx.moveTo(x1,y1);
+ctx.lineTo(x2,y2);
+ctx.stroke();
+
+ctx.fillStyle=`rgba(224,242,254,${(0.95*env).toFixed(3)})`;
+ctx.beginPath();
+ctx.arc(x2,y2,2.1,0,TAU);
+ctx.fill();
+}
+}
+
+for(let i=0;i<fgNodes.length;i++){
+const n=fgNodes[i];
+const pos=fgPos[i];
+if(n.major){
+const haloR=26+4*Math.sin(ang+n.pulsePh);
+const hg=ctx.createRadialGradient(pos.x,pos.y,0,pos.x,pos.y,haloR);
+hg.addColorStop(0,'rgba(224,242,254,0.42)');
+hg.addColorStop(0.35,'rgba(56,189,248,0.22)');
+hg.addColorStop(1,'rgba(56,189,248,0)');
+ctx.fillStyle=hg;
+ctx.beginPath();
+ctx.arc(pos.x,pos.y,haloR,0,TAU);
+ctx.fill();
+
+for(let k=0;k<2;k++){
+const rp=(p*n.ringFreq+n.pulsePh/TAU+k*0.5)%1;
+const rr=7+rp*36;
+const ra=Math.sin(rp*Math.PI)*0.48*(1-rp*0.45);
+ctx.strokeStyle=`rgba(56,189,248,${ra.toFixed(3)})`;
+ctx.lineWidth=1.1;
+ctx.beginPath();
+ctx.arc(pos.x,pos.y,rr,0,TAU);
+ctx.stroke();
+}
+
+if(n.reticle){
+const rot=ang*0.5*(n.dir);
+ctx.save();
+ctx.translate(pos.x,pos.y);
+ctx.rotate(rot);
+ctx.strokeStyle='rgba(224,242,254,0.28)';
+ctx.lineWidth=0.9;
+ctx.setLineDash([4,6]);
+ctx.beginPath();
+ctx.arc(0,0,17,0,TAU);
+ctx.stroke();
+ctx.setLineDash([]);
+ctx.restore();
+}
+
+const starScale=0.88+0.18*Math.sin(ang*2+n.pulsePh);
+ctx.fillStyle='#E0F2FE';
+drawFourPointStar(pos.x,pos.y,n.r*3.0*starScale,n.r*0.55*starScale,0);
+
+ctx.fillStyle='#FFFFFF';
+ctx.beginPath();
+ctx.arc(pos.x,pos.y,n.r*0.72,0,TAU);
+ctx.fill();
+}else{
+const sg=ctx.createRadialGradient(pos.x,pos.y,0,pos.x,pos.y,n.r*4.2);
+sg.addColorStop(0,'rgba(56,189,248,0.38)');
+sg.addColorStop(1,'rgba(56,189,248,0)');
+ctx.fillStyle=sg;
+ctx.beginPath();
+ctx.arc(pos.x,pos.y,n.r*4.2,0,TAU);
+ctx.fill();
+
+ctx.fillStyle='#E0F2FE';
+ctx.beginPath();
+ctx.arc(pos.x,pos.y,n.r,0,TAU);
+ctx.fill();
+}
+}
+
+requestAnimationFrame(render);
+}
+
+requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Celestial Meridian Sphere and Star-Ring Orbit Wireframe Vector Animation</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#04091A}
+canvas{display:block;width:100%;height:100%}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+(function(){
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d');
+const W=1920,H=1080,PERIOD=10000,TAU=Math.PI*2;
+const CX=1140,CY=550,R=345;
+const TILT_X=0.34,TILT_Z=-0.32;
+const COS_TX=Math.cos(TILT_X),SIN_TX=Math.sin(TILT_X);
+const COS_TZ=Math.cos(TILT_Z),SIN_TZ=Math.sin(TILT_Z);
+
+function createRng(seed){
+let s=seed>>>0;
+return function(){
+s=(s*1664525+1013904223)>>>0;
+return s/4294967296;
+};
+}
+
+const rng=createRng(20261122);
+
+const bgStars=[];
+for(let i=0;i<150;i++){
+bgStars.push({
+x:rng()*W,
+y:rng()*H,
+r:0.7+rng()*1.9,
+diamond:rng()>0.78,
+phase:rng()*TAU,
+freq:1+Math.floor(rng()*3),
+color:rng()>0.35?'#F0F9FF':(rng()>0.5?'#22D3EE':'#00BBF9'),
+baseAlpha:0.25+rng()*0.65
+});
+}
+
+const rings=[
+{rx:520,ry:520,tiltX:1.18,tiltY:-0.28,tiltZ:-0.26,width:1.8,colorFront:'#22D3EE',colorBack:'#1E40AF',alphaFront:0.85,alphaBack:0.35,type:'solid',dir:-1,speed:1},
+{rx:625,ry:625,tiltX:1.14,tiltY:-0.24,tiltZ:-0.24,width:2.2,colorFront:'#00BBF9',colorBack:'#1E40AF',alphaFront:0.75,alphaBack:0.28,type:'dashed',dashCount:36,dir:-1,speed:1},
+{rx:745,ry:745,tiltX:1.22,tiltY:-0.34,tiltZ:-0.30,width:1.4,colorFront:'#22D3EE',colorBack:'#1E40AF',alphaFront:0.65,alphaBack:0.22,type:'telemetry',arcs:6,dir:-1,speed:1},
+{rx:885,ry:885,tiltX:1.16,tiltY:-0.26,tiltZ:-0.27,width:1.2,colorFront:'#00BBF9',colorBack:'#1E40AF',alphaFront:0.48,alphaBack:0.18,type:'solid',dir:1,speed:1},
+{rx:455,ry:455,tiltX:1.38,tiltY:0.42,tiltZ:0.36,width:1.6,colorFront:'#22D3EE',colorBack:'#1E40AF',alphaFront:0.72,alphaBack:0.26,type:'dashed',dashCount:24,dir:-1,speed:1},
+{rx:980,ry:980,tiltX:1.19,tiltY:-0.30,tiltZ:-0.28,width:2.6,colorFront:'#22D3EE',colorBack:'#1E40AF',alphaFront:0.55,alphaBack:0.18,type:'ticks',tickCount:72,dir:-1,speed:1}
+];
+
+const satellites=[
+{ringIdx:0,phase:0.2,dir:-1,turns:1,size:6.2,color:'#F0F9FF',glow:'#22D3EE',trail:0.55},
+{ringIdx:1,phase:2.4,dir:-1,turns:1,size:5.0,color:'#F0F9FF',glow:'#00BBF9',trail:0.45},
+{ringIdx:2,phase:4.1,dir:-1,turns:1,size:7.2,color:'#F0F9FF',glow:'#22D3EE',trail:0.65},
+{ringIdx:3,phase:1.1,dir:1,turns:1,size:5.5,color:'#F0F9FF',glow:'#00BBF9',trail:0.50},
+{ringIdx:4,phase:3.5,dir:-1,turns:2,size:4.6,color:'#F0F9FF',glow:'#22D3EE',trail:0.40},
+{ringIdx:2,phase:0.9,dir:-1,turns:1,size:4.2,color:'#22D3EE',glow:'#00BBF9',trail:0.35}
+];
+
+const dust=[];
+for(let i=0;i<110;i++){
+const band=i%3;
+const baseR=band===0?480+rng()*260:(band===1?680+rng()*320:390+rng()*140);
+dust.push({
+rx:baseR,
+ry:baseR*(0.94+rng()*0.12),
+tiltX:1.14+(rng()-0.5)*0.22,
+tiltY:-0.28+(rng()-0.5)*0.24,
+tiltZ:-0.26+(rng()-0.5)*0.18,
+phase:rng()*TAU,
+dir:rng()>0.22?-1:1,
+turns:1,
+size:1.1+rng()*2.4,
+diamond:rng()>0.75,
+twinklePhase:rng()*TAU,
+twinkleFreq:1+Math.floor(rng()*2),
+color:rng()>0.45?'#F0F9FF':(rng()>0.5?'#22D3EE':'#00BBF9'),
+yOffset:(rng()-0.5)*46
+});
+}
+
+function projectSphere(x,y,z){
+const x1=x;
+const y1=y*COS_TX-z*SIN_TX;
+const z1=y*SIN_TX+z*COS_TX;
+const x2=x1*COS_TZ-y1*SIN_TZ;
+const y2=x1*SIN_TZ+y1*COS_TZ;
+const z2=z1;
+const persp=2400/(2400-z2);
+return {x:CX+x2*persp,y:CY+y2*persp,z:z2,s:persp};
+}
+
+function projectRingPoint(ring,angle,yOff){
+const lx=Math.cos(angle)*ring.rx;
+const ly=yOff||0;
+const lz=Math.sin(angle)*ring.ry;
+const cx=Math.cos(ring.tiltX),sx=Math.sin(ring.tiltX);
+const cy=Math.cos(ring.tiltY),sy=Math.sin(ring.tiltY);
+const cz=Math.cos(ring.tiltZ),sz=Math.sin(ring.tiltZ);
+const y1=ly*cx-lz*sx;
+const z1=ly*sx+lz*cx;
+const x1=lx;
+const x2=x1*cy+z1*sy;
+const z2=-x1*sy+z1*cy;
+const y2=y1;
+const x3=x2*cz-y2*sz;
+const y3=x2*sz+y2*cz;
+const z3=z2;
+const persp=2400/(2400-z3);
+return {x:CX+x3*persp,y:CY+y3*persp,z:z3,s:persp};
+}
+
+function drawDiamond(x,y,r,color,alpha){
+ctx.save();
+ctx.globalAlpha=alpha;
+ctx.fillStyle=color;
+ctx.beginPath();
+ctx.moveTo(x,y-r*2.2);
+ctx.quadraticCurveTo(x,y,x+r*2.2,y);
+ctx.quadraticCurveTo(x,y,x,y+r*2.2);
+ctx.quadraticCurveTo(x,y,x-r*2.2,y);
+ctx.quadraticCurveTo(x,y,x,y-r*2.2);
+ctx.closePath();
+ctx.fill();
+ctx.restore();
+}
+
+function drawBackground(p){
+const bgGrad=ctx.createRadialGradient(CX-140,CY-40,80,CX-200,CY,1550);
+bgGrad.addColorStop(0,'#0B1B42');
+bgGrad.addColorStop(0.38,'#06102B');
+bgGrad.addColorStop(0.78,'#04091A');
+bgGrad.addColorStop(1,'#020510');
+ctx.fillStyle=bgGrad;
+ctx.fillRect(0,0,W,H);
+
+const leftGlow=ctx.createRadialGradient(340,640,20,340,640,680);
+leftGlow.addColorStop(0,'rgba(0,187,249,0.08)');
+leftGlow.addColorStop(0.5,'rgba(30,64,175,0.05)');
+leftGlow.addColorStop(1,'rgba(4,9,26,0)');
+ctx.fillStyle=leftGlow;
+ctx.fillRect(0,0,W,H);
+
+ctx.save();
+ctx.strokeStyle='rgba(30,64,175,0.13)';
+ctx.lineWidth=1;
+for(let i=1;i<=4;i++){
+ctx.beginPath();
+ctx.arc(CX,CY,R+130*i,0,TAU);
+ctx.stroke();
+}
+ctx.strokeStyle='rgba(0,187,249,0.09)';
+ctx.setLineDash([4,14]);
+ctx.beginPath();
+ctx.arc(CX,CY,R+260,0,TAU);
+ctx.stroke();
+ctx.setLineDash([]);
+ctx.restore();
+
+for(let i=0;i<bgStars.length;i++){
+const st=bgStars[i];
+const tw=0.55+0.45*Math.sin(p*TAU*st.freq+st.phase);
+const a=st.baseAlpha*tw;
+if(st.diamond){
+drawDiamond(st.x,st.y,st.r*1.15,st.color,a);
+}else{
+ctx.fillStyle=st.color;
+ctx.globalAlpha=a;
+ctx.beginPath();
+ctx.arc(st.x,st.y,st.r,0,TAU);
+ctx.fill();
+}
+}
+ctx.globalAlpha=1;
+}
+
+function drawCoronaBack(p){
+const pulse=1+0.03*Math.sin(p*TAU);
+const g=ctx.createRadialGradient(CX,CY,R*0.65,CX,CY,R*1.65*pulse);
+g.addColorStop(0,'rgba(0,187,249,0.22)');
+g.addColorStop(0.45,'rgba(30,64,175,0.18)');
+g.addColorStop(0.75,'rgba(34,211,238,0.06)');
+g.addColorStop(1,'rgba(4,9,26,0)');
+ctx.fillStyle=g;
+ctx.beginPath();
+ctx.arc(CX,CY,R*1.65*pulse,0,TAU);
+ctx.fill();
+}
+
+function drawRingLayer(p,isFront){
+for(let rIdx=0;rIdx<rings.length;rIdx++){
+const ring=rings[rIdx];
+const rotOffset=p*TAU*ring.dir*ring.speed;
+if(ring.type==='solid'){
+const steps=180;
+ctx.lineWidth=ring.width;
+ctx.strokeStyle=isFront?ring.colorFront:ring.colorBack;
+ctx.globalAlpha=isFront?ring.alphaFront:ring.alphaBack;
+let drawing=false;
+ctx.beginPath();
+for(let i=0;i<=steps;i++){
+const a=(i/steps)*TAU+rotOffset;
+const pt=projectRingPoint(ring,a,0);
+const cond=isFront?(pt.z>=0):(pt.z<0);
+if(cond){
+if(!drawing){
+ctx.moveTo(pt.x,pt.y);
+drawing=true;
+}else{
+ctx.lineTo(pt.x,pt.y);
+}
+}else{
+drawing=false;
+}
+}
+ctx.stroke();
+}else if(ring.type==='dashed'){
+const segs=ring.dashCount;
+const stepA=TAU/segs;
+ctx.lineWidth=ring.width;
+ctx.lineCap='round';
+ctx.strokeStyle=isFront?ring.colorFront:ring.colorBack;
+ctx.globalAlpha=isFront?ring.alphaFront:ring.alphaBack;
+for(let i=0;i<segs;i++){
+const a0=i*stepA+rotOffset;
+const a1=a0+stepA*0.52;
+const mid=projectRingPoint(ring,(a0+a1)*0.5,0);
+if((isFront&&mid.z>=0)||(!isFront&&mid.z<0)){
+ctx.beginPath();
+const sub=6;
+for(let s=0;s<=sub;s++){
+const pt=projectRingPoint(ring,a0+(a1-a0)*(s/sub),0);
+if(s===0)ctx.moveTo(pt.x,pt.y);
+else ctx.lineTo(pt.x,pt.y);
+}
+ctx.stroke();
+}
+}
+}else if(ring.type==='telemetry'){
+const arcs=ring.arcs;
+const span=TAU/arcs;
+ctx.lineCap='round';
+for(let i=0;i<arcs;i++){
+const aStart=i*span+rotOffset;
+const aEnd=aStart+span*0.62;
+const sub=28;
+ctx.beginPath();
+let drawing=false;
+for(let s=0;s<=sub;s++){
+const a=aStart+(aEnd-aStart)*(s/sub);
+const pt=projectRingPoint(ring,a,0);
+const cond=isFront?(pt.z>=0):(pt.z<0);
+if(cond){
+if(!drawing){
+ctx.moveTo(pt.x,pt.y);
+drawing=true;
+}else{
+ctx.lineTo(pt.x,pt.y);
+}
+}else{
+drawing=false;
+}
+}
+ctx.lineWidth=ring.width*(isFront?1.4:1);
+ctx.strokeStyle=isFront?ring.colorFront:ring.colorBack;
+ctx.globalAlpha=isFront?ring.alphaFront:ring.alphaBack;
+ctx.stroke();
+
+const cap0=projectRingPoint(ring,aStart,0);
+const cap1=projectRingPoint(ring,aEnd,0);
+if((isFront&&cap0.z>=0)||(!isFront&&cap0.z<0)){
+ctx.fillStyle=isFront?'#F0F9FF':'#1E40AF';
+ctx.globalAlpha=isFront?0.9:0.35;
+ctx.beginPath();
+ctx.arc(cap0.x,cap0.y,isFront?3.2:2,0,TAU);
+ctx.fill();
+}
+if((isFront&&cap1.z>=0)||(!isFront&&cap1.z<0)){
+ctx.fillStyle=isFront?'#22D3EE':'#1E40AF';
+ctx.globalAlpha=isFront?0.85:0.3;
+ctx.beginPath();
+ctx.arc(cap1.x,cap1.y,isFront?2.6:1.8,0,TAU);
+ctx.fill();
+}
+}
+}else if(ring.type==='ticks'){
+const tc=ring.tickCount;
+ctx.lineWidth=1.4;
+ctx.strokeStyle=isFront?ring.colorFront:ring.colorBack;
+ctx.globalAlpha=isFront?ring.alphaFront:ring.alphaBack;
+for(let i=0;i<tc;i++){
+const a=(i/tc)*TAU+rotOffset;
+const major=(i%6===0);
+const len=major?18:8;
+const pIn=projectRingPoint({rx:ring.rx-len,ry:ring.ry-len,tiltX:ring.tiltX,tiltY:ring.tiltY,tiltZ:ring.tiltZ},a,0);
+const pOut=projectRingPoint(ring,a,0);
+if((isFront&&pOut.z>=0)||(!isFront&&pOut.z<0)){
+ctx.beginPath();
+ctx.moveTo(pIn.x,pIn.y);
+ctx.lineTo(pOut.x,pOut.y);
+ctx.stroke();
+}
+}
+}
+}
+ctx.globalAlpha=1;
+}
+
+function drawDustLayer(p,isFront){
+for(let i=0;i<dust.length;i++){
+const d=dust[i];
+const a=d.phase+p*TAU*d.dir*d.turns;
+const pt=projectRingPoint(d,a,d.yOffset);
+if((isFront&&pt.z>=0)||(!isFront&&pt.z<0)){
+const tw=0.45+0.55*Math.sin(p*TAU*d.twinkleFreq+d.twinklePhase);
+const alpha=(isFront?0.85:0.32)*tw;
+const sz=d.size*pt.s;
+if(d.diamond){
+drawDiamond(pt.x,pt.y,sz*1.1,d.color,alpha);
+}else{
+ctx.fillStyle=d.color;
+ctx.globalAlpha=alpha;
+ctx.beginPath();
+ctx.arc(pt.x,pt.y,sz,0,TAU);
+ctx.fill();
+}
+}
+}
+ctx.globalAlpha=1;
+}
+
+function drawSatellitesLayer(p,isFront){
+for(let i=0;i<satellites.length;i++){
+const sat=satellites[i];
+const ring=rings[sat.ringIdx];
+const headAngle=sat.phase+p*TAU*sat.dir*sat.turns;
+const trailSteps=26;
+ctx.lineCap='round';
+for(let s=0;s<trailSteps;s++){
+const t0=s/trailSteps;
+const t1=(s+1)/trailSteps;
+const a0=headAngle-sat.dir*sat.trail*t0;
+const a1=headAngle-sat.dir*sat.trail*t1;
+const p0=projectRingPoint(ring,a0,0);
+const p1=projectRingPoint(ring,a1,0);
+if((isFront&&p0.z>=0)||(!isFront&&p0.z<0)){
+ctx.strokeStyle=sat.glow;
+ctx.globalAlpha=(1-t0)*(isFront?0.78:0.28);
+ctx.lineWidth=sat.size*(1-t0*0.75)*p0.s*0.65;
+ctx.beginPath();
+ctx.moveTo(p0.x,p0.y);
+ctx.lineTo(p1.x,p1.y);
+ctx.stroke();
+}
+}
+const head=projectRingPoint(ring,headAngle,0);
+if((isFront&&head.z>=0)||(!isFront&&head.z<0)){
+const r=sat.size*head.s;
+const halo=ctx.createRadialGradient(head.x,head.y,0,head.x,head.y,r*4.2);
+halo.addColorStop(0,'rgba(240,249,255,'+(isFront?0.95:0.4)+')');
+halo.addColorStop(0.28,'rgba(34,211,238,'+(isFront?0.55:0.2)+')');
+halo.addColorStop(1,'rgba(0,187,249,0)');
+ctx.fillStyle=halo;
+ctx.globalAlpha=1;
+ctx.beginPath();
+ctx.arc(head.x,head.y,r*4.2,0,TAU);
+ctx.fill();
+
+ctx.strokeStyle=sat.glow;
+ctx.lineWidth=1.4;
+ctx.globalAlpha=isFront?0.85:0.35;
+ctx.beginPath();
+ctx.arc(head.x,head.y,r*1.85,0,TAU);
+ctx.stroke();
+
+ctx.fillStyle=sat.color;
+ctx.globalAlpha=isFront?1:0.5;
+ctx.beginPath();
+ctx.arc(head.x,head.y,r*0.9,0,TAU);
+ctx.fill();
+}
+}
+ctx.globalAlpha=1;
+}
+
+function drawSphereHemisphere(p,isFront){
+const rotY=p*TAU;
+const lonCount=18;
+const latDegs=[-72,-54,-36,-18,0,18,36,54,72];
+
+for(let l=0;l<latDegs.length;l++){
+const phi=latDegs[l]*Math.PI/180;
+const y=Math.sin(phi)*R;
+const rad=Math.cos(phi)*R;
+const isEq=(latDegs[l]===0);
+const isTropic=(Math.abs(latDegs[l])===36);
+const steps=120;
+ctx.lineWidth=isFront?(isEq?2.8:1.7):(isEq?1.6:1.1);
+ctx.strokeStyle=isFront?(isEq?'#22D3EE':'#00BBF9'):'#1E40AF';
+ctx.globalAlpha=isFront?(isEq?0.95:0.72):(isEq?0.48:0.34);
+if(isTropic){
+ctx.setLineDash([8,8]);
+}else{
+ctx.setLineDash([]);
+}
+ctx.beginPath();
+let drawing=false;
+for(let i=0;i<=steps;i++){
+const theta=(i/steps)*TAU+rotY;
+const x=Math.cos(theta)*rad;
+const z=Math.sin(theta)*rad;
+const pt=projectSphere(x,y,z);
+const cond=isFront?(pt.z>=0):(pt.z<0);
+if(cond){
+if(!drawing){
+ctx.moveTo(pt.x,pt.y);
+drawing=true;
+}else{
+ctx.lineTo(pt.x,pt.y);
+}
+}else{
+drawing=false;
+}
+}
+ctx.stroke();
+}
+ctx.setLineDash([]);
+
+for(let m=0;m<lonCount;m++){
+const theta=(m/lonCount)*TAU+rotY;
+const isPrime=(m%3===0);
+const steps=96;
+ctx.lineWidth=isFront?(isPrime?2.3:1.45):(isPrime?1.4:1.0);
+ctx.strokeStyle=isFront?(isPrime?'#22D3EE':'#00BBF9'):'#1E40AF';
+ctx.globalAlpha=isFront?(isPrime?0.88:0.62):(isPrime?0.44:0.28);
+ctx.beginPath();
+let drawing=false;
+for(let i=0;i<=steps;i++){
+const phi=-Math.PI/2+(i/steps)*Math.PI;
+const rad=Math.cos(phi)*R;
+const x=Math.cos(theta)*rad;
+const y=Math.sin(phi)*R;
+const z=Math.sin(theta)*rad;
+const pt=projectSphere(x,y,z);
+const cond=isFront?(pt.z>=0):(pt.z<0);
+if(cond){
+if(!drawing){
+ctx.moveTo(pt.x,pt.y);
+drawing=true;
+}else{
+ctx.lineTo(pt.x,pt.y);
+}
+}else{
+drawing=false;
+}
+}
+ctx.stroke();
+}
+
+if(isFront){
+for(let m=0;m<lonCount;m+=3){
+const theta=(m/lonCount)*TAU+rotY;
+for(let l=0;l<latDegs.length;l+=2){
+const phi=latDegs[l]*Math.PI/180;
+const rad=Math.cos(phi)*R;
+const x=Math.cos(theta)*rad;
+const y=Math.sin(phi)*R;
+const z=Math.sin(theta)*rad;
+const pt=projectSphere(x,y,z);
+if(pt.z>40){
+const depthFade=Math.min(1,(pt.z-40)/180);
+ctx.fillStyle='#F0F9FF';
+ctx.globalAlpha=0.88*depthFade;
+ctx.beginPath();
+ctx.arc(pt.x,pt.y,2.4*pt.s,0,TAU);
+ctx.fill();
+}
+}
+}
+
+const northPole=projectSphere(0,-R,0);
+const southPole=projectSphere(0,R,0);
+const poles=[northPole,southPole];
+for(let k=0;k<poles.length;k++){
+const pole=poles[k];
+if(pole.z>-60){
+const pg=ctx.createRadialGradient(pole.x,pole.y,0,pole.x,pole.y,18);
+pg.addColorStop(0,'rgba(240,249,255,0.95)');
+pg.addColorStop(0.4,'rgba(34,211,238,0.45)');
+pg.addColorStop(1,'rgba(0,187,249,0)');
+ctx.fillStyle=pg;
+ctx.globalAlpha=1;
+ctx.beginPath();
+ctx.arc(pole.x,pole.y,18,0,TAU);
+ctx.fill();
+}
+}
+}
+ctx.globalAlpha=1;
+}
+
+function drawSphereBodyAndRim(p){
+const bodyGrad=ctx.createRadialGradient(CX-R*0.28,CY-R*0.28,R*0.08,CX,CY,R*1.04);
+bodyGrad.addColorStop(0,'rgba(34,211,238,0.12)');
+bodyGrad.addColorStop(0.45,'rgba(11,27,66,0.42)');
+bodyGrad.addColorStop(0.84,'rgba(4,9,26,0.58)');
+bodyGrad.addColorStop(1,'rgba(0,187,249,0.28)');
+ctx.fillStyle=bodyGrad;
+ctx.beginPath();
+ctx.arc(CX,CY,R,0,TAU);
+ctx.fill();
+}
+
+function drawSphereRimHighlight(p){
+const rimGrad=ctx.createLinearGradient(CX-R,CY-R,CX+R,CY+R);
+rimGrad.addColorStop(0,'#22D3EE');
+rimGrad.addColorStop(0.45,'#00BBF9');
+rimGrad.addColorStop(0.8,'#1E40AF');
+rimGrad.addColorStop(1,'#22D3EE');
+
+ctx.save();
+ctx.strokeStyle=rimGrad;
+ctx.lineWidth=3.2;
+ctx.globalAlpha=0.88;
+ctx.beginPath();
+ctx.arc(CX,CY,R+1,0,TAU);
+ctx.stroke();
+
+ctx.strokeStyle='#F0F9FF';
+ctx.lineWidth=1.4;
+ctx.globalAlpha=0.45;
+ctx.beginPath();
+ctx.arc(CX,CY,R+1,-Math.PI*0.88,-Math.PI*0.22);
+ctx.stroke();
+
+const outerRim=ctx.createRadialGradient(CX,CY,R*0.92,CX,CY,R*1.12);
+outerRim.addColorStop(0,'rgba(34,211,238,0)');
+outerRim.addColorStop(0.55,'rgba(34,211,238,0.22)');
+outerRim.addColorStop(1,'rgba(0,187,249,0)');
+ctx.fillStyle=outerRim;
+ctx.globalAlpha=0.85+0.15*Math.sin(p*TAU);
+ctx.beginPath();
+ctx.arc(CX,CY,R*1.12,0,TAU);
+ctx.fill();
+ctx.restore();
+}
+
+function drawPolarAxis(){
+const topPt=projectSphere(0,-R*1.28,0);
+const botPt=projectSphere(0,R*1.28,0);
+ctx.save();
+const axGrad=ctx.createLinearGradient(topPt.x,topPt.y,botPt.x,botPt.y);
+axGrad.addColorStop(0,'rgba(34,211,238,0)');
+axGrad.addColorStop(0.18,'rgba(34,211,238,0.55)');
+axGrad.addColorStop(0.5,'rgba(0,187,249,0.22)');
+axGrad.addColorStop(0.82,'rgba(34,211,238,0.55)');
+axGrad.addColorStop(1,'rgba(34,211,238,0)');
+ctx.strokeStyle=axGrad;
+ctx.lineWidth=1.4;
+ctx.setLineDash([6,8]);
+ctx.beginPath();
+ctx.moveTo(topPt.x,topPt.y);
+ctx.lineTo(botPt.x,botPt.y);
+ctx.stroke();
+ctx.setLineDash([]);
+ctx.restore();
+}
+
+function render(ts){
+const dpr=window.devicePixelRatio||1;
+const cw=Math.round(window.innerWidth*dpr);
+const ch=Math.round(window.innerHeight*dpr);
+if(canvas.width!==cw||canvas.height!==ch){
+canvas.width=cw;
+canvas.height=ch;
+}
+ctx.setTransform(cw/W,0,0,ch/H,0,0);
+
+const p=(((ts%PERIOD)+PERIOD)%PERIOD)/PERIOD;
+
+drawBackground(p);
+drawCoronaBack(p);
+drawDustLayer(p,false);
+drawRingLayer(p,false);
+drawSatellitesLayer(p,false);
+drawPolarAxis();
+drawSphereHemisphere(p,false);
+drawSphereBodyAndRim(p);
+drawSphereHemisphere(p,true);
+drawSphereRimHighlight(p);
+drawRingLayer(p,true);
+drawDustLayer(p,true);
+drawSatellitesLayer(p,true);
+
+requestAnimationFrame(render);
+}
+
+requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>
