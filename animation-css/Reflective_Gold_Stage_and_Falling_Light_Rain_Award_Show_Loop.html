@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Reflective Gold Stage and Falling Light Rain Award Show Loop</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0B0402}
+canvas{display:block;width:100%;height:100%}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+(function(){
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d');
+const W=1920,H=1080,HY=792,TAU=Math.PI*2,DUR=10000;
+
+function resize(){
+const dpr=Math.min(window.devicePixelRatio||1,2);
+canvas.width=Math.max(1,Math.round(window.innerWidth*dpr));
+canvas.height=Math.max(1,Math.round(window.innerHeight*dpr));
+}
+resize();
+window.addEventListener('resize',resize);
+
+function mulberry32(a){
+return function(){
+a|=0;a=a+0x6D2B79F5|0;
+let t=Math.imul(a^a>>>15,1|a);
+t=t+Math.imul(t^t>>>7,61|t)^t;
+return((t^t>>>14)>>>0)/4294967296;
+};
+}
+const rand=mulberry32(40927);
+
+const streaks=[];
+for(let i=0;i<145;i++){
+const depth=rand();
+const spread=0.55+0.45*depth;
+const cx=W*0.5+(rand()-0.5)*W*1.08*spread;
+const cycles=depth<0.35?1:(depth<0.78?2:3);
+const phase=rand();
+const len=48+depth*135+rand()*55;
+const width=1.1+depth*2.8;
+const floorY=HY+10+Math.pow(depth,1.35)*(H-HY-36);
+const bright=rand()>0.32;
+const swayAmp=(4+depth*10)*(rand()>0.5?1:-1);
+const swayFreq=rand()>0.5?1:2;
+const twinkleFreq=2+Math.floor(rand()*4);
+const twinklePhase=rand()*TAU;
+const hasRipple=depth>0.22;
+streaks.push({cx,depth,cycles,phase,len,width,floorY,bright,swayAmp,swayFreq,twinkleFreq,twinklePhase,hasRipple});
+}
+streaks.sort((a,b)=>a.depth-b.depth);
+
+const dust=[];
+for(let i=0;i<180;i++){
+const depth=rand();
+const x=rand()*W;
+const phase=rand();
+const cycles=rand()>0.65?2:1;
+const size=1.4+depth*4.2;
+const driftAmp=12+rand()*34;
+const driftFreq=1+Math.floor(rand()*2);
+const driftPhase=rand()*TAU;
+const twFreq=2+Math.floor(rand()*5);
+const twPhase=rand()*TAU;
+const isStar=rand()>0.62;
+const colorType=rand();
+dust.push({x,depth,phase,cycles,size,driftAmp,driftFreq,driftPhase,twFreq,twPhase,isStar,colorType});
+}
+
+const bokehs=[];
+for(let i=0;i<26;i++){
+const x=W*0.08+rand()*W*0.84;
+const y=18+rand()*210;
+const r=14+rand()*46;
+const phase=rand()*TAU;
+const freq=1+Math.floor(rand()*2);
+const driftX=(rand()-0.5)*28;
+const alpha=0.05+rand()*0.13;
+bokehs.push({x,y,r,phase,freq,driftX,alpha});
+}
+
+const rays=[
+{ox:W*0.5,oy:-140,angle:0,spread:0.13,len:1120,alpha:0.20,sway:0.018,freq:1,phase:0.2},
+{ox:W*0.5,oy:-140,angle:-0.26,spread:0.09,len:1060,alpha:0.14,sway:0.022,freq:1,phase:1.1},
+{ox:W*0.5,oy:-140,angle:0.26,spread:0.09,len:1060,alpha:0.14,sway:0.022,freq:1,phase:2.4},
+{ox:W*0.5,oy:-140,angle:-0.52,spread:0.075,len:1020,alpha:0.10,sway:0.025,freq:2,phase:0.7},
+{ox:W*0.5,oy:-140,angle:0.52,spread:0.075,len:1020,alpha:0.10,sway:0.025,freq:2,phase:3.9},
+{ox:W*0.24,oy:-110,angle:0.18,spread:0.065,len:980,alpha:0.08,sway:0.02,freq:1,phase:4.5},
+{ox:W*0.76,oy:-110,angle:-0.18,spread:0.065,len:980,alpha:0.08,sway:0.02,freq:1,phase:5.2}
+];
+
+function drawStar(x,y,r,alpha,col){
+ctx.save();
+ctx.translate(x,y);
+ctx.fillStyle=col;
+ctx.globalAlpha=alpha;
+ctx.beginPath();
+const ir=r*0.22;
+for(let i=0;i<8;i++){
+const ang=i*Math.PI*0.25;
+const rad=i%2===0?r:ir;
+const px=Math.cos(ang)*rad;
+const py=Math.sin(ang)*rad;
+if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);
+}
+ctx.closePath();
+ctx.fill();
+ctx.restore();
+}
+
+function drawBackdrop(p){
+const bg=ctx.createLinearGradient(0,0,0,HY);
+bg.addColorStop(0,'#1A0B04');
+bg.addColorStop(0.38,'#110602');
+bg.addColorStop(0.82,'#0B0402');
+bg.addColorStop(1,'#180B03');
+ctx.fillStyle=bg;
+ctx.fillRect(0,0,W,HY+2);
+
+const pulse=0.5+0.5*Math.sin(p*TAU);
+const stageGlow=ctx.createRadialGradient(W*0.5,HY*0.88,20,W*0.5,HY*0.68,W*0.62);
+stageGlow.addColorStop(0,'rgba(202,138,4,'+(0.22+0.05*pulse)+')');
+stageGlow.addColorStop(0.45,'rgba(120,66,6,'+(0.11+0.03*pulse)+')');
+stageGlow.addColorStop(1,'rgba(11,4,2,0)');
+ctx.fillStyle=stageGlow;
+ctx.fillRect(0,0,W,HY);
+
+const topGlow=ctx.createRadialGradient(W*0.5,-30,40,W*0.5,40,W*0.58);
+topGlow.addColorStop(0,'rgba(255,255,255,'+(0.38+0.08*pulse)+')');
+topGlow.addColorStop(0.24,'rgba(253,224,71,'+(0.26+0.06*pulse)+')');
+topGlow.addColorStop(0.58,'rgba(202,138,4,'+(0.12+0.03*pulse)+')');
+topGlow.addColorStop(1,'rgba(11,4,2,0)');
+ctx.fillStyle=topGlow;
+ctx.fillRect(0,0,W,HY);
+}
+
+function drawSpotlights(p,isReflection){
+ctx.save();
+ctx.globalCompositeOperation='lighter';
+for(let i=0;i<rays.length;i++){
+const r=rays[i];
+const a=r.angle+Math.sin(p*TAU*r.freq+r.phase)*r.sway;
+const breath=0.82+0.18*Math.sin(p*TAU*r.freq+r.phase*1.7);
+const al=r.alpha*breath*(isReflection?0.52:1);
+const x1=r.ox+Math.sin(a-r.spread)*r.len;
+const y1=r.oy+Math.cos(a-r.spread)*r.len;
+const x2=r.ox+Math.sin(a+r.spread)*r.len;
+const y2=r.oy+Math.cos(a+r.spread)*r.len;
+const mx=(x1+x2)*0.5;
+const my=(y1+y2)*0.5;
+const g=ctx.createLinearGradient(r.ox,r.oy,mx,my);
+g.addColorStop(0,'rgba(255,255,255,'+(al*1.15)+')');
+g.addColorStop(0.22,'rgba(253,224,71,'+(al*0.85)+')');
+g.addColorStop(0.65,'rgba(202,138,4,'+(al*0.32)+')');
+g.addColorStop(1,'rgba(202,138,4,0)');
+ctx.fillStyle=g;
+ctx.beginPath();
+ctx.moveTo(r.ox,r.oy);
+ctx.lineTo(x1,y1);
+ctx.lineTo(x2,y2);
+ctx.closePath();
+ctx.fill();
+}
+ctx.restore();
+}
+
+function drawFloorBase(p){
+const fg=ctx.createLinearGradient(0,HY,0,H);
+fg.addColorStop(0,'#241304');
+fg.addColorStop(0.14,'#160A03');
+fg.addColorStop(0.48,'#0D0502');
+fg.addColorStop(1,'#070201');
+ctx.fillStyle=fg;
+ctx.fillRect(0,HY,W,H-HY);
+
+ctx.save();
+ctx.beginPath();
+ctx.rect(0,HY,W,H-HY);
+ctx.clip();
+
+ctx.save();
+ctx.translate(0,HY*2);
+ctx.scale(1,-0.52);
+drawSpotlights(p,true);
+ctx.restore();
+
+const centerRef=ctx.createRadialGradient(W*0.5,HY+18,20,W*0.5,HY+40,W*0.48);
+const pulse=0.5+0.5*Math.sin(p*TAU);
+centerRef.addColorStop(0,'rgba(253,224,71,'+(0.28+0.05*pulse)+')');
+centerRef.addColorStop(0.35,'rgba(202,138,4,'+(0.16+0.03*pulse)+')');
+centerRef.addColorStop(1,'rgba(11,4,2,0)');
+ctx.fillStyle=centerRef;
+ctx.fillRect(0,HY,W,H-HY);
+
+ctx.strokeStyle='rgba(202,138,4,0.09)';
+ctx.lineWidth=1;
+const vpX=W*0.5,vpY=HY-56;
+for(let i=-10;i<=10;i++){
+const bx=W*0.5+i*240;
+ctx.beginPath();
+ctx.moveTo(vpX+(bx-vpX)*0.16,HY);
+ctx.lineTo(bx,H);
+ctx.stroke();
+}
+for(let j=1;j<=6;j++){
+const t=Math.pow(j/6,2.1);
+const ly=HY+t*(H-HY);
+ctx.strokeStyle='rgba(202,138,4,'+(0.08*(1-t*0.7))+')';
+ctx.beginPath();
+ctx.moveTo(0,ly);
+ctx.lineTo(W,ly);
+ctx.stroke();
+}
+ctx.restore();
+}
+
+function drawStreaksAndReflections(p){
+ctx.save();
+ctx.beginPath();
+ctx.rect(0,HY,W,H-HY);
+ctx.clip();
+ctx.globalCompositeOperation='lighter';
+
+for(let i=0;i<streaks.length;i++){
+const s=streaks[i];
+const u=(p*s.cycles+s.phase)%1;
+const span=s.floorY+s.len+120;
+const y=-120+u*span;
+const x=s.cx+Math.sin(p*TAU*s.swayFreq+s.twinklePhase)*s.swayAmp;
+const tw=0.68+0.32*Math.sin(p*TAU*s.twinkleFreq+s.twinklePhase);
+
+const distToFloor=s.floorY-y;
+if(distToFloor>-s.len*0.85&&distToFloor<460){
+const prox=Math.max(0,1-Math.abs(distToFloor)/420);
+const falloff=Math.max(0,1-(s.floorY-HY)/(H-HY));
+const refY=s.floorY+Math.max(0,distToFloor)*0.36;
+const refLen=s.len*(0.45+0.4*falloff);
+const shimmer=Math.sin(p*TAU*2+s.twinklePhase)*3.2;
+const refAlpha=(0.14+0.34*s.depth)*prox*tw*(0.45+0.55*falloff);
+
+const rg=ctx.createLinearGradient(x,refY,x,refY+refLen);
+rg.addColorStop(0,'rgba(255,255,255,'+(refAlpha*0.9)+')');
+rg.addColorStop(0.28,'rgba(253,224,71,'+(refAlpha*0.75)+')');
+rg.addColorStop(0.72,'rgba(202,138,4,'+(refAlpha*0.32)+')');
+rg.addColorStop(1,'rgba(202,138,4,0)');
+ctx.strokeStyle=rg;
+ctx.lineWidth=s.width*(1.35+0.9*(1-falloff));
+ctx.lineCap='round';
+ctx.beginPath();
+ctx.moveTo(x+shimmer*0.3,refY);
+ctx.lineTo(x+shimmer,refY+refLen);
+ctx.stroke();
+
+if(s.hasRipple&&distToFloor<110&&distToFloor>-s.len*0.7){
+const impactT=Math.max(0,Math.min(1,(110-distToFloor)/(110+s.len*0.7)));
+const ease=1-Math.pow(1-impactT,2.4);
+const fade=Math.sin(impactT*Math.PI);
+const rx=(10+s.depth*34)*ease+4;
+const ry=rx*(0.13+0.08*(s.floorY-HY)/(H-HY));
+const ripAlpha=fade*(0.24+0.34*s.depth)*tw;
+
+ctx.strokeStyle='rgba(253,224,71,'+ripAlpha+')';
+ctx.lineWidth=1.1+s.depth*1.2;
+ctx.beginPath();
+ctx.ellipse(x,s.floorY,rx,ry,0,0,TAU);
+ctx.stroke();
+
+const dotG=ctx.createRadialGradient(x,s.floorY,0,x,s.floorY,rx*0.72);
+dotG.addColorStop(0,'rgba(255,255,255,'+(ripAlpha*0.95)+')');
+dotG.addColorStop(0.4,'rgba(253,224,71,'+(ripAlpha*0.48)+')');
+dotG.addColorStop(1,'rgba(202,138,4,0)');
+ctx.fillStyle=dotG;
+ctx.beginPath();
+ctx.ellipse(x,s.floorY,rx*0.72,ry*0.72,0,0,TAU);
+ctx.fill();
+}
+}
+}
+ctx.restore();
+
+const floorFade=ctx.createLinearGradient(0,HY,0,H);
+floorFade.addColorStop(0,'rgba(11,4,2,0)');
+floorFade.addColorStop(0.55,'rgba(11,4,2,0.18)');
+floorFade.addColorStop(1,'rgba(7,2,1,0.72)');
+ctx.fillStyle=floorFade;
+ctx.fillRect(0,HY,W,H-HY);
+
+ctx.save();
+ctx.globalCompositeOperation='lighter';
+const hPulse=0.85+0.15*Math.sin(p*TAU*2);
+const hLine=ctx.createLinearGradient(0,HY,W,HY);
+hLine.addColorStop(0,'rgba(202,138,4,0)');
+hLine.addColorStop(0.18,'rgba(202,138,4,'+(0.42*hPulse)+')');
+hLine.addColorStop(0.38,'rgba(253,224,71,'+(0.75*hPulse)+')');
+hLine.addColorStop(0.5,'rgba(255,255,255,'+(0.95*hPulse)+')');
+hLine.addColorStop(0.62,'rgba(253,224,71,'+(0.75*hPulse)+')');
+hLine.addColorStop(0.82,'rgba(202,138,4,'+(0.42*hPulse)+')');
+hLine.addColorStop(1,'rgba(202,138,4,0)');
+ctx.fillStyle=hLine;
+ctx.fillRect(0,HY-1.2,W,2.4);
+
+const hHalo=ctx.createRadialGradient(W*0.5,HY,4,W*0.5,HY,W*0.46);
+hHalo.addColorStop(0,'rgba(255,255,255,'+(0.42*hPulse)+')');
+hHalo.addColorStop(0.35,'rgba(253,224,71,'+(0.18*hPulse)+')');
+hHalo.addColorStop(1,'rgba(202,138,4,0)');
+ctx.save();
+ctx.translate(W*0.5,HY);
+ctx.scale(1,0.032);
+ctx.translate(-W*0.5,-HY);
+ctx.fillStyle=hHalo;
+ctx.beginPath();
+ctx.arc(W*0.5,HY,W*0.46,0,TAU);
+ctx.fill();
+ctx.restore();
+
+for(let i=0;i<streaks.length;i++){
+const s=streaks[i];
+const u=(p*s.cycles+s.phase)%1;
+const span=s.floorY+s.len+120;
+const y=-120+u*span;
+const x=s.cx+Math.sin(p*TAU*s.swayFreq+s.twinklePhase)*s.swayAmp;
+const tw=0.62+0.38*Math.sin(p*TAU*s.twinkleFreq+s.twinklePhase);
+
+const headY=Math.min(y,s.floorY);
+const tailY=y-s.len;
+if(tailY<s.floorY&&headY>-20){
+const fadeOut=y>s.floorY?Math.max(0,1-(y-s.floorY)/s.len):1;
+const alpha=(0.24+0.72*s.depth)*tw*fadeOut;
+
+const sg=ctx.createLinearGradient(x,tailY,x,headY);
+sg.addColorStop(0,'rgba(202,138,4,0)');
+sg.addColorStop(0.45,'rgba(202,138,4,'+(alpha*0.52)+')');
+sg.addColorStop(0.84,'rgba(253,224,71,'+(alpha*0.92)+')');
+sg.addColorStop(1,s.bright?'rgba(255,255,255,'+alpha+')':'rgba(253,224,71,'+alpha+')');
+
+ctx.strokeStyle=sg;
+ctx.lineWidth=s.width;
+ctx.lineCap='round';
+ctx.beginPath();
+ctx.moveTo(x,tailY);
+ctx.lineTo(x,headY);
+ctx.stroke();
+
+if(s.bright&&y<=s.floorY&&s.depth>0.38){
+const tipR=s.width*(2.1+tw*1.4);
+const tg=ctx.createRadialGradient(x,headY,0,x,headY,tipR);
+tg.addColorStop(0,'rgba(255,255,255,'+(alpha*0.95)+')');
+tg.addColorStop(0.45,'rgba(253,224,71,'+(alpha*0.45)+')');
+tg.addColorStop(1,'rgba(202,138,4,0)');
+ctx.fillStyle=tg;
+ctx.beginPath();
+ctx.arc(x,headY,tipR,0,TAU);
+ctx.fill();
+}
+}
+}
+ctx.restore();
+}
+
+function drawDust(p){
+ctx.save();
+ctx.globalCompositeOperation='lighter';
+for(let i=0;i<dust.length;i++){
+const d=dust[i];
+const u=(p*d.cycles+d.phase)%1;
+const y=-30+u*(HY+70);
+const x=(d.x+Math.sin(p*TAU*d.driftFreq+d.driftPhase)*d.driftAmp+W)%W;
+const tw=0.18+0.82*(0.5+0.5*Math.sin(p*TAU*d.twFreq+d.twPhase));
+const edgeFade=y<80?y/80:(y>HY-60?Math.max(0,(HY+40-y)/100):1);
+const alpha=(0.25+0.7*d.depth)*tw*edgeFade;
+const col=d.colorType>0.72?'#FFFFFF':(d.colorType>0.28?'#FDE047':'#CA8A04');
+
+if(d.isStar&&d.size>2.6){
+drawStar(x,y,d.size*1.9,alpha,col);
+}else{
+ctx.fillStyle=col;
+ctx.globalAlpha=alpha;
+ctx.beginPath();
+ctx.arc(x,y,d.size*0.6,0,TAU);
+ctx.fill();
+}
+
+if(y>HY-240&&y<HY){
+const ry=HY+(HY-y)*0.52;
+const rAlpha=alpha*0.32*(1-(HY-y)/240);
+ctx.fillStyle='#FDE047';
+ctx.globalAlpha=rAlpha;
+ctx.beginPath();
+ctx.ellipse(x,ry,d.size*0.9,d.size*0.32,0,0,TAU);
+ctx.fill();
+}
+}
+ctx.restore();
+}
+
+function drawUpperCanopy(p){
+ctx.save();
+ctx.globalCompositeOperation='lighter';
+const pulse=0.5+0.5*Math.sin(p*TAU);
+
+for(let i=0;i<bokehs.length;i++){
+const b=bokehs[i];
+const bx=b.x+Math.sin(p*TAU*b.freq+b.phase)*b.driftX;
+const by=b.y+Math.cos(p*TAU*b.freq+b.phase)*8;
+const al=b.alpha*(0.7+0.3*Math.sin(p*TAU*2+b.phase));
+const bg=ctx.createRadialGradient(bx,by,0,bx,by,b.r);
+bg.addColorStop(0,'rgba(255,255,255,'+(al*0.7)+')');
+bg.addColorStop(0.45,'rgba(253,224,71,'+(al*0.55)+')');
+bg.addColorStop(0.85,'rgba(202,138,4,'+(al*0.25)+')');
+bg.addColorStop(1,'rgba(202,138,4,0)');
+ctx.fillStyle=bg;
+ctx.beginPath();
+ctx.arc(bx,by,b.r,0,TAU);
+ctx.fill();
+}
+
+const haze=ctx.createLinearGradient(0,0,0,220);
+haze.addColorStop(0,'rgba(255,250,220,'+(0.32+0.07*pulse)+')');
+haze.addColorStop(0.28,'rgba(253,224,71,'+(0.16+0.04*pulse)+')');
+haze.addColorStop(0.68,'rgba(202,138,4,0.05)');
+haze.addColorStop(1,'rgba(11,4,2,0)');
+ctx.fillStyle=haze;
+ctx.fillRect(0,0,W,220);
+
+const flareX=W*0.5+Math.sin(p*TAU)*24;
+const flare=ctx.createRadialGradient(flareX,16,2,flareX,16,W*0.44);
+flare.addColorStop(0,'rgba(255,255,255,'+(0.55+0.12*pulse)+')');
+flare.addColorStop(0.2,'rgba(253,224,71,'+(0.28+0.06*pulse)+')');
+flare.addColorStop(0.55,'rgba(202,138,4,0.08)');
+flare.addColorStop(1,'rgba(202,138,4,0)');
+ctx.save();
+ctx.translate(flareX,16);
+ctx.scale(1,0.045);
+ctx.translate(-flareX,-16);
+ctx.fillStyle=flare;
+ctx.beginPath();
+ctx.arc(flareX,16,W*0.44,0,TAU);
+ctx.fill();
+ctx.restore();
+
+const lampCount=7;
+for(let i=0;i<lampCount;i++){
+const t=i/(lampCount-1);
+const lx=W*(0.16+t*0.68);
+const distCenter=Math.abs(t-0.5)*2;
+const lPulse=0.82+0.18*Math.sin(p*TAU*2+i*0.9);
+const lr=(110-distCenter*55)*lPulse;
+const lg=ctx.createRadialGradient(lx,0,2,lx,0,lr);
+lg.addColorStop(0,'rgba(255,255,255,'+(0.75-distCenter*0.3)+')');
+lg.addColorStop(0.35,'rgba(253,224,71,'+(0.34-distCenter*0.14)+')');
+lg.addColorStop(1,'rgba(202,138,4,0)');
+ctx.fillStyle=lg;
+ctx.beginPath();
+ctx.arc(lx,0,lr,0,TAU);
+ctx.fill();
+}
+ctx.restore();
+}
+
+function drawVignette(){
+const vg=ctx.createRadialGradient(W*0.5,H*0.5,W*0.28,W*0.5,H*0.5,W*0.68);
+vg.addColorStop(0,'rgba(11,4,2,0)');
+vg.addColorStop(0.72,'rgba(11,4,2,0.16)');
+vg.addColorStop(1,'rgba(6,2,1,0.58)');
+ctx.fillStyle=vg;
+ctx.fillRect(0,0,W,H);
+}
+
+function render(ts){
+const p=(((ts%DUR)+DUR)%DUR)/DUR;
+const cw=canvas.width,ch=canvas.height;
+const scale=Math.max(cw/W,ch/H);
+const ox=(cw-W*scale)*0.5;
+const oy=(ch-H*scale)*0.5;
+
+ctx.setTransform(1,0,0,1,0,0);
+ctx.fillStyle='#0B0402';
+ctx.fillRect(0,0,cw,ch);
+ctx.setTransform(scale,0,0,scale,ox,oy);
+
+drawBackdrop(p);
+drawSpotlights(p,false);
+drawFloorBase(p);
+drawStreaksAndReflections(p);
+drawDust(p);
+drawUpperCanopy(p);
+drawVignette();
+
+requestAnimationFrame(render);
+}
+
+requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Swirling Golden Glitter Wave Ribbon of Light Seamless Loop Background</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#070402}
+canvas{display:block;width:100%;height:100%}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+(function(){
+const W=1920,H=1080,LOOP=10000,TAU=Math.PI*2;
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d');
+let cw=W,ch=H;
+
+function resize(){
+  const dpr=Math.min(window.devicePixelRatio||1,2);
+  cw=Math.max(W,Math.round(window.innerWidth*dpr));
+  ch=Math.max(H,Math.round(window.innerHeight*dpr));
+  canvas.width=cw;
+  canvas.height=ch;
+}
+resize();
+window.addEventListener('resize',resize);
+
+function mulberry32(a){
+  return function(){
+    let t=a+=0x6D2B79F5;
+    t=Math.imul(t^t>>>15,t|1);
+    t^=t+Math.imul(t^t>>>7,t|61);
+    return((t^t>>>14)>>>0)/4294967296;
+  };
+}
+const rand=mulberry32(9021077);
+
+function makeGlowSprite(stops,size){
+  const s=document.createElement('canvas');
+  s.width=size;
+  s.height=size;
+  const g=s.getContext('2d');
+  const r=size/2;
+  const grad=g.createRadialGradient(r,r,0,r,r,r);
+  for(let i=0;i<stops.length;i++)grad.addColorStop(stops[i][0],stops[i][1]);
+  g.fillStyle=grad;
+  g.fillRect(0,0,size,size);
+  return s;
+}
+
+const spMistCopper=makeGlowSprite([
+  [0,'rgba(217,119,6,0.42)'],
+  [0.35,'rgba(217,119,6,0.18)'],
+  [0.7,'rgba(180,83,9,0.05)'],
+  [1,'rgba(7,4,2,0)']
+],160);
+
+const spMistGold=makeGlowSprite([
+  [0,'rgba(250,204,21,0.48)'],
+  [0.3,'rgba(250,204,21,0.2)'],
+  [0.68,'rgba(217,119,6,0.05)'],
+  [1,'rgba(7,4,2,0)']
+],160);
+
+const spOrbIvory=makeGlowSprite([
+  [0,'rgba(255,251,235,1)'],
+  [0.2,'rgba(255,251,235,0.85)'],
+  [0.45,'rgba(250,204,21,0.42)'],
+  [0.75,'rgba(217,119,6,0.1)'],
+  [1,'rgba(217,119,6,0)']
+],96);
+
+const spOrbGold=makeGlowSprite([
+  [0,'rgba(255,251,235,0.95)'],
+  [0.25,'rgba(250,204,21,0.75)'],
+  [0.55,'rgba(217,119,6,0.24)'],
+  [1,'rgba(217,119,6,0)']
+],96);
+
+const spOrbCopper=makeGlowSprite([
+  [0,'rgba(250,204,21,0.85)'],
+  [0.3,'rgba(217,119,6,0.55)'],
+  [0.65,'rgba(217,119,6,0.14)'],
+  [1,'rgba(217,119,6,0)']
+],96);
+
+const spBokehGold=makeGlowSprite([
+  [0,'rgba(250,204,21,0.22)'],
+  [0.55,'rgba(250,204,21,0.14)'],
+  [0.78,'rgba(255,251,235,0.26)'],
+  [0.88,'rgba(217,119,6,0.12)'],
+  [1,'rgba(217,119,6,0)']
+],160);
+
+const spBokehCopper=makeGlowSprite([
+  [0,'rgba(217,119,6,0.24)'],
+  [0.58,'rgba(217,119,6,0.12)'],
+  [0.8,'rgba(250,204,21,0.22)'],
+  [0.9,'rgba(217,119,6,0.08)'],
+  [1,'rgba(217,119,6,0)']
+],160);
+
+const P0={x:-220,y:1090};
+const P1={x:610,y:1190};
+const P2={x:990,y:-50};
+const P3={x:2140,y:50};
+
+function bezierPoint(u){
+  const m=1-u,m2=m*m,u2=u*u;
+  const x=m2*m*P0.x+3*m2*u*P1.x+3*m*u2*P2.x+u2*u*P3.x;
+  const y=m2*m*P0.y+3*m2*u*P1.y+3*m*u2*P2.y+u2*u*P3.y;
+  const dx=3*m2*(P1.x-P0.x)+6*m*u*(P2.x-P1.x)+3*u2*(P3.x-P2.x);
+  const dy=3*m2*(P1.y-P0.y)+6*m*u*(P2.y-P1.y)+3*u2*(P3.y-P2.y);
+  const len=Math.hypot(dx,dy)||1;
+  return{x,y,tx:dx/len,ty:dy/len,nx:-dy/len,ny:dx/len};
+}
+
+function spinePoint(u,t){
+  const b=bezierPoint(u);
+  const sway=Math.sin(TAU*(u*1.5-t))*24+Math.sin(TAU*(u*3-t*2))*8;
+  return{
+    x:b.x+b.nx*sway,
+    y:b.y+b.ny*sway,
+    nx:b.nx,
+    ny:b.ny,
+    tx:b.tx,
+    ty:b.ty
+  };
+}
+
+function waveBoost(u,t){
+  const d1=Math.abs(u-t);
+  const d=Math.min(d1,1-d1);
+  return Math.exp(-(d*d)/0.018);
+}
+
+function edgeAlpha(u){
+  if(u<0.06)return u/0.06;
+  if(u>0.94)return(1-u)/0.06;
+  return 1;
+}
+
+const mistPuffs=[];
+for(let i=0;i<54;i++){
+  mistPuffs.push({
+    u0:i/54+(rand()-0.5)*0.015,
+    offset:(rand()-0.5)*150,
+    radius:130+rand()*170,
+    gold:rand()>0.42,
+    phase:rand(),
+    freq:1+Math.floor(rand()*2),
+    alpha:0.24+rand()*0.26
+  });
+}
+
+const bokehs=[];
+for(let i=0;i<48;i++){
+  const side=rand()>0.35?1:-1;
+  bokehs.push({
+    u0:rand(),
+    offset:side*(65+rand()*215),
+    radius:26+rand()*68,
+    gold:rand()>0.48,
+    eddyR:12+rand()*28,
+    eddyF:1+Math.floor(rand()*2),
+    eddyP:rand(),
+    pulseF:1+Math.floor(rand()*2),
+    pulseP:rand(),
+    alpha:0.22+rand()*0.42
+  });
+}
+
+const filaments=[];
+for(let i=0;i<7;i++){
+  const n=(i-3)/3;
+  filaments.push({
+    baseOffset:n*54,
+    amp:18+Math.abs(n)*28+(i%2)*10,
+    freq:1.5+(i%3)*0.5,
+    tSpeed:i%2===0?1:2,
+    phase:i*0.17,
+    width:i===3?3.4:(1.1+(3-Math.abs(i-3))*0.65),
+    color:i===3?'#FFFBEB':(Math.abs(i-3)<=1?'#FACC15':'#D97706'),
+    alpha:i===3?0.68:(0.22+(3-Math.abs(i-3))*0.11)
+  });
+}
+
+const dust=[];
+for(let i=0;i<440;i++){
+  const band=rand();
+  const spread=band<0.55?(rand()-0.5)*76:(band<0.85?(rand()-0.5)*170:(rand()-0.5)*270);
+  const tier=band<0.24?2:(band<0.68?1:0);
+  dust.push({
+    u0:rand(),
+    speed:rand()>0.78?2:1,
+    offset:spread,
+    size:tier===2?(3.2+rand()*4.8):(tier===1?(2.4+rand()*5.4):(2+rand()*6)),
+    tier,
+    eddyR:5+rand()*24,
+    eddyF:2+Math.floor(rand()*3),
+    eddyP:rand(),
+    twinkleF:2+Math.floor(rand()*4),
+    twinkleP:rand(),
+    alpha:0.4+rand()*0.6
+  });
+}
+
+const specks=[];
+for(let i=0;i<96;i++){
+  const leadingBias=-18-rand()*88;
+  const nearCore=(rand()-0.5)*46;
+  specks.push({
+    u0:rand(),
+    speed:rand()>0.7?2:1,
+    offset:rand()>0.32?leadingBias:nearCore,
+    size:3.5+rand()*9.5,
+    isStar:rand()>0.42,
+    rot0:rand()*TAU,
+    rotDir:rand()>0.5?1:-1,
+    eddyR:4+rand()*15,
+    eddyF:2+Math.floor(rand()*3),
+    eddyP:rand(),
+    twinkleF:2+Math.floor(rand()*4),
+    twinkleP:rand(),
+    ivory:rand()>0.35
+  });
+}
+
+function drawDiamond(x,y,r,rot,color,alpha){
+  ctx.save();
+  ctx.translate(x,y);
+  ctx.rotate(rot);
+  ctx.globalAlpha=alpha;
+  ctx.fillStyle=color;
+  ctx.beginPath();
+  ctx.moveTo(0,-r);
+  ctx.lineTo(r*0.52,0);
+  ctx.lineTo(0,r);
+  ctx.lineTo(-r*0.52,0);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawFourStar(x,y,r,rot,color,alpha){
+  ctx.save();
+  ctx.translate(x,y);
+  ctx.rotate(rot);
+  ctx.globalAlpha=alpha;
+  ctx.fillStyle=color;
+  const inner=r*0.2;
+  ctx.beginPath();
+  ctx.moveTo(0,-r);
+  ctx.quadraticCurveTo(inner*0.6,-inner*0.6,r,0);
+  ctx.quadraticCurveTo(inner*0.6,inner*0.6,0,r);
+  ctx.quadraticCurveTo(-inner*0.6,inner*0.6,-r,0);
+  ctx.quadraticCurveTo(-inner*0.6,-inner*0.6,0,-r);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+function render(ts){
+  const t=(((ts||0)%LOOP)+LOOP)%LOOP/LOOP;
+
+  ctx.setTransform(cw/W,0,0,ch/H,0,0);
+  ctx.globalCompositeOperation='source-over';
+  ctx.globalAlpha=1;
+
+  const bg=ctx.createLinearGradient(0,H,W,0);
+  bg.addColorStop(0,'#090502');
+  bg.addColorStop(0.5,'#070402');
+  bg.addColorStop(1,'#0B0602');
+  ctx.fillStyle=bg;
+  ctx.fillRect(0,0,W,H);
+
+  const waveSpine=spinePoint(t,t);
+  const amb=ctx.createRadialGradient(waveSpine.x,waveSpine.y,40,waveSpine.x,waveSpine.y,680);
+  amb.addColorStop(0,'rgba(217,119,6,0.14)');
+  amb.addColorStop(0.5,'rgba(146,64,14,0.05)');
+  amb.addColorStop(1,'rgba(7,4,2,0)');
+  ctx.fillStyle=amb;
+  ctx.fillRect(0,0,W,H);
+
+  ctx.globalCompositeOperation='lighter';
+
+  for(let i=0;i<bokehs.length;i++){
+    const b=bokehs[i];
+    const u=(b.u0+t)%1;
+    const ea=edgeAlpha(u);
+    if(ea<=0.001)continue;
+    const sp=spinePoint(u,t);
+    const ex=Math.cos(TAU*(b.eddyF*t+b.eddyP))*b.eddyR;
+    const ey=Math.sin(TAU*(b.eddyF*t+b.eddyP))*b.eddyR;
+    const x=sp.x+sp.nx*b.offset+ex;
+    const y=sp.y+sp.ny*b.offset+ey;
+    const wb=waveBoost(u,t);
+    const pulse=0.65+0.35*Math.sin(TAU*(b.pulseF*t+b.pulseP));
+    const r=b.radius*(0.92+0.16*wb);
+    ctx.globalAlpha=b.alpha*pulse*ea*(0.75+0.55*wb);
+    ctx.drawImage(b.gold?spBokehGold:spBokehCopper,x-r,y-r,r*2,r*2);
+  }
+
+  for(let i=0;i<mistPuffs.length;i++){
+    const m=mistPuffs[i];
+    const u=(m.u0+t)%1;
+    const ea=edgeAlpha(u);
+    if(ea<=0.001)continue;
+    const sp=spinePoint(u,t);
+    const drift=Math.sin(TAU*(m.freq*t+m.phase))*26;
+    const x=sp.x+sp.nx*(m.offset+drift);
+    const y=sp.y+sp.ny*(m.offset+drift);
+    const wb=waveBoost(u,t);
+    const r=m.radius*(0.88+0.28*wb);
+    ctx.globalAlpha=m.alpha*ea*(0.62+0.85*wb);
+    ctx.drawImage(m.gold?spMistGold:spMistCopper,x-r,y-r,r*2,r*2);
+  }
+
+  const steps=90;
+  for(let f=0;f<filaments.length;f++){
+    const fl=filaments[f];
+    ctx.beginPath();
+    for(let s=0;s<=steps;s++){
+      const u=s/steps;
+      const sp=spinePoint(u,t);
+      const ribbonW=0.55+0.45*Math.sin(Math.PI*u);
+      const off=(fl.baseOffset+Math.sin(TAU*(u*fl.freq-t*fl.tSpeed+fl.phase))*fl.amp)*ribbonW;
+      const x=sp.x+sp.nx*off;
+      const y=sp.y+sp.ny*off;
+      if(s===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+    }
+    const grad=ctx.createLinearGradient(0,H,W,0);
+    const wPos=Math.max(0.05,Math.min(0.95,t));
+    grad.addColorStop(0,'rgba(217,119,6,0.08)');
+    grad.addColorStop(Math.max(0.01,wPos-0.22),fl.color);
+    grad.addColorStop(wPos,'#FFFBEB');
+    grad.addColorStop(Math.min(0.99,wPos+0.22),fl.color);
+    grad.addColorStop(1,'rgba(217,119,6,0.08)');
+    ctx.strokeStyle=grad;
+    ctx.lineWidth=fl.width;
+    ctx.lineCap='round';
+    ctx.globalAlpha=fl.alpha;
+    ctx.stroke();
+  }
+
+  for(let i=0;i<dust.length;i++){
+    const p=dust[i];
+    const u=(p.u0+p.speed*t)%1;
+    const ea=edgeAlpha(u);
+    if(ea<=0.001)continue;
+    const sp=spinePoint(u,t);
+    const ribbonW=0.45+0.55*Math.sin(Math.PI*u);
+    const ang=TAU*(p.eddyF*t+p.eddyP);
+    const ex=Math.cos(ang)*p.eddyR;
+    const ey=Math.sin(ang)*p.eddyR;
+    const x=sp.x+sp.nx*(p.offset*ribbonW)+ex;
+    const y=sp.y+sp.ny*(p.offset*ribbonW)+ey;
+    const wb=waveBoost(u,t);
+    const tw=0.42+0.58*(0.5+0.5*Math.sin(TAU*(p.twinkleF*t+p.twinkleP)));
+    const r=p.size*(0.85+0.65*wb);
+    ctx.globalAlpha=Math.min(1,p.alpha*tw*ea*(0.65+0.95*wb));
+    const spImg=p.tier===2?spOrbIvory:(p.tier===1?spOrbGold:spOrbCopper);
+    ctx.drawImage(spImg,x-r*2.2,y-r*2.2,r*4.4,r*4.4);
+  }
+
+  for(let i=0;i<specks.length;i++){
+    const s=specks[i];
+    const u=(s.u0+s.speed*t)%1;
+    const ea=edgeAlpha(u);
+    if(ea<=0.001)continue;
+    const sp=spinePoint(u,t);
+    const ribbonW=0.5+0.5*Math.sin(Math.PI*u);
+    const ang=TAU*(s.eddyF*t+s.eddyP);
+    const x=sp.x+sp.nx*(s.offset*ribbonW)+Math.cos(ang)*s.eddyR;
+    const y=sp.y+sp.ny*(s.offset*ribbonW)+Math.sin(ang)*s.eddyR;
+    const wb=waveBoost(u,t);
+    const tw=0.25+0.75*(0.5+0.5*Math.sin(TAU*(s.twinkleF*t+s.twinkleP)));
+    const alpha=Math.min(1,ea*tw*(0.55+0.9*wb));
+    const r=s.size*(0.75+0.7*wb)*(0.7+0.3*tw);
+    const rot=s.rot0+TAU*s.rotDir*t;
+    const col=wb>0.42||s.ivory?'#FFFBEB':'#FACC15';
+
+    if(wb>0.25){
+      ctx.globalAlpha=alpha*0.45;
+      ctx.drawImage(spOrbIvory,x-r*2.6,y-r*2.6,r*5.2,r*5.2);
+    }
+    if(s.isStar){
+      drawFourStar(x,y,r*1.35,rot,col,alpha);
+    }else{
+      drawDiamond(x,y,r*0.95,rot,col,alpha);
+    }
+  }
+
+  requestAnimationFrame(render);
+}
+requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>

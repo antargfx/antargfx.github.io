@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Warm Fairy-Light Canopy and Rising Golden Embers Festive Twilight Animation</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#110803}
+canvas{display:block;width:100%;height:100%}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+(function(){
+const W=1920,H=1080,LOOP=10000,TAU=Math.PI*2;
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d',{alpha:false});
+
+function makeRng(seed){
+  let s=seed>>>0;
+  return function(){
+    s=(s+0x6D2B79F5)>>>0;
+    let t=Math.imul(s^(s>>>15),1|s);
+    t=(t+Math.imul(t^(t>>>7),61|t))^t;
+    return((t^(t>>>14))>>>0)/4294967296;
+  };
+}
+
+function makeSprite(size,stops,ring){
+  const oc=document.createElement('canvas');
+  oc.width=size;
+  oc.height=size;
+  const g=oc.getContext('2d');
+  const half=size/2;
+  const grad=g.createRadialGradient(half,half,0,half,half,half);
+  for(let i=0;i<stops.length;i++){
+    grad.addColorStop(stops[i][0],stops[i][1]);
+  }
+  g.fillStyle=grad;
+  g.fillRect(0,0,size,size);
+  if(ring){
+    g.beginPath();
+    g.arc(half,half,half*0.86,0,TAU);
+    g.strokeStyle=ring;
+    g.lineWidth=size*0.028;
+    g.stroke();
+  }
+  return oc;
+}
+
+const spCreamBokeh=makeSprite(256,[
+  [0,'rgba(254,249,195,0.72)'],
+  [0.42,'rgba(254,249,195,0.52)'],
+  [0.74,'rgba(251,191,36,0.34)'],
+  [0.90,'rgba(234,88,12,0.12)'],
+  [1,'rgba(234,88,12,0)']
+],'rgba(254,249,195,0.22)');
+
+const spGoldBokeh=makeSprite(256,[
+  [0,'rgba(254,249,195,0.45)'],
+  [0.38,'rgba(251,191,36,0.46)'],
+  [0.76,'rgba(234,88,12,0.24)'],
+  [0.92,'rgba(234,88,12,0.06)'],
+  [1,'rgba(234,88,12,0)']
+],'rgba(251,191,36,0.18)');
+
+const spAmberBokeh=makeSprite(256,[
+  [0,'rgba(251,191,36,0.38)'],
+  [0.48,'rgba(234,88,12,0.32)'],
+  [0.82,'rgba(234,88,12,0.14)'],
+  [1,'rgba(234,88,12,0)']
+],'rgba(251,191,36,0.10)');
+
+const spBulbHalo=makeSprite(256,[
+  [0,'rgba(255,253,235,1)'],
+  [0.10,'rgba(254,249,195,0.96)'],
+  [0.24,'rgba(251,191,36,0.62)'],
+  [0.52,'rgba(234,88,12,0.22)'],
+  [0.80,'rgba(234,88,12,0.05)'],
+  [1,'rgba(234,88,12,0)']
+],null);
+
+const spEmberDeep=makeSprite(64,[
+  [0,'rgba(254,249,195,0.95)'],
+  [0.22,'rgba(251,191,36,0.85)'],
+  [0.52,'rgba(234,88,12,0.48)'],
+  [0.82,'rgba(234,88,12,0.12)'],
+  [1,'rgba(234,88,12,0)']
+],null);
+
+const spEmberGold=makeSprite(64,[
+  [0,'rgba(255,254,242,1)'],
+  [0.28,'rgba(254,249,195,0.92)'],
+  [0.58,'rgba(251,191,36,0.45)'],
+  [1,'rgba(251,191,36,0)']
+],null);
+
+const rand=makeRng(20261122);
+
+const bgBokeh=[];
+for(let i=0;i<54;i++){
+  const side=i%3;
+  let bx,by;
+  if(side===0){
+    bx=-60+rand()*760;
+    by=-50+rand()*430*(1-bx/920);
+  }else if(side===1){
+    bx=1220+rand()*760;
+    by=-50+rand()*430*((bx-1080)/920);
+  }else{
+    bx=240+rand()*1440;
+    by=-50+rand()*210;
+  }
+  const r=34+rand()*88;
+  const pick=rand();
+  bgBokeh.push({
+    x:bx,
+    y:by,
+    r:r,
+    sprite:pick<0.34?spCreamBokeh:(pick<0.72?spGoldBokeh:spAmberBokeh),
+    alpha:0.18+rand()*0.34,
+    swayX:8+rand()*18,
+    swayY:3+rand()*8,
+    phase:rand()*TAU,
+    pulseAmp:0.08+rand()*0.16,
+    pulseFreq:1+Math.floor(rand()*2),
+    pulsePhase:rand()*TAU,
+    layer:rand()<0.22?1:0
+  });
+}
+
+const garlands=[
+  {x1:-90,y1:40,x2:820,y2:-50,sag:250,count:15,scale:1.05,amp:15,phase:0.0,depth:1},
+  {x1:-70,y1:195,x2:640,y2:-55,sag:285,count:13,scale:0.92,amp:19,phase:1.15,depth:1},
+  {x1:-60,y1:-35,x2:1080,y2:-55,sag:175,count:17,scale:0.78,amp:11,phase:2.4,depth:0},
+  {x1:1100,y1:-50,x2:2010,y2:50,sag:255,count:15,scale:1.05,amp:16,phase:0.65,depth:1},
+  {x1:1280,y1:-55,x2:1990,y2:205,sag:290,count:13,scale:0.92,amp:20,phase:1.95,depth:1},
+  {x1:840,y1:-55,x2:1980,y2:-35,sag:180,count:17,scale:0.78,amp:12,phase:3.2,depth:0},
+  {x1:360,y1:-50,x2:1560,y2:-50,sag:140,count:16,scale:0.72,amp:10,phase:4.3,depth:0}
+];
+
+const garlandBulbs=garlands.map(function(g){
+  const list=[];
+  for(let i=1;i<=g.count;i++){
+    const f=i/(g.count+1);
+    list.push({
+      f:f,
+      drop:10+rand()*12,
+      size:(11+rand()*6)*g.scale,
+      halo:(46+rand()*34)*g.scale,
+      twinkleFreq:1+Math.floor(rand()*3),
+      twinklePhase:rand()*TAU,
+      twinkleAmp:0.10+rand()*0.18,
+      pendPhase:rand()*TAU,
+      pendAmp:0.04+rand()*0.07,
+      warmth:rand()
+    });
+  }
+  return list;
+});
+
+const embers=[];
+const TOTAL_EMBERS=1180;
+for(let i=0;i<TOTAL_EMBERS;i++){
+  const rType=rand();
+  let kind=0;
+  if(rType<0.28)kind=0;
+  else if(rType<0.88)kind=1;
+  else kind=2;
+
+  const cycles=kind===0?1:(rand()<0.62?1:2);
+  const startY=940+rand()*260;
+  const travel=760+rand()*520;
+  const baseX=rand()*W;
+  const windX=(rand()-0.5)*130;
+  const driftAmp=kind===0?(16+rand()*34):(8+rand()*24);
+  const driftFreq=1+Math.floor(rand()*3);
+  const driftPhase=rand()*TAU;
+  const twinkleFreq=kind===0?(2+Math.floor(rand()*4)):(4+Math.floor(rand()*7));
+  const twinklePhase=rand()*TAU;
+  const size=kind===0?(2.2+rand()*3.8):(kind===1?(0.9+rand()*2.0):(3.2+rand()*6.8));
+  const alpha=kind===0?(0.45+rand()*0.48):(kind===1?(0.55+rand()*0.45):(0.65+rand()*0.35));
+  const colorPick=rand();
+
+  embers.push({
+    kind:kind,
+    cycles:cycles,
+    offset:rand(),
+    startY:startY,
+    travel:travel,
+    baseX:baseX,
+    windX:windX,
+    driftAmp:driftAmp,
+    driftFreq:driftFreq,
+    driftPhase:driftPhase,
+    twinkleFreq:twinkleFreq,
+    twinklePhase:twinklePhase,
+    size:size,
+    alpha:alpha,
+    colorPick:colorPick
+  });
+}
+
+function smoothstep(x){
+  const v=x<0?0:(x>1?1:x);
+  return v*v*(3-2*v);
+}
+
+function drawStar(x,y,r,alpha,warm){
+  ctx.save();
+  ctx.translate(x,y);
+  ctx.globalAlpha=alpha;
+  const inner=r*0.18;
+  ctx.beginPath();
+  ctx.moveTo(0,-r);
+  ctx.quadraticCurveTo(inner,-inner,r,0);
+  ctx.quadraticCurveTo(inner,inner,0,r);
+  ctx.quadraticCurveTo(-inner,inner,-r,0);
+  ctx.quadraticCurveTo(-inner,-inner,0,-r);
+  ctx.closePath();
+  ctx.fillStyle=warm<0.55?'#FEF9C3':'#FBBF24';
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(0,0,r*0.22,0,TAU);
+  ctx.fillStyle='#FFFBEB';
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawGarland(g,bulbs,u){
+  const sway=Math.sin(TAU*u+g.phase)*g.amp;
+  const lift=Math.cos(TAU*u+g.phase)*(g.amp*0.22);
+  const cx=(g.x1+g.x2)*0.5+sway;
+  const cy=(g.y1+g.y2)*0.5+g.sag+lift;
+
+  ctx.save();
+  ctx.globalCompositeOperation='source-over';
+  ctx.beginPath();
+  ctx.moveTo(g.x1,g.y1);
+  ctx.quadraticCurveTo(cx,cy,g.x2,g.y2);
+  ctx.strokeStyle=g.depth?'rgba(92,48,18,0.72)':'rgba(74,38,14,0.52)';
+  ctx.lineWidth=g.depth?2.4:1.6;
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(g.x1,g.y1-0.6);
+  ctx.quadraticCurveTo(cx,cy-0.6,g.x2,g.y2-0.6);
+  ctx.strokeStyle=g.depth?'rgba(251,191,36,0.22)':'rgba(251,191,36,0.12)';
+  ctx.lineWidth=1;
+  ctx.stroke();
+  ctx.restore();
+
+  for(let i=0;i<bulbs.length;i++){
+    const b=bulbs[i];
+    const t=b.f;
+    const mt=1-t;
+    const wx=mt*mt*g.x1+2*mt*t*cx+t*t*g.x2;
+    const wy=mt*mt*g.y1+2*mt*t*cy+t*t*g.y2;
+    const ang=Math.sin(TAU*u+g.phase+b.pendPhase)*b.pendAmp;
+    const bx=wx+Math.sin(ang)*b.drop;
+    const by=wy+Math.cos(ang)*b.drop;
+
+    ctx.save();
+    ctx.globalCompositeOperation='source-over';
+    ctx.beginPath();
+    ctx.moveTo(wx,wy);
+    ctx.lineTo(bx,by-b.size*0.45);
+    ctx.strokeStyle='rgba(82,42,16,0.75)';
+    ctx.lineWidth=1.4*g.scale;
+    ctx.stroke();
+
+    ctx.translate(bx,by);
+    ctx.rotate(-ang);
+    ctx.fillStyle='#451A03';
+    ctx.fillRect(-b.size*0.24,-b.size*0.62,b.size*0.48,b.size*0.32);
+    ctx.restore();
+
+    const tw=1-b.twinkleAmp*0.5+b.twinkleAmp*0.5*Math.sin(TAU*b.twinkleFreq*u+b.twinklePhase);
+    const haloR=b.halo*(0.95+0.08*tw);
+
+    ctx.save();
+    ctx.globalCompositeOperation='lighter';
+    ctx.globalAlpha=(g.depth?0.85:0.58)*tw;
+    ctx.drawImage(spBulbHalo,bx-haloR,by-haloR,haloR*2,haloR*2);
+
+    ctx.globalAlpha=(g.depth?0.96:0.78)*tw;
+    const bg=ctx.createRadialGradient(bx,by,0,bx,by,b.size*0.85);
+    bg.addColorStop(0,'#FFFFFF');
+    bg.addColorStop(0.38,'#FEF9C3');
+    bg.addColorStop(0.78,b.warmth<0.7?'#FBBF24':'#F59E0B');
+    bg.addColorStop(1,'rgba(234,88,12,0)');
+    ctx.fillStyle=bg;
+    ctx.beginPath();
+    ctx.arc(bx,by,b.size*0.85,0,TAU);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+function drawBokehLayer(layer,u){
+  ctx.save();
+  ctx.globalCompositeOperation='lighter';
+  for(let i=0;i<bgBokeh.length;i++){
+    const b=bgBokeh[i];
+    if(b.layer!==layer)continue;
+    const dx=Math.sin(TAU*u+b.phase)*b.swayX;
+    const dy=Math.cos(TAU*u+b.phase)*b.swayY;
+    const pulse=1+b.pulseAmp*Math.sin(TAU*b.pulseFreq*u+b.pulsePhase);
+    const r=b.r*(0.97+0.04*pulse);
+    ctx.globalAlpha=b.alpha*pulse;
+    ctx.drawImage(b.sprite,b.x+dx-r,b.y+dy-r,r*2,r*2);
+  }
+  ctx.restore();
+}
+
+function drawEmbers(u){
+  ctx.save();
+  ctx.globalCompositeOperation='lighter';
+  for(let i=0;i<embers.length;i++){
+    const e=embers[i];
+    const p=(u*e.cycles+e.offset)%1;
+    const accel=0.58*p+0.42*p*p;
+    const y=e.startY-e.travel*accel;
+    if(y<-30||y>H+40)continue;
+
+    const fadeIn=smoothstep(p/0.14);
+    const fadeOut=smoothstep((1-p)/0.24);
+    const topDissolve=smoothstep((y+10)/210);
+    const baseAlpha=e.alpha*fadeIn*fadeOut*topDissolve;
+    if(baseAlpha<=0.008)continue;
+
+    const x=e.baseX+e.windX*p+Math.sin(TAU*e.driftFreq*u+e.driftPhase)*e.driftAmp;
+    const twRaw=0.5+0.5*Math.sin(TAU*e.twinkleFreq*u+e.twinklePhase);
+    const twinkle=e.kind===0?(0.62+0.38*twRaw):(0.20+0.80*twRaw*twRaw);
+    const a=baseAlpha*twinkle;
+    if(a<=0.008)continue;
+
+    if(e.kind===0){
+      const r=e.size*(1.8+0.5*twRaw);
+      ctx.globalAlpha=a;
+      ctx.drawImage(spEmberDeep,x-r,y-r,r*2,r*2);
+    }else if(e.kind===1){
+      const r=e.size*(1.1+0.55*twRaw);
+      ctx.globalAlpha=a*0.75;
+      ctx.drawImage(e.colorPick<0.35?spEmberDeep:spEmberGold,x-r*2.4,y-r*2.4,r*4.8,r*4.8);
+      ctx.globalAlpha=Math.min(1,a*1.15);
+      ctx.fillStyle=e.colorPick<0.25?'#EA580C':(e.colorPick<0.68?'#FBBF24':'#FEF9C3');
+      ctx.beginPath();
+      ctx.arc(x,y,e.size*0.78,0,TAU);
+      ctx.fill();
+    }else{
+      const sr=e.size*(0.55+0.65*twRaw);
+      ctx.globalAlpha=a*0.5;
+      ctx.drawImage(spEmberGold,x-sr*1.8,y-sr*1.8,sr*3.6,sr*3.6);
+      drawStar(x,y,sr,a,e.colorPick);
+    }
+  }
+  ctx.restore();
+}
+
+function render(ts){
+  const dpr=Math.min(window.devicePixelRatio||1,2);
+  const cw=Math.max(1,Math.round(window.innerWidth*dpr));
+  const ch=Math.max(1,Math.round(window.innerHeight*dpr));
+  if(canvas.width!==cw||canvas.height!==ch){
+    canvas.width=cw;
+    canvas.height=ch;
+  }
+
+  ctx.setTransform(cw/W,0,0,ch/H,0,0);
+
+  const u=(((ts%LOOP)+LOOP)%LOOP)/LOOP;
+  const breath=0.5+0.5*Math.sin(TAU*u);
+
+  const bgGrad=ctx.createLinearGradient(0,0,0,H);
+  bgGrad.addColorStop(0,'#1D0D04');
+  bgGrad.addColorStop(0.45,'#110803');
+  bgGrad.addColorStop(0.82,'#140903');
+  bgGrad.addColorStop(1,'#1C0B04');
+  ctx.fillStyle=bgGrad;
+  ctx.fillRect(0,0,W,H);
+
+  ctx.save();
+  ctx.globalCompositeOperation='lighter';
+
+  const gL=ctx.createRadialGradient(180,90,20,220,120,760);
+  gL.addColorStop(0,'rgba(251,191,36,'+(0.22+0.04*breath).toFixed(3)+')');
+  gL.addColorStop(0.38,'rgba(234,88,12,'+(0.13+0.03*breath).toFixed(3)+')');
+  gL.addColorStop(1,'rgba(234,88,12,0)');
+  ctx.fillStyle=gL;
+  ctx.fillRect(0,0,W,H);
+
+  const gR=ctx.createRadialGradient(1740,100,20,1700,130,780);
+  gR.addColorStop(0,'rgba(251,191,36,'+(0.22+0.04*(1-breath)).toFixed(3)+')');
+  gR.addColorStop(0.38,'rgba(234,88,12,'+(0.13+0.03*(1-breath)).toFixed(3)+')');
+  gR.addColorStop(1,'rgba(234,88,12,0)');
+  ctx.fillStyle=gR;
+  ctx.fillRect(0,0,W,H);
+
+  const gB=ctx.createRadialGradient(960,1140,40,960,1120,880);
+  gB.addColorStop(0,'rgba(234,88,12,'+(0.20+0.03*Math.sin(TAU*u+1.4)).toFixed(3)+')');
+  gB.addColorStop(0.45,'rgba(180,62,8,0.08)');
+  gB.addColorStop(1,'rgba(17,8,3,0)');
+  ctx.fillStyle=gB;
+  ctx.fillRect(0,0,W,H);
+  ctx.restore();
+
+  drawBokehLayer(0,u);
+
+  for(let i=0;i<garlands.length;i++){
+    if(garlands[i].depth===0){
+      drawGarland(garlands[i],garlandBulbs[i],u);
+    }
+  }
+
+  drawEmbers(u);
+
+  for(let i=0;i<garlands.length;i++){
+    if(garlands[i].depth===1){
+      drawGarland(garlands[i],garlandBulbs[i],u);
+    }
+  }
+
+  drawBokehLayer(1,u);
+
+  const vig=ctx.createRadialGradient(W*0.5,H*0.48,W*0.30,W*0.5,H*0.5,W*0.74);
+  vig.addColorStop(0,'rgba(17,8,3,0)');
+  vig.addColorStop(0.75,'rgba(12,5,2,0.18)');
+  vig.addColorStop(1,'rgba(8,3,1,0.52)');
+  ctx.fillStyle=vig;
+  ctx.fillRect(0,0,W,H);
+
+  requestAnimationFrame(render);
+}
+
+requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>
