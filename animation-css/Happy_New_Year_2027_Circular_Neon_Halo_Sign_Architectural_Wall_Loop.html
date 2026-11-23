@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy New Year 2027 Circular Neon Halo Sign Architectural Wall Loop</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#060913}
+svg{display:block;width:100%;height:100%}
+.ambient-cyan{animation:breathCyan 5s ease-in-out infinite}
+.ambient-magenta{animation:breathMagenta 5s ease-in-out infinite;animation-delay:-2.5s}
+.orbit-ring{transform-origin:960px 540px;animation:spinHalo 10s linear infinite}
+.orbit-ring-rev{transform-origin:960px 540px;animation:spinHaloRev 10s linear infinite}
+.ring-cyan{animation:ringPulse 5s ease-in-out infinite}
+.ring-magenta{animation:magentaFlicker 5s linear infinite}
+.title-neon{animation:titleFlicker 5s linear infinite}
+.num-2a{animation:tubeSteady 5s ease-in-out infinite}
+.num-0{animation:flickerA 2s linear infinite}
+.num-2b{animation:tubeSteady 5s ease-in-out infinite;animation-delay:-1.8s}
+.num-7{animation:flickerB 5s linear infinite}
+.spark-a{transform-origin:960px 232px;animation:sparkPulse 2s ease-in-out infinite}
+.spark-b{transform-origin:960px 842px;animation:sparkPulse 2s ease-in-out infinite;animation-delay:-1s}
+.dust-a{animation:driftA 10s linear infinite}
+.dust-b{animation:driftB 10s linear infinite}
+.dust-c{animation:driftC 5s linear infinite}
+@keyframes breathCyan{
+  0%,100%{opacity:.74}
+  50%{opacity:1}
+}
+@keyframes breathMagenta{
+  0%,100%{opacity:.68}
+  50%{opacity:.96}
+}
+@keyframes spinHalo{
+  0%{transform:rotate(0deg)}
+  100%{transform:rotate(360deg)}
+}
+@keyframes spinHaloRev{
+  0%{transform:rotate(360deg)}
+  100%{transform:rotate(0deg)}
+}
+@keyframes ringPulse{
+  0%,100%{opacity:.93}
+  50%{opacity:1}
+}
+@keyframes magentaFlicker{
+  0%,100%{opacity:.94}
+  44%{opacity:1}
+  45.5%{opacity:.82}
+  47%{opacity:1}
+  80%{opacity:.96}
+  81.5%{opacity:.86}
+  83%{opacity:1}
+}
+@keyframes titleFlicker{
+  0%,100%{opacity:1}
+  19%{opacity:.96}
+  20%{opacity:.74}
+  21.5%{opacity:1}
+  68%{opacity:.98}
+  69%{opacity:.78}
+  70.2%{opacity:.95}
+  71.2%{opacity:.75}
+  72.8%{opacity:1}
+}
+@keyframes tubeSteady{
+  0%,100%{opacity:.92}
+  50%{opacity:1}
+}
+@keyframes flickerA{
+  0%,100%{opacity:1}
+  48%{opacity:1}
+  50%{opacity:.82}
+  52%{opacity:1}
+  86%{opacity:.97}
+  88%{opacity:.86}
+  90%{opacity:1}
+}
+@keyframes flickerB{
+  0%,100%{opacity:1}
+  26%{opacity:1}
+  27.2%{opacity:.66}
+  28.6%{opacity:1}
+  29.8%{opacity:.78}
+  31.2%{opacity:1}
+  72%{opacity:.96}
+  74%{opacity:.84}
+  76%{opacity:1}
+}
+@keyframes sparkPulse{
+  0%,100%{opacity:.65;transform:scale(0.86)}
+  50%{opacity:1;transform:scale(1.16)}
+}
+@keyframes driftA{
+  0%{transform:translate(0px,140px);opacity:0}
+  16%{opacity:.82}
+  50%{transform:translate(16px,-80px);opacity:.66}
+  84%{opacity:.72}
+  100%{transform:translate(0px,-300px);opacity:0}
+}
+@keyframes driftB{
+  0%{transform:translate(0px,160px);opacity:0}
+  18%{opacity:.7}
+  50%{transform:translate(-20px,-90px);opacity:.88}
+  82%{opacity:.6}
+  100%{transform:translate(0px,-340px);opacity:0}
+}
+@keyframes driftC{
+  0%{transform:translate(0px,90px);opacity:0}
+  20%{opacity:.64}
+  50%{transform:translate(12px,-45px);opacity:.84}
+  80%{opacity:.54}
+  100%{transform:translate(0px,-180px);opacity:0}
+}
+</style>
+</head>
+<body>
+<svg viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <linearGradient id="fluteGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="#02040a"/>
+    <stop offset="18%" stop-color="#080e1f"/>
+    <stop offset="46%" stop-color="#111a34"/>
+    <stop offset="56%" stop-color="#162244"/>
+    <stop offset="78%" stop-color="#080e20"/>
+    <stop offset="100%" stop-color="#02040a"/>
+  </linearGradient>
+  <pattern id="flutedWall" width="32" height="1080" patternUnits="userSpaceOnUse">
+    <rect width="32" height="1080" fill="url(#fluteGrad)"/>
+    <rect x="0" width="2" height="1080" fill="#010206" opacity="0.9"/>
+    <rect x="17" width="1.5" height="1080" fill="#243769" opacity="0.24"/>
+  </pattern>
+  <radialGradient id="cyanSpill" cx="50%" cy="54%" r="45%">
+    <stop offset="0%" stop-color="#00F0FF" stop-opacity="0.34"/>
+    <stop offset="46%" stop-color="#00B0FF" stop-opacity="0.14"/>
+    <stop offset="80%" stop-color="#0052A3" stop-opacity="0.03"/>
+    <stop offset="100%" stop-color="#00F0FF" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="magentaSpill" cx="50%" cy="44%" r="42%">
+    <stop offset="0%" stop-color="#FF007F" stop-opacity="0.3"/>
+    <stop offset="48%" stop-color="#C40062" stop-opacity="0.12"/>
+    <stop offset="82%" stop-color="#660038" stop-opacity="0.03"/>
+    <stop offset="100%" stop-color="#FF007F" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="vignette" cx="50%" cy="50%" r="70%">
+    <stop offset="34%" stop-color="#060913" stop-opacity="0"/>
+    <stop offset="78%" stop-color="#03050c" stop-opacity="0.66"/>
+    <stop offset="100%" stop-color="#010206" stop-opacity="0.94"/>
+  </radialGradient>
+  <linearGradient id="bracketGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+    <stop offset="0%" stop-color="#2c3b61"/>
+    <stop offset="50%" stop-color="#11182c"/>
+    <stop offset="100%" stop-color="#060912"/>
+  </linearGradient>
+  <filter id="glowCyan" x="-30%" y="-30%" width="160%" height="160%">
+    <feGaussianBlur stdDeviation="15" result="b1"/>
+    <feGaussianBlur stdDeviation="4.5" result="b2"/>
+    <feMerge>
+      <feMergeNode in="b1"/>
+      <feMergeNode in="b2"/>
+      <feMergeNode in="SourceGraphic"/>
+    </feMerge>
+  </filter>
+  <filter id="glowCyanBig" x="-25%" y="-25%" width="150%" height="150%">
+    <feGaussianBlur stdDeviation="22" result="b1"/>
+    <feGaussianBlur stdDeviation="7" result="b2"/>
+    <feMerge>
+      <feMergeNode in="b1"/>
+      <feMergeNode in="b2"/>
+      <feMergeNode in="SourceGraphic"/>
+    </feMerge>
+  </filter>
+  <filter id="glowMagenta" x="-30%" y="-30%" width="160%" height="160%">
+    <feGaussianBlur stdDeviation="14" result="b1"/>
+    <feGaussianBlur stdDeviation="4" result="b2"/>
+    <feMerge>
+      <feMergeNode in="b1"/>
+      <feMergeNode in="b2"/>
+      <feMergeNode in="SourceGraphic"/>
+    </feMerge>
+  </filter>
+  <filter id="dropShadow" x="-15%" y="-15%" width="130%" height="130%">
+    <feGaussianBlur stdDeviation="8"/>
+  </filter>
+  <filter id="dustGlow" x="-100%" y="-100%" width="300%" height="300%">
+    <feGaussianBlur stdDeviation="2" result="b"/>
+    <feMerge>
+      <feMergeNode in="b"/>
+      <feMergeNode in="SourceGraphic"/>
+    </feMerge>
+  </filter>
+  <g id="digitTwoPath">
+    <path d="M 10 74 C 10 28 40 4 82 4 C 128 4 154 30 154 72 C 154 102 138 126 110 154 L 62 204 C 58 208 60 212 66 212 H 150 C 154 212 158 216 158 220 V 244 C 158 248 154 252 150 252 H 12 C 8 252 4 248 4 244 V 212 C 4 196 12 180 28 162 L 90 98 C 106 82 116 72 116 60 C 116 46 102 38 80 38 C 60 38 48 50 46 74 C 46 78 42 82 38 82 H 16 C 12 82 10 78 10 74 Z"/>
+  </g>
+  <g id="digitZeroPath">
+    <rect x="6" y="4" width="150" height="248" rx="75" ry="75"/>
+    <rect x="46" y="44" width="70" height="168" rx="35" ry="35"/>
+  </g>
+  <g id="digitSevenPath">
+    <path d="M 14 4 H 148 C 154 4 156 8 156 14 V 40 C 156 46 154 50 152 58 L 82 244 C 80 250 76 252 70 252 H 40 C 34 252 32 248 34 242 L 106 50 C 108 46 106 44 102 44 H 14 C 10 44 6 40 6 36 V 14 C 6 8 10 4 14 4 Z"/>
+  </g>
+  <g id="happyNewYearPaths" transform="translate(0,0)">
+    <path d="M642 332 V390 M678 332 V390 M642 361 H678"/>
+    <path d="M694 390 L712 332 L730 390 M701 370 H723"/>
+    <path d="M746 390 V332 H768 C778 332 782 339 782 348 C 782 357 778 364 768 364 H746"/>
+    <path d="M798 390 V332 H820 C830 332 834 339 834 348 C 834 357 830 364 820 364 H798"/>
+    <path d="M850 332 L868 363 L886 332 M868 363 V390"/>
+    <path d="M918 390 V332 L954 390 V332"/>
+    <path d="M1004 332 H970 V390 H1004 M970 361 H998"/>
+    <path d="M1020 332 L1031 390 L1044 351 L1057 390 L1068 332"/>
+    <path d="M1100 332 L1118 363 L1136 332 M1118 363 V390"/>
+    <path d="M1186 332 H1152 V390 H1186 M1152 361 H1180"/>
+    <path d="M1202 390 L1220 332 L1238 390 M1209 370 H1231"/>
+    <path d="M1254 390 V332 H1276 C1286 332 1290 339 1290 348 C 1290 357 1286 363 1276 363 H1254 M1272 363 L1290 390"/>
+  </g>
+</defs>
+
+<rect width="1920" height="1080" fill="#060913"/>
+<rect width="1920" height="1080" fill="url(#flutedWall)"/>
+
+<g opacity="0.22">
+  <line x1="0" y1="540" x2="1920" y2="540" stroke="#1f3159" stroke-width="2"/>
+  <line x1="960" y1="0" x2="960" y2="1080" stroke="#1f3159" stroke-width="2"/>
+  <circle cx="960" cy="540" r="540" fill="none" stroke="#182748" stroke-width="1.5"/>
+  <circle cx="960" cy="540" r="640" fill="none" stroke="#121d38" stroke-width="1.5"/>
+</g>
+
+<g class="ambient-cyan">
+  <circle cx="960" cy="560" r="620" fill="url(#cyanSpill)"/>
+</g>
+<g class="ambient-magenta">
+  <circle cx="960" cy="480" r="560" fill="url(#magentaSpill)"/>
+</g>
+
+<rect width="1920" height="1080" fill="url(#vignette)"/>
+
+<g opacity="0.54" filter="url(#dropShadow)" transform="translate(0,14)">
+  <circle cx="960" cy="540" r="452" fill="none" stroke="#000000" stroke-width="16"/>
+  <circle cx="960" cy="540" r="418" fill="none" stroke="#000000" stroke-width="13"/>
+  <g fill="none" stroke="#000000" stroke-width="13" stroke-linecap="round" stroke-linejoin="round">
+    <use href="#happyNewYearPaths"/>
+  </g>
+  <g fill="none" stroke="#000000" stroke-width="15" stroke-linejoin="round" stroke-linecap="round">
+    <use href="#digitTwoPath" transform="translate(604,446)"/>
+    <use href="#digitZeroPath" transform="translate(788,446)"/>
+    <use href="#digitTwoPath" transform="translate(972,446)"/>
+    <use href="#digitSevenPath" transform="translate(1156,446)"/>
+  </g>
+</g>
+
+<g>
+  <rect x="948" y="76" width="24" height="58" rx="6" fill="url(#bracketGrad)" stroke="#1e2b4b" stroke-width="1.5"/>
+  <rect x="948" y="946" width="24" height="58" rx="6" fill="url(#bracketGrad)" stroke="#1e2b4b" stroke-width="1.5"/>
+  <rect x="496" y="528" width="58" height="24" rx="6" fill="url(#bracketGrad)" stroke="#1e2b4b" stroke-width="1.5"/>
+  <rect x="1366" y="528" width="58" height="24" rx="6" fill="url(#bracketGrad)" stroke="#1e2b4b" stroke-width="1.5"/>
+  <circle cx="960" cy="105" r="3" fill="#050811"/>
+  <circle cx="960" cy="975" r="3" fill="#050811"/>
+  <circle cx="525" cy="540" r="3" fill="#050811"/>
+  <circle cx="1395" cy="540" r="3" fill="#050811"/>
+</g>
+
+<g class="orbit-ring" fill="none">
+  <circle cx="960" cy="540" r="482" stroke="#00F0FF" stroke-width="3" stroke-dasharray="110 142 36 142" stroke-linecap="round" opacity="0.65" filter="url(#glowCyan)"/>
+</g>
+<g class="orbit-ring-rev" fill="none">
+  <circle cx="960" cy="540" r="392" stroke="#FF007F" stroke-width="2.5" stroke-dasharray="60 190 24 190" stroke-linecap="round" opacity="0.55" filter="url(#glowMagenta)"/>
+</g>
+
+<g class="ring-cyan" fill="none">
+  <circle cx="960" cy="540" r="452" stroke="#00F0FF" stroke-width="20" opacity="0.24" filter="url(#glowCyan)"/>
+  <circle cx="960" cy="540" r="452" stroke="#00F0FF" stroke-width="8.5" filter="url(#glowCyan)"/>
+  <circle cx="960" cy="540" r="452" stroke="#DDFDFF" stroke-width="3"/>
+</g>
+
+<g class="ring-magenta" fill="none">
+  <circle cx="960" cy="540" r="418" stroke="#FF007F" stroke-width="18" opacity="0.25" filter="url(#glowMagenta)"/>
+  <circle cx="960" cy="540" r="418" stroke="#FF007F" stroke-width="7" filter="url(#glowMagenta)"/>
+  <circle cx="960" cy="540" r="418" stroke="#FFD6EC" stroke-width="2.5"/>
+</g>
+
+<g class="spark-a">
+  <path d="M960 206 L965 227 L986 232 L965 237 L960 258 L955 237 L934 232 L955 227 Z" fill="#FF3EA5" filter="url(#glowMagenta)"/>
+  <path d="M960 214 L963 229 L978 232 L963 235 L960 250 L957 235 L942 232 L957 229 Z" fill="#FFF0F8"/>
+</g>
+
+<g class="spark-b">
+  <path d="M960 822 L964 838 L980 842 L964 846 L960 862 L956 846 L940 842 L956 838 Z" fill="#00F0FF" filter="url(#glowCyan)"/>
+  <path d="M960 828 L962 840 L974 842 L962 844 L960 856 L958 844 L946 842 L958 840 Z" fill="#ECFEFF"/>
+</g>
+
+<g class="ring-cyan" fill="none" stroke-linecap="round">
+  <line x1="760" y1="760" x2="1160" y2="760" stroke="#00F0FF" stroke-width="12" opacity="0.28" filter="url(#glowCyan)"/>
+  <line x1="760" y1="760" x2="1160" y2="760" stroke="#00F0FF" stroke-width="5.5" filter="url(#glowCyan)"/>
+  <line x1="760" y1="760" x2="1160" y2="760" stroke="#ECFEFF" stroke-width="2.2"/>
+</g>
+
+<g class="title-neon" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <use href="#happyNewYearPaths" stroke="#FF007F" stroke-width="16" opacity="0.3" filter="url(#glowMagenta)"/>
+  <use href="#happyNewYearPaths" stroke="#FF1F90" stroke-width="7.5" filter="url(#glowMagenta)"/>
+  <use href="#happyNewYearPaths" stroke="#FFE8F4" stroke-width="2.5"/>
+</g>
+
+<g fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <g class="num-2a" transform="translate(604,446)">
+    <use href="#digitTwoPath" stroke="#00F0FF" stroke-width="22" opacity="0.24" filter="url(#glowCyanBig)"/>
+    <use href="#digitTwoPath" stroke="#00E8FF" stroke-width="9.5" filter="url(#glowCyan)"/>
+    <use href="#digitTwoPath" stroke="#ECFEFF" stroke-width="3.4"/>
+  </g>
+  <g class="num-0" transform="translate(788,446)">
+    <use href="#digitZeroPath" stroke="#00F0FF" stroke-width="22" opacity="0.24" filter="url(#glowCyanBig)"/>
+    <use href="#digitZeroPath" stroke="#00E8FF" stroke-width="9.5" filter="url(#glowCyan)"/>
+    <use href="#digitZeroPath" stroke="#ECFEFF" stroke-width="3.4"/>
+  </g>
+  <g class="num-2b" transform="translate(972,446)">
+    <use href="#digitTwoPath" stroke="#00F0FF" stroke-width="22" opacity="0.24" filter="url(#glowCyanBig)"/>
+    <use href="#digitTwoPath" stroke="#00E8FF" stroke-width="9.5" filter="url(#glowCyan)"/>
+    <use href="#digitTwoPath" stroke="#ECFEFF" stroke-width="3.4"/>
+  </g>
+  <g class="num-7" transform="translate(1156,446)">
+    <use href="#digitSevenPath" stroke="#00F0FF" stroke-width="22" opacity="0.24" filter="url(#glowCyanBig)"/>
+    <use href="#digitSevenPath" stroke="#00E8FF" stroke-width="9.5" filter="url(#glowCyan)"/>
+    <use href="#digitSevenPath" stroke="#ECFEFF" stroke-width="3.4"/>
+  </g>
+</g>
+
+<g filter="url(#dustGlow)">
+  <circle class="dust-a" cx="190" cy="810" r="2.5" fill="#00F0FF" style="animation-delay:-0.9s"/>
+  <circle class="dust-b" cx="310" cy="620" r="3.1" fill="#FF3EA5" style="animation-delay:-3.4s"/>
+  <circle class="dust-c" cx="420" cy="890" r="2.0" fill="#B8FBFF" style="animation-delay:-1.2s"/>
+  <circle class="dust-a" cx="540" cy="480" r="2.6" fill="#FF007F" style="animation-delay:-6.5s"/>
+  <circle class="dust-b" cx="680" cy="860" r="2.3" fill="#00F0FF" style="animation-delay:-2.3s"/>
+  <circle class="dust-a" cx="810" cy="340" r="2.9" fill="#E0FDFF" style="animation-delay:-8.0s"/>
+  <circle class="dust-c" cx="960" cy="790" r="1.9" fill="#FF5CB0" style="animation-delay:-3.6s"/>
+  <circle class="dust-b" cx="1110" cy="910" r="2.8" fill="#00F0FF" style="animation-delay:-5.2s"/>
+  <circle class="dust-a" cx="1240" cy="560" r="2.3" fill="#FF007F" style="animation-delay:-1.6s"/>
+  <circle class="dust-c" cx="1370" cy="420" r="2.1" fill="#C9FCFF" style="animation-delay:-0.7s"/>
+  <circle class="dust-b" cx="1490" cy="830" r="3.4" fill="#00F0FF" style="animation-delay:-7.1s"/>
+  <circle class="dust-a" cx="1610" cy="520" r="2.2" fill="#FF3EA5" style="animation-delay:-4.5s"/>
+  <circle class="dust-c" cx="1720" cy="760" r="2.0" fill="#FFFFFF" style="animation-delay:-2.5s"/>
+  <circle class="dust-b" cx="1820" cy="590" r="2.9" fill="#00F0FF" style="animation-delay:-9.0s"/>
+  <circle class="dust-a" cx="260" cy="380" r="2.1" fill="#E0FDFF" style="animation-delay:-5.9s"/>
+  <circle class="dust-b" cx="1660" cy="360" r="2.4" fill="#FF4DA6" style="animation-delay:-2.0s"/>
+  <circle class="dust-c" cx="470" cy="290" r="1.8" fill="#00F0FF" style="animation-delay:-4.0s"/>
+  <circle class="dust-a" cx="1450" cy="310" r="2.5" fill="#FF007F" style="animation-delay:-9.3s"/>
+</g>
+</svg>
+</body>
+</html>

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kinetic Golden-Striped Hexagonal Tunnel Luxury Abstract Loop</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#050506}
+canvas{display:block;width:100%;height:100%}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+(function(){
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d');
+const W=1920,H=1080,CX=960,CY=540;
+const LOOP=10000;
+const TOTAL_RINGS=9;
+const CYCLES=2;
+const R_MIN=16;
+const R_MAX=1540;
+const RATIO=R_MAX/R_MIN;
+const INNER_FACTOR=0.77;
+const TAU=Math.PI*2;
+const HEX_ANGLES=[];
+for(let k=0;k<6;k++){
+const a=k*Math.PI/3;
+HEX_ANGLES.push([Math.cos(a),Math.sin(a)]);
+}
+
+let dpr=1,cw=W,ch=H,scale=1,ox=0,oy=0;
+function resize(){
+dpr=Math.min(window.devicePixelRatio||1,2);
+cw=Math.max(1,Math.floor(window.innerWidth*dpr));
+ch=Math.max(1,Math.floor(window.innerHeight*dpr));
+canvas.width=cw;
+canvas.height=ch;
+scale=Math.max(cw/W,ch/H);
+ox=(cw-W*scale)*0.5;
+oy=(ch-H*scale)*0.5;
+}
+resize();
+window.addEventListener('resize',resize);
+
+function smoothstep(e0,e1,x){
+const t=Math.max(0,Math.min(1,(x-e0)/(e1-e0)));
+return t*t*(3-2*t);
+}
+
+function hexPath(r,ccw){
+if(!ccw){
+ctx.moveTo(CX+HEX_ANGLES[0][0]*r,CY+HEX_ANGLES[0][1]*r);
+for(let k=1;k<6;k++)ctx.lineTo(CX+HEX_ANGLES[k][0]*r,CY+HEX_ANGLES[k][1]*r);
+}else{
+ctx.moveTo(CX+HEX_ANGLES[0][0]*r,CY+HEX_ANGLES[0][1]*r);
+for(let k=5;k>=1;k--)ctx.lineTo(CX+HEX_ANGLES[k][0]*r,CY+HEX_ANGLES[k][1]*r);
+}
+ctx.closePath();
+}
+
+function drawGlint(x,y,size,alpha){
+if(alpha<=0.01||size<=0.5)return;
+const g=ctx.createRadialGradient(x,y,0,x,y,size*2.4);
+g.addColorStop(0,'rgba(252,230,148,'+(alpha*0.95).toFixed(4)+')');
+g.addColorStop(0.28,'rgba(198,163,79,'+(alpha*0.48).toFixed(4)+')');
+g.addColorStop(1,'rgba(110,84,30,0)');
+ctx.fillStyle=g;
+ctx.beginPath();
+ctx.arc(x,y,size*2.4,0,TAU);
+ctx.fill();
+
+ctx.save();
+ctx.translate(x,y);
+ctx.fillStyle='rgba(255,246,210,'+(alpha*0.95).toFixed(4)+')';
+const arm=size*1.85;
+const w=size*0.18;
+ctx.beginPath();
+ctx.moveTo(0,-arm);
+ctx.quadraticCurveTo(w*0.5,-w*0.5,arm,0);
+ctx.quadraticCurveTo(w*0.5,w*0.5,0,arm);
+ctx.quadraticCurveTo(-w*0.5,w*0.5,-arm,0);
+ctx.quadraticCurveTo(-w*0.5,-w*0.5,0,-arm);
+ctx.closePath();
+ctx.fill();
+ctx.restore();
+}
+
+function render(ts){
+const tNorm=((((ts||0)%LOOP)+LOOP)%LOOP)/LOOP;
+const theta=tNorm*TAU;
+const frac=(tNorm*CYCLES)%1;
+
+ctx.setTransform(scale,0,0,scale,ox,oy);
+
+const bg=ctx.createRadialGradient(CX,CY,10,CX,CY,1180);
+bg.addColorStop(0,'#050506');
+bg.addColorStop(0.32,'#090A0C');
+bg.addColorStop(0.68,'#131519');
+bg.addColorStop(1,'#1B1D21');
+ctx.fillStyle=bg;
+ctx.fillRect(-10,-10,W+20,H+20);
+
+ctx.save();
+for(let k=0;k<6;k++){
+const c=HEX_ANGLES[k][0],s=HEX_ANGLES[k][1];
+const rg=ctx.createLinearGradient(CX+c*40,CY+s*40,CX+c*1250,CY+s*1250);
+rg.addColorStop(0,'rgba(198,163,79,0)');
+rg.addColorStop(0.25,'rgba(198,163,79,0.09)');
+rg.addColorStop(0.75,'rgba(110,84,30,0.06)');
+rg.addColorStop(1,'rgba(110,84,30,0)');
+ctx.strokeStyle=rg;
+ctx.lineWidth=1;
+ctx.beginPath();
+ctx.moveTo(CX+c*40,CY+s*40);
+ctx.lineTo(CX+c*1250,CY+s*1250);
+ctx.stroke();
+
+const ma=(k+0.5)*Math.PI/3;
+const mc=Math.cos(ma),ms=Math.sin(ma);
+ctx.strokeStyle='rgba(198,163,79,0.035)';
+ctx.beginPath();
+ctx.moveTo(CX+mc*60,CY+ms*60);
+ctx.lineTo(CX+mc*1250,CY+ms*1250);
+ctx.stroke();
+}
+ctx.restore();
+
+const lx=Math.cos(theta);
+const ly=Math.sin(theta);
+
+const glints=[];
+
+for(let i=0;i<TOTAL_RINGS;i++){
+const u=(i+frac)/TOTAL_RINGS;
+const outerR=R_MIN*Math.pow(RATIO,u);
+const innerR=outerR*INNER_FACTOR;
+if(innerR>1160)continue;
+
+const fadeIn=smoothstep(0.0,0.2,u);
+const fadeOut=1-smoothstep(0.92,1.0,u);
+const alpha=fadeIn*fadeOut;
+if(alpha<=0.002)continue;
+
+const gx1=CX-lx*outerR;
+const gy1=CY-ly*outerR;
+const gx2=CX+lx*outerR;
+const gy2=CY+ly*outerR;
+
+const goldGrad=ctx.createLinearGradient(gx1,gy1,gx2,gy2);
+goldGrad.addColorStop(0,'#6E541E');
+goldGrad.addColorStop(0.22,'#C6A34F');
+goldGrad.addColorStop(0.42,'#FCE694');
+goldGrad.addColorStop(0.56,'#C6A34F');
+goldGrad.addColorStop(0.78,'#6E541E');
+goldGrad.addColorStop(0.92,'#C6A34F');
+goldGrad.addColorStop(1,'#FCE694');
+
+const fineGrad=ctx.createLinearGradient(gx1,gy1,gx2,gy2);
+fineGrad.addColorStop(0,'rgba(110,84,30,0.62)');
+fineGrad.addColorStop(0.25,'rgba(198,163,79,0.82)');
+fineGrad.addColorStop(0.45,'rgba(252,230,148,0.98)');
+fineGrad.addColorStop(0.65,'rgba(198,163,79,0.75)');
+fineGrad.addColorStop(0.85,'rgba(110,84,30,0.55)');
+fineGrad.addColorStop(1,'rgba(252,230,148,0.88)');
+
+ctx.save();
+ctx.globalAlpha=alpha;
+
+ctx.beginPath();
+hexPath(outerR,false);
+hexPath(innerR,true);
+
+const bandBg=ctx.createLinearGradient(gx1,gy1,gx2,gy2);
+bandBg.addColorStop(0,'rgba(12,11,9,0.82)');
+bandBg.addColorStop(0.45,'rgba(36,28,14,0.62)');
+bandBg.addColorStop(0.55,'rgba(44,34,16,0.66)');
+bandBg.addColorStop(1,'rgba(10,10,11,0.84)');
+ctx.fillStyle=bandBg;
+ctx.fill('evenodd');
+
+ctx.save();
+ctx.clip('evenodd');
+
+const subRings=5;
+const lineW=Math.max(0.65,outerR*0.0026);
+ctx.strokeStyle=fineGrad;
+ctx.lineWidth=lineW;
+
+for(let sr=1;sr<subRings;sr++){
+const f=sr/subRings;
+const rr=innerR+(outerR-innerR)*f;
+ctx.beginPath();
+hexPath(rr,false);
+ctx.stroke();
+}
+
+const divs=14;
+ctx.lineWidth=Math.max(0.55,outerR*0.0021);
+ctx.strokeStyle=fineGrad;
+ctx.beginPath();
+for(let k=0;k<6;k++){
+const k2=(k+1)%6;
+const ax=HEX_ANGLES[k][0],ay=HEX_ANGLES[k][1];
+const bx=HEX_ANGLES[k2][0],by=HEX_ANGLES[k2][1];
+for(let d=0;d<=divs;d++){
+const t=d/divs;
+const px=ax+(bx-ax)*t;
+const py=ay+(by-ay)*t;
+ctx.moveTo(CX+px*innerR,CY+py*innerR);
+ctx.lineTo(CX+px*outerR,CY+py*outerR);
+}
+}
+ctx.stroke();
+
+ctx.lineWidth=Math.max(0.45,outerR*0.0014);
+ctx.globalAlpha=alpha*0.42;
+ctx.beginPath();
+for(let k=0;k<6;k++){
+const k2=(k+1)%6;
+const ax=HEX_ANGLES[k][0],ay=HEX_ANGLES[k][1];
+const bx=HEX_ANGLES[k2][0],by=HEX_ANGLES[k2][1];
+for(let d=0;d<divs;d+=2){
+const t1=d/divs;
+const t2=(d+2)/divs;
+const p1x=ax+(bx-ax)*t1,p1y=ay+(by-ay)*t1;
+const p2x=ax+(bx-ax)*t2,p2y=ay+(by-ay)*t2;
+ctx.moveTo(CX+p1x*innerR,CY+p1y*innerR);
+ctx.lineTo(CX+p2x*outerR,CY+p2y*outerR);
+ctx.moveTo(CX+p2x*innerR,CY+p2y*innerR);
+ctx.lineTo(CX+p1x*outerR,CY+p1y*outerR);
+}
+}
+ctx.stroke();
+
+ctx.restore();
+
+ctx.strokeStyle=goldGrad;
+ctx.lineWidth=Math.max(1.1,outerR*0.0052);
+ctx.beginPath();
+hexPath(outerR,false);
+ctx.stroke();
+
+ctx.strokeStyle=goldGrad;
+ctx.lineWidth=Math.max(0.85,outerR*0.0036);
+ctx.beginPath();
+hexPath(innerR,false);
+ctx.stroke();
+
+ctx.globalAlpha=alpha*0.28;
+ctx.strokeStyle='#C6A34F';
+ctx.lineWidth=Math.max(0.5,outerR*0.0015);
+ctx.beginPath();
+hexPath(outerR*1.032,false);
+ctx.stroke();
+
+ctx.restore();
+
+if(outerR>42){
+const glintScale=Math.min(1,outerR/420);
+for(let k=0;k<6;k++){
+const k2=(k+1)%6;
+const ax=HEX_ANGLES[k][0],ay=HEX_ANGLES[k][1];
+const bx=HEX_ANGLES[k2][0],by=HEX_ANGLES[k2][1];
+
+const vw1=Math.sin(u*TAU*3-theta*2+k*1.04719755);
+const vw2=Math.sin(u*TAU*2+theta*1-k*2.0943951);
+const vInt=Math.pow(Math.max(0,vw1*vw2),3.2)*alpha;
+if(vInt>0.06){
+glints.push([CX+ax*outerR,CY+ay*outerR,4+13*glintScale*vInt,vInt]);
+}
+
+for(let d=2;d<divs;d+=3){
+const sr=(d%4)+1;
+const rr=innerR+(outerR-innerR)*(sr/subRings);
+const t=d/divs;
+const px=ax+(bx-ax)*t;
+const py=ay+(by-ay)*t;
+const w1=Math.sin(u*TAU*5-theta*2+k*1.5707963+d*1.15);
+const w2=Math.sin(u*TAU*3+theta*2-k*1.04719755+d*2.1);
+const gi=Math.pow(Math.max(0,w1*w2),4.2)*alpha;
+if(gi>0.07){
+glints.push([CX+px*rr,CY+py*rr,2.5+9.5*glintScale*gi,gi*0.92]);
+}
+}
+}
+}
+}
+
+ctx.save();
+ctx.globalCompositeOperation='lighter';
+for(let m=0;m<glints.length;m++){
+const g=glints[m];
+drawGlint(g[0],g[1],g[2],g[3]);
+}
+ctx.restore();
+
+const centerMask=ctx.createRadialGradient(CX,CY,0,CX,CY,76);
+centerMask.addColorStop(0,'rgba(5,5,6,1)');
+centerMask.addColorStop(0.45,'rgba(5,5,6,0.88)');
+centerMask.addColorStop(1,'rgba(5,5,6,0)');
+ctx.fillStyle=centerMask;
+ctx.beginPath();
+ctx.arc(CX,CY,76,0,TAU);
+ctx.fill();
+
+const pulse=0.5+0.5*Math.sin(theta*2);
+ctx.save();
+ctx.strokeStyle='rgba(252,230,148,'+(0.16+0.14*pulse).toFixed(4)+')';
+ctx.lineWidth=1;
+ctx.beginPath();
+hexPath(16,false);
+ctx.stroke();
+ctx.restore();
+
+requestAnimationFrame(render);
+}
+requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>

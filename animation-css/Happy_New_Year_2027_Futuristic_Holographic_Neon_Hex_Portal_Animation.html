@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy New Year 2027 Futuristic Holographic Neon Hex Portal Animation</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden}
+body{background:#050714;display:flex;align-items:center;justify-content:center}
+#stage{position:relative;width:100vw;height:100vh;overflow:hidden;background:#050714}
+#scene{width:100%;height:100%;display:block}
+.ray-spin{transform-origin:960px 540px;animation:spinSlow 10s linear infinite}
+.ray-spin-rev{transform-origin:960px 540px;animation:spinRev 10s linear infinite}
+.portal-float{transform-origin:960px 540px;animation:floatY 5s ease-in-out infinite}
+.hex-breathe-a{transform-origin:960px 540px;animation:breatheA 5s ease-in-out infinite}
+.hex-breathe-b{transform-origin:960px 540px;animation:breatheB 10s ease-in-out infinite}
+.pulse-500{stroke-dasharray:260 1240;animation:dash500 10s linear infinite}
+.pulse-440{stroke-dasharray:220 1100;animation:dash440 5s linear infinite}
+.pulse-380{stroke-dasharray:190 950;animation:dash380 10s linear infinite}
+.pulse-325{stroke-dasharray:160 815;animation:dash325 5s linear infinite}
+.neon-flicker{animation:neonGlow 5s ease-in-out infinite}
+.cyan-glow{animation:cyanPulse 2s ease-in-out infinite}
+.node-pulse{animation:nodeBlink 2s ease-in-out infinite}
+.floor-glow{animation:floorPulse 5s ease-in-out infinite}
+.sheen-sweep{animation:sheenMove 10s linear infinite}
+@keyframes spinSlow{0%{transform:rotate(0deg)}100%{transform:rotate(60deg)}}
+@keyframes spinRev{0%{transform:rotate(0deg)}100%{transform:rotate(-60deg)}}
+@keyframes floatY{0%,100%{transform:translateY(0px)}50%{transform:translateY(-8px)}}
+@keyframes breatheA{0%,100%{transform:scale(1);opacity:.92}50%{transform:scale(1.015);opacity:1}}
+@keyframes breatheB{0%,100%{transform:scale(1);opacity:.82}50%{transform:scale(.985);opacity:1}}
+@keyframes dash500{0%{stroke-dashoffset:0}100%{stroke-dashoffset:-3000}}
+@keyframes dash440{0%{stroke-dashoffset:0}100%{stroke-dashoffset:2640}}
+@keyframes dash380{0%{stroke-dashoffset:0}100%{stroke-dashoffset:-2280}}
+@keyframes dash325{0%{stroke-dashoffset:0}100%{stroke-dashoffset:1950}}
+@keyframes neonGlow{0%,100%{opacity:.94}50%{opacity:1}}
+@keyframes cyanPulse{0%,100%{opacity:.88}50%{opacity:1}}
+@keyframes nodeBlink{0%,100%{opacity:.55}50%{opacity:1}}
+@keyframes floorPulse{0%,100%{opacity:.38}50%{opacity:.62}}
+@keyframes sheenMove{0%{transform:translateX(-760px)}100%{transform:translateX(760px)}}
+</style>
+</head>
+<body>
+<div id="stage">
+<svg id="scene" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<radialGradient id="bgGrad" cx="50%" cy="50%" r="65%">
+<stop offset="0%" stop-color="#141A46"/>
+<stop offset="38%" stop-color="#0B0F2B"/>
+<stop offset="75%" stop-color="#060818"/>
+<stop offset="100%" stop-color="#050714"/>
+</radialGradient>
+<radialGradient id="portalAura" cx="50%" cy="50%" r="50%">
+<stop offset="0%" stop-color="#00F0FF" stop-opacity=".28"/>
+<stop offset="32%" stop-color="#3B82F6" stop-opacity=".2"/>
+<stop offset="65%" stop-color="#8B5CF6" stop-opacity=".1"/>
+<stop offset="100%" stop-color="#050714" stop-opacity="0"/>
+</radialGradient>
+<radialGradient id="floorReflect" cx="50%" cy="50%" r="50%">
+<stop offset="0%" stop-color="#38BDF8" stop-opacity=".55"/>
+<stop offset="45%" stop-color="#8B5CF6" stop-opacity=".25"/>
+<stop offset="100%" stop-color="#050714" stop-opacity="0"/>
+</radialGradient>
+<linearGradient id="rayGrad1" x1="0%" y1="50%" x2="100%" y2="50%">
+<stop offset="0%" stop-color="#38BDF8" stop-opacity=".35"/>
+<stop offset="55%" stop-color="#8B5CF6" stop-opacity=".12"/>
+<stop offset="100%" stop-color="#8B5CF6" stop-opacity="0"/>
+</linearGradient>
+<linearGradient id="rayGrad2" x1="0%" y1="50%" x2="100%" y2="50%">
+<stop offset="0%" stop-color="#3B82F6" stop-opacity=".3"/>
+<stop offset="60%" stop-color="#38BDF8" stop-opacity=".08"/>
+<stop offset="100%" stop-color="#050714" stop-opacity="0"/>
+</linearGradient>
+<linearGradient id="violetCobalt" x1="0%" y1="0%" x2="100%" y2="100%">
+<stop offset="0%" stop-color="#8B5CF6"/>
+<stop offset="50%" stop-color="#3B82F6"/>
+<stop offset="100%" stop-color="#8B5CF6"/>
+</linearGradient>
+<linearGradient id="cobaltCyan" x1="100%" y1="0%" x2="0%" y2="100%">
+<stop offset="0%" stop-color="#3B82F6"/>
+<stop offset="50%" stop-color="#38BDF8"/>
+<stop offset="100%" stop-color="#8B5CF6"/>
+</linearGradient>
+<linearGradient id="tubeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+<stop offset="0%" stop-color="#FFF8D6"/>
+<stop offset="52%" stop-color="#E6FDFF"/>
+<stop offset="100%" stop-color="#00F0FF"/>
+</linearGradient>
+<linearGradient id="coreGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+<stop offset="0%" stop-color="#FFFFFF"/>
+<stop offset="45%" stop-color="#FFF8D6"/>
+<stop offset="100%" stop-color="#C8FAFF"/>
+</linearGradient>
+<linearGradient id="glassFill" x1="0%" y1="0%" x2="100%" y2="100%">
+<stop offset="0%" stop-color="#11183D" stop-opacity=".82"/>
+<stop offset="50%" stop-color="#070B1E" stop-opacity=".88"/>
+<stop offset="100%" stop-color="#14123A" stop-opacity=".82"/>
+</linearGradient>
+<linearGradient id="sheenGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+<stop offset="0%" stop-color="#38BDF8" stop-opacity="0"/>
+<stop offset="50%" stop-color="#38BDF8" stop-opacity=".16"/>
+<stop offset="100%" stop-color="#38BDF8" stop-opacity="0"/>
+</linearGradient>
+<linearGradient id="gridFadeTop" x1="0%" y1="0%" x2="0%" y2="100%">
+<stop offset="0%" stop-color="#3B82F6" stop-opacity=".42"/>
+<stop offset="70%" stop-color="#8B5CF6" stop-opacity=".16"/>
+<stop offset="100%" stop-color="#050714" stop-opacity="0"/>
+</linearGradient>
+<linearGradient id="gridFadeBot" x1="0%" y1="100%" x2="0%" y2="0%">
+<stop offset="0%" stop-color="#3B82F6" stop-opacity=".48"/>
+<stop offset="70%" stop-color="#8B5CF6" stop-opacity=".18"/>
+<stop offset="100%" stop-color="#050714" stop-opacity="0"/>
+</linearGradient>
+<linearGradient id="wallFadeL" x1="0%" y1="50%" x2="100%" y2="50%">
+<stop offset="0%" stop-color="#8B5CF6" stop-opacity=".28"/>
+<stop offset="100%" stop-color="#3B82F6" stop-opacity="0"/>
+</linearGradient>
+<linearGradient id="wallFadeR" x1="100%" y1="50%" x2="0%" y2="50%">
+<stop offset="0%" stop-color="#8B5CF6" stop-opacity=".28"/>
+<stop offset="100%" stop-color="#3B82F6" stop-opacity="0"/>
+</linearGradient>
+<filter id="glowSoft" x="-30%" y="-30%" width="160%" height="160%">
+<feGaussianBlur stdDeviation="8" result="b"/>
+<feMerge>
+<feMergeNode in="b"/>
+<feMergeNode in="SourceGraphic"/>
+</feMerge>
+</filter>
+<filter id="glowStrong" x="-40%" y="-40%" width="180%" height="180%">
+<feGaussianBlur stdDeviation="16" result="b1"/>
+<feGaussianBlur stdDeviation="5" result="b2"/>
+<feMerge>
+<feMergeNode in="b1"/>
+<feMergeNode in="b2"/>
+<feMergeNode in="SourceGraphic"/>
+</feMerge>
+</filter>
+<filter id="glowText" x="-35%" y="-45%" width="170%" height="190%">
+<feGaussianBlur stdDeviation="14" result="b1"/>
+<feGaussianBlur stdDeviation="4" result="b2"/>
+<feMerge>
+<feMergeNode in="b1"/>
+<feMergeNode in="b2"/>
+<feMergeNode in="SourceGraphic"/>
+</feMerge>
+</filter>
+<clipPath id="innerHexClip">
+<polygon points="1285,540 1122.5,821.46 797.5,821.46 635,540 797.5,258.54 1122.5,258.54"/>
+</clipPath>
+<pattern id="scanlines" width="8" height="8" patternUnits="userSpaceOnUse">
+<line x1="0" y1="0" x2="8" y2="0" stroke="#38BDF8" stroke-opacity=".06" stroke-width="1"/>
+</pattern>
+</defs>
+
+<rect width="1920" height="1080" fill="url(#bgGrad)"/>
+
+<g id="chamber-grid" fill="none" stroke-width="1.5">
+<g stroke="url(#gridFadeBot)">
+<line x1="960" y1="540" x2="-480" y2="1080"/>
+<line x1="960" y1="540" x2="-160" y2="1080"/>
+<line x1="960" y1="540" x2="160" y2="1080"/>
+<line x1="960" y1="540" x2="480" y2="1080"/>
+<line x1="960" y1="540" x2="720" y2="1080"/>
+<line x1="960" y1="540" x2="960" y2="1080"/>
+<line x1="960" y1="540" x2="1200" y2="1080"/>
+<line x1="960" y1="540" x2="1440" y2="1080"/>
+<line x1="960" y1="540" x2="1760" y2="1080"/>
+<line x1="960" y1="540" x2="2080" y2="1080"/>
+<line x1="960" y1="540" x2="2400" y2="1080"/>
+</g>
+<g stroke="url(#gridFadeTop)">
+<line x1="960" y1="540" x2="-480" y2="0"/>
+<line x1="960" y1="540" x2="-160" y2="0"/>
+<line x1="960" y1="540" x2="160" y2="0"/>
+<line x1="960" y1="540" x2="480" y2="0"/>
+<line x1="960" y1="540" x2="720" y2="0"/>
+<line x1="960" y1="540" x2="960" y2="0"/>
+<line x1="960" y1="540" x2="1200" y2="0"/>
+<line x1="960" y1="540" x2="1440" y2="0"/>
+<line x1="960" y1="540" x2="1760" y2="0"/>
+<line x1="960" y1="540" x2="2080" y2="0"/>
+<line x1="960" y1="540" x2="2400" y2="0"/>
+</g>
+<g stroke="url(#wallFadeL)">
+<line x1="0" y1="180" x2="960" y2="540"/>
+<line x1="0" y1="360" x2="960" y2="540"/>
+<line x1="0" y1="540" x2="960" y2="540"/>
+<line x1="0" y1="720" x2="960" y2="540"/>
+<line x1="0" y1="900" x2="960" y2="540"/>
+</g>
+<g stroke="url(#wallFadeR)">
+<line x1="1920" y1="180" x2="960" y2="540"/>
+<line x1="1920" y1="360" x2="960" y2="540"/>
+<line x1="1920" y1="540" x2="960" y2="540"/>
+<line x1="1920" y1="720" x2="960" y2="540"/>
+<line x1="1920" y1="900" x2="960" y2="540"/>
+</g>
+<g id="dynamic-grid"></g>
+</g>
+
+<ellipse class="floor-glow" cx="960" cy="985" rx="540" ry="72" fill="url(#floorReflect)"/>
+
+<circle cx="960" cy="540" r="640" fill="url(#portalAura)"/>
+
+<g class="ray-spin" opacity=".75">
+<polygon points="960,540 1760,410 1760,670" fill="url(#rayGrad1)" transform="rotate(0 960 540)"/>
+<polygon points="960,540 1760,440 1760,640" fill="url(#rayGrad1)" transform="rotate(60 960 540)"/>
+<polygon points="960,540 1760,410 1760,670" fill="url(#rayGrad1)" transform="rotate(120 960 540)"/>
+<polygon points="960,540 1760,440 1760,640" fill="url(#rayGrad1)" transform="rotate(180 960 540)"/>
+<polygon points="960,540 1760,410 1760,670" fill="url(#rayGrad1)" transform="rotate(240 960 540)"/>
+<polygon points="960,540 1760,440 1760,640" fill="url(#rayGrad1)" transform="rotate(300 960 540)"/>
+</g>
+
+<g class="ray-spin-rev" opacity=".55">
+<polygon points="960,540 1680,475 1680,605" fill="url(#rayGrad2)" transform="rotate(30 960 540)"/>
+<polygon points="960,540 1680,475 1680,605" fill="url(#rayGrad2)" transform="rotate(90 960 540)"/>
+<polygon points="960,540 1680,475 1680,605" fill="url(#rayGrad2)" transform="rotate(150 960 540)"/>
+<polygon points="960,540 1680,475 1680,605" fill="url(#rayGrad2)" transform="rotate(210 960 540)"/>
+<polygon points="960,540 1680,475 1680,605" fill="url(#rayGrad2)" transform="rotate(270 960 540)"/>
+<polygon points="960,540 1680,475 1680,605" fill="url(#rayGrad2)" transform="rotate(330 960 540)"/>
+</g>
+
+<g id="sparks-back"></g>
+
+<g class="portal-float">
+<g class="hex-breathe-b">
+<polygon points="1520,540 1240,1024.97 680,1024.97 400,540 680,55.03 1240,55.03" fill="none" stroke="#8B5CF6" stroke-opacity=".22" stroke-width="2" stroke-dasharray="14 14"/>
+</g>
+
+<g class="hex-breathe-a">
+<polygon points="1460,540 1210,973.01 710,973.01 460,540 710,106.99 1210,106.99" fill="none" stroke="#8B5CF6" stroke-opacity=".35" stroke-width="10" filter="url(#glowStrong)"/>
+<polygon points="1460,540 1210,973.01 710,973.01 460,540 710,106.99 1210,106.99" fill="none" stroke="url(#violetCobalt)" stroke-width="3.5"/>
+<polygon class="pulse-500" points="1460,540 1210,973.01 710,973.01 460,540 710,106.99 1210,106.99" fill="none" stroke="#E0C3FF" stroke-width="5.5" stroke-linecap="round" filter="url(#glowSoft)"/>
+</g>
+
+<g class="hex-breathe-b">
+<polygon points="1400,540 1180,921.05 740,921.05 520,540 740,158.95 1180,158.95" fill="none" stroke="#3B82F6" stroke-opacity=".4" stroke-width="11" filter="url(#glowStrong)"/>
+<polygon points="1400,540 1180,921.05 740,921.05 520,540 740,158.95 1180,158.95" fill="none" stroke="#3B82F6" stroke-width="4"/>
+<polygon class="pulse-440" points="1400,540 1180,921.05 740,921.05 520,540 740,158.95 1180,158.95" fill="none" stroke="#93E5FF" stroke-width="6" stroke-linecap="round" filter="url(#glowSoft)"/>
+</g>
+
+<g class="hex-breathe-a">
+<polygon points="1340,540 1150,869.09 770,869.09 580,540 770,210.91 1150,210.91" fill="none" stroke="#8B5CF6" stroke-opacity=".48" stroke-width="10" filter="url(#glowStrong)"/>
+<polygon points="1340,540 1150,869.09 770,869.09 580,540 770,210.91 1150,210.91" fill="none" stroke="url(#cobaltCyan)" stroke-width="3.5"/>
+<polygon class="pulse-380" points="1340,540 1150,869.09 770,869.09 580,540 770,210.91 1150,210.91" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" filter="url(#glowSoft)"/>
+</g>
+
+<g>
+<polygon points="1285,540 1122.5,821.46 797.5,821.46 635,540 797.5,258.54 1122.5,258.54" fill="url(#glassFill)"/>
+<polygon points="1285,540 1122.5,821.46 797.5,821.46 635,540 797.5,258.54 1122.5,258.54" fill="url(#scanlines)"/>
+<g clip-path="url(#innerHexClip)">
+<polygon class="sheen-sweep" points="840,220 1000,220 820,860 660,860" fill="url(#sheenGrad)"/>
+</g>
+<polygon points="1285,540 1122.5,821.46 797.5,821.46 635,540 797.5,258.54 1122.5,258.54" fill="none" stroke="#3B82F6" stroke-opacity=".55" stroke-width="9" filter="url(#glowSoft)"/>
+<polygon points="1285,540 1122.5,821.46 797.5,821.46 635,540 797.5,258.54 1122.5,258.54" fill="none" stroke="#38BDF8" stroke-width="2.5"/>
+<polygon class="pulse-325" points="1285,540 1122.5,821.46 797.5,821.46 635,540 797.5,258.54 1122.5,258.54" fill="none" stroke="#FFF8D6" stroke-width="4.5" stroke-linecap="round" filter="url(#glowSoft)"/>
+</g>
+
+<g class="node-pulse" fill="#00F0FF" filter="url(#glowSoft)">
+<circle cx="1400" cy="540" r="5"/>
+<circle cx="1180" cy="921.05" r="5"/>
+<circle cx="740" cy="921.05" r="5"/>
+<circle cx="520" cy="540" r="5"/>
+<circle cx="740" cy="158.95" r="5"/>
+<circle cx="1180" cy="158.95" r="5"/>
+</g>
+
+<g fill="#8B5CF6" opacity=".9">
+<rect x="1455" y="535" width="10" height="10" transform="rotate(45 1460 540)"/>
+<rect x="455" y="535" width="10" height="10" transform="rotate(45 460 540)"/>
+<rect x="1205" y="101.99" width="10" height="10" transform="rotate(45 1210 106.99)"/>
+<rect x="705" y="101.99" width="10" height="10" transform="rotate(45 710 106.99)"/>
+<rect x="1205" y="968.01" width="10" height="10" transform="rotate(45 1210 973.01)"/>
+<rect x="705" y="968.01" width="10" height="10" transform="rotate(45 710 973.01)"/>
+</g>
+
+<g class="cyan-glow">
+<line x1="755" y1="382" x2="1165" y2="382" stroke="#38BDF8" stroke-opacity=".45" stroke-width="2" filter="url(#glowSoft)"/>
+<polygon points="960,375 967,382 960,389 953,382" fill="#38BDF8"/>
+<text x="960" y="444" text-anchor="middle" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="37" font-weight="700" letter-spacing="13" fill="#38BDF8" filter="url(#glowText)">HAPPY NEW YEAR</text>
+<text x="960" y="444" text-anchor="middle" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="37" font-weight="700" letter-spacing="13" fill="#E0F7FF">HAPPY NEW YEAR</text>
+</g>
+
+<g class="neon-flicker" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<g stroke="#00F0FF" stroke-width="28" stroke-opacity=".55" filter="url(#glowStrong)">
+<path d="M 696 520 Q 696 492 724 492 L 773 492 Q 801 492 801 520 L 801 546 Q 801 574 773 574 L 724 574 Q 696 574 696 602 L 696 634 Q 696 654 716 654 L 801 654"/>
+<rect x="837" y="492" width="105" height="162" rx="30" ry="30"/>
+<path d="M 978 520 Q 978 492 1006 492 L 1055 492 Q 1083 492 1083 520 L 1083 546 Q 1083 574 1055 574 L 1006 574 Q 978 574 978 602 L 978 634 Q 978 654 998 654 L 1083 654"/>
+<path d="M 1119 492 L 1198 492 Q 1224 492 1217 516 L 1158 654"/>
+</g>
+<g stroke="url(#tubeGrad)" stroke-width="15" filter="url(#glowSoft)">
+<path d="M 696 520 Q 696 492 724 492 L 773 492 Q 801 492 801 520 L 801 546 Q 801 574 773 574 L 724 574 Q 696 574 696 602 L 696 634 Q 696 654 716 654 L 801 654"/>
+<rect x="837" y="492" width="105" height="162" rx="30" ry="30"/>
+<path d="M 978 520 Q 978 492 1006 492 L 1055 492 Q 1083 492 1083 520 L 1083 546 Q 1083 574 1055 574 L 1006 574 Q 978 574 978 602 L 978 634 Q 978 654 998 654 L 1083 654"/>
+<path d="M 1119 492 L 1198 492 Q 1224 492 1217 516 L 1158 654"/>
+</g>
+<g stroke="url(#coreGrad)" stroke-width="6.5">
+<path d="M 696 520 Q 696 492 724 492 L 773 492 Q 801 492 801 520 L 801 546 Q 801 574 773 574 L 724 574 Q 696 574 696 602 L 696 634 Q 696 654 716 654 L 801 654"/>
+<rect x="837" y="492" width="105" height="162" rx="30" ry="30"/>
+<path d="M 978 520 Q 978 492 1006 492 L 1055 492 Q 1083 492 1083 520 L 1083 546 Q 1083 574 1055 574 L 1006 574 Q 978 574 978 602 L 978 634 Q 978 654 998 654 L 1083 654"/>
+<path d="M 1119 492 L 1198 492 Q 1224 492 1217 516 L 1158 654"/>
+</g>
+</g>
+
+<g class="cyan-glow">
+<line x1="800" y1="704" x2="932" y2="704" stroke="#00F0FF" stroke-opacity=".6" stroke-width="2.5" stroke-linecap="round"/>
+<line x1="988" y1="704" x2="1120" y2="704" stroke="#00F0FF" stroke-opacity=".6" stroke-width="2.5" stroke-linecap="round"/>
+<polygon points="960,695 969,704 960,713 951,704" fill="#FFF8D6" filter="url(#glowSoft)"/>
+</g>
+</g>
+
+<g id="sparks-front"></g>
+</svg>
+</div>
+<script>
+(function(){
+var ns="http://www.w3.org/2000/svg";
+var gridGroup=document.getElementById("dynamic-grid");
+var backGroup=document.getElementById("sparks-back");
+var frontGroup=document.getElementById("sparks-front");
+var gridLines=[];
+var gridCount=12;
+for(var i=0;i<gridCount;i++){
+var lb=document.createElementNS(ns,"line");
+lb.setAttribute("x1","0");
+lb.setAttribute("x2","1920");
+lb.setAttribute("stroke","#3B82F6");
+lb.setAttribute("stroke-width","1.4");
+gridGroup.appendChild(lb);
+var lt=document.createElementNS(ns,"line");
+lt.setAttribute("x1","0");
+lt.setAttribute("x2","1920");
+lt.setAttribute("stroke","#8B5CF6");
+lt.setAttribute("stroke-width","1.2");
+gridGroup.appendChild(lt);
+gridLines.push({bot:lb,top:lt,idx:i});
+}
+var palette=["#FFF8D6","#00F0FF","#38BDF8","#8B5CF6","#3B82F6"];
+var sparks=[];
+var totalSparks=64;
+function seed(n){
+var x=Math.sin(n*127.1+311.7)*43758.5453123;
+return x-Math.floor(x);
+}
+for(var s=0;s<totalSparks;s++){
+var r1=seed(s+1);
+var r2=seed(s+101);
+var r3=seed(s+201);
+var r4=seed(s+301);
+var r5=seed(s+401);
+var isFront=s%3!==0;
+var isDash=s%2===0;
+var el;
+if(isDash){
+el=document.createElementNS(ns,"rect");
+var w=4+r3*9;
+var h=2+r4*2.5;
+el.setAttribute("width",w.toFixed(1));
+el.setAttribute("height",h.toFixed(1));
+el.setAttribute("rx","1.5");
+}else{
+el=document.createElementNS(ns,"polygon");
+var sz=2.5+r3*4.5;
+el.setAttribute("points","0,"+(-sz)+" "+sz+",0 0,"+sz+" "+(-sz)+",0");
+}
+el.setAttribute("fill",palette[s%palette.length]);
+if(isFront){
+el.setAttribute("filter","url(#glowSoft)");
+frontGroup.appendChild(el);
+}else{
+backGroup.appendChild(el);
+}
+sparks.push({
+el:el,
+rx:340+r1*430,
+ry:260+r2*260,
+angle0:r3*Math.PI*2,
+dir:s%2===0?1:-1,
+turns:s%5===0?2:1,
+wobbleAmp:12+r4*28,
+wobbleFreq:1+Math.floor(r5*3),
+twinkleFreq:1+Math.floor(r1*4),
+phase:r2*Math.PI*2,
+spinSpeed:(s%2===0?1:-1)*(1+Math.floor(r4*3))*360,
+baseOp:isFront?0.85:0.55
+});
+}
+function render(ts){
+var t=(ts%10000)/10000;
+var twoPi=Math.PI*2;
+for(var i=0;i<gridCount;i++){
+var g=gridLines[i];
+var p=(g.idx/gridCount+t)%1;
+var ease=p*p*p;
+var yBot=540+ease*540;
+var yTop=540-ease*540;
+var op=(0.04+ease*0.42).toFixed(3);
+g.bot.setAttribute("y1",yBot.toFixed(2));
+g.bot.setAttribute("y2",yBot.toFixed(2));
+g.bot.setAttribute("stroke-opacity",op);
+g.top.setAttribute("y1",yTop.toFixed(2));
+g.top.setAttribute("y2",yTop.toFixed(2));
+g.top.setAttribute("stroke-opacity",(op*0.8).toFixed(3));
+}
+for(var j=0;j<totalSparks;j++){
+var sp=sparks[j];
+var a=sp.angle0+sp.dir*sp.turns*twoPi*t;
+var wob=Math.sin(sp.wobbleFreq*twoPi*t+sp.phase)*sp.wobbleAmp;
+var x=960+Math.cos(a)*(sp.rx+wob);
+var y=540+Math.sin(a)*(sp.ry+wob*0.7);
+var rot=sp.spinSpeed*t+(sp.phase*57.3);
+var tw=0.35+0.65*(0.5+0.5*Math.sin(sp.twinkleFreq*twoPi*t+sp.phase));
+var sc=0.7+0.45*tw;
+sp.el.setAttribute("transform","translate("+x.toFixed(2)+","+y.toFixed(2)+") rotate("+rot.toFixed(1)+") scale("+sc.toFixed(2)+")");
+sp.el.setAttribute("opacity",(sp.baseOp*tw).toFixed(3));
+}
+requestAnimationFrame(render);
+}
+requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>

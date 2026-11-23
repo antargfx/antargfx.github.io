@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Isometric 3D Hex-Prism Metallic Grid Looping Vector Background</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#070708}
+canvas{display:block;width:100%;height:100%}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+(function(){
+const canvas=document.getElementById("c");
+const ctx=canvas.getContext("2d");
+const W=1920,H=1080,LOOP=10000;
+const R=66,ISO=0.58,DEPTH=110;
+const DX=1.5*R,DZ=Math.sqrt(3)*R;
+const ANGLES=[0,Math.PI/3,2*Math.PI/3,Math.PI,4*Math.PI/3,5*Math.PI/3];
+const COS=ANGLES.map(a=>Math.cos(a));
+const SIN=ANGLES.map(a=>Math.sin(a));
+const hexes=[];
+
+for(let c=-13;c<=13;c++){
+for(let r=-12;r<=12;r++){
+const wx=c*DX;
+const wz=(r+(c&1?0.5:0))*DZ;
+const sx=W*0.5+wx;
+const sy=H*0.5+wz*ISO;
+if(sx<-R*2.2||sx>W+R*2.2||sy<-R*2.5||sy>H+R*3.5)continue;
+const dist=Math.hypot(wx,wz*0.86);
+const invDist=dist>0.001?1/dist:0;
+hexes.push({
+wx,wz,sx,sy,dist,
+dirX:wx*invDist,
+dirZ:wz*0.86*invDist
+});
+}
+}
+hexes.sort((a,b)=>a.wz-b.wz);
+
+let vw=W,vh=H,dpr=1;
+function resize(){
+dpr=Math.min(window.devicePixelRatio||1,2);
+vw=window.innerWidth||W;
+vh=window.innerHeight||H;
+canvas.width=Math.round(vw*dpr);
+canvas.height=Math.round(vh*dpr);
+}
+window.addEventListener("resize",resize);
+resize();
+
+function lerp(a,b,t){return a+(b-a)*t;}
+
+function draw(ts){
+const u=((ts%LOOP)+LOOP)%LOOP/LOOP;
+const theta=u*Math.PI*2;
+
+ctx.save();
+const scale=Math.max(canvas.width/W,canvas.height/H);
+const ox=(canvas.width-W*scale)*0.5;
+const oy=(canvas.height-H*scale)*0.5;
+ctx.setTransform(scale,0,0,scale,ox,oy);
+
+const bg=ctx.createRadialGradient(W*0.5,H*0.38,60,W*0.5,H*0.5,W*0.72);
+bg.addColorStop(0,"#1C1E22");
+bg.addColorStop(0.55,"#0F1013");
+bg.addColorStop(1,"#070708");
+ctx.fillStyle=bg;
+ctx.fillRect(0,0,W,H);
+
+const vx=new Float64Array(6);
+const vy=new Float64Array(6);
+const ivx=new Float64Array(6);
+const ivy=new Float64Array(6);
+
+for(let i=0;i<hexes.length;i++){
+const h=hexes[i];
+const phase1=h.dist*0.0078-theta*2;
+const phase2=h.dist*0.0042-theta;
+const w1=Math.sin(phase1);
+const w2=Math.cos(phase2);
+const dw=Math.cos(phase1);
+
+const lift=w1*20+w2*9;
+const sc=0.905+0.042*(0.5+0.5*w1)+0.015*(0.5+0.5*w2);
+const tiltAmp=dw*0.16;
+
+const waveGlint=Math.pow(Math.max(0,0.5+0.5*Math.sin(phase1+0.45)),4);
+const sweepGlint=Math.pow(Math.max(0,0.5+0.5*Math.sin(h.wx*0.0024+h.wz*0.002-theta)),5);
+const glint=Math.min(1,waveGlint*0.78+sweepGlint*0.68);
+
+const rad=R*sc;
+const innerRad=rad*0.855;
+const baseY=h.sy-lift;
+
+for(let k=0;k<6;k++){
+const lx=COS[k]*rad;
+const lz=SIN[k]*rad;
+const tiltY=(lx*h.dirX+lz*h.dirZ)*tiltAmp;
+vx[k]=h.sx+lx;
+vy[k]=baseY+lz*ISO-tiltY;
+
+const ilx=COS[k]*innerRad;
+const ilz=SIN[k]*innerRad;
+const itiltY=(ilx*h.dirX+ilz*h.dirZ)*tiltAmp;
+ivx[k]=h.sx+ilx;
+ivy[k]=baseY+ilz*ISO-itiltY;
+}
+
+const gLeft=ctx.createLinearGradient(vx[3],vy[3],vx[2],vy[2]+DEPTH);
+gLeft.addColorStop(0,`rgb(${Math.round(28+glint*10)},${Math.round(30+glint*10)},${Math.round(35+glint*8)})`);
+gLeft.addColorStop(0.55,"#111317");
+gLeft.addColorStop(1,"#070708");
+ctx.fillStyle=gLeft;
+ctx.beginPath();
+ctx.moveTo(vx[3],vy[3]);
+ctx.lineTo(vx[2],vy[2]);
+ctx.lineTo(vx[2],vy[2]+DEPTH);
+ctx.lineTo(vx[3],vy[3]+DEPTH);
+ctx.closePath();
+ctx.fill();
+
+const gCenter=ctx.createLinearGradient(vx[2],vy[2],vx[1],vy[1]+DEPTH);
+gCenter.addColorStop(0,`rgb(${Math.round(21+glint*8)},${Math.round(23+glint*8)},${Math.round(27+glint*7)})`);
+gCenter.addColorStop(0.55,"#0D0E11");
+gCenter.addColorStop(1,"#060607");
+ctx.fillStyle=gCenter;
+ctx.beginPath();
+ctx.moveTo(vx[2],vy[2]);
+ctx.lineTo(vx[1],vy[1]);
+ctx.lineTo(vx[1],vy[1]+DEPTH);
+ctx.lineTo(vx[2],vy[2]+DEPTH);
+ctx.closePath();
+ctx.fill();
+
+const gRight=ctx.createLinearGradient(vx[1],vy[1],vx[0],vy[0]+DEPTH);
+gRight.addColorStop(0,`rgb(${Math.round(14+glint*6)},${Math.round(15+glint*6)},${Math.round(18+glint*5)})`);
+gRight.addColorStop(0.55,"#090A0C");
+gRight.addColorStop(1,"#050506");
+ctx.fillStyle=gRight;
+ctx.beginPath();
+ctx.moveTo(vx[1],vy[1]);
+ctx.lineTo(vx[0],vy[0]);
+ctx.lineTo(vx[0],vy[0]+DEPTH);
+ctx.lineTo(vx[1],vy[1]+DEPTH);
+ctx.closePath();
+ctx.fill();
+
+const topLiftLight=Math.max(0,Math.min(1,0.5+0.35*w1+0.25*dw+glint*0.35));
+const t0=Math.round(lerp(30,48,topLiftLight));
+const t1=Math.round(lerp(18,30,topLiftLight));
+const t2=Math.round(lerp(11,19,topLiftLight));
+const gTop=ctx.createLinearGradient(vx[4],vy[4],vx[1],vy[1]);
+gTop.addColorStop(0,`rgb(${t0},${t0+2},${t0+6})`);
+gTop.addColorStop(0.52,`rgb(${t1},${t1+2},${t1+5})`);
+gTop.addColorStop(1,`rgb(${t2},${t2+1},${t2+4})`);
+ctx.fillStyle=gTop;
+ctx.beginPath();
+ctx.moveTo(vx[0],vy[0]);
+ctx.lineTo(vx[1],vy[1]);
+ctx.lineTo(vx[2],vy[2]);
+ctx.lineTo(vx[3],vy[3]);
+ctx.lineTo(vx[4],vy[4]);
+ctx.lineTo(vx[5],vy[5]);
+ctx.closePath();
+ctx.fill();
+
+const innerTop=ctx.createLinearGradient(ivx[4],ivy[4],ivx[1],ivy[1]);
+innerTop.addColorStop(0,`rgba(255,255,255,${(0.025+glint*0.035).toFixed(3)})`);
+innerTop.addColorStop(1,"rgba(0,0,0,0.16)");
+ctx.fillStyle=innerTop;
+ctx.beginPath();
+ctx.moveTo(ivx[0],ivy[0]);
+ctx.lineTo(ivx[1],ivy[1]);
+ctx.lineTo(ivx[2],ivy[2]);
+ctx.lineTo(ivx[3],ivy[3]);
+ctx.lineTo(ivx[4],ivy[4]);
+ctx.lineTo(ivx[5],ivy[5]);
+ctx.closePath();
+ctx.fill();
+
+const innerStripe=ctx.createLinearGradient(ivx[4],ivy[4],ivx[1],ivy[1]);
+innerStripe.addColorStop(0,`rgba(229,193,88,${(0.22+glint*0.42).toFixed(3)})`);
+innerStripe.addColorStop(0.5,`rgba(180,138,62,${(0.14+glint*0.26).toFixed(3)})`);
+innerStripe.addColorStop(1,`rgba(254,240,138,${(0.18+glint*0.36).toFixed(3)})`);
+ctx.strokeStyle=innerStripe;
+ctx.lineWidth=0.85;
+ctx.stroke();
+
+const rimGrad=ctx.createLinearGradient(vx[4],vy[4],vx[1],vy[1]);
+rimGrad.addColorStop(0,`rgba(254,240,138,${(0.42+glint*0.58).toFixed(3)})`);
+rimGrad.addColorStop(0.38,`rgba(229,193,88,${(0.34+glint*0.46).toFixed(3)})`);
+rimGrad.addColorStop(0.72,`rgba(180,138,62,${(0.28+glint*0.38).toFixed(3)})`);
+rimGrad.addColorStop(1,`rgba(229,193,88,${(0.36+glint*0.50).toFixed(3)})`);
+ctx.strokeStyle=rimGrad;
+ctx.lineWidth=1.35+glint*0.55;
+ctx.beginPath();
+ctx.moveTo(vx[0],vy[0]);
+ctx.lineTo(vx[1],vy[1]);
+ctx.lineTo(vx[2],vy[2]);
+ctx.lineTo(vx[3],vy[3]);
+ctx.lineTo(vx[4],vy[4]);
+ctx.lineTo(vx[5],vy[5]);
+ctx.closePath();
+ctx.stroke();
+
+const vEdgeAlpha=0.22+glint*0.52;
+for(let e=1;e<=2;e++){
+const vg=ctx.createLinearGradient(vx[e],vy[e],vx[e],vy[e]+DEPTH*0.62);
+vg.addColorStop(0,`rgba(229,193,88,${vEdgeAlpha.toFixed(3)})`);
+vg.addColorStop(0.35,`rgba(180,138,62,${(vEdgeAlpha*0.45).toFixed(3)})`);
+vg.addColorStop(1,"rgba(180,138,62,0)");
+ctx.strokeStyle=vg;
+ctx.lineWidth=1.0;
+ctx.beginPath();
+ctx.moveTo(vx[e],vy[e]);
+ctx.lineTo(vx[e],vy[e]+DEPTH*0.62);
+ctx.stroke();
+}
+
+if(glint>0.28){
+const hi=(glint-0.28)/0.72;
+const spec=ctx.createLinearGradient(vx[3],vy[3],vx[5],vy[5]);
+spec.addColorStop(0,`rgba(229,193,88,${(hi*0.35).toFixed(3)})`);
+spec.addColorStop(0.5,`rgba(254,240,138,${(hi*0.95).toFixed(3)})`);
+spec.addColorStop(1,`rgba(229,193,88,${(hi*0.35).toFixed(3)})`);
+ctx.strokeStyle=spec;
+ctx.lineWidth=1.8+hi*1.1;
+ctx.beginPath();
+ctx.moveTo(vx[3],vy[3]);
+ctx.lineTo(vx[4],vy[4]);
+ctx.lineTo(vx[5],vy[5]);
+ctx.stroke();
+
+const gx=vx[4],gy=vy[4];
+const gr=6+hi*12;
+const spark=ctx.createRadialGradient(gx,gy,0,gx,gy,gr);
+spark.addColorStop(0,`rgba(254,240,138,${(hi*0.72).toFixed(3)})`);
+spark.addColorStop(0.4,`rgba(229,193,88,${(hi*0.24).toFixed(3)})`);
+spark.addColorStop(1,"rgba(229,193,88,0)");
+ctx.fillStyle=spark;
+ctx.beginPath();
+ctx.arc(gx,gy,gr,0,Math.PI*2);
+ctx.fill();
+}
+}
+
+const vig=ctx.createRadialGradient(W*0.5,H*0.5,W*0.24,W*0.5,H*0.5,W*0.66);
+vig.addColorStop(0,"rgba(7,7,8,0)");
+vig.addColorStop(0.78,"rgba(7,7,8,0.22)");
+vig.addColorStop(1,"rgba(7,7,8,0.72)");
+ctx.fillStyle=vig;
+ctx.fillRect(0,0,W,H);
+
+ctx.restore();
+requestAnimationFrame(draw);
+}
+requestAnimationFrame(draw);
+})();
+</script>
+</body>
+</html>

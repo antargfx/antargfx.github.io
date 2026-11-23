@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy New Year 2027 Luxury Gold Neon Archway Loop Animation</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0A0C12}
+.stage{position:relative;width:100vw;height:100vh;background:#0A0C12;overflow:hidden}
+svg.scene,canvas.bokeh{position:absolute;inset:0;width:100%;height:100%;display:block}
+canvas.bokeh{pointer-events:none}
+.arch-wash{transform-origin:960px 560px;animation:washPulse 10s ease-in-out infinite}
+.floor-glow{transform-origin:960px 980px;animation:floorPulse 10s ease-in-out infinite}
+.neon-num-aura{animation:goldAura 5s ease-in-out infinite}
+.neon-num-tube{animation:goldTube 5s ease-in-out infinite}
+.neon-script-aura{animation:whiteAura 5s ease-in-out infinite;animation-delay:-1.25s}
+.neon-script-tube{animation:whiteTube 5s ease-in-out infinite;animation-delay:-1.25s}
+.bar-aura{animation:barAura 10s ease-in-out infinite}
+.bar-aura-alt{animation:barAura 10s ease-in-out infinite;animation-delay:-5s}
+.bar-sheen-l{animation:sheenDown 5s linear infinite}
+.bar-sheen-r{animation:sheenUp 5s linear infinite}
+.arch-rim-glow{animation:rimBreath 10s ease-in-out infinite}
+@keyframes washPulse{
+  0%,100%{opacity:0.78;transform:scale(1)}
+  50%{opacity:1;transform:scale(1.06)}
+}
+@keyframes floorPulse{
+  0%,100%{opacity:0.55;transform:scaleX(0.98)}
+  50%{opacity:0.85;transform:scaleX(1.04)}
+}
+@keyframes goldAura{
+  0%,100%{opacity:0.76}
+  50%{opacity:1}
+}
+@keyframes goldTube{
+  0%,100%{opacity:0.93}
+  50%{opacity:1}
+}
+@keyframes whiteAura{
+  0%,100%{opacity:0.74}
+  50%{opacity:1}
+}
+@keyframes whiteTube{
+  0%,100%{opacity:0.94}
+  50%{opacity:1}
+}
+@keyframes barAura{
+  0%,100%{opacity:0.65}
+  50%{opacity:0.98}
+}
+@keyframes rimBreath{
+  0%,100%{opacity:0.42}
+  50%{opacity:0.78}
+}
+@keyframes sheenDown{
+  0%{transform:translateY(-420px);opacity:0}
+  15%{opacity:0.85}
+  85%{opacity:0.85}
+  100%{transform:translateY(520px);opacity:0}
+}
+@keyframes sheenUp{
+  0%{transform:translateY(520px);opacity:0}
+  15%{opacity:0.85}
+  85%{opacity:0.85}
+  100%{transform:translateY(-420px);opacity:0}
+}
+</style>
+</head>
+<body>
+<div class="stage">
+<svg class="scene" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgWall" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#07090E"/>
+      <stop offset="55%" stop-color="#0A0C12"/>
+      <stop offset="100%" stop-color="#0D1018"/>
+    </linearGradient>
+    <linearGradient id="archFrameOuter" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#191E2D"/>
+      <stop offset="50%" stop-color="#111520"/>
+      <stop offset="100%" stop-color="#0B0E16"/>
+    </linearGradient>
+    <linearGradient id="archFrameInner" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0E121C"/>
+      <stop offset="60%" stop-color="#090B11"/>
+      <stop offset="100%" stop-color="#0D111A"/>
+    </linearGradient>
+    <linearGradient id="pilasterGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#090B11"/>
+      <stop offset="50%" stop-color="#121622"/>
+      <stop offset="100%" stop-color="#080A0F"/>
+    </linearGradient>
+    <radialGradient id="goldenWash" cx="50%" cy="52%" r="48%">
+      <stop offset="0%" stop-color="#FFD166" stop-opacity="0.34"/>
+      <stop offset="28%" stop-color="#FF9F1C" stop-opacity="0.18"/>
+      <stop offset="60%" stop-color="#C87514" stop-opacity="0.07"/>
+      <stop offset="100%" stop-color="#0A0C12" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="topCenterWash" cx="50%" cy="38%" r="36%">
+      <stop offset="0%" stop-color="#FFFDF7" stop-opacity="0.16"/>
+      <stop offset="45%" stop-color="#FFD166" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#0A0C12" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="floorReflect" cx="50%" cy="15%" r="55%">
+      <stop offset="0%" stop-color="#FFD166" stop-opacity="0.28"/>
+      <stop offset="35%" stop-color="#FF9F1C" stop-opacity="0.12"/>
+      <stop offset="75%" stop-color="#5E3A0C" stop-opacity="0.03"/>
+      <stop offset="100%" stop-color="#0A0C12" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="floorBase" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0D1018"/>
+      <stop offset="100%" stop-color="#06080D"/>
+    </linearGradient>
+    <linearGradient id="goldNeonTube" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFE699"/>
+      <stop offset="45%" stop-color="#FFD166"/>
+      <stop offset="100%" stop-color="#FF9F1C"/>
+    </linearGradient>
+    <linearGradient id="barGoldTube" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#FF9F1C"/>
+      <stop offset="50%" stop-color="#FFE6A3"/>
+      <stop offset="100%" stop-color="#FF9F1C"/>
+    </linearGradient>
+    <linearGradient id="archRimLight" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFD166" stop-opacity="0.65"/>
+      <stop offset="55%" stop-color="#FF9F1C" stop-opacity="0.32"/>
+      <stop offset="100%" stop-color="#FFD166" stop-opacity="0.05"/>
+    </linearGradient>
+    <linearGradient id="sheenGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFFDF7" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#FFFDF7" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#FFFDF7" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="capMetal" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#353E54"/>
+      <stop offset="50%" stop-color="#191E2A"/>
+      <stop offset="100%" stop-color="#0C0F16"/>
+    </linearGradient>
+    <filter id="glowAmberWide" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="28"/>
+    </filter>
+    <filter id="glowGoldMid" x="-25%" y="-25%" width="150%" height="150%">
+      <feGaussianBlur stdDeviation="11"/>
+    </filter>
+    <filter id="glowCore" x="-15%" y="-15%" width="130%" height="130%">
+      <feGaussianBlur stdDeviation="2.5"/>
+    </filter>
+    <filter id="glowWhiteWide" x="-35%" y="-35%" width="170%" height="170%">
+      <feGaussianBlur stdDeviation="18"/>
+    </filter>
+    <filter id="glowWhiteMid" x="-25%" y="-25%" width="150%" height="150%">
+      <feGaussianBlur stdDeviation="6"/>
+    </filter>
+    <filter id="dropShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8"/>
+    </filter>
+    <filter id="barGlowFilter" x="-250%" y="-10%" width="600%" height="120%">
+      <feGaussianBlur stdDeviation="18"/>
+    </filter>
+    <clipPath id="archClip">
+      <path d="M 465 950 L 465 510 A 495 495 0 0 1 1455 510 L 1455 950 Z"/>
+    </clipPath>
+    <clipPath id="barClipL1"><rect x="236" y="190" width="12" height="700" rx="6"/></clipPath>
+    <clipPath id="barClipL2"><rect x="304" y="250" width="8" height="580" rx="4"/></clipPath>
+    <clipPath id="barClipR1"><rect x="1672" y="190" width="12" height="700" rx="6"/></clipPath>
+    <clipPath id="barClipR2"><rect x="1608" y="250" width="8" height="580" rx="4"/></clipPath>
+    <g id="numeralsPaths">
+      <path d="M 576 544 C 576 482 624 462 652 462 C 696 462 722 490 722 534 C 722 576 692 606 650 648 L 570 755 L 725 755"/>
+      <path d="M 834 753 A 80 80 0 0 1 775 676 L 775 542 A 80 80 0 0 1 935 542 L 935 676 A 80 80 0 0 1 876 753"/>
+      <path d="M 996 544 C 996 482 1044 462 1072 462 C 1116 462 1142 490 1142 534 C 1142 576 1112 606 1070 648 L 990 755 L 1145 755"/>
+      <path d="M 1195 466 L 1352 466 L 1238 756"/>
+    </g>
+    <g id="scriptPaths" transform="translate(526, 446) rotate(-3) scale(1.18)">
+      <path d="M 18 -86 L 2 0 M 68 -86 L 52 0 M -2 -40 C 22 -48 48 -48 72 -42"/>
+      <path d="M 106 -34 C 96 -46 80 -42 75 -24 C 71 -8 82 2 94 -4 C 102 -8 106 -22 109 -36 L 105 -4 C 104 2 114 2 122 -10"/>
+      <path d="M 122 -10 L 130 -44 L 114 34 M 126 -24 C 132 -44 152 -46 156 -28 C 160 -12 146 2 132 -4 C 127 -6 124 -10 124 -12 M 148 -2 C 154 2 160 -4 166 -10"/>
+      <path d="M 166 -10 L 174 -44 L 158 34 M 170 -24 C 176 -44 196 -46 200 -28 C 204 -12 190 2 176 -4 C 171 -6 168 -10 168 -12 M 192 -2 C 198 2 204 -4 210 -10"/>
+      <path d="M 210 -10 L 216 -42 L 210 -10 C 208 2 222 4 232 -12 L 240 -42 L 222 34 C 218 42 204 40 202 30 C 200 20 214 10 242 -6"/>
+      <path d="M 284 0 L 302 -86 L 336 -2 L 354 -86"/>
+      <path d="M 362 -16 C 378 -18 396 -28 394 -38 C 392 -46 378 -46 370 -34 C 360 -20 364 0 380 0 C 390 0 398 -6 406 -14"/>
+      <path d="M 406 -14 L 414 -42 L 409 -6 C 408 2 420 2 428 -14 L 434 -38 L 430 -6 C 429 2 442 2 452 -14 L 460 -42 C 464 -38 470 -34 476 -34"/>
+      <path d="M 516 -84 C 522 -58 532 -40 544 -42 C 556 -44 566 -64 572 -86 L 548 34 C 544 42 530 40 528 30 C 526 18 542 8 566 -8"/>
+      <path d="M 572 -16 C 588 -18 606 -28 604 -38 C 602 -46 588 -46 580 -34 C 570 -20 574 0 590 0 C 600 0 608 -6 616 -14"/>
+      <path d="M 652 -34 C 642 -46 626 -42 621 -24 C 617 -8 628 2 640 -4 C 648 -8 652 -22 655 -36 L 651 -4 C 650 2 660 2 668 -10"/>
+      <path d="M 668 -10 L 678 -44 C 684 -46 694 -44 698 -38 L 692 -4 C 691 2 706 2 732 -12"/>
+    </g>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#bgWall)"/>
+
+  <rect x="0" y="0" width="160" height="950" fill="url(#pilasterGrad)" opacity="0.65"/>
+  <rect x="1760" y="0" width="160" height="950" fill="url(#pilasterGrad)" opacity="0.65"/>
+  <line x1="160" y1="0" x2="160" y2="950" stroke="#1E2436" stroke-width="1.5" opacity="0.55"/>
+  <line x1="1760" y1="0" x2="1760" y2="950" stroke="#1E2436" stroke-width="1.5" opacity="0.55"/>
+
+  <path d="M 415 950 L 415 510 A 545 545 0 0 1 1505 510 L 1505 950 Z" fill="url(#archFrameOuter)"/>
+  <path d="M 440 950 L 440 510 A 520 520 0 0 1 1480 510 L 1480 950 Z" fill="#0D111A" stroke="#1F2638" stroke-width="2"/>
+  <path d="M 465 950 L 465 510 A 495 495 0 0 1 1455 510 L 1455 950 Z" fill="url(#archFrameInner)"/>
+
+  <g clip-path="url(#archClip)">
+    <g class="arch-wash">
+      <ellipse cx="960" cy="560" rx="540" ry="440" fill="url(#goldenWash)"/>
+      <ellipse cx="960" cy="430" rx="420" ry="260" fill="url(#topCenterWash)"/>
+    </g>
+    <path d="M 465 950 L 465 510 A 495 495 0 0 1 1455 510 L 1455 950" fill="none" stroke="url(#archRimLight)" stroke-width="4" class="arch-rim-glow"/>
+  </g>
+
+  <path d="M 465 950 L 465 510 A 495 495 0 0 1 1455 510 L 1455 950" fill="none" stroke="#252C40" stroke-width="2"/>
+  <path d="M 415 950 L 415 510 A 545 545 0 0 1 1505 510 L 1505 950" fill="none" stroke="#23293B" stroke-width="2"/>
+
+  <rect x="0" y="950" width="1920" height="130" fill="url(#floorBase)"/>
+  <line x1="0" y1="950" x2="1920" y2="950" stroke="#262D42" stroke-width="1.5"/>
+  <ellipse cx="960" cy="968" rx="680" ry="74" fill="url(#floorReflect)" class="floor-glow"/>
+  <ellipse cx="275" cy="962" rx="110" ry="22" fill="url(#floorReflect)" class="bar-aura"/>
+  <ellipse cx="1645" cy="962" rx="110" ry="22" fill="url(#floorReflect)" class="bar-aura-alt"/>
+
+  <g class="left-bars">
+    <rect x="228" y="190" width="28" height="700" rx="14" fill="#FF9F1C" opacity="0.45" filter="url(#barGlowFilter)" class="bar-aura"/>
+    <rect x="298" y="250" width="20" height="580" rx="10" fill="#FFD166" opacity="0.35" filter="url(#barGlowFilter)" class="bar-aura-alt"/>
+    <rect x="236" y="190" width="12" height="700" rx="6" fill="url(#barGoldTube)"/>
+    <rect x="239.5" y="194" width="5" height="692" rx="2.5" fill="#FFFDF7" opacity="0.9"/>
+    <g clip-path="url(#barClipL1)">
+      <rect x="234" y="340" width="16" height="220" fill="url(#sheenGrad)" class="bar-sheen-l"/>
+    </g>
+    <rect x="304" y="250" width="8" height="580" rx="4" fill="url(#barGoldTube)" opacity="0.92"/>
+    <rect x="306.5" y="254" width="3" height="572" rx="1.5" fill="#FFFDF7" opacity="0.85"/>
+    <g clip-path="url(#barClipL2)">
+      <rect x="302" y="340" width="12" height="180" fill="url(#sheenGrad)" class="bar-sheen-r"/>
+    </g>
+    <rect x="232" y="178" width="20" height="18" rx="3" fill="url(#capMetal)" stroke="#3D465E" stroke-width="1"/>
+    <rect x="232" y="884" width="20" height="18" rx="3" fill="url(#capMetal)" stroke="#3D465E" stroke-width="1"/>
+    <rect x="300" y="238" width="16" height="16" rx="3" fill="url(#capMetal)" stroke="#3D465E" stroke-width="1"/>
+    <rect x="300" y="826" width="16" height="16" rx="3" fill="url(#capMetal)" stroke="#3D465E" stroke-width="1"/>
+  </g>
+
+  <g class="right-bars">
+    <rect x="1664" y="190" width="28" height="700" rx="14" fill="#FF9F1C" opacity="0.45" filter="url(#barGlowFilter)" class="bar-aura-alt"/>
+    <rect x="1602" y="250" width="20" height="580" rx="10" fill="#FFD166" opacity="0.35" filter="url(#barGlowFilter)" class="bar-aura"/>
+    <rect x="1672" y="190" width="12" height="700" rx="6" fill="url(#barGoldTube)"/>
+    <rect x="1675.5" y="194" width="5" height="692" rx="2.5" fill="#FFFDF7" opacity="0.9"/>
+    <g clip-path="url(#barClipR1)">
+      <rect x="1670" y="340" width="16" height="220" fill="url(#sheenGrad)" class="bar-sheen-l"/>
+    </g>
+    <rect x="1608" y="250" width="8" height="580" rx="4" fill="url(#barGoldTube)" opacity="0.92"/>
+    <rect x="1610.5" y="254" width="3" height="572" rx="1.5" fill="#FFFDF7" opacity="0.85"/>
+    <g clip-path="url(#barClipR2)">
+      <rect x="1606" y="340" width="12" height="180" fill="url(#sheenGrad)" class="bar-sheen-r"/>
+    </g>
+    <rect x="1668" y="178" width="20" height="18" rx="3" fill="url(#capMetal)" stroke="#3D465E" stroke-width="1"/>
+    <rect x="1668" y="884" width="20" height="18" rx="3" fill="url(#capMetal)" stroke="#3D465E" stroke-width="1"/>
+    <rect x="1604" y="238" width="16" height="16" rx="3" fill="url(#capMetal)" stroke="#3D465E" stroke-width="1"/>
+    <rect x="1604" y="826" width="16" height="16" rx="3" fill="url(#capMetal)" stroke="#3D465E" stroke-width="1"/>
+  </g>
+
+  <g class="neon-2027">
+    <use href="#numeralsPaths" transform="translate(6, 12)" fill="none" stroke="#040509" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" opacity="0.72" filter="url(#dropShadow)"/>
+    <g class="neon-num-aura">
+      <use href="#numeralsPaths" fill="none" stroke="#FF9F1C" stroke-width="46" stroke-linecap="round" stroke-linejoin="round" opacity="0.48" filter="url(#glowAmberWide)"/>
+      <use href="#numeralsPaths" fill="none" stroke="#FFD166" stroke-width="28" stroke-linecap="round" stroke-linejoin="round" opacity="0.78" filter="url(#glowGoldMid)"/>
+    </g>
+    <g class="neon-num-tube">
+      <use href="#numeralsPaths" fill="none" stroke="url(#goldNeonTube)" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+      <use href="#numeralsPaths" fill="none" stroke="#FFF4CC" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowCore)"/>
+      <use href="#numeralsPaths" fill="none" stroke="#FFFDF7" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <g fill="url(#capMetal)" stroke="#475370" stroke-width="1.2">
+      <rect x="565" y="534" width="22" height="18" rx="4" transform="rotate(8 576 543)"/>
+      <rect x="716" y="744" width="20" height="22" rx="4"/>
+      <rect x="822" y="743" width="20" height="22" rx="4" transform="rotate(-18 832 754)"/>
+      <rect x="868" y="743" width="20" height="22" rx="4" transform="rotate(18 878 754)"/>
+      <rect x="985" y="534" width="22" height="18" rx="4" transform="rotate(8 996 543)"/>
+      <rect x="1136" y="744" width="20" height="22" rx="4"/>
+      <rect x="1183" y="455" width="20" height="22" rx="4"/>
+      <rect x="1227" y="746" width="22" height="19" rx="4" transform="rotate(21 1238 755)"/>
+    </g>
+  </g>
+
+  <g class="neon-script">
+    <use href="#scriptPaths" transform="translate(4, 10)" fill="none" stroke="#05070C" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" opacity="0.88" filter="url(#dropShadow)"/>
+    <g class="neon-script-aura">
+      <use href="#scriptPaths" fill="none" stroke="#FFE8B0" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" opacity="0.46" filter="url(#glowWhiteWide)"/>
+      <use href="#scriptPaths" fill="none" stroke="#FFFDF7" stroke-width="13" stroke-linecap="round" stroke-linejoin="round" opacity="0.82" filter="url(#glowWhiteMid)"/>
+    </g>
+    <g class="neon-script-tube">
+      <use href="#scriptPaths" fill="none" stroke="#FFF3D6" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+      <use href="#scriptPaths" fill="none" stroke="#FFFDF7" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </g>
+</svg>
+<canvas class="bokeh" id="bokehCanvas" width="1920" height="1080"></canvas>
+</div>
+<script>
+(function(){
+  const canvas = document.getElementById('bokehCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = 1920, H = 1080, LOOP = 10000;
+  let seed = 20270101;
+  function rand(){
+    seed = (seed * 1664525 + 1013904223) >>> 0;
+    return seed / 4294967296;
+  }
+  const colors = [
+    [255, 253, 247],
+    [255, 232, 168],
+    [255, 209, 102],
+    [255, 178, 72]
+  ];
+  const particles = [];
+  for(let i = 0; i < 82; i++){
+    const isStar = i % 5 === 0;
+    const col = colors[Math.floor(rand() * colors.length)];
+    const depth = rand();
+    particles.push({
+      x0: 210 + rand() * 1500,
+      y0: rand(),
+      r: isStar ? (2.2 + rand() * 3.8) : (2.5 + depth * 11),
+      speedY: rand() < 0.65 ? 1 : 2,
+      swayAmp: 12 + rand() * 34,
+      swayCycles: rand() < 0.5 ? 1 : 2,
+      phaseX: rand() * Math.PI * 2,
+      twinkleCycles: 1 + Math.floor(rand() * 3),
+      phaseT: rand() * Math.PI * 2,
+      baseAlpha: isStar ? (0.45 + rand() * 0.45) : (0.14 + (1 - depth) * 0.36),
+      col: col,
+      isStar: isStar
+    });
+  }
+  function drawStar(x, y, r, alpha, col){
+    ctx.save();
+    ctx.translate(x, y);
+    const g = ctx.createRadialGradient(0, 0, 0, 0, 0, r * 3.2);
+    g.addColorStop(0, `rgba(${col[0]},${col[1]},${col[2]},${alpha})`);
+    g.addColorStop(0.35, `rgba(${col[0]},${col[1]},${col[2]},${alpha * 0.45})`);
+    g.addColorStop(1, `rgba(${col[0]},${col[1]},${col[2]},0)`);
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(0, 0, r * 3.2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = `rgba(255,253,247,${Math.min(1, alpha * 1.15)})`;
+    ctx.beginPath();
+    const len = r * 2.4, w = r * 0.34;
+    ctx.moveTo(0, -len);
+    ctx.quadraticCurveTo(0, 0, len, 0);
+    ctx.quadraticCurveTo(0, 0, 0, len);
+    ctx.quadraticCurveTo(0, 0, -len, 0);
+    ctx.quadraticCurveTo(0, 0, 0, -len);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+  function render(ts){
+    const p = (((ts % LOOP) + LOOP) % LOOP) / LOOP;
+    ctx.clearRect(0, 0, W, H);
+    ctx.globalCompositeOperation = 'lighter';
+    for(let i = 0; i < particles.length; i++){
+      const pt = particles[i];
+      const yn = (((pt.y0 - p * pt.speedY) % 1) + 1) % 1;
+      const y = yn * H;
+      const x = pt.x0 + Math.sin(p * Math.PI * 2 * pt.swayCycles + pt.phaseX) * pt.swayAmp;
+      let edgeFade = 1;
+      if(yn < 0.14) edgeFade = yn / 0.14;
+      else if(yn > 0.84) edgeFade = (1 - yn) / 0.16;
+      const twinkle = 0.55 + 0.45 * Math.sin(p * Math.PI * 2 * pt.twinkleCycles + pt.phaseT);
+      const alpha = pt.baseAlpha * edgeFade * twinkle;
+      if(alpha <= 0.005) continue;
+      if(pt.isStar){
+        drawStar(x, y, pt.r, alpha, pt.col);
+      } else {
+        const g = ctx.createRadialGradient(x, y, 0, x, y, pt.r);
+        g.addColorStop(0, `rgba(255,253,247,${alpha * 0.9})`);
+        g.addColorStop(0.45, `rgba(${pt.col[0]},${pt.col[1]},${pt.col[2]},${alpha * 0.65})`);
+        g.addColorStop(1, `rgba(${pt.col[0]},${pt.col[1]},${pt.col[2]},0)`);
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(x, y, pt.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    requestAnimationFrame(render);
+  }
+  requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>
