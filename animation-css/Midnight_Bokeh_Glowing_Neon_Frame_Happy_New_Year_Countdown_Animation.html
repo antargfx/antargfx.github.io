@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Midnight Bokeh Glowing Neon Frame Happy New Year Countdown Animation</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#07061A}
+svg{display:block;width:100%;height:100%}
+.bokeh-slow{animation:floatUp 10s linear infinite}
+.bokeh-mid{animation:floatUp 10s linear infinite;animation-delay:-3.5s}
+.bokeh-fast{animation:floatUp 5s linear infinite}
+.star-a{transform-origin:0 0;animation:twinkle 2s ease-in-out infinite}
+.star-b{transform-origin:0 0;animation:twinkle 5s ease-in-out infinite}
+.fw-burst-a{transform-origin:0 0;animation:fwExpand 5s ease-in-out infinite}
+.fw-burst-b{transform-origin:0 0;animation:fwExpand 5s ease-in-out infinite}
+.fw-ring{transform-origin:0 0;animation:fwRing 5s ease-in-out infinite}
+.neon-pulse-rose{animation:neonBreathe 2s ease-in-out infinite}
+.neon-pulse-aqua{animation:neonBreathe 2s ease-in-out infinite;animation-delay:-1s}
+.title-glow{animation:titlePulse 2s ease-in-out infinite}
+.halo-sweep{stroke-dasharray:1319.47;stroke-dashoffset:1319.47;animation:sweepRing 1s linear infinite}
+.halo-spark{transform-origin:0 0;animation:orbitSpark 1s linear infinite}
+.halo-tick-pulse{transform-origin:960px 615px;animation:tickWave 1s ease-in-out infinite}
+.inner-orbit{transform-origin:960px 615px;animation:spinSlow 10s linear infinite}
+.count-num{font-family:'Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:800;font-size:210px;text-anchor:middle;dominant-baseline:central;transform-origin:960px 615px;opacity:0;animation:countSlot 10s linear infinite}
+.n10{animation-delay:0s}
+.n9{animation-delay:-9s}
+.n8{animation-delay:-8s}
+.n7{animation-delay:-7s}
+.n6{animation-delay:-6s}
+.n5{animation-delay:-5s}
+.n4{animation-delay:-4s}
+.n3{animation-delay:-3s}
+.n2{animation-delay:-2s}
+.n1{animation-delay:-1s}
+@keyframes floatUp{
+  0%{transform:translateY(0)}
+  100%{transform:translateY(-1080px)}
+}
+@keyframes twinkle{
+  0%,100%{transform:scale(0.35) rotate(0deg);opacity:0.25}
+  50%{transform:scale(1.15) rotate(22deg);opacity:1}
+}
+@keyframes fwExpand{
+  0%{transform:scale(0.12);opacity:0}
+  18%{opacity:0.95}
+  62%{transform:scale(1.05);opacity:0.65}
+  85%{transform:scale(1.22);opacity:0}
+  100%{transform:scale(1.22);opacity:0}
+}
+@keyframes fwRing{
+  0%{transform:scale(0.1);opacity:0}
+  15%{opacity:0.8}
+  58%{transform:scale(1.18);opacity:0}
+  100%{transform:scale(1.18);opacity:0}
+}
+@keyframes neonBreathe{
+  0%,100%{opacity:0.86}
+  50%{opacity:1}
+}
+@keyframes titlePulse{
+  0%,100%{opacity:0.9}
+  50%{opacity:1}
+}
+@keyframes sweepRing{
+  0%{stroke-dashoffset:1319.47}
+  100%{stroke-dashoffset:0}
+}
+@keyframes orbitSpark{
+  0%{transform:rotate(0deg)}
+  100%{transform:rotate(360deg)}
+}
+@keyframes tickWave{
+  0%{transform:scale(0.96);opacity:0.75}
+  45%{transform:scale(1.12);opacity:0}
+  100%{transform:scale(1.12);opacity:0}
+}
+@keyframes spinSlow{
+  0%{transform:rotate(0deg)}
+  100%{transform:rotate(-360deg)}
+}
+@keyframes countSlot{
+  0%{opacity:0;transform:scale(0.84)}
+  1.2%{opacity:1;transform:scale(1.04)}
+  2.2%{opacity:1;transform:scale(1)}
+  8.6%{opacity:1;transform:scale(1)}
+  9.8%{opacity:0;transform:scale(1.1)}
+  100%{opacity:0;transform:scale(1.1)}
+}
+</style>
+</head>
+<body>
+<svg viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <radialGradient id="bgGrad" cx="50%" cy="46%" r="72%">
+    <stop offset="0%" stop-color="#1A1042"/>
+    <stop offset="48%" stop-color="#0D0A2B"/>
+    <stop offset="100%" stop-color="#07061A"/>
+  </radialGradient>
+  <radialGradient id="bgAuraRose" cx="25%" cy="22%" r="42%">
+    <stop offset="0%" stop-color="#FB7185" stop-opacity="0.16"/>
+    <stop offset="100%" stop-color="#FB7185" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="bgAuraAqua" cx="76%" cy="78%" r="44%">
+    <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.15"/>
+    <stop offset="100%" stop-color="#38BDF8" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="bokehGold" cx="50%" cy="50%" r="50%">
+    <stop offset="0%" stop-color="#FEF08A" stop-opacity="0.58"/>
+    <stop offset="48%" stop-color="#FBBF24" stop-opacity="0.28"/>
+    <stop offset="82%" stop-color="#F59E0B" stop-opacity="0.08"/>
+    <stop offset="100%" stop-color="#F59E0B" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="bokehRose" cx="50%" cy="50%" r="50%">
+    <stop offset="0%" stop-color="#FECDD3" stop-opacity="0.52"/>
+    <stop offset="48%" stop-color="#FB7185" stop-opacity="0.26"/>
+    <stop offset="82%" stop-color="#E11D48" stop-opacity="0.07"/>
+    <stop offset="100%" stop-color="#E11D48" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="bokehSoftGold" cx="50%" cy="50%" r="50%">
+    <stop offset="0%" stop-color="#FDE68A" stop-opacity="0.34"/>
+    <stop offset="60%" stop-color="#F59E0B" stop-opacity="0.14"/>
+    <stop offset="100%" stop-color="#F59E0B" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="bokehSoftRose" cx="50%" cy="50%" r="50%">
+    <stop offset="0%" stop-color="#FDA4AF" stop-opacity="0.34"/>
+    <stop offset="60%" stop-color="#F43F5E" stop-opacity="0.12"/>
+    <stop offset="100%" stop-color="#F43F5E" stop-opacity="0"/>
+  </radialGradient>
+  <linearGradient id="frameFill" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#130D32" stop-opacity="0.82"/>
+    <stop offset="50%" stop-color="#0A0822" stop-opacity="0.86"/>
+    <stop offset="100%" stop-color="#121036" stop-opacity="0.82"/>
+  </linearGradient>
+  <linearGradient id="haloGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#38BDF8"/>
+    <stop offset="50%" stop-color="#A78BFA"/>
+    <stop offset="100%" stop-color="#FB7185"/>
+  </linearGradient>
+  <linearGradient id="titleGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="#FDA4AF"/>
+    <stop offset="30%" stop-color="#FFF1F2"/>
+    <stop offset="50%" stop-color="#FEF08A"/>
+    <stop offset="70%" stop-color="#FFF1F2"/>
+    <stop offset="100%" stop-color="#7DD3FC"/>
+  </linearGradient>
+  <linearGradient id="numGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+    <stop offset="0%" stop-color="#FFFFFF"/>
+    <stop offset="48%" stop-color="#BAE6FD"/>
+    <stop offset="100%" stop-color="#38BDF8"/>
+  </linearGradient>
+  <filter id="glowRose" x="-30%" y="-30%" width="160%" height="160%">
+    <feGaussianBlur stdDeviation="10" result="b1"/>
+    <feGaussianBlur stdDeviation="22" result="b2"/>
+    <feMerge>
+      <feMergeNode in="b2"/>
+      <feMergeNode in="b1"/>
+      <feMergeNode in="SourceGraphic"/>
+    </feMerge>
+  </filter>
+  <filter id="glowAqua" x="-30%" y="-30%" width="160%" height="160%">
+    <feGaussianBlur stdDeviation="9" result="b1"/>
+    <feGaussianBlur stdDeviation="20" result="b2"/>
+    <feMerge>
+      <feMergeNode in="b2"/>
+      <feMergeNode in="b1"/>
+      <feMergeNode in="SourceGraphic"/>
+    </feMerge>
+  </filter>
+  <filter id="glowSoft" x="-40%" y="-40%" width="180%" height="180%">
+    <feGaussianBlur stdDeviation="7" result="b1"/>
+    <feMerge>
+      <feMergeNode in="b1"/>
+      <feMergeNode in="SourceGraphic"/>
+    </feMerge>
+  </filter>
+  <g id="star4">
+    <path d="M0,-22 Q0,0 22,0 Q0,0 0,22 Q0,0 -22,0 Q0,0 0,-22 Z"/>
+  </g>
+  <g id="fwGold">
+    <circle cx="0" cy="0" r="115" fill="none" stroke="#FBBF24" stroke-width="2.5" stroke-dasharray="10 14" opacity="0.7"/>
+    <g stroke="#FDE68A" stroke-width="4" stroke-linecap="round">
+      <line x1="0" y1="-34" x2="0" y2="-135"/>
+      <line x1="0" y1="34" x2="0" y2="135"/>
+      <line x1="-34" y1="0" x2="-135" y2="0"/>
+      <line x1="34" y1="0" x2="135" y2="0"/>
+      <line x1="-24" y1="-24" x2="-96" y2="-96"/>
+      <line x1="24" y1="-24" x2="96" y2="-96"/>
+      <line x1="-24" y1="24" x2="-96" y2="96"/>
+      <line x1="24" y1="24" x2="96" y2="96"/>
+    </g>
+    <g stroke="#FBBF24" stroke-width="2.5" stroke-linecap="round" opacity="0.85">
+      <line x1="22" y1="-52" x2="46" y2="-112"/>
+      <line x1="52" y1="-22" x2="112" y2="-46"/>
+      <line x1="52" y1="22" x2="112" y2="46"/>
+      <line x1="22" y1="52" x2="46" y2="112"/>
+      <line x1="-22" y1="52" x2="-46" y2="112"/>
+      <line x1="-52" y1="22" x2="-112" y2="46"/>
+      <line x1="-52" y1="-22" x2="-112" y2="-46"/>
+      <line x1="-22" y1="-52" x2="-46" y2="-112"/>
+    </g>
+    <g fill="#FEF08A">
+      <circle cx="0" cy="-152" r="5"/>
+      <circle cx="0" cy="152" r="5"/>
+      <circle cx="-152" cy="0" r="5"/>
+      <circle cx="152" cy="0" r="5"/>
+      <circle cx="-108" cy="-108" r="4.5"/>
+      <circle cx="108" cy="-108" r="4.5"/>
+      <circle cx="-108" cy="108" r="4.5"/>
+      <circle cx="108" cy="108" r="4.5"/>
+    </g>
+  </g>
+  <g id="fwRose">
+    <circle cx="0" cy="0" r="102" fill="none" stroke="#FB7185" stroke-width="2.5" stroke-dasharray="6 12" opacity="0.75"/>
+    <g stroke="#FDA4AF" stroke-width="3.5" stroke-linecap="round">
+      <line x1="0" y1="-28" x2="0" y2="-122"/>
+      <line x1="0" y1="28" x2="0" y2="122"/>
+      <line x1="-28" y1="0" x2="-122" y2="0"/>
+      <line x1="28" y1="0" x2="122" y2="0"/>
+      <line x1="-20" y1="-20" x2="-86" y2="-86"/>
+      <line x1="20" y1="-20" x2="86" y2="-86"/>
+      <line x1="-20" y1="20" x2="-86" y2="86"/>
+      <line x1="20" y1="20" x2="86" y2="86"/>
+    </g>
+    <g fill="#FB7185">
+      <polygon points="0,-144 6,-134 0,-124 -6,-134"/>
+      <polygon points="0,144 6,134 0,124 -6,134"/>
+      <polygon points="-144,0 -134,6 -124,0 -134,-6"/>
+      <polygon points="144,0 134,6 124,0 134,-6"/>
+      <circle cx="-98" cy="-98" r="4.5"/>
+      <circle cx="98" cy="-98" r="4.5"/>
+      <circle cx="-98" cy="98" r="4.5"/>
+      <circle cx="98" cy="98" r="4.5"/>
+    </g>
+  </g>
+  <g id="fwAqua">
+    <circle cx="0" cy="0" r="108" fill="none" stroke="#38BDF8" stroke-width="2.5" stroke-dasharray="14 10" opacity="0.7"/>
+    <g stroke="#7DD3FC" stroke-width="3.5" stroke-linecap="round">
+      <line x1="0" y1="-30" x2="0" y2="-128"/>
+      <line x1="0" y1="30" x2="0" y2="128"/>
+      <line x1="-30" y1="0" x2="-128" y2="0"/>
+      <line x1="30" y1="0" x2="128" y2="0"/>
+      <line x1="-21" y1="-21" x2="-90" y2="-90"/>
+      <line x1="21" y1="-21" x2="90" y2="-90"/>
+      <line x1="-21" y1="21" x2="-90" y2="90"/>
+      <line x1="21" y1="21" x2="90" y2="90"/>
+    </g>
+    <g fill="#BAE6FD">
+      <circle cx="0" cy="-145" r="5"/>
+      <circle cx="0" cy="145" r="5"/>
+      <circle cx="-145" cy="0" r="5"/>
+      <circle cx="145" cy="0" r="5"/>
+      <circle cx="-102" cy="-102" r="4"/>
+      <circle cx="102" cy="-102" r="4"/>
+      <circle cx="-102" cy="102" r="4"/>
+      <circle cx="102" cy="102" r="4"/>
+    </g>
+  </g>
+  <g id="bokehLayer1">
+    <circle cx="140" cy="160" r="96" fill="url(#bokehSoftGold)"/>
+    <circle cx="420" cy="480" r="120" fill="url(#bokehSoftRose)"/>
+    <circle cx="1680" cy="210" r="110" fill="url(#bokehSoftGold)"/>
+    <circle cx="1810" cy="640" r="92" fill="url(#bokehSoftRose)"/>
+    <circle cx="230" cy="860" r="108" fill="url(#bokehSoftRose)"/>
+    <circle cx="1520" cy="920" r="118" fill="url(#bokehSoftGold)"/>
+    <circle cx="960" cy="120" r="88" fill="url(#bokehSoftGold)"/>
+    <circle cx="1040" cy="990" r="102" fill="url(#bokehSoftRose)"/>
+  </g>
+  <g id="bokehLayer2">
+    <circle cx="95" cy="340" r="46" fill="url(#bokehGold)"/>
+    <circle cx="290" cy="120" r="38" fill="url(#bokehRose)"/>
+    <circle cx="195" cy="710" r="54" fill="url(#bokehGold)"/>
+    <circle cx="340" cy="960" r="42" fill="url(#bokehRose)"/>
+    <circle cx="620" cy="70" r="36" fill="url(#bokehGold)"/>
+    <circle cx="1310" cy="85" r="44" fill="url(#bokehRose)"/>
+    <circle cx="1610" cy="390" r="52" fill="url(#bokehRose)"/>
+    <circle cx="1775" cy="145" r="40" fill="url(#bokehGold)"/>
+    <circle cx="1720" cy="810" r="56" fill="url(#bokehGold)"/>
+    <circle cx="1855" cy="460" r="34" fill="url(#bokehRose)"/>
+    <circle cx="1450" cy="1010" r="42" fill="url(#bokehRose)"/>
+    <circle cx="760" cy="1020" r="48" fill="url(#bokehGold)"/>
+  </g>
+  <g id="bokehLayer3">
+    <circle cx="165" cy="240" r="18" fill="url(#bokehGold)"/>
+    <circle cx="80" cy="590" r="22" fill="url(#bokehRose)"/>
+    <circle cx="260" cy="920" r="16" fill="url(#bokehGold)"/>
+    <circle cx="510" cy="980" r="20" fill="url(#bokehRose)"/>
+    <circle cx="1220" cy="1030" r="18" fill="url(#bokehGold)"/>
+    <circle cx="1690" cy="290" r="20" fill="url(#bokehRose)"/>
+    <circle cx="1830" cy="750" r="24" fill="url(#bokehGold)"/>
+    <circle cx="1580" cy="610" r="16" fill="url(#bokehGold)"/>
+    <circle cx="1760" cy="980" r="18" fill="url(#bokehRose)"/>
+    <circle cx="380" cy="75" r="17" fill="url(#bokehGold)"/>
+  </g>
+</defs>
+
+<rect width="1920" height="1080" fill="url(#bgGrad)"/>
+<rect width="1920" height="1080" fill="url(#bgAuraRose)"/>
+<rect width="1920" height="1080" fill="url(#bgAuraAqua)"/>
+
+<g class="bokeh-slow">
+  <use href="#bokehLayer1" x="0" y="0"/>
+  <use href="#bokehLayer1" x="0" y="1080"/>
+</g>
+<g class="bokeh-mid">
+  <use href="#bokehLayer2" x="0" y="0"/>
+  <use href="#bokehLayer2" x="0" y="1080"/>
+</g>
+<g class="bokeh-fast">
+  <use href="#bokehLayer3" x="0" y="0"/>
+  <use href="#bokehLayer3" x="0" y="1080"/>
+</g>
+
+<g opacity="0.88">
+  <g transform="translate(220,210)">
+    <g class="fw-burst-a" style="animation-delay:-0.4s">
+      <use href="#fwGold" transform="scale(1.15)"/>
+    </g>
+    <circle class="fw-ring" style="animation-delay:-0.4s" cx="0" cy="0" r="140" fill="none" stroke="#FDE68A" stroke-width="2"/>
+  </g>
+  <g transform="translate(1705,235)">
+    <g class="fw-burst-b" style="animation-delay:-2.1s">
+      <use href="#fwAqua" transform="scale(1.2)"/>
+    </g>
+    <circle class="fw-ring" style="animation-delay:-2.1s" cx="0" cy="0" r="145" fill="none" stroke="#7DD3FC" stroke-width="2"/>
+  </g>
+  <g transform="translate(185,845)">
+    <g class="fw-burst-a" style="animation-delay:-3.4s">
+      <use href="#fwRose" transform="scale(1.15)"/>
+    </g>
+    <circle class="fw-ring" style="animation-delay:-3.4s" cx="0" cy="0" r="130" fill="none" stroke="#FDA4AF" stroke-width="2"/>
+  </g>
+  <g transform="translate(1735,830)">
+    <g class="fw-burst-b" style="animation-delay:-1.2s">
+      <use href="#fwGold" transform="scale(1.08)"/>
+    </g>
+    <circle class="fw-ring" style="animation-delay:-1.2s" cx="0" cy="0" r="135" fill="none" stroke="#FBBF24" stroke-width="2"/>
+  </g>
+  <g transform="translate(960,115)">
+    <g class="fw-burst-a" style="animation-delay:-4.1s">
+      <use href="#fwRose" transform="scale(0.95)"/>
+    </g>
+  </g>
+  <g transform="translate(165,530)">
+    <g class="fw-burst-b" style="animation-delay:-2.8s">
+      <use href="#fwAqua" transform="scale(0.88)"/>
+    </g>
+  </g>
+  <g transform="translate(1760,535)">
+    <g class="fw-burst-a" style="animation-delay:-0.9s">
+      <use href="#fwRose" transform="scale(0.9)"/>
+    </g>
+  </g>
+</g>
+
+<g filter="url(#glowSoft)">
+  <g transform="translate(125,130)"><use href="#star4" fill="#FEF08A" class="star-a" style="animation-delay:-0.2s" transform="scale(0.75)"/></g>
+  <g transform="translate(310,375)"><use href="#star4" fill="#FDA4AF" class="star-b" style="animation-delay:-1.4s" transform="scale(0.55)"/></g>
+  <g transform="translate(145,675)"><use href="#star4" fill="#7DD3FC" class="star-a" style="animation-delay:-1.1s" transform="scale(0.68)"/></g>
+  <g transform="translate(275,975)"><use href="#star4" fill="#FEF08A" class="star-b" style="animation-delay:-3.2s" transform="scale(0.62)"/></g>
+  <g transform="translate(540,68)"><use href="#star4" fill="#7DD3FC" class="star-a" style="animation-delay:-0.7s" transform="scale(0.58)"/></g>
+  <g transform="translate(1385,72)"><use href="#star4" fill="#FEF08A" class="star-a" style="animation-delay:-1.5s" transform="scale(0.72)"/></g>
+  <g transform="translate(1815,155)"><use href="#star4" fill="#FDA4AF" class="star-b" style="animation-delay:-2.6s" transform="scale(0.8)"/></g>
+  <g transform="translate(1625,380)"><use href="#star4" fill="#FEF08A" class="star-a" style="animation-delay:-0.4s" transform="scale(0.52)"/></g>
+  <g transform="translate(1835,690)"><use href="#star4" fill="#7DD3FC" class="star-b" style="animation-delay:-0.9s" transform="scale(0.65)"/></g>
+  <g transform="translate(1640,975)"><use href="#star4" fill="#FDA4AF" class="star-a" style="animation-delay:-1.8s" transform="scale(0.7)"/></g>
+  <g transform="translate(960,1030)"><use href="#star4" fill="#FEF08A" class="star-b" style="animation-delay:-4.0s" transform="scale(0.6)"/></g>
+  <g transform="translate(465,1022)"><use href="#star4" fill="#7DD3FC" class="star-a" style="animation-delay:-0.5s" transform="scale(0.48)"/></g>
+  <g transform="translate(1465,1022)"><use href="#star4" fill="#FEF08A" class="star-a" style="animation-delay:-1.3s" transform="scale(0.52)"/></g>
+</g>
+
+<g>
+  <rect x="275" y="115" width="1370" height="850" rx="58" fill="url(#frameFill)"/>
+
+  <g class="neon-pulse-rose" filter="url(#glowRose)">
+    <rect x="275" y="115" width="1370" height="850" rx="58" fill="none" stroke="#FB7185" stroke-width="11"/>
+    <rect x="275" y="115" width="1370" height="850" rx="58" fill="none" stroke="#FFF1F2" stroke-width="3.5"/>
+  </g>
+
+  <g class="neon-pulse-aqua" filter="url(#glowAqua)">
+    <rect x="303" y="143" width="1314" height="794" rx="40" fill="none" stroke="#38BDF8" stroke-width="9"/>
+    <rect x="303" y="143" width="1314" height="794" rx="40" fill="none" stroke="#E0F2FE" stroke-width="3"/>
+  </g>
+
+  <g fill="#1E1B4B" stroke="#94A3B8" stroke-width="1.5" opacity="0.85">
+    <rect x="520" y="109" width="26" height="40" rx="5"/>
+    <rect x="1374" y="109" width="26" height="40" rx="5"/>
+    <rect x="520" y="931" width="26" height="40" rx="5"/>
+    <rect x="1374" y="931" width="26" height="40" rx="5"/>
+    <rect x="269" y="520" width="40" height="26" rx="5"/>
+    <rect x="1611" y="520" width="40" height="26" rx="5"/>
+  </g>
+</g>
+
+<g class="title-glow" filter="url(#glowRose)">
+  <text x="960" y="274" text-anchor="middle" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif" font-weight="800" font-size="84" letter-spacing="16" fill="none" stroke="#FB7185" stroke-width="7" stroke-linejoin="round">HAPPY NEW YEAR</text>
+  <text x="960" y="274" text-anchor="middle" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif" font-weight="800" font-size="84" letter-spacing="16" fill="url(#titleGrad)">HAPPY NEW YEAR</text>
+</g>
+
+<g opacity="0.9">
+  <line x1="460" y1="330" x2="918" y2="330" stroke="#FB7185" stroke-width="3" stroke-linecap="round" filter="url(#glowSoft)"/>
+  <line x1="1002" y1="330" x2="1460" y2="330" stroke="#38BDF8" stroke-width="3" stroke-linecap="round" filter="url(#glowSoft)"/>
+  <g transform="translate(960,330)">
+    <use href="#star4" fill="#FEF08A" transform="scale(0.85)" filter="url(#glowSoft)"/>
+  </g>
+</g>
+
+<g>
+  <circle cx="960" cy="615" r="244" fill="none" stroke="#38BDF8" stroke-width="1.5" stroke-dasharray="3 18" opacity="0.45"/>
+  <circle class="inner-orbit" cx="960" cy="615" r="176" fill="none" stroke="#FB7185" stroke-width="2.5" stroke-dasharray="18 22" opacity="0.55"/>
+  <circle cx="960" cy="615" r="210" fill="none" stroke="#1E1B4B" stroke-width="18" opacity="0.75"/>
+  <circle cx="960" cy="615" r="210" fill="none" stroke="#38BDF8" stroke-width="2" opacity="0.3"/>
+
+  <circle class="halo-tick-pulse" cx="960" cy="615" r="210" fill="none" stroke="#FB7185" stroke-width="5"/>
+
+  <g filter="url(#glowAqua)">
+    <circle class="halo-sweep" cx="960" cy="615" r="210" fill="none" stroke="url(#haloGrad)" stroke-width="14" stroke-linecap="round" transform="rotate(-90 960 615)"/>
+    <circle class="halo-sweep" cx="960" cy="615" r="210" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" opacity="0.9" transform="rotate(-90 960 615)"/>
+  </g>
+
+  <g transform="translate(960,615)">
+    <g class="halo-spark" filter="url(#glowSoft)">
+      <circle cx="0" cy="-210" r="12" fill="#38BDF8" opacity="0.85"/>
+      <circle cx="0" cy="-210" r="6" fill="#FFFFFF"/>
+    </g>
+  </g>
+
+  <g filter="url(#glowAqua)">
+    <text class="count-num n10" x="960" y="618" fill="url(#numGrad)" stroke="#38BDF8" stroke-width="4">10</text>
+    <text class="count-num n9" x="960" y="618" fill="url(#numGrad)" stroke="#38BDF8" stroke-width="4">9</text>
+    <text class="count-num n8" x="960" y="618" fill="url(#numGrad)" stroke="#38BDF8" stroke-width="4">8</text>
+    <text class="count-num n7" x="960" y="618" fill="url(#numGrad)" stroke="#38BDF8" stroke-width="4">7</text>
+    <text class="count-num n6" x="960" y="618" fill="url(#numGrad)" stroke="#38BDF8" stroke-width="4">6</text>
+    <text class="count-num n5" x="960" y="618" fill="url(#numGrad)" stroke="#38BDF8" stroke-width="4">5</text>
+    <text class="count-num n4" x="960" y="618" fill="url(#numGrad)" stroke="#38BDF8" stroke-width="4">4</text>
+    <text class="count-num n3" x="960" y="618" fill="url(#numGrad)" stroke="#38BDF8" stroke-width="4">3</text>
+    <text class="count-num n2" x="960" y="618" fill="url(#numGrad)" stroke="#38BDF8" stroke-width="4">2</text>
+    <text class="count-num n1" x="960" y="618" fill="url(#numGrad)" stroke="#FB7185" stroke-width="4">1</text>
+  </g>
+
+  <g filter="url(#glowSoft)">
+    <g transform="translate(465,615)"><use href="#star4" fill="#FB7185" class="star-a" style="animation-delay:-0.3s" transform="scale(0.65)"/></g>
+    <g transform="translate(1455,615)"><use href="#star4" fill="#38BDF8" class="star-a" style="animation-delay:-1.3s" transform="scale(0.65)"/></g>
+    <g transform="translate(560,465)"><use href="#star4" fill="#FEF08A" class="star-b" style="animation-delay:-2.1s" transform="scale(0.45)"/></g>
+    <g transform="translate(1360,465)"><use href="#star4" fill="#FEF08A" class="star-b" style="animation-delay:-0.8s" transform="scale(0.45)"/></g>
+    <g transform="translate(560,770)"><use href="#star4" fill="#7DD3FC" class="star-b" style="animation-delay:-3.6s" transform="scale(0.48)"/></g>
+    <g transform="translate(1360,770)"><use href="#star4" fill="#FDA4AF" class="star-b" style="animation-delay:-1.7s" transform="scale(0.48)"/></g>
+  </g>
+</g>
+</svg>
+</body>
+</html>

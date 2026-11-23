@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Art Deco Gatsby Neon Sign Happy New Year Countdown Animation</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#050814}
+.stage{position:fixed;inset:0;width:100%;height:100%;display:block}
+svg{width:100%;height:100%;display:block}
+.ray-inner{animation:rayPulse 2s ease-in-out infinite}
+.ray-mid{animation:rayPulse 2s ease-in-out -0.35s infinite}
+.ray-outer{animation:rayPulse 2s ease-in-out -0.7s infinite}
+.fan-pulse{animation:fanGlow 2s ease-in-out infinite}
+.marquee-glow{animation:neonBreathe 2s ease-in-out infinite}
+.border-shimmer{animation:borderGlow 5s ease-in-out infinite}
+.medallion-ring{transform-box:fill-box;transform-origin:center;animation:ringPulse 1s ease-in-out infinite}
+.medallion-star{transform-box:fill-box;transform-origin:center;animation:starSpin 10s linear infinite}
+.medallion-aura{animation:auraBeat 1s ease-in-out infinite}
+.tick-flash{transform-box:fill-box;transform-origin:center;animation:tickBurst 1s ease-in-out infinite}
+.cd-num{
+  font-family:'Futura','Century Gothic','Avant Garde','Trebuchet MS','Segoe UI',sans-serif;
+  font-weight:700;
+  font-size:186px;
+  text-anchor:middle;
+  dominant-baseline:central;
+  transform-box:fill-box;
+  transform-origin:center;
+  opacity:0;
+  animation:countdownStep 10s linear infinite;
+}
+.cd-10{animation-delay:0s}
+.cd-9{animation-delay:-9s}
+.cd-8{animation-delay:-8s}
+.cd-7{animation-delay:-7s}
+.cd-6{animation-delay:-6s}
+.cd-5{animation-delay:-5s}
+.cd-4{animation-delay:-4s}
+.cd-3{animation-delay:-3s}
+.cd-2{animation-delay:-2s}
+.cd-1{animation-delay:-1s}
+.marquee-text-halo{
+  font-family:'Futura','Century Gothic','Avant Garde','Trebuchet MS','Segoe UI',sans-serif;
+  font-weight:700;
+  font-size:94px;
+  letter-spacing:14px;
+  text-anchor:middle;
+  dominant-baseline:central;
+  fill:none;
+  stroke:#F59E0B;
+  stroke-width:10;
+  opacity:0.7;
+}
+.marquee-text-tube{
+  font-family:'Futura','Century Gothic','Avant Garde','Trebuchet MS','Segoe UI',sans-serif;
+  font-weight:700;
+  font-size:94px;
+  letter-spacing:14px;
+  text-anchor:middle;
+  dominant-baseline:central;
+  fill:#FDE68A;
+  stroke:#FDE68A;
+  stroke-width:3.2;
+}
+.marquee-text-inline{
+  font-family:'Futura','Century Gothic','Avant Garde','Trebuchet MS','Segoe UI',sans-serif;
+  font-weight:700;
+  font-size:94px;
+  letter-spacing:14px;
+  text-anchor:middle;
+  dominant-baseline:central;
+  fill:none;
+  stroke:#080D1F;
+  stroke-width:2.6;
+}
+.marquee-text-core{
+  font-family:'Futura','Century Gothic','Avant Garde','Trebuchet MS','Segoe UI',sans-serif;
+  font-weight:700;
+  font-size:94px;
+  letter-spacing:14px;
+  text-anchor:middle;
+  dominant-baseline:central;
+  fill:none;
+  stroke:#FFFBEB;
+  stroke-width:0.9;
+  opacity:0.9;
+}
+.bubble-slow{animation:bubbleRise 10s linear infinite}
+.bubble-fast{animation:bubbleRise 5s linear infinite}
+@keyframes rayPulse{
+  0%{opacity:0.22;stroke-width:2.2}
+  45%{opacity:0.95;stroke-width:4.2}
+  100%{opacity:0.22;stroke-width:2.2}
+}
+@keyframes fanGlow{
+  0%,100%{opacity:0.55}
+  50%{opacity:1}
+}
+@keyframes neonBreathe{
+  0%,100%{opacity:0.86}
+  50%{opacity:1}
+}
+@keyframes borderGlow{
+  0%,100%{opacity:0.75}
+  50%{opacity:1}
+}
+@keyframes ringPulse{
+  0%{transform:scale(0.97);opacity:0.65}
+  18%{transform:scale(1.03);opacity:1}
+  100%{transform:scale(0.97);opacity:0.65}
+}
+@keyframes starSpin{
+  0%{transform:rotate(0deg)}
+  100%{transform:rotate(360deg)}
+}
+@keyframes auraBeat{
+  0%{opacity:0.35}
+  20%{opacity:0.8}
+  100%{opacity:0.35}
+}
+@keyframes tickBurst{
+  0%{transform:scale(0.92);opacity:0.9}
+  35%{transform:scale(1.12);opacity:0}
+  100%{transform:scale(1.12);opacity:0}
+}
+@keyframes countdownStep{
+  0%{opacity:0;transform:scale(0.84)}
+  1.1%{opacity:1;transform:scale(1.04)}
+  2.2%{opacity:1;transform:scale(1)}
+  8.6%{opacity:1;transform:scale(1)}
+  9.8%{opacity:0;transform:scale(1.07)}
+  100%{opacity:0;transform:scale(0.84)}
+}
+@keyframes bubbleRise{
+  0%{transform:translate(0px,0px) scale(0.75);opacity:0}
+  10%{transform:translate(7px,-118px) scale(1);opacity:0.85}
+  35%{transform:translate(-8px,-413px) scale(0.92);opacity:0.7}
+  60%{transform:translate(9px,-708px) scale(1.05);opacity:0.85}
+  85%{transform:translate(-6px,-1003px) scale(0.9);opacity:0.6}
+  100%{transform:translate(0px,-1180px) scale(0.75);opacity:0}
+}
+</style>
+</head>
+<body>
+<div class="stage">
+<svg id="scene" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bgGrad" cx="50%" cy="46%" r="65%">
+      <stop offset="0%" stop-color="#101A3B"/>
+      <stop offset="45%" stop-color="#090E24"/>
+      <stop offset="100%" stop-color="#050814"/>
+    </radialGradient>
+    <radialGradient id="goldAura" cx="50%" cy="28%" r="42%">
+      <stop offset="0%" stop-color="#F59E0B" stop-opacity="0.24"/>
+      <stop offset="55%" stop-color="#FDE68A" stop-opacity="0.07"/>
+      <stop offset="100%" stop-color="#050814" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="cyanAura" cx="50%" cy="68%" r="28%">
+      <stop offset="0%" stop-color="#2DD4BF" stop-opacity="0.3"/>
+      <stop offset="55%" stop-color="#14B8A6" stop-opacity="0.09"/>
+      <stop offset="100%" stop-color="#050814" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="goldTube" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FEF3C7"/>
+      <stop offset="45%" stop-color="#FDE68A"/>
+      <stop offset="100%" stop-color="#F59E0B"/>
+    </linearGradient>
+    <linearGradient id="amberTube" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FDE68A"/>
+      <stop offset="50%" stop-color="#F59E0B"/>
+      <stop offset="100%" stop-color="#D97706"/>
+    </linearGradient>
+    <linearGradient id="cyanTube" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F0FDFA"/>
+      <stop offset="45%" stop-color="#5EEAD4"/>
+      <stop offset="100%" stop-color="#2DD4BF"/>
+    </linearGradient>
+    <linearGradient id="marqueeBg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0E1734" stop-opacity="0.95"/>
+      <stop offset="50%" stop-color="#080D20" stop-opacity="0.97"/>
+      <stop offset="100%" stop-color="#050814" stop-opacity="0.96"/>
+    </linearGradient>
+    <radialGradient id="medallionBg" cx="50%" cy="50%" r="55%">
+      <stop offset="0%" stop-color="#0D2634"/>
+      <stop offset="65%" stop-color="#071022"/>
+      <stop offset="100%" stop-color="#050814"/>
+    </radialGradient>
+    <radialGradient id="bubbleGrad" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#FFFBEB"/>
+      <stop offset="50%" stop-color="#FDE68A"/>
+      <stop offset="100%" stop-color="#F59E0B" stop-opacity="0.25"/>
+    </radialGradient>
+    <pattern id="decoPattern" width="120" height="120" patternUnits="userSpaceOnUse">
+      <path d="M0 120 A60 60 0 0 1 120 120 M20 120 A40 40 0 0 1 100 120 M40 120 A20 20 0 0 1 80 120 M60 120 L60 60 M60 120 L18 78 M60 120 L102 78" fill="none" stroke="#FDE68A" stroke-width="0.9" opacity="0.065"/>
+      <path d="M-60 60 A60 60 0 0 1 60 60 M60 60 A60 60 0 0 1 180 60" fill="none" stroke="#F59E0B" stroke-width="0.8" opacity="0.05"/>
+    </pattern>
+    <filter id="goldGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="5" result="b1"/>
+      <feGaussianBlur stdDeviation="12" result="b2"/>
+      <feMerge>
+        <feMergeNode in="b2"/>
+        <feMergeNode in="b1"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="softGoldGlow" x="-25%" y="-25%" width="150%" height="150%">
+      <feGaussianBlur stdDeviation="3.5" result="b1"/>
+      <feMerge>
+        <feMergeNode in="b1"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="cyanGlow" x="-35%" y="-35%" width="170%" height="170%">
+      <feGaussianBlur stdDeviation="6" result="b1"/>
+      <feGaussianBlur stdDeviation="15" result="b2"/>
+      <feMerge>
+        <feMergeNode in="b2"/>
+        <feMergeNode in="b1"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="textGlow" x="-20%" y="-40%" width="140%" height="180%">
+      <feGaussianBlur stdDeviation="7" result="b1"/>
+      <feGaussianBlur stdDeviation="16" result="b2"/>
+      <feMerge>
+        <feMergeNode in="b2"/>
+        <feMergeNode in="b1"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#bgGrad)"/>
+  <rect width="1920" height="1080" fill="url(#decoPattern)"/>
+  <rect width="1920" height="1080" fill="url(#goldAura)"/>
+  <ellipse cx="960" cy="735" rx="460" ry="320" fill="url(#cyanAura)" class="medallion-aura"/>
+
+  <g id="sunbeams" filter="url(#softGoldGlow)"></g>
+  <g id="sideArches" class="fan-pulse" filter="url(#softGoldGlow)"></g>
+  <g id="bubbles"></g>
+
+  <g id="frame" class="border-shimmer" filter="url(#softGoldGlow)">
+    <path d="M110 42 L1810 42 L1810 72 L1844 72 L1844 106 L1876 106 L1876 974 L1844 974 L1844 1008 L1810 1008 L1810 1038 L110 1038 L110 1008 L76 1008 L76 974 L44 974 L44 106 L76 106 L76 72 L110 72 Z" fill="none" stroke="url(#goldTube)" stroke-width="3.2"/>
+    <path d="M126 58 L1794 58 L1794 88 L1828 88 L1828 122 L1860 122 L1860 958 L1828 958 L1828 992 L1794 992 L1794 1022 L126 1022 L126 992 L92 992 L92 958 L60 958 L60 122 L92 122 L92 88 L126 88 Z" fill="none" stroke="#F59E0B" stroke-width="1.8" opacity="0.85"/>
+    <path d="M148 74 L1772 74 M148 1006 L1772 1006 M76 146 L76 934 M1844 146 L1844 934" fill="none" stroke="#FDE68A" stroke-width="1.2" opacity="0.6"/>
+  </g>
+  <g id="cornerFans" class="fan-pulse" filter="url(#softGoldGlow)"></g>
+
+  <g id="marquee" class="marquee-glow">
+    <path d="M680 185 L730 142 L820 142 L860 112 L1060 112 L1100 142 L1190 142 L1240 185" fill="none" stroke="url(#goldTube)" stroke-width="3" filter="url(#goldGlow)"/>
+    <path d="M720 185 L756 156 L832 156 L868 128 L1052 128 L1088 156 L1164 156 L1200 185" fill="none" stroke="#F59E0B" stroke-width="2" filter="url(#softGoldGlow)"/>
+    <g filter="url(#softGoldGlow)">
+      <path d="M960 72 L978 96 L960 120 L942 96 Z" fill="#FDE68A" stroke="#FFFBEB" stroke-width="1.5"/>
+      <line x1="960" y1="58" x2="960" y2="112" stroke="#FDE68A" stroke-width="2.2"/>
+      <line x1="910" y1="112" x2="932" y2="76" stroke="#F59E0B" stroke-width="2"/>
+      <line x1="1010" y1="112" x2="988" y2="76" stroke="#F59E0B" stroke-width="2"/>
+      <line x1="876" y1="112" x2="906" y2="86" stroke="#FDE68A" stroke-width="1.6"/>
+      <line x1="1044" y1="112" x2="1014" y2="86" stroke="#FDE68A" stroke-width="1.6"/>
+    </g>
+
+    <path d="M350 185 L1570 185 L1612 225 L1644 225 L1644 335 L1612 335 L1570 375 L350 375 L308 335 L276 335 L276 225 L308 225 Z" fill="url(#marqueeBg)" stroke="url(#goldTube)" stroke-width="4.5" filter="url(#goldGlow)"/>
+    <path d="M362 199 L1558 199 L1596 236 L1628 236 L1628 324 L1596 324 L1558 361 L362 361 L324 324 L292 324 L292 236 L324 236 Z" fill="none" stroke="#F59E0B" stroke-width="2.2" filter="url(#softGoldGlow)"/>
+    <path d="M376 211 L1544 211 M376 349 L1544 349" stroke="#FDE68A" stroke-width="1.4" opacity="0.85"/>
+
+    <g filter="url(#softGoldGlow)">
+      <path d="M250 280 L276 262 L292 280 L276 298 Z" fill="#FDE68A"/>
+      <path d="M1670 280 L1644 262 L1628 280 L1644 298 Z" fill="#FDE68A"/>
+      <path d="M180 280 L242 280 M1678 280 L1740 280" stroke="url(#goldTube)" stroke-width="3"/>
+      <path d="M210 264 L244 264 M210 296 L244 296 M1676 264 L1710 264 M1676 296 L1710 296" stroke="#F59E0B" stroke-width="2"/>
+      <polygon points="168,280 180,270 192,280 180,290" fill="#FDE68A"/>
+      <polygon points="1752,280 1740,270 1728,280 1740,290" fill="#FDE68A"/>
+    </g>
+
+    <g filter="url(#textGlow)">
+      <text x="960" y="282" class="marquee-text-halo">HAPPY NEW YEAR</text>
+      <text x="960" y="282" class="marquee-text-tube">HAPPY NEW YEAR</text>
+      <text x="960" y="282" class="marquee-text-inline">HAPPY NEW YEAR</text>
+      <text x="960" y="282" class="marquee-text-core">HAPPY NEW YEAR</text>
+    </g>
+
+    <path d="M770 375 L825 408 L1095 408 L1150 375" fill="none" stroke="url(#goldTube)" stroke-width="2.6" filter="url(#softGoldGlow)"/>
+    <path d="M845 408 L885 432 L1035 432 L1075 408" fill="none" stroke="#F59E0B" stroke-width="2" filter="url(#softGoldGlow)"/>
+    <polygon points="960,418 972,432 960,446 948,432" fill="#FDE68A" filter="url(#softGoldGlow)"/>
+  </g>
+
+  <g id="medallion">
+    <g filter="url(#softGoldGlow)">
+      <path d="M515 735 L640 735 M1280 735 L1405 735" stroke="url(#goldTube)" stroke-width="3.2"/>
+      <path d="M560 715 L652 715 M560 755 L652 755 M1268 715 L1360 715 M1268 755 L1360 755" stroke="#F59E0B" stroke-width="2"/>
+      <path d="M602 695 L666 695 M602 775 L666 775 M1254 695 L1318 695 M1254 775 L1318 775" stroke="#FDE68A" stroke-width="1.5" opacity="0.8"/>
+      <polygon points="498,735 515,722 532,735 515,748" fill="#FDE68A"/>
+      <polygon points="1422,735 1405,722 1388,735 1405,748" fill="#FDE68A"/>
+    </g>
+
+    <polygon id="octBurst" class="tick-flash" fill="none" stroke="#2DD4BF" stroke-width="3.5" filter="url(#cyanGlow)"/>
+    <polygon id="octOuter" fill="url(#medallionBg)" stroke="url(#goldTube)" stroke-width="5" filter="url(#goldGlow)"/>
+    <polygon id="octStep" fill="none" stroke="#F59E0B" stroke-width="2.4" filter="url(#softGoldGlow)"/>
+    <polygon id="octCyanOuter" class="medallion-ring" fill="none" stroke="url(#cyanTube)" stroke-width="4.2" filter="url(#cyanGlow)"/>
+    <polygon id="octCyanInner" fill="none" stroke="#5EEAD4" stroke-width="1.6" opacity="0.85"/>
+    <g id="octStarGroup" class="medallion-star" opacity="0.45"></g>
+    <g id="octVertices" filter="url(#softGoldGlow)"></g>
+
+    <g filter="url(#cyanGlow)">
+      <text x="960" y="738" class="cd-num cd-10" fill="#F0FDFA" stroke="#2DD4BF" stroke-width="4" paint-order="stroke">10</text>
+      <text x="960" y="738" class="cd-num cd-9" fill="#F0FDFA" stroke="#2DD4BF" stroke-width="4" paint-order="stroke">9</text>
+      <text x="960" y="738" class="cd-num cd-8" fill="#F0FDFA" stroke="#2DD4BF" stroke-width="4" paint-order="stroke">8</text>
+      <text x="960" y="738" class="cd-num cd-7" fill="#F0FDFA" stroke="#2DD4BF" stroke-width="4" paint-order="stroke">7</text>
+      <text x="960" y="738" class="cd-num cd-6" fill="#F0FDFA" stroke="#2DD4BF" stroke-width="4" paint-order="stroke">6</text>
+      <text x="960" y="738" class="cd-num cd-5" fill="#F0FDFA" stroke="#2DD4BF" stroke-width="4" paint-order="stroke">5</text>
+      <text x="960" y="738" class="cd-num cd-4" fill="#F0FDFA" stroke="#2DD4BF" stroke-width="4" paint-order="stroke">4</text>
+      <text x="960" y="738" class="cd-num cd-3" fill="#F0FDFA" stroke="#2DD4BF" stroke-width="4" paint-order="stroke">3</text>
+      <text x="960" y="738" class="cd-num cd-2" fill="#F0FDFA" stroke="#2DD4BF" stroke-width="4" paint-order="stroke">2</text>
+      <text x="960" y="738" class="cd-num cd-1" fill="#F0FDFA" stroke="#2DD4BF" stroke-width="4" paint-order="stroke">1</text>
+    </g>
+  </g>
+</svg>
+</div>
+<script>
+(function(){
+  const ns="http://www.w3.org/2000/svg";
+  function el(tag,attrs,parent){
+    const n=document.createElementNS(ns,tag);
+    for(const k in attrs)n.setAttribute(k,attrs[k]);
+    if(parent)parent.appendChild(n);
+    return n;
+  }
+
+  const sunbeams=document.getElementById("sunbeams");
+  const cx=960,cy=510;
+  const totalRays=36;
+  for(let i=0;i<totalRays;i++){
+    const a=(i/totalRays)*Math.PI*2;
+    const cos=Math.cos(a),sin=Math.sin(a);
+    const isMajor=i%2===0;
+    const c1=isMajor?"#FDE68A":"#F59E0B";
+    el("line",{
+      x1:(cx+cos*180).toFixed(1),y1:(cy+sin*180).toFixed(1),
+      x2:(cx+cos*430).toFixed(1),y2:(cy+sin*430).toFixed(1),
+      stroke:c1,"stroke-linecap":"round",class:"ray-inner"
+    },sunbeams);
+    el("line",{
+      x1:(cx+cos*455).toFixed(1),y1:(cy+sin*455).toFixed(1),
+      x2:(cx+cos*740).toFixed(1),y2:(cy+sin*740).toFixed(1),
+      stroke:c1,"stroke-linecap":"round",class:"ray-mid"
+    },sunbeams);
+    el("line",{
+      x1:(cx+cos*765).toFixed(1),y1:(cy+sin*765).toFixed(1),
+      x2:(cx+cos*1080).toFixed(1),y2:(cy+sin*1080).toFixed(1),
+      stroke:c1,"stroke-linecap":"round",class:"ray-outer"
+    },sunbeams);
+  }
+
+  const sideArches=document.getElementById("sideArches");
+  function drawArchFan(ox,oy,rMax,startDeg,endDeg,spokes,rings,parent){
+    for(let r=1;r<=rings;r++){
+      const rad=(rMax/rings)*r;
+      const s=startDeg*Math.PI/180,e=endDeg*Math.PI/180;
+      const x1=ox+Math.cos(s)*rad,y1=oy+Math.sin(s)*rad;
+      const x2=ox+Math.cos(e)*rad,y2=oy+Math.sin(e)*rad;
+      const large=Math.abs(endDeg-startDeg)>180?1:0;
+      const sweep=endDeg>startDeg?1:0;
+      el("path",{
+        d:`M${x1.toFixed(1)} ${y1.toFixed(1)} A${rad.toFixed(1)} ${rad.toFixed(1)} 0 ${large} ${sweep} ${x2.toFixed(1)} ${y2.toFixed(1)}`,
+        fill:"none",stroke:r%2===0?"#FDE68A":"#F59E0B","stroke-width":r===rings?"2.6":"1.6",opacity:r===rings?"0.9":"0.65"
+      },parent);
+    }
+    for(let i=0;i<=spokes;i++){
+      const deg=startDeg+(endDeg-startDeg)*(i/spokes);
+      const rad=deg*Math.PI/180;
+      el("line",{
+        x1:ox,y1:oy,
+        x2:(ox+Math.cos(rad)*rMax).toFixed(1),
+        y2:(oy+Math.sin(rad)*rMax).toFixed(1),
+        stroke:i%2===0?"#FDE68A":"#F59E0B","stroke-width":"1.4",opacity:"0.65"
+      },parent);
+    }
+  }
+
+  drawArchFan(76,540,210,-90,90,10,4,sideArches);
+  drawArchFan(1844,540,210,90,270,10,4,sideArches);
+  drawArchFan(960,1038,240,180,360,12,4,sideArches);
+
+  const cornerFans=document.getElementById("cornerFans");
+  drawArchFan(76,72,155,0,90,6,3,cornerFans);
+  drawArchFan(1844,72,155,90,180,6,3,cornerFans);
+  drawArchFan(76,1008,155,270,360,6,3,cornerFans);
+  drawArchFan(1844,1008,155,180,270,6,3,cornerFans);
+
+  function octPoints(ox,oy,r){
+    const pts=[];
+    for(let i=0;i<8;i++){
+      const a=(i*45+22.5)*Math.PI/180;
+      pts.push(`${(ox+Math.cos(a)*r).toFixed(1)},${(oy+Math.sin(a)*r).toFixed(1)}`);
+    }
+    return pts.join(" ");
+  }
+
+  const mcx=960,mcy=735;
+  document.getElementById("octBurst").setAttribute("points",octPoints(mcx,mcy,232));
+  document.getElementById("octOuter").setAttribute("points",octPoints(mcx,mcy,256));
+  document.getElementById("octStep").setAttribute("points",octPoints(mcx,mcy,236));
+  document.getElementById("octCyanOuter").setAttribute("points",octPoints(mcx,mcy,214));
+  document.getElementById("octCyanInner").setAttribute("points",octPoints(mcx,mcy,194));
+
+  const starGroup=document.getElementById("octStarGroup");
+  el("polygon",{points:octPoints(mcx,mcy,182),fill:"none",stroke:"#2DD4BF","stroke-width":"1.2"},starGroup);
+  const star2=[];
+  for(let i=0;i<8;i++){
+    const a=(i*45)*Math.PI/180;
+    star2.push(`${(mcx+Math.cos(a)*182).toFixed(1)},${(mcy+Math.sin(a)*182).toFixed(1)}`);
+  }
+  el("polygon",{points:star2.join(" "),fill:"none",stroke:"#FDE68A","stroke-width":"1.1"},starGroup);
+
+  const vertGroup=document.getElementById("octVertices");
+  for(let i=0;i<8;i++){
+    const a=(i*45+22.5)*Math.PI/180;
+    const vx=mcx+Math.cos(a)*256,vy=mcy+Math.sin(a)*256;
+    el("circle",{cx:vx.toFixed(1),cy:vy.toFixed(1),r:"5.5",fill:"#FDE68A",stroke:"#FFFBEB","stroke-width":"1.2"},vertGroup);
+    const ix=mcx+Math.cos(a)*214,iy=mcy+Math.sin(a)*214;
+    el("circle",{cx:ix.toFixed(1),cy:iy.toFixed(1),r:"3.5",fill:"#F0FDFA"},vertGroup);
+  }
+
+  const bubbles=document.getElementById("bubbles");
+  const bubbleData=[
+    [118,5.2,10,-0.4],[148,3.4,5,-1.2],[176,6.0,10,-2.8],[212,2.8,5,-3.6],[244,4.5,10,-5.1],
+    [132,3.8,5,-0.8],[164,5.6,10,-6.4],[198,3.1,5,-2.1],[228,4.9,10,-7.9],[268,2.6,5,-4.3],
+    [110,4.2,10,-8.6],[154,2.5,5,-0.2],[188,6.5,10,-1.9],[222,3.6,5,-2.9],[258,4.1,10,-4.7],
+    [140,5.0,5,-3.4],[172,2.9,10,-9.1],[206,4.4,5,-1.6],[238,5.8,10,-3.3],[284,3.2,5,-4.8],
+    [126,2.7,10,-5.9],[160,4.8,5,-2.4],[194,3.5,10,-7.2],[230,6.2,5,-0.5],[272,3.9,10,-8.1],
+    [1802,5.2,10,-1.4],[1772,3.4,5,-2.2],[1744,6.0,10,-3.8],[1708,2.8,5,-0.6],[1676,4.5,10,-6.1],
+    [1788,3.8,5,-1.8],[1756,5.6,10,-7.4],[1722,3.1,5,-3.1],[1692,4.9,10,-8.9],[1652,2.6,5,-1.3],
+    [1810,4.2,10,-9.6],[1766,2.5,5,-4.2],[1732,6.5,10,-2.9],[1698,3.6,5,-3.9],[1662,4.1,10,-5.7],
+    [1780,5.0,5,-0.4],[1748,2.9,10,-0.1],[1714,4.4,5,-2.6],[1682,5.8,10,-4.3],[1636,3.2,5,-1.8],
+    [1794,2.7,10,-6.9],[1760,4.8,5,-3.4],[1726,3.5,10,-8.2],[1690,6.2,5,-1.5],[1648,3.9,10,-9.1]
+  ];
+  for(let i=0;i<bubbleData.length;i++){
+    const b=bubbleData[i];
+    const g=el("g",{
+      class:b[2]===10?"bubble-slow":"bubble-fast",
+      style:`animation-delay:${b[3]}s`
+    },bubbles);
+    el("circle",{
+      cx:b[0],cy:1120,r:b[1],
+      fill:"url(#bubbleGrad)",
+      stroke:"#FEF3C7","stroke-width":"0.8"
+    },g);
+  }
+})();
+</script>
+</body>
+</html>

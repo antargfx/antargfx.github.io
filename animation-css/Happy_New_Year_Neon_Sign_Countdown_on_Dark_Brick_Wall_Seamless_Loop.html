@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy New Year Neon Sign Countdown on Dark Brick Wall Seamless Loop</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#070811}
+svg{display:block;width:100%;height:100%}
+.neon-text{font-family:'Arial Rounded MT Bold','Trebuchet MS','Helvetica Neue',Arial,sans-serif;font-weight:900;text-anchor:middle;dominant-baseline:central}
+</style>
+</head>
+<body>
+<svg id="stage" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<linearGradient id="wallBase" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0%" stop-color="#090b16"/>
+<stop offset="50%" stop-color="#0d1122"/>
+<stop offset="100%" stop-color="#070912"/>
+</linearGradient>
+<radialGradient id="wallVignette" cx="50%" cy="50%" r="72%">
+<stop offset="0%" stop-color="#000000" stop-opacity="0"/>
+<stop offset="68%" stop-color="#04050c" stop-opacity="0.35"/>
+<stop offset="100%" stop-color="#020308" stop-opacity="0.88"/>
+</radialGradient>
+<radialGradient id="reflectMagenta" cx="50%" cy="50%" r="50%">
+<stop offset="0%" stop-color="#FF007F" stop-opacity="0.46"/>
+<stop offset="42%" stop-color="#FF007F" stop-opacity="0.18"/>
+<stop offset="100%" stop-color="#FF007F" stop-opacity="0"/>
+</radialGradient>
+<radialGradient id="reflectCyan" cx="50%" cy="50%" r="50%">
+<stop offset="0%" stop-color="#00F0FF" stop-opacity="0.44"/>
+<stop offset="45%" stop-color="#00F0FF" stop-opacity="0.16"/>
+<stop offset="100%" stop-color="#00F0FF" stop-opacity="0"/>
+</radialGradient>
+<radialGradient id="reflectGold" cx="50%" cy="50%" r="50%">
+<stop offset="0%" stop-color="#FFD600" stop-opacity="0.42"/>
+<stop offset="46%" stop-color="#FF9D00" stop-opacity="0.15"/>
+<stop offset="100%" stop-color="#FFD600" stop-opacity="0"/>
+</radialGradient>
+<radialGradient id="sparkGrad" cx="50%" cy="50%" r="50%">
+<stop offset="0%" stop-color="#FFFFFF" stop-opacity="1"/>
+<stop offset="35%" stop-color="#FFE666" stop-opacity="0.95"/>
+<stop offset="70%" stop-color="#FFD600" stop-opacity="0.45"/>
+<stop offset="100%" stop-color="#FF9900" stop-opacity="0"/>
+</radialGradient>
+<filter id="glowMagenta" x="-40%" y="-40%" width="180%" height="180%">
+<feGaussianBlur stdDeviation="16" result="b1"/>
+<feGaussianBlur stdDeviation="6" result="b2"/>
+<feMerge>
+<feMergeNode in="b1"/>
+<feMergeNode in="b2"/>
+<feMergeNode in="SourceGraphic"/>
+</feMerge>
+</filter>
+<filter id="glowCyan" x="-40%" y="-40%" width="180%" height="180%">
+<feGaussianBlur stdDeviation="16" result="b1"/>
+<feGaussianBlur stdDeviation="6" result="b2"/>
+<feMerge>
+<feMergeNode in="b1"/>
+<feMergeNode in="b2"/>
+<feMergeNode in="SourceGraphic"/>
+</feMerge>
+</filter>
+<filter id="glowGold" x="-40%" y="-40%" width="180%" height="180%">
+<feGaussianBlur stdDeviation="15" result="b1"/>
+<feGaussianBlur stdDeviation="5" result="b2"/>
+<feMerge>
+<feMergeNode in="b1"/>
+<feMergeNode in="b2"/>
+<feMergeNode in="SourceGraphic"/>
+</feMerge>
+</filter>
+<filter id="softBloom" x="-40%" y="-40%" width="180%" height="180%">
+<feGaussianBlur stdDeviation="9"/>
+</filter>
+</defs>
+
+<rect width="1920" height="1080" fill="url(#wallBase)"/>
+<g id="brickWall"></g>
+
+<g id="wallReflections" style="mix-blend-mode:screen">
+<ellipse id="glowWallM" cx="960" cy="215" rx="760" ry="260" fill="url(#reflectMagenta)"/>
+<ellipse id="glowWallC" cx="960" cy="365" rx="820" ry="270" fill="url(#reflectCyan)"/>
+<circle id="glowWallG" cx="960" cy="755" r="410" fill="url(#reflectGold)"/>
+</g>
+
+<rect width="1920" height="1080" fill="url(#wallVignette)"/>
+
+<g id="hardware">
+<path d="M 960 442 L 960 518" stroke="#080a12" stroke-width="10" stroke-linecap="round"/>
+<path d="M 960 442 L 960 518" stroke="#1e2438" stroke-width="2" stroke-linecap="round"/>
+<path d="M 300 268 C 210 268, 175 340, 175 430 L 175 1080" fill="none" stroke="#070910" stroke-width="8" stroke-linecap="round"/>
+<path d="M 1620 268 C 1710 268, 1745 340, 1745 430 L 1745 1080" fill="none" stroke="#070910" stroke-width="8" stroke-linecap="round"/>
+<path d="M 960 985 C 960 1035, 1020 1045, 1110 1045 L 1920 1045" fill="none" stroke="#070910" stroke-width="7"/>
+<rect x="304" y="88" width="1312" height="354" rx="46" fill="none" stroke="#090b14" stroke-width="16"/>
+<rect x="304" y="88" width="1312" height="354" rx="46" fill="none" stroke="#1d2236" stroke-width="2"/>
+<line x1="360" y1="196" x2="1560" y2="196" stroke="#0a0d17" stroke-width="8"/>
+<line x1="360" y1="348" x2="1560" y2="348" stroke="#0a0d17" stroke-width="8"/>
+<circle cx="960" cy="755" r="228" fill="none" stroke="#090b14" stroke-width="18"/>
+<circle cx="960" cy="755" r="228" fill="none" stroke="#1b2033" stroke-width="2"/>
+<circle cx="960" cy="755" r="182" fill="none" stroke="#090b14" stroke-width="10"/>
+<line x1="732" y1="755" x2="1188" y2="755" stroke="#090b14" stroke-width="8"/>
+<line x1="960" y1="527" x2="960" y2="983" stroke="#090b14" stroke-width="8"/>
+<g id="brackets"></g>
+</g>
+
+<g id="signFrame">
+<g id="frameMagenta">
+<path d="M 350 88 L 1570 88 A 46 46 0 0 1 1616 134 L 1616 244" fill="none" stroke="#FF007F" stroke-width="14" stroke-linecap="round" filter="url(#glowMagenta)" opacity="0.65"/>
+<path d="M 350 88 L 1570 88 A 46 46 0 0 1 1616 134 L 1616 244" fill="none" stroke="#FF007F" stroke-width="7" stroke-linecap="round"/>
+<path d="M 350 88 L 1570 88 A 46 46 0 0 1 1616 134 L 1616 244" fill="none" stroke="#FFE6F3" stroke-width="2.4" stroke-linecap="round"/>
+<path d="M 304 244 L 304 134 A 46 46 0 0 1 350 88" fill="none" stroke="#FF007F" stroke-width="14" stroke-linecap="round" filter="url(#glowMagenta)" opacity="0.65"/>
+<path d="M 304 244 L 304 134 A 46 46 0 0 1 350 88" fill="none" stroke="#FF007F" stroke-width="7" stroke-linecap="round"/>
+<path d="M 304 244 L 304 134 A 46 46 0 0 1 350 88" fill="none" stroke="#FFE6F3" stroke-width="2.4" stroke-linecap="round"/>
+</g>
+<g id="frameCyan">
+<path d="M 1616 284 L 1616 396 A 46 46 0 0 1 1570 442 L 350 442 A 46 46 0 0 1 304 396 L 304 284" fill="none" stroke="#00F0FF" stroke-width="14" stroke-linecap="round" filter="url(#glowCyan)" opacity="0.65"/>
+<path d="M 1616 284 L 1616 396 A 46 46 0 0 1 1570 442 L 350 442 A 46 46 0 0 1 304 396 L 304 284" fill="none" stroke="#00F0FF" stroke-width="7" stroke-linecap="round"/>
+<path d="M 1616 284 L 1616 396 A 46 46 0 0 1 1570 442 L 350 442 A 46 46 0 0 1 304 396 L 304 284" fill="none" stroke="#E8FDFF" stroke-width="2.4" stroke-linecap="round"/>
+</g>
+<rect x="296" y="238" width="16" height="16" rx="3" fill="#0d101b" stroke="#242a40" stroke-width="1.5"/>
+<rect x="296" y="274" width="16" height="16" rx="3" fill="#0d101b" stroke="#242a40" stroke-width="1.5"/>
+<rect x="1608" y="238" width="16" height="16" rx="3" fill="#0d101b" stroke="#242a40" stroke-width="1.5"/>
+<rect x="1608" y="274" width="16" height="16" rx="3" fill="#0d101b" stroke="#242a40" stroke-width="1.5"/>
+</g>
+
+<g id="neonHappy">
+<text x="960" y="196" font-size="138" letter-spacing="22" class="neon-text" fill="none" stroke="#FF007F" stroke-width="20" stroke-linejoin="round" filter="url(#glowMagenta)" opacity="0.72">HAPPY</text>
+<text x="960" y="196" font-size="138" letter-spacing="22" class="neon-text" fill="none" stroke="#FF007F" stroke-width="10" stroke-linejoin="round">HAPPY</text>
+<text x="960" y="196" font-size="138" letter-spacing="22" class="neon-text" fill="none" stroke="#220314" stroke-width="4.2" stroke-linejoin="round">HAPPY</text>
+<text x="960" y="196" font-size="138" letter-spacing="22" class="neon-text" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linejoin="round">HAPPY</text>
+</g>
+
+<g id="neonNewYear">
+<text x="960" y="348" font-size="146" letter-spacing="18" class="neon-text" fill="none" stroke="#00F0FF" stroke-width="20" stroke-linejoin="round" filter="url(#glowCyan)" opacity="0.72">NEW YEAR</text>
+<text x="960" y="348" font-size="146" letter-spacing="18" class="neon-text" fill="none" stroke="#00F0FF" stroke-width="10" stroke-linejoin="round">NEW YEAR</text>
+<text x="960" y="348" font-size="146" letter-spacing="18" class="neon-text" fill="none" stroke="#041e26" stroke-width="4.2" stroke-linejoin="round">NEW YEAR</text>
+<text x="960" y="348" font-size="146" letter-spacing="18" class="neon-text" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linejoin="round">NEW YEAR</text>
+</g>
+
+<g id="countdownDial">
+<circle id="innerRingBloom" cx="960" cy="755" r="182" fill="none" stroke="#FFD600" stroke-width="12" filter="url(#glowGold)" opacity="0.5"/>
+<circle id="innerRingTube" cx="960" cy="755" r="182" fill="none" stroke="#FFD600" stroke-width="5"/>
+<circle id="innerRingCore" cx="960" cy="755" r="182" fill="none" stroke="#FFFCE0" stroke-width="1.8"/>
+<g id="ringSegments"></g>
+<g id="countdownNumberGroup" transform="translate(960,755)">
+<text id="numBloom" x="0" y="4" font-size="210" class="neon-text" fill="none" stroke="#FFD600" stroke-width="24" stroke-linejoin="round" filter="url(#glowGold)" opacity="0.78">10</text>
+<text id="numTube" x="0" y="4" font-size="210" class="neon-text" fill="none" stroke="#FFD600" stroke-width="12" stroke-linejoin="round">10</text>
+<text id="numInner" x="0" y="4" font-size="210" class="neon-text" fill="none" stroke="#261c00" stroke-width="4.8" stroke-linejoin="round">10</text>
+<text id="numCore" x="0" y="4" font-size="210" class="neon-text" fill="none" stroke="#FFFFFF" stroke-width="2.8" stroke-linejoin="round">10</text>
+</g>
+</g>
+
+<g id="sparks"></g>
+</svg>
+<script>
+(function(){
+const ns="http://www.w3.org/2000/svg";
+function el(tag,attrs,parent){
+const node=document.createElementNS(ns,tag);
+for(const k in attrs){node.setAttribute(k,attrs[k]);}
+if(parent)parent.appendChild(node);
+return node;
+}
+
+const brickWall=document.getElementById("brickWall");
+const brickW=112,brickH=48,gap=8;
+const palette=["#131728","#161b2f","#111424","#181d33","#14192c","#101322"];
+for(let row=0;row* (brickH+gap)<1080+brickH;row++){
+const y=row*(brickH+gap);
+const offset=(row%2===0)?0:-(brickW+gap)/2;
+for(let col=0;col*(brickW+gap)+offset<1920+brickW;col++){
+const x=col*(brickW+gap)+offset;
+const idx=(row*7+col*13+row*col*3)%palette.length;
+el("rect",{x:x,y:y,width:brickW,height:brickH,rx:4,fill:palette[idx],stroke:"#1f2540","stroke-width":1,"stroke-opacity":0.32},brickWall);
+el("line",{x1:x+5,y1:y+2,x2:x+brickW-5,y2:y+2,stroke:"#283052","stroke-width":1.2,"stroke-opacity":0.28},brickWall);
+el("line",{x1:x+5,y1:y+brickH-2,x2:x+brickW-5,y2:y+brickH-2,stroke:"#05060c","stroke-width":1.5,"stroke-opacity":0.55},brickWall);
+}
+}
+
+const brackets=document.getElementById("brackets");
+const topClips=[460,710,960,1210,1460];
+topClips.forEach(cx=>{
+el("rect",{x:cx-6,y:78,width:12,height:20,rx:3,fill:"#0a0c15",stroke:"#252c44","stroke-width":1.2},brackets);
+el("rect",{x:cx-6,y:432,width:12,height:20,rx:3,fill:"#0a0c15",stroke:"#252c44","stroke-width":1.2},brackets);
+});
+
+const ringSegments=document.getElementById("ringSegments");
+const segCount=10;
+const cx=960,cy=755,r=228;
+const segEls=[];
+for(let i=0;i<segCount;i++){
+const a0=(-90+i*36+4)*Math.PI/180;
+const a1=(-90+(i+1)*36-4)*Math.PI/180;
+const x0=cx+r*Math.cos(a0),y0=cy+r*Math.sin(a0);
+const x1=cx+r*Math.cos(a1),y1=cy+r*Math.sin(a1);
+const d=`M ${x0.toFixed(2)} ${y0.toFixed(2)} A ${r} ${r} 0 0 1 ${x1.toFixed(2)} ${y1.toFixed(2)}`;
+const g=el("g",{},ringSegments);
+const bloom=el("path",{d:d,fill:"none",stroke:"#FFD600","stroke-width":18,"stroke-linecap":"round",filter:"url(#glowGold)",opacity:0.6},g);
+const tube=el("path",{d:d,fill:"none",stroke:"#FFD600","stroke-width":9,"stroke-linecap":"round"},g);
+const core=el("path",{d:d,fill:"none",stroke:"#FFFFFF","stroke-width":3,"stroke-linecap":"round"},g);
+segEls.push({g,bloom,tube,core});
+const midA=(-90+i*36)*Math.PI/180;
+const mx=cx+r*Math.cos(midA),my=cy+r*Math.sin(midA);
+el("circle",{cx:mx.toFixed(2),cy:my.toFixed(2),r:5.5,fill:"#090b14",stroke:"#28304a","stroke-width":1.4},brackets);
+}
+
+const sparksGroup=document.getElementById("sparks");
+const sparkData=[];
+const sparkCount=48;
+for(let i=0;i<sparkCount;i++){
+const s1=Math.sin(i*12.9898)*43758.5453;
+const r1=s1-Math.floor(s1);
+const s2=Math.sin(i*78.233+1.7)*24634.6345;
+const r2=s2-Math.floor(s2);
+const s3=Math.sin(i*39.425+3.1)*19283.1234;
+const r3=s3-Math.floor(s3);
+const x0=120+r1*1680;
+const y0=r2*1160;
+const speed=(1+Math.floor(r3*2));
+const amp=14+r2*34;
+const freq=1+Math.floor(r1*2);
+const phase=r3*Math.PI*2;
+const radius=2.6+r1*5.2;
+const twFreq=2+Math.floor(r2*4);
+const circle=el("circle",{cx:x0,cy:y0,r:radius,fill:"url(#sparkGrad)"},sparksGroup);
+sparkData.push({el:circle,x0,y0,speed,amp,freq,phase,radius,twFreq});
+}
+
+const neonHappy=document.getElementById("neonHappy");
+const neonNewYear=document.getElementById("neonNewYear");
+const frameMagenta=document.getElementById("frameMagenta");
+const frameCyan=document.getElementById("frameCyan");
+const glowWallM=document.getElementById("glowWallM");
+const glowWallC=document.getElementById("glowWallC");
+const glowWallG=document.getElementById("glowWallG");
+const innerRingBloom=document.getElementById("innerRingBloom");
+const innerRingTube=document.getElementById("innerRingTube");
+const numGroup=document.getElementById("countdownNumberGroup");
+const numBloom=document.getElementById("numBloom");
+const numTube=document.getElementById("numTube");
+const numInner=document.getElementById("numInner");
+const numCore=document.getElementById("numCore");
+
+function dip(t,center,width,depth){
+const d=(t-center)/width;
+return depth*Math.exp(-d*d);
+}
+
+function render(ts){
+const t=(((ts%10000)+10000)%10000)/10000;
+const secFloat=t*10;
+const secIdx=Math.floor(secFloat)%10;
+const frac=secFloat-Math.floor(secFloat);
+const numStr=String(10-secIdx);
+
+if(numTube.textContent!==numStr){
+numBloom.textContent=numStr;
+numTube.textContent=numStr;
+numInner.textContent=numStr;
+numCore.textContent=numStr;
+}
+
+const flickM=1
+-dip(t,0.142,0.008,0.42)
+-dip(t,0.158,0.005,0.28)
+-dip(t,0.615,0.006,0.34)
++0.025*Math.sin(t*Math.PI*2*10);
+
+const flickC=1
+-dip(t,0.372,0.007,0.45)
+-dip(t,0.386,0.005,0.24)
+-dip(t,0.824,0.007,0.38)
++0.025*Math.cos(t*Math.PI*2*10);
+
+const beat=Math.exp(-frac*5.2);
+const softPulse=0.5+0.5*Math.cos(frac*Math.PI*2);
+const goldPower=0.86+0.14*beat-dip(t,0.488,0.005,0.22);
+
+neonHappy.setAttribute("opacity",Math.max(0.45,Math.min(1,flickM)).toFixed(3));
+frameMagenta.setAttribute("opacity",Math.max(0.5,Math.min(1,0.92*flickM+0.08)).toFixed(3));
+glowWallM.setAttribute("opacity",(0.75+0.25*flickM).toFixed(3));
+
+neonNewYear.setAttribute("opacity",Math.max(0.45,Math.min(1,flickC)).toFixed(3));
+frameCyan.setAttribute("opacity",Math.max(0.5,Math.min(1,0.92*flickC+0.08)).toFixed(3));
+glowWallC.setAttribute("opacity",(0.75+0.25*flickC).toFixed(3));
+
+glowWallG.setAttribute("opacity",(0.72+0.28*beat).toFixed(3));
+innerRingBloom.setAttribute("opacity",(0.35+0.42*beat).toFixed(3));
+innerRingTube.setAttribute("opacity",(0.78+0.22*beat).toFixed(3));
+
+const popScale=1+0.075*beat;
+numGroup.setAttribute("transform",`translate(960,755) scale(${popScale.toFixed(4)})`);
+numGroup.setAttribute("opacity",Math.max(0.6,Math.min(1,goldPower)).toFixed(3));
+numBloom.setAttribute("opacity",(0.58+0.38*beat).toFixed(3));
+
+for(let i=0;i<segCount;i++){
+const isCurrent=(i===secIdx);
+const remaining=(i>=secIdx);
+let op=remaining?(0.55+0.45*beat):(0.24+0.14*softPulse);
+let bloomOp=remaining?(0.4+0.5*beat):0.1;
+let strokeCol="#FFD600";
+let coreOp=remaining?(0.8+0.2*beat):0.25;
+if(isCurrent){
+op=0.88+0.12*beat;
+bloomOp=0.65+0.35*beat;
+strokeCol="#FFE44D";
+coreOp=1;
+}
+segEls[i].tube.setAttribute("stroke",strokeCol);
+segEls[i].tube.setAttribute("opacity",op.toFixed(3));
+segEls[i].bloom.setAttribute("opacity",bloomOp.toFixed(3));
+segEls[i].core.setAttribute("opacity",coreOp.toFixed(3));
+}
+
+const wrapH=1160;
+for(let i=0;i<sparkData.length;i++){
+const s=sparkData[i];
+const y=((s.y0-t*wrapH*s.speed)%wrapH+wrapH)%wrapH-40;
+const x=s.x0+Math.sin(t*Math.PI*2*s.freq+s.phase)*s.amp;
+const edgeFade=Math.min(1,Math.max(0,(y+40)/120))*Math.min(1,Math.max(0,(1120-y)/140));
+const tw=0.45+0.55*(0.5+0.5*Math.sin(t*Math.PI*2*s.twFreq+s.phase));
+const sc=0.75+0.4*tw;
+s.el.setAttribute("cx",x.toFixed(1));
+s.el.setAttribute("cy",y.toFixed(1));
+s.el.setAttribute("r",(s.radius*sc).toFixed(2));
+s.el.setAttribute("opacity",(edgeFade*tw*0.92).toFixed(3));
+}
+
+requestAnimationFrame(render);
+}
+requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>

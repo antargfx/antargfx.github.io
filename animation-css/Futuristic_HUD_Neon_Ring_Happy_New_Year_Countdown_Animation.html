@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Futuristic HUD Neon Ring Happy New Year Countdown Animation</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#060A12}
+#stage{position:relative;width:100%;height:100%;overflow:hidden;background:#060A12}
+#fxCanvas,#hudSvg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.hud-font{font-family:'Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:800}
+</style>
+</head>
+<body>
+<div id="stage">
+<canvas id="fxCanvas" width="1920" height="1080"></canvas>
+<svg id="hudSvg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<radialGradient id="bgVig" cx="50%" cy="54%" r="68%">
+<stop offset="0%" stop-color="#0E1A30" stop-opacity="0.55"/>
+<stop offset="55%" stop-color="#070C17" stop-opacity="0.35"/>
+<stop offset="100%" stop-color="#03050A" stop-opacity="0.92"/>
+</radialGradient>
+<radialGradient id="coreGrad" cx="50%" cy="50%" r="50%">
+<stop offset="0%" stop-color="#0D1B32" stop-opacity="0.92"/>
+<stop offset="72%" stop-color="#070D19" stop-opacity="0.96"/>
+<stop offset="100%" stop-color="#050810" stop-opacity="0.98"/>
+</radialGradient>
+<linearGradient id="cyanViolet" x1="0%" y1="0%" x2="100%" y2="100%">
+<stop offset="0%" stop-color="#00F5FF"/>
+<stop offset="55%" stop-color="#60A5FA"/>
+<stop offset="100%" stop-color="#A855F7"/>
+</linearGradient>
+<linearGradient id="violetGold" x1="0%" y1="0%" x2="100%" y2="0%">
+<stop offset="0%" stop-color="#A855F7"/>
+<stop offset="50%" stop-color="#00F5FF"/>
+<stop offset="100%" stop-color="#FACC15"/>
+</linearGradient>
+<linearGradient id="railGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+<stop offset="0%" stop-color="#00F5FF" stop-opacity="0.15"/>
+<stop offset="22%" stop-color="#00F5FF" stop-opacity="0.95"/>
+<stop offset="50%" stop-color="#FACC15" stop-opacity="1"/>
+<stop offset="78%" stop-color="#00F5FF" stop-opacity="0.95"/>
+<stop offset="100%" stop-color="#00F5FF" stop-opacity="0.15"/>
+</linearGradient>
+<linearGradient id="beamL" x1="100%" y1="50%" x2="0%" y2="50%">
+<stop offset="0%" stop-color="#00F5FF" stop-opacity="0.55"/>
+<stop offset="40%" stop-color="#A855F7" stop-opacity="0.22"/>
+<stop offset="100%" stop-color="#060A12" stop-opacity="0"/>
+</linearGradient>
+<linearGradient id="beamR" x1="0%" y1="50%" x2="100%" y2="50%">
+<stop offset="0%" stop-color="#00F5FF" stop-opacity="0.55"/>
+<stop offset="40%" stop-color="#A855F7" stop-opacity="0.22"/>
+<stop offset="100%" stop-color="#060A12" stop-opacity="0"/>
+</linearGradient>
+<linearGradient id="goldBeamL" x1="100%" y1="50%" x2="0%" y2="50%">
+<stop offset="0%" stop-color="#FACC15" stop-opacity="0.5"/>
+<stop offset="50%" stop-color="#00F5FF" stop-opacity="0.15"/>
+<stop offset="100%" stop-color="#060A12" stop-opacity="0"/>
+</linearGradient>
+<linearGradient id="goldBeamR" x1="0%" y1="50%" x2="100%" y2="50%">
+<stop offset="0%" stop-color="#FACC15" stop-opacity="0.5"/>
+<stop offset="50%" stop-color="#00F5FF" stop-opacity="0.15"/>
+<stop offset="100%" stop-color="#060A12" stop-opacity="0"/>
+</linearGradient>
+<filter id="glowSoft" x="-30%" y="-30%" width="160%" height="160%">
+<feGaussianBlur stdDeviation="5" result="b"/>
+<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+</filter>
+<filter id="glowStrong" x="-40%" y="-40%" width="180%" height="180%">
+<feGaussianBlur stdDeviation="11" result="b1"/>
+<feGaussianBlur stdDeviation="4" result="b2"/>
+<feMerge><feMergeNode in="b1"/><feMergeNode in="b2"/><feMergeNode in="SourceGraphic"/></feMerge>
+</filter>
+<filter id="blurOnly" x="-40%" y="-40%" width="180%" height="180%">
+<feGaussianBlur stdDeviation="9"/>
+</filter>
+<path id="titleArc" d="M 607.8 338.4 A 430 430 0 0 1 1312.2 338.4"/>
+</defs>
+
+<rect width="1920" height="1080" fill="url(#bgVig)"/>
+
+<g opacity="0.16" stroke="#00F5FF" stroke-width="1" fill="none">
+<line x1="0" y1="585" x2="1920" y2="585" stroke-dasharray="6 10"/>
+<line x1="960" y1="0" x2="960" y2="1080" stroke-dasharray="6 10"/>
+<path d="M 70 70 L 140 70 M 70 70 L 70 140" stroke-width="2.5"/>
+<path d="M 1850 70 L 1780 70 M 1850 70 L 1850 140" stroke-width="2.5"/>
+<path d="M 70 1010 L 140 1010 M 70 1010 L 70 940" stroke-width="2.5"/>
+<path d="M 1850 1010 L 1780 1010 M 1850 1010 L 1850 940" stroke-width="2.5"/>
+</g>
+
+<g id="wingBeams">
+<polygon points="620,585 40,490 40,520 620,585" fill="url(#beamL)"/>
+<polygon points="620,585 40,680 40,650 620,585" fill="url(#beamL)"/>
+<polygon points="620,585 0,566 0,604 620,585" fill="url(#goldBeamL)"/>
+<polygon points="1300,585 1880,490 1880,520 1300,585" fill="url(#beamR)"/>
+<polygon points="1300,585 1880,680 1880,650 1300,585" fill="url(#beamR)"/>
+<polygon points="1300,585 1920,566 1920,604 1300,585" fill="url(#goldBeamR)"/>
+<g stroke-linecap="round" fill="none" opacity="0.65">
+<line x1="600" y1="585" x2="120" y2="585" stroke="#00F5FF" stroke-width="2"/>
+<line x1="1320" y1="585" x2="1800" y2="585" stroke="#00F5FF" stroke-width="2"/>
+<line x1="615" y1="540" x2="220" y2="540" stroke="#A855F7" stroke-width="1.5"/>
+<line x1="1305" y1="540" x2="1700" y2="540" stroke="#A855F7" stroke-width="1.5"/>
+<line x1="615" y1="630" x2="220" y2="630" stroke="#A855F7" stroke-width="1.5"/>
+<line x1="1305" y1="630" x2="1700" y2="630" stroke="#A855F7" stroke-width="1.5"/>
+</g>
+<g id="sideBarsL"></g>
+<g id="sideBarsR"></g>
+</g>
+
+<g id="neonSign">
+<path d="M 583.1 268.7 A 492 492 0 0 1 1336.9 268.7" fill="none" stroke="url(#railGrad)" stroke-width="5" filter="url(#blurOnly)" opacity="0.7"/>
+<path d="M 583.1 268.7 A 492 492 0 0 1 1336.9 268.7" fill="none" stroke="url(#railGrad)" stroke-width="2.5" stroke-linecap="round"/>
+<path d="M 594.5 279.6 A 478 478 0 0 1 1325.5 279.6" fill="none" stroke="#A855F7" stroke-width="1.5" stroke-dasharray="14 10" opacity="0.8"/>
+
+<path d="M 670.2 324.0 A 390 390 0 0 1 1249.8 324.0" fill="none" stroke="url(#railGrad)" stroke-width="4.5" filter="url(#blurOnly)" opacity="0.65"/>
+<path d="M 670.2 324.0 A 390 390 0 0 1 1249.8 324.0" fill="none" stroke="url(#railGrad)" stroke-width="2.2" stroke-linecap="round"/>
+
+<circle cx="583.1" cy="268.7" r="4.5" fill="#00F5FF" filter="url(#glowSoft)"/>
+<circle cx="1336.9" cy="268.7" r="4.5" fill="#00F5FF" filter="url(#glowSoft)"/>
+<circle cx="670.2" cy="324.0" r="3.5" fill="#FACC15" filter="url(#glowSoft)"/>
+<circle cx="1249.8" cy="324.0" r="3.5" fill="#FACC15" filter="url(#glowSoft)"/>
+
+<g id="signTextGroup">
+<text class="hud-font" font-size="68" letter-spacing="11" fill="none" stroke-linejoin="round" filter="url(#blurOnly)" opacity="0.75">
+<textPath href="#titleArc" startOffset="50%" text-anchor="middle"><tspan stroke="#00F5FF" stroke-width="11">HAPPY </tspan><tspan stroke="#FACC15" stroke-width="11">NEW</tspan><tspan stroke="#00F5FF" stroke-width="11"> YEAR</tspan></textPath>
+</text>
+<text class="hud-font" font-size="68" letter-spacing="11" fill="none" stroke-linejoin="round">
+<textPath href="#titleArc" startOffset="50%" text-anchor="middle"><tspan stroke="#00F5FF" stroke-width="5.6">HAPPY </tspan><tspan stroke="#FACC15" stroke-width="5.6">NEW</tspan><tspan stroke="#00F5FF" stroke-width="5.6"> YEAR</tspan></textPath>
+</text>
+<text class="hud-font" font-size="68" letter-spacing="11" fill="none" stroke="#060A12" stroke-width="2.4" stroke-linejoin="round">
+<textPath href="#titleArc" startOffset="50%" text-anchor="middle">HAPPY NEW YEAR</textPath>
+</text>
+<text class="hud-font" font-size="68" letter-spacing="11" fill="none" stroke-linejoin="round" opacity="0.92">
+<textPath href="#titleArc" startOffset="50%" text-anchor="middle"><tspan stroke="#E6FFFF" stroke-width="1.1">HAPPY </tspan><tspan stroke="#FEF9C3" stroke-width="1.1">NEW</tspan><tspan stroke="#E6FFFF" stroke-width="1.1"> YEAR</tspan></textPath>
+</text>
+</g>
+</g>
+
+<g id="hudCenter" transform="translate(960,585)">
+<circle r="345" fill="none" stroke="#A855F7" stroke-width="1" opacity="0.22" stroke-dasharray="4 12"/>
+<circle id="pulseRing" r="165" fill="none" stroke="#00F5FF" stroke-width="3" opacity="0"/>
+
+<g id="ringOuterBrackets">
+<path d="M -236 -236 A 334 334 0 0 1 -130 -308" fill="none" stroke="#00F5FF" stroke-width="4" stroke-linecap="round" filter="url(#glowSoft)"/>
+<path d="M 130 -308 A 334 334 0 0 1 236 -236" fill="none" stroke="#00F5FF" stroke-width="4" stroke-linecap="round" filter="url(#glowSoft)"/>
+<path d="M 236 236 A 334 334 0 0 1 130 308" fill="none" stroke="#00F5FF" stroke-width="4" stroke-linecap="round" filter="url(#glowSoft)"/>
+<path d="M -130 308 A 334 334 0 0 1 -236 236" fill="none" stroke="#00F5FF" stroke-width="4" stroke-linecap="round" filter="url(#glowSoft)"/>
+<path d="M -308 -130 A 334 334 0 0 1 -308 130" fill="none" stroke="#A855F7" stroke-width="3" stroke-linecap="round" opacity="0.85"/>
+<path d="M 308 -130 A 334 334 0 0 1 308 130" fill="none" stroke="#A855F7" stroke-width="3" stroke-linecap="round" opacity="0.85"/>
+</g>
+
+<g id="ringDashCyan">
+<circle r="310" fill="none" stroke="#00F5FF" stroke-width="3.5" stroke-dasharray="56 18 14 18" opacity="0.85" filter="url(#glowSoft)"/>
+<circle r="298" fill="none" stroke="#00F5FF" stroke-width="1.2" stroke-dasharray="8 16" opacity="0.45"/>
+</g>
+
+<g id="ringVioletArcs">
+<circle r="282" fill="none" stroke="#A855F7" stroke-width="7" stroke-dasharray="165 130 45 103" stroke-linecap="round" opacity="0.9" filter="url(#glowSoft)"/>
+<circle r="271" fill="none" stroke="#C084FC" stroke-width="1.6" stroke-dasharray="28 18" opacity="0.6"/>
+</g>
+
+<g id="tickRing"></g>
+
+<circle r="228" fill="none" stroke="#162542" stroke-width="9"/>
+<circle id="secSweepGlow" r="228" fill="none" stroke="url(#cyanViolet)" stroke-width="12" stroke-linecap="round" transform="rotate(-90)" filter="url(#blurOnly)" opacity="0.75"/>
+<circle id="secSweepArc" r="228" fill="none" stroke="url(#cyanViolet)" stroke-width="6.5" stroke-linecap="round" transform="rotate(-90)"/>
+<circle id="secHeadDot" cx="0" cy="-228" r="6" fill="#FFFFFF" filter="url(#glowSoft)"/>
+
+<g id="tenSegRing"></g>
+
+<g id="ringInnerDash">
+<circle r="176" fill="none" stroke="#00F5FF" stroke-width="2.2" stroke-dasharray="18 12 4 12" opacity="0.75"/>
+<circle r="167" fill="none" stroke="#A855F7" stroke-width="1.4" stroke-dasharray="4 8" opacity="0.65"/>
+</g>
+
+<circle r="160" fill="url(#coreGrad)" stroke="#00F5FF" stroke-width="2" stroke-opacity="0.5"/>
+<g stroke="#00F5FF" stroke-width="1" opacity="0.18">
+<line x1="-145" y1="0" x2="145" y2="0"/>
+<line x1="0" y1="-145" x2="0" y2="145"/>
+<circle r="118" fill="none" stroke-dasharray="3 9"/>
+</g>
+
+<g id="digitGroup">
+<text id="numBlur" class="hud-font" x="0" y="14" text-anchor="middle" dominant-baseline="central" font-size="185" fill="none" stroke="#00F5FF" stroke-width="18" stroke-linejoin="round" filter="url(#blurOnly)" opacity="0.8">10</text>
+<text id="numOuter" class="hud-font" x="0" y="14" text-anchor="middle" dominant-baseline="central" font-size="185" fill="none" stroke="url(#cyanViolet)" stroke-width="9.5" stroke-linejoin="round">10</text>
+<text id="numHollow" class="hud-font" x="0" y="14" text-anchor="middle" dominant-baseline="central" font-size="185" fill="none" stroke="#060A12" stroke-width="4.4" stroke-linejoin="round">10</text>
+<text id="numCore" class="hud-font" x="0" y="14" text-anchor="middle" dominant-baseline="central" font-size="185" fill="none" stroke="#E8FFFF" stroke-width="1.4" stroke-linejoin="round" opacity="0.92">10</text>
+</g>
+</g>
+</svg>
+</div>
+<script>
+(function(){
+const svgNS='http://www.w3.org/2000/svg';
+const el=id=>document.getElementById(id);
+const tickRing=el('tickRing');
+const tenSegRing=el('tenSegRing');
+const sideBarsL=el('sideBarsL');
+const sideBarsR=el('sideBarsR');
+
+for(let i=0;i<60;i++){
+const a=(i*6)*Math.PI/180;
+const major=i%5===0;
+const r1=major?242:248;
+const r2=260;
+const line=document.createElementNS(svgNS,'line');
+line.setAttribute('x1',(Math.cos(a)*r1).toFixed(2));
+line.setAttribute('y1',(Math.sin(a)*r1).toFixed(2));
+line.setAttribute('x2',(Math.cos(a)*r2).toFixed(2));
+line.setAttribute('y2',(Math.sin(a)*r2).toFixed(2));
+line.setAttribute('stroke',major?(i%15===0?'#FACC15':'#00F5FF'):'#476B94');
+line.setAttribute('stroke-width',major?'2.6':'1.3');
+line.setAttribute('stroke-linecap','round');
+tickRing.appendChild(line);
+}
+
+const segNodes=[];
+const segR=200;
+for(let i=0;i<10;i++){
+const startDeg=-90+i*36+3.5;
+const endDeg=-90+(i+1)*36-3.5;
+const s=startDeg*Math.PI/180;
+const e=endDeg*Math.PI/180;
+const x1=(Math.cos(s)*segR).toFixed(2);
+const y1=(Math.sin(s)*segR).toFixed(2);
+const x2=(Math.cos(e)*segR).toFixed(2);
+const y2=(Math.sin(e)*segR).toFixed(2);
+const p=document.createElementNS(svgNS,'path');
+p.setAttribute('d',`M ${x1} ${y1} A ${segR} ${segR} 0 0 1 ${x2} ${y2}`);
+p.setAttribute('fill','none');
+p.setAttribute('stroke','#00F5FF');
+p.setAttribute('stroke-width','7.5');
+p.setAttribute('stroke-linecap','round');
+tenSegRing.appendChild(p);
+segNodes.push(p);
+}
+
+const leftBars=[];
+const rightBars=[];
+for(let i=0;i<12;i++){
+const dx=i*34;
+const h=14+Math.sin((i/11)*Math.PI)*34;
+const rL=document.createElementNS(svgNS,'rect');
+rL.setAttribute('x',555-dx);
+rL.setAttribute('y',585-h/2);
+rL.setAttribute('width','8');
+rL.setAttribute('height',h.toFixed(1));
+rL.setAttribute('rx','4');
+rL.setAttribute('fill',i%3===0?'#FACC15':(i%2===0?'#00F5FF':'#A855F7'));
+sideBarsL.appendChild(rL);
+leftBars.push({node:rL,baseH:h,idx:i});
+
+const rR=document.createElementNS(svgNS,'rect');
+rR.setAttribute('x',1357+dx);
+rR.setAttribute('y',585-h/2);
+rR.setAttribute('width','8');
+rR.setAttribute('height',h.toFixed(1));
+rR.setAttribute('rx','4');
+rR.setAttribute('fill',i%3===0?'#FACC15':(i%2===0?'#00F5FF':'#A855F7'));
+sideBarsR.appendChild(rR);
+rightBars.push({node:rR,baseH:h,idx:i});
+}
+
+const ringOuterBrackets=el('ringOuterBrackets');
+const ringDashCyan=el('ringDashCyan');
+const ringVioletArcs=el('ringVioletArcs');
+const ringInnerDash=el('ringInnerDash');
+const secSweepArc=el('secSweepArc');
+const secSweepGlow=el('secSweepGlow');
+const secHeadDot=el('secHeadDot');
+const pulseRing=el('pulseRing');
+const digitGroup=el('digitGroup');
+const numBlur=el('numBlur');
+const numOuter=el('numOuter');
+const numHollow=el('numHollow');
+const numCore=el('numCore');
+const signTextGroup=el('signTextGroup');
+
+const sweepCirc=2*Math.PI*228;
+secSweepArc.setAttribute('stroke-dasharray',sweepCirc.toFixed(2));
+secSweepGlow.setAttribute('stroke-dasharray',sweepCirc.toFixed(2));
+
+const canvas=el('fxCanvas');
+const ctx=canvas.getContext('2d');
+const cx=960,cy=585;
+
+const particles=[];
+const palette=['#00F5FF','#A855F7','#FACC15','#7DD3FC'];
+for(let i=0;i<36;i++){
+const frac=i/36;
+const angleSpread=(frac-0.5)*1.32;
+const cycles=(i%3)+2;
+const phase=(i*0.6180339887)%1;
+const minR=340+(i%5)*14;
+const maxR=940+(i%4)*75;
+const size=2.2+(i%4)*1.1;
+const trail=38+(i%5)*18;
+const color=palette[i%palette.length];
+particles.push({angle:angleSpread,cycles,phase,minR,maxR,size,trail,color});
+particles.push({angle:Math.PI-angleSpread,cycles,phase,minR,maxR,size,trail,color});
+}
+
+const topParticles=[];
+for(let i=0;i<18;i++){
+const frac=i/17;
+const angle=-Math.PI*0.78+frac*(Math.PI*0.56);
+const cycles=(i%2)+2;
+const phase=(i*0.381966)%1;
+const color=i%2===0?'#FACC15':'#00F5FF';
+topParticles.push({angle,cycles,phase,minR:495,maxR:670,size:2.4,trail:28,color});
+}
+
+const beamPulses=[];
+const beamAngles=[-0.16,0,0.16];
+for(let b=0;b<beamAngles.length;b++){
+for(let k=0;k<3;k++){
+const ang=beamAngles[b];
+const phase=k/3+b*0.11;
+const color=b===1?'#FACC15':(b===0?'#00F5FF':'#A855F7');
+beamPulses.push({angle:ang,phase,cycles:5,color});
+beamPulses.push({angle:Math.PI-ang,phase,cycles:5,color});
+}
+}
+
+function easeOutCubic(x){return 1-Math.pow(1-x,3)}
+function easeInOutQuad(x){return x<0.5?2*x*x:1-Math.pow(-2*x+2,2)/2}
+
+function render(ts){
+const t=((ts%10000)+10000)%10000/10000;
+const secFloat=t*10;
+const secIdx=Math.floor(secFloat);
+const local=secFloat-secIdx;
+const digit=10-secIdx;
+
+ringOuterBrackets.setAttribute('transform',`rotate(${(t*90).toFixed(3)})`);
+ringDashCyan.setAttribute('transform',`rotate(${(-t*180).toFixed(3)})`);
+ringVioletArcs.setAttribute('transform',`rotate(${(t*180).toFixed(3)})`);
+tickRing.setAttribute('transform',`rotate(${(t*36).toFixed(3)})`);
+ringInnerDash.setAttribute('transform',`rotate(${(-t*360).toFixed(3)})`);
+
+const sweepProg=easeInOutQuad(Math.min(local/0.92,1));
+const sweepAlpha=local>0.90?1-(local-0.90)/0.10:1;
+const offset=sweepCirc*(1-sweepProg);
+secSweepArc.setAttribute('stroke-dashoffset',offset.toFixed(2));
+secSweepGlow.setAttribute('stroke-dashoffset',offset.toFixed(2));
+secSweepArc.setAttribute('opacity',sweepAlpha.toFixed(3));
+secSweepGlow.setAttribute('opacity',(sweepAlpha*0.72).toFixed(3));
+
+const headAng=(-90+sweepProg*360)*Math.PI/180;
+secHeadDot.setAttribute('cx',(Math.cos(headAng)*228).toFixed(2));
+secHeadDot.setAttribute('cy',(Math.sin(headAng)*228).toFixed(2));
+secHeadDot.setAttribute('opacity',sweepAlpha.toFixed(3));
+
+const pR=162+easeOutCubic(local)*185;
+const pOp=Math.pow(1-local,2.2)*0.72;
+pulseRing.setAttribute('r',pR.toFixed(2));
+pulseRing.setAttribute('opacity',pOp.toFixed(3));
+pulseRing.setAttribute('stroke',digit<=3?'#FACC15':'#00F5FF');
+
+for(let i=0;i<10;i++){
+const active=i<digit;
+const isCurrent=i===digit-1;
+const col=i<3?'#FACC15':(i<7?'#A855F7':'#00F5FF');
+segNodes[i].setAttribute('stroke',active?col:'#1B2B4B');
+const op=isCurrent?(0.45+0.55*(1-local)):(active?0.92:0.25);
+segNodes[i].setAttribute('opacity',op.toFixed(3));
+}
+
+const dStr=String(digit);
+const fSize=digit===10?'164':'192';
+if(numOuter.textContent!==dStr){
+numBlur.textContent=dStr;
+numOuter.textContent=dStr;
+numHollow.textContent=dStr;
+numCore.textContent=dStr;
+numBlur.setAttribute('font-size',fSize);
+numOuter.setAttribute('font-size',fSize);
+numHollow.setAttribute('font-size',fSize);
+numCore.setAttribute('font-size',fSize);
+}
+
+let dScale=1;
+let dOp=1;
+if(local<0.12){
+const u=local/0.12;
+dScale=0.82+easeOutCubic(u)*0.18;
+dOp=u;
+}else if(local>0.86){
+const u=(local-0.86)/0.14;
+dScale=1+u*0.09;
+dOp=1-u;
+}else{
+dScale=1+Math.sin(((local-0.12)/0.74)*Math.PI)*0.025;
+}
+digitGroup.setAttribute('transform',`scale(${dScale.toFixed(4)})`);
+digitGroup.setAttribute('opacity',dOp.toFixed(3));
+numBlur.setAttribute('stroke',digit<=3?'#FACC15':'#00F5FF');
+
+const signGlow=0.86+0.14*Math.sin(t*Math.PI*2*5);
+signTextGroup.setAttribute('opacity',signGlow.toFixed(3));
+
+for(let i=0;i<12;i++){
+const wave=0.45+0.55*Math.sin(t*Math.PI*2*5-i*0.55);
+const hL=leftBars[i].baseH*(0.45+wave*0.85);
+leftBars[i].node.setAttribute('height',hL.toFixed(1));
+leftBars[i].node.setAttribute('y',(585-hL/2).toFixed(1));
+leftBars[i].node.setAttribute('opacity',(0.3+wave*0.65).toFixed(3));
+rightBars[i].node.setAttribute('height',hL.toFixed(1));
+rightBars[i].node.setAttribute('y',(585-hL/2).toFixed(1));
+rightBars[i].node.setAttribute('opacity',(0.3+wave*0.65).toFixed(3));
+}
+
+ctx.clearRect(0,0,1920,1080);
+
+const bgGrad=ctx.createRadialGradient(cx,cy,80,cx,cy,860);
+bgGrad.addColorStop(0,'rgba(0,245,255,0.08)');
+bgGrad.addColorStop(0.45,'rgba(168,85,247,0.05)');
+bgGrad.addColorStop(1,'rgba(6,10,18,0)');
+ctx.fillStyle=bgGrad;
+ctx.fillRect(0,0,1920,1080);
+
+ctx.save();
+ctx.globalCompositeOperation='lighter';
+
+for(let i=0;i<beamPulses.length;i++){
+const bp=beamPulses[i];
+const u=(t*bp.cycles+bp.phase)%1;
+const rHead=350+u*640;
+const rTail=Math.max(335,rHead-140);
+const x1=cx+Math.cos(bp.angle)*rTail;
+const y1=cy+Math.sin(bp.angle)*rTail;
+const x2=cx+Math.cos(bp.angle)*rHead;
+const y2=cy+Math.sin(bp.angle)*rHead;
+const alpha=Math.sin(u*Math.PI)*0.55;
+const g=ctx.createLinearGradient(x1,y1,x2,y2);
+g.addColorStop(0,'rgba(0,0,0,0)');
+g.addColorStop(1,bp.color);
+ctx.strokeStyle=g;
+ctx.globalAlpha=alpha;
+ctx.lineWidth=3;
+ctx.beginPath();
+ctx.moveTo(x1,y1);
+ctx.lineTo(x2,y2);
+ctx.stroke();
+}
+
+const drawList=list=>{
+for(let i=0;i<list.length;i++){
+const p=list[i];
+const u=(t*p.cycles+p.phase)%1;
+const r=p.minR+u*(p.maxR-p.minR);
+const rPrev=Math.max(p.minR,r-p.trail);
+const ca=Math.cos(p.angle);
+const sa=Math.sin(p.angle);
+const x=cx+ca*r;
+const y=cy+sa*r;
+const x0=cx+ca*rPrev;
+const y0=cy+sa*rPrev;
+const fade=Math.sin(u*Math.PI);
+
+const g=ctx.createLinearGradient(x0,y0,x,y);
+g.addColorStop(0,'rgba(0,0,0,0)');
+g.addColorStop(1,p.color);
+ctx.strokeStyle=g;
+ctx.globalAlpha=fade*0.75;
+ctx.lineWidth=p.size*0.9;
+ctx.lineCap='round';
+ctx.beginPath();
+ctx.moveTo(x0,y0);
+ctx.lineTo(x,y);
+ctx.stroke();
+
+ctx.fillStyle=p.color;
+ctx.globalAlpha=fade*0.95;
+ctx.beginPath();
+ctx.arc(x,y,p.size,0,Math.PI*2);
+ctx.fill();
+
+ctx.fillStyle='#FFFFFF';
+ctx.globalAlpha=fade*0.8;
+ctx.beginPath();
+ctx.arc(x,y,p.size*0.45,0,Math.PI*2);
+ctx.fill();
+}
+};
+
+drawList(particles);
+drawList(topParticles);
+ctx.restore();
+
+requestAnimationFrame(render);
+}
+requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>

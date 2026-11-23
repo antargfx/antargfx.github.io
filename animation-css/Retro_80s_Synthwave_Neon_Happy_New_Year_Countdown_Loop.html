@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Retro 80s Synthwave Neon Happy New Year Countdown Loop</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#090218}
+svg{display:block;width:100%;height:100%}
+.grid-h{animation:gridMove 5s linear infinite}
+.gh1{animation-delay:0s}
+.gh2{animation-delay:-0.5s}
+.gh3{animation-delay:-1s}
+.gh4{animation-delay:-1.5s}
+.gh5{animation-delay:-2s}
+.gh6{animation-delay:-2.5s}
+.gh7{animation-delay:-3s}
+.gh8{animation-delay:-3.5s}
+.gh9{animation-delay:-4s}
+.gh10{animation-delay:-4.5s}
+@keyframes gridMove{
+0%{transform:translateY(0px);opacity:0}
+10%{transform:translateY(3.8px);opacity:.35}
+20%{transform:translateY(8.4px);opacity:.55}
+30%{transform:translateY(14.3px);opacity:.72}
+40%{transform:translateY(21.8px);opacity:.85}
+50%{transform:translateY(31.9px);opacity:.92}
+60%{transform:translateY(46.1px);opacity:.96}
+70%{transform:translateY(67.6px);opacity:1}
+80%{transform:translateY(104.2px);opacity:1}
+90%{transform:translateY(180px);opacity:1}
+95%{transform:translateY(259.4px);opacity:1}
+100%{transform:translateY(430px);opacity:.9}
+}
+.sun-glow{transform-origin:960px 445px;animation:sunPulse 2s ease-in-out infinite}
+@keyframes sunPulse{
+0%,100%{transform:scale(1);opacity:.78}
+50%{transform:scale(1.06);opacity:1}
+}
+.sign-glow{animation:signPulse 2s ease-in-out infinite}
+@keyframes signPulse{
+0%,100%{opacity:.92}
+50%{opacity:1}
+}
+.speed-line-l{animation:speedLeft 2s ease-in-out infinite}
+.speed-line-r{animation:speedRight 2s ease-in-out infinite}
+@keyframes speedLeft{
+0%,100%{transform:translateX(0px);opacity:.75}
+50%{transform:translateX(-18px);opacity:1}
+}
+@keyframes speedRight{
+0%,100%{transform:translateX(0px);opacity:.75}
+50%{transform:translateX(18px);opacity:1}
+}
+.beat-ring{transform-origin:960px 540px;animation:ringPulse 1s ease-in-out infinite}
+.beat-ring-2{transform-origin:960px 540px;animation:ringPulse2 1s ease-in-out infinite}
+@keyframes ringPulse{
+0%{transform:scale(.82);opacity:0}
+15%{transform:scale(1.02);opacity:.95}
+65%{transform:scale(1.22);opacity:.3}
+100%{transform:scale(1.36);opacity:0}
+}
+@keyframes ringPulse2{
+0%{transform:scale(.9);opacity:.3}
+20%{transform:scale(1.08);opacity:.85}
+100%{transform:scale(.9);opacity:.3}
+}
+.num{transform-origin:960px 540px;opacity:0;animation:countBeat 10s linear infinite}
+.n10{animation-delay:0s}
+.n9{animation-delay:-9s}
+.n8{animation-delay:-8s}
+.n7{animation-delay:-7s}
+.n6{animation-delay:-6s}
+.n5{animation-delay:-5s}
+.n4{animation-delay:-4s}
+.n3{animation-delay:-3s}
+.n2{animation-delay:-2s}
+.n1{animation-delay:-1s}
+@keyframes countBeat{
+0%{opacity:0;transform:scale(.82)}
+1.2%{opacity:1;transform:scale(1.1)}
+3.2%{opacity:1;transform:scale(1.02)}
+8.8%{opacity:1;transform:scale(1)}
+9.8%{opacity:0;transform:scale(.92)}
+10%{opacity:0;transform:scale(.82)}
+100%{opacity:0;transform:scale(.82)}
+}
+.star-a{transform-box:fill-box;transform-origin:center;animation:twinkle 2s ease-in-out infinite}
+.star-b{transform-box:fill-box;transform-origin:center;animation:twinkle 2s ease-in-out infinite;animation-delay:-0.66s}
+.star-c{transform-box:fill-box;transform-origin:center;animation:twinkle 2s ease-in-out infinite;animation-delay:-1.33s}
+.star-d{transform-box:fill-box;transform-origin:center;animation:twinkle 5s ease-in-out infinite;animation-delay:-2.5s}
+@keyframes twinkle{
+0%,100%{transform:scale(.55);opacity:.35}
+50%{transform:scale(1.25);opacity:1}
+}
+.tri-a{transform-box:fill-box;transform-origin:center;animation:floatSpinA 5s ease-in-out infinite}
+.tri-b{transform-box:fill-box;transform-origin:center;animation:floatSpinB 5s ease-in-out infinite;animation-delay:-1.25s}
+.tri-c{transform-box:fill-box;transform-origin:center;animation:floatSpinA 10s ease-in-out infinite;animation-delay:-2.5s}
+.tri-d{transform-box:fill-box;transform-origin:center;animation:floatSpinB 10s ease-in-out infinite;animation-delay:-5s}
+@keyframes floatSpinA{
+0%,100%{transform:translateY(0px) rotate(0deg) scale(1);opacity:.75}
+50%{transform:translateY(-14px) rotate(24deg) scale(1.12);opacity:1}
+}
+@keyframes floatSpinB{
+0%,100%{transform:translateY(0px) rotate(0deg) scale(1);opacity:.7}
+50%{transform:translateY(14px) rotate(-26deg) scale(1.14);opacity:1}
+}
+</style>
+</head>
+<body>
+<svg viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0%" stop-color="#090218"/>
+<stop offset="38%" stop-color="#130431"/>
+<stop offset="72%" stop-color="#2b0757"/>
+<stop offset="92%" stop-color="#610c78"/>
+<stop offset="100%" stop-color="#a81384"/>
+</linearGradient>
+<linearGradient id="floorGrad" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0%" stop-color="#26054d"/>
+<stop offset="18%" stop-color="#13032b"/>
+<stop offset="100%" stop-color="#070112"/>
+</linearGradient>
+<linearGradient id="sunGrad" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0%" stop-color="#FFF07C"/>
+<stop offset="32%" stop-color="#FF9E00"/>
+<stop offset="68%" stop-color="#F72585"/>
+<stop offset="100%" stop-color="#B5179E"/>
+</linearGradient>
+<radialGradient id="sunAura" cx="50%" cy="50%" r="50%">
+<stop offset="0%" stop-color="#F72585" stop-opacity=".65"/>
+<stop offset="55%" stop-color="#B5179E" stop-opacity=".28"/>
+<stop offset="100%" stop-color="#090218" stop-opacity="0"/>
+</radialGradient>
+<radialGradient id="horizonGlow" cx="50%" cy="50%" r="50%">
+<stop offset="0%" stop-color="#F72585" stop-opacity=".85"/>
+<stop offset="45%" stop-color="#7209B7" stop-opacity=".35"/>
+<stop offset="100%" stop-color="#090218" stop-opacity="0"/>
+</radialGradient>
+<radialGradient id="centerAura" cx="50%" cy="50%" r="50%">
+<stop offset="0%" stop-color="#4CC9F0" stop-opacity=".42"/>
+<stop offset="50%" stop-color="#F72585" stop-opacity=".2"/>
+<stop offset="100%" stop-color="#090218" stop-opacity="0"/>
+</radialGradient>
+<linearGradient id="signGrad" x1="0" y1="0" x2="1" y2="0">
+<stop offset="0%" stop-color="#4CC9F0"/>
+<stop offset="50%" stop-color="#F72585"/>
+<stop offset="100%" stop-color="#4CC9F0"/>
+</linearGradient>
+<linearGradient id="speedL" x1="0" y1="0" x2="1" y2="0">
+<stop offset="0%" stop-color="#4CC9F0" stop-opacity="0"/>
+<stop offset="100%" stop-color="#4CC9F0" stop-opacity="1"/>
+</linearGradient>
+<linearGradient id="speedR" x1="0" y1="0" x2="1" y2="0">
+<stop offset="0%" stop-color="#F72585" stop-opacity="1"/>
+<stop offset="100%" stop-color="#F72585" stop-opacity="0"/>
+</linearGradient>
+<linearGradient id="gridFadeV" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0%" stop-color="#F72585" stop-opacity=".25"/>
+<stop offset="30%" stop-color="#F72585" stop-opacity=".95"/>
+<stop offset="100%" stop-color="#4CC9F0" stop-opacity="1"/>
+</linearGradient>
+<linearGradient id="gridFadeBlue" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0%" stop-color="#4CC9F0" stop-opacity=".25"/>
+<stop offset="35%" stop-color="#4CC9F0" stop-opacity=".95"/>
+<stop offset="100%" stop-color="#F72585" stop-opacity="1"/>
+</linearGradient>
+<filter id="glowSoft" x="-30%" y="-30%" width="160%" height="160%">
+<feGaussianBlur stdDeviation="8" result="b"/>
+<feMerge>
+<feMergeNode in="b"/>
+<feMergeNode in="SourceGraphic"/>
+</feMerge>
+</filter>
+<filter id="glowStrong" x="-40%" y="-40%" width="180%" height="180%">
+<feGaussianBlur stdDeviation="16" result="b1"/>
+<feGaussianBlur stdDeviation="6" result="b2"/>
+<feMerge>
+<feMergeNode in="b1"/>
+<feMergeNode in="b2"/>
+<feMergeNode in="SourceGraphic"/>
+</feMerge>
+</filter>
+<filter id="glowNum" x="-40%" y="-40%" width="180%" height="180%">
+<feGaussianBlur stdDeviation="20" result="b1"/>
+<feGaussianBlur stdDeviation="7" result="b2"/>
+<feMerge>
+<feMergeNode in="b1"/>
+<feMergeNode in="b2"/>
+<feMergeNode in="SourceGraphic"/>
+</feMerge>
+</filter>
+<mask id="sunMask">
+<rect x="0" y="0" width="1920" height="1080" fill="#ffffff"/>
+<rect x="700" y="458" width="520" height="8" fill="#000000"/>
+<rect x="700" y="482" width="520" height="11" fill="#000000"/>
+<rect x="700" y="510" width="520" height="15" fill="#000000"/>
+<rect x="700" y="542" width="520" height="19" fill="#000000"/>
+<rect x="700" y="578" width="520" height="24" fill="#000000"/>
+<rect x="700" y="618" width="520" height="32" fill="#000000"/>
+</mask>
+<clipPath id="floorClip">
+<rect x="0" y="650" width="1920" height="430"/>
+</clipPath>
+</defs>
+
+<rect x="0" y="0" width="1920" height="655" fill="url(#skyGrad)"/>
+<ellipse cx="960" cy="650" rx="1080" ry="180" fill="url(#horizonGlow)"/>
+
+<g>
+<path class="star-a" d="M160 95 L164 109 L178 113 L164 117 L160 131 L156 117 L142 113 L156 109 Z" fill="#4CC9F0" filter="url(#glowSoft)"/>
+<path class="star-b" d="M310 175 L313 185 L323 188 L313 191 L310 201 L307 191 L297 188 L307 185 Z" fill="#FFFFFF"/>
+<path class="star-c" d="M225 320 L230 336 L246 341 L230 346 L225 362 L220 346 L204 341 L220 336 Z" fill="#F72585" filter="url(#glowSoft)"/>
+<path class="star-d" d="M430 92 L433 102 L443 105 L433 108 L430 118 L427 108 L417 105 L427 102 Z" fill="#FFE66D"/>
+<path class="star-a" d="M510 340 L513 349 L522 352 L513 355 L510 364 L507 355 L498 352 L507 349 Z" fill="#4CC9F0"/>
+<path class="star-b" d="M120 455 L123 465 L133 468 L123 471 L120 481 L117 471 L107 468 L117 465 Z" fill="#FFFFFF"/>
+<path class="star-c" d="M395 470 L399 483 L412 487 L399 491 L395 504 L391 491 L378 487 L391 483 Z" fill="#FFE66D" filter="url(#glowSoft)"/>
+<path class="star-b" d="M1750 100 L1755 116 L1771 121 L1755 126 L1750 142 L1745 126 L1729 121 L1745 116 Z" fill="#F72585" filter="url(#glowSoft)"/>
+<path class="star-a" d="M1610 185 L1613 195 L1623 198 L1613 201 L1610 211 L1607 201 L1597 198 L1607 195 Z" fill="#FFFFFF"/>
+<path class="star-d" d="M1480 88 L1484 100 L1496 104 L1484 108 L1480 120 L1476 108 L1464 104 L1476 100 Z" fill="#4CC9F0" filter="url(#glowSoft)"/>
+<path class="star-c" d="M1695 335 L1699 349 L1713 353 L1699 357 L1695 371 L1691 357 L1677 353 L1691 349 Z" fill="#4CC9F0" filter="url(#glowSoft)"/>
+<path class="star-a" d="M1425 350 L1428 360 L1438 363 L1428 366 L1425 376 L1422 366 L1412 363 L1422 360 Z" fill="#FFE66D"/>
+<path class="star-b" d="M1810 460 L1813 470 L1823 473 L1813 476 L1810 486 L1807 476 L1797 473 L1807 470 Z" fill="#FFFFFF"/>
+<path class="star-d" d="M1535 468 L1539 480 L1551 484 L1539 488 L1535 500 L1531 488 L1519 484 L1531 480 Z" fill="#F72585" filter="url(#glowSoft)"/>
+<path class="star-a" d="M685 75 L688 84 L697 87 L688 90 L685 99 L682 90 L673 87 L682 84 Z" fill="#FFFFFF"/>
+<path class="star-c" d="M1235 72 L1238 81 L1247 84 L1238 87 L1235 96 L1232 87 L1223 84 L1232 81 Z" fill="#FFFFFF"/>
+<circle class="star-b" cx="95" cy="215" r="3" fill="#4CC9F0"/>
+<circle class="star-c" cx="270" cy="70" r="2.5" fill="#F72585"/>
+<circle class="star-a" cx="560" cy="145" r="2.5" fill="#FFFFFF"/>
+<circle class="star-d" cx="350" cy="390" r="3" fill="#4CC9F0"/>
+<circle class="star-b" cx="620" cy="430" r="2.5" fill="#F72585"/>
+<circle class="star-a" cx="1310" cy="425" r="2.5" fill="#4CC9F0"/>
+<circle class="star-c" cx="1580" cy="400" r="3" fill="#FFE66D"/>
+<circle class="star-b" cx="1835" cy="240" r="3" fill="#4CC9F0"/>
+<circle class="star-a" cx="1640" cy="72" r="2.5" fill="#FFE66D"/>
+<circle class="star-d" cx="1365" cy="148" r="2.5" fill="#FFFFFF"/>
+</g>
+
+<g>
+<polygon class="tri-a" points="195,215 227,232 200,256" fill="none" stroke="#4CC9F0" stroke-width="3.5" filter="url(#glowSoft)"/>
+<polygon class="tri-b" points="355,280 382,292 361,313" fill="#F72585" opacity=".88"/>
+<polygon class="tri-c" points="110,360 138,378 112,396" fill="none" stroke="#FFE66D" stroke-width="3"/>
+<polygon class="tri-d" points="475,415 504,427 482,450" fill="none" stroke="#F72585" stroke-width="3.5" filter="url(#glowSoft)"/>
+<polygon class="tri-a" points="280,505 304,515 286,534" fill="#4CC9F0" opacity=".85"/>
+<polygon class="tri-b" points="605,310 626,321 609,338" fill="none" stroke="#4CC9F0" stroke-width="2.5"/>
+<polygon class="tri-b" points="1715,218 1746,236 1718,258" fill="none" stroke="#F72585" stroke-width="3.5" filter="url(#glowSoft)"/>
+<polygon class="tri-a" points="1555,278 1582,290 1560,312" fill="#4CC9F0" opacity=".88"/>
+<polygon class="tri-d" points="1800,355 1828,372 1802,391" fill="none" stroke="#FFE66D" stroke-width="3"/>
+<polygon class="tri-c" points="1440,420 1468,432 1445,455" fill="none" stroke="#4CC9F0" stroke-width="3.5" filter="url(#glowSoft)"/>
+<polygon class="tri-b" points="1635,500 1659,511 1641,530" fill="#F72585" opacity=".85"/>
+<polygon class="tri-a" points="1310,305 1331,316 1314,333" fill="none" stroke="#F72585" stroke-width="2.5"/>
+</g>
+
+<circle class="sun-glow" cx="960" cy="445" r="320" fill="url(#sunAura)"/>
+<circle cx="960" cy="445" r="225" fill="url(#sunGrad)" mask="url(#sunMask)"/>
+
+<g>
+<polygon points="0,650 175,545 340,650" fill="#12042c"/>
+<polygon points="175,545 245,650 340,650" fill="#1e0747"/>
+<polyline points="0,650 175,545 340,650" fill="none" stroke="#4CC9F0" stroke-width="2.5" opacity=".8"/>
+<polygon points="240,650 430,520 620,650" fill="#0f0324"/>
+<polygon points="430,520 510,650 620,650" fill="#1a063f"/>
+<polyline points="240,650 430,520 620,650" fill="none" stroke="#F72585" stroke-width="2.5" opacity=".85"/>
+<polygon points="510,650 660,575 790,650" fill="#140430"/>
+<polyline points="510,650 660,575 790,650" fill="none" stroke="#4CC9F0" stroke-width="2" opacity=".7"/>
+<polygon points="1130,650 1260,575 1410,650" fill="#140430"/>
+<polyline points="1130,650 1260,575 1410,650" fill="none" stroke="#4CC9F0" stroke-width="2" opacity=".7"/>
+<polygon points="1300,650 1490,520 1680,650" fill="#0f0324"/>
+<polygon points="1490,520 1570,650 1680,650" fill="#1a063f"/>
+<polyline points="1300,650 1490,520 1680,650" fill="none" stroke="#F72585" stroke-width="2.5" opacity=".85"/>
+<polygon points="1580,650 1745,545 1920,650" fill="#12042c"/>
+<polygon points="1745,545 1820,650 1920,650" fill="#1e0747"/>
+<polyline points="1580,650 1745,545 1920,650" fill="none" stroke="#4CC9F0" stroke-width="2.5" opacity=".8"/>
+</g>
+
+<rect x="0" y="650" width="1920" height="430" fill="url(#floorGrad)"/>
+
+<g clip-path="url(#floorClip)">
+<g stroke="url(#gridFadeBlue)" stroke-width="3" opacity=".85" filter="url(#glowSoft)">
+<line x1="960" y1="650" x2="-1920" y2="1080"/>
+<line x1="960" y1="650" x2="-1200" y2="1080"/>
+<line x1="960" y1="650" x2="-680" y2="1080"/>
+<line x1="960" y1="650" x2="-280" y2="1080"/>
+<line x1="960" y1="650" x2="60" y2="1080"/>
+<line x1="960" y1="650" x2="1860" y2="1080"/>
+<line x1="960" y1="650" x2="2200" y2="1080"/>
+<line x1="960" y1="650" x2="2600" y2="1080"/>
+<line x1="960" y1="650" x2="3120" y2="1080"/>
+<line x1="960" y1="650" x2="3840" y2="1080"/>
+</g>
+<g stroke="url(#gridFadeV)" stroke-width="3.2" opacity=".95" filter="url(#glowSoft)">
+<line x1="960" y1="650" x2="340" y2="1080"/>
+<line x1="960" y1="650" x2="580" y2="1080"/>
+<line x1="960" y1="650" x2="780" y2="1080"/>
+<line x1="960" y1="650" x2="960" y2="1080"/>
+<line x1="960" y1="650" x2="1140" y2="1080"/>
+<line x1="960" y1="650" x2="1340" y2="1080"/>
+<line x1="960" y1="650" x2="1580" y2="1080"/>
+</g>
+<g filter="url(#glowSoft)">
+<line class="grid-h gh1" x1="0" y1="650" x2="1920" y2="650" stroke="#F72585" stroke-width="3.2"/>
+<line class="grid-h gh2" x1="0" y1="650" x2="1920" y2="650" stroke="#4CC9F0" stroke-width="3"/>
+<line class="grid-h gh3" x1="0" y1="650" x2="1920" y2="650" stroke="#F72585" stroke-width="3.2"/>
+<line class="grid-h gh4" x1="0" y1="650" x2="1920" y2="650" stroke="#4CC9F0" stroke-width="3"/>
+<line class="grid-h gh5" x1="0" y1="650" x2="1920" y2="650" stroke="#F72585" stroke-width="3.2"/>
+<line class="grid-h gh6" x1="0" y1="650" x2="1920" y2="650" stroke="#4CC9F0" stroke-width="3"/>
+<line class="grid-h gh7" x1="0" y1="650" x2="1920" y2="650" stroke="#F72585" stroke-width="3.2"/>
+<line class="grid-h gh8" x1="0" y1="650" x2="1920" y2="650" stroke="#4CC9F0" stroke-width="3"/>
+<line class="grid-h gh9" x1="0" y1="650" x2="1920" y2="650" stroke="#F72585" stroke-width="3.2"/>
+<line class="grid-h gh10" x1="0" y1="650" x2="1920" y2="650" stroke="#4CC9F0" stroke-width="3"/>
+</g>
+</g>
+
+<line x1="0" y1="650" x2="1920" y2="650" stroke="#F72585" stroke-width="5" filter="url(#glowStrong)"/>
+<line x1="0" y1="650" x2="1920" y2="650" stroke="#FFFFFF" stroke-width="2" opacity=".9"/>
+
+<g class="sign-glow" transform="translate(960 198) rotate(-3.5) skewX(-10)">
+<g class="speed-line-l">
+<line x1="-670" y1="-26" x2="-430" y2="-26" stroke="url(#speedL)" stroke-width="5" stroke-linecap="round" filter="url(#glowSoft)"/>
+<line x1="-740" y1="0" x2="-445" y2="0" stroke="url(#speedL)" stroke-width="7" stroke-linecap="round" filter="url(#glowSoft)"/>
+<line x1="-630" y1="26" x2="-430" y2="26" stroke="url(#speedL)" stroke-width="4.5" stroke-linecap="round" filter="url(#glowSoft)"/>
+</g>
+<g class="speed-line-r">
+<line x1="430" y1="-26" x2="670" y2="-26" stroke="url(#speedR)" stroke-width="5" stroke-linecap="round" filter="url(#glowSoft)"/>
+<line x1="445" y1="0" x2="740" y2="0" stroke="url(#speedR)" stroke-width="7" stroke-linecap="round" filter="url(#glowSoft)"/>
+<line x1="430" y1="26" x2="630" y2="26" stroke="url(#speedR)" stroke-width="4.5" stroke-linecap="round" filter="url(#glowSoft)"/>
+</g>
+<rect x="-425" y="-58" width="850" height="116" rx="22" fill="#0d0324" fill-opacity=".72" stroke="url(#signGrad)" stroke-width="6" filter="url(#glowStrong)"/>
+<rect x="-415" y="-48" width="830" height="96" rx="16" fill="none" stroke="#FFFFFF" stroke-width="1.8" opacity=".65"/>
+<text x="0" y="25" text-anchor="middle" font-family="'Arial Black','Impact','Segoe UI',system-ui,sans-serif" font-weight="900" font-size="74" letter-spacing="6" fill="none" stroke="#F72585" stroke-width="12" stroke-linejoin="round" filter="url(#glowStrong)">HAPPY NEW YEAR</text>
+<text x="0" y="25" text-anchor="middle" font-family="'Arial Black','Impact','Segoe UI',system-ui,sans-serif" font-weight="900" font-size="74" letter-spacing="6" fill="#FF79C6" stroke="#FFFFFF" stroke-width="2.5" stroke-linejoin="round">HAPPY NEW YEAR</text>
+</g>
+
+<circle cx="960" cy="540" r="240" fill="url(#centerAura)" class="beat-ring-2"/>
+<circle class="beat-ring" cx="960" cy="540" r="188" fill="none" stroke="#4CC9F0" stroke-width="6" filter="url(#glowStrong)"/>
+<circle class="beat-ring-2" cx="960" cy="540" r="168" fill="#090218" fill-opacity=".42" stroke="#F72585" stroke-width="3.5" filter="url(#glowSoft)"/>
+
+<g font-family="'Arial Black','Impact','Segoe UI',system-ui,sans-serif" font-weight="900" font-size="250" text-anchor="middle" dominant-baseline="central">
+<g class="num n10">
+<text x="968" y="548" fill="#F72585" opacity=".75" filter="url(#glowNum)">10</text>
+<text x="960" y="540" fill="none" stroke="#4CC9F0" stroke-width="18" stroke-linejoin="round" filter="url(#glowNum)">10</text>
+<text x="960" y="540" fill="#FFFFFF" stroke="#B8F2FF" stroke-width="4" stroke-linejoin="round">10</text>
+</g>
+<g class="num n9">
+<text x="968" y="548" fill="#F72585" opacity=".75" filter="url(#glowNum)">9</text>
+<text x="960" y="540" fill="none" stroke="#4CC9F0" stroke-width="18" stroke-linejoin="round" filter="url(#glowNum)">9</text>
+<text x="960" y="540" fill="#FFFFFF" stroke="#B8F2FF" stroke-width="4" stroke-linejoin="round">9</text>
+</g>
+<g class="num n8">
+<text x="968" y="548" fill="#F72585" opacity=".75" filter="url(#glowNum)">8</text>
+<text x="960" y="540" fill="none" stroke="#4CC9F0" stroke-width="18" stroke-linejoin="round" filter="url(#glowNum)">8</text>
+<text x="960" y="540" fill="#FFFFFF" stroke="#B8F2FF" stroke-width="4" stroke-linejoin="round">8</text>
+</g>
+<g class="num n7">
+<text x="968" y="548" fill="#F72585" opacity=".75" filter="url(#glowNum)">7</text>
+<text x="960" y="540" fill="none" stroke="#4CC9F0" stroke-width="18" stroke-linejoin="round" filter="url(#glowNum)">7</text>
+<text x="960" y="540" fill="#FFFFFF" stroke="#B8F2FF" stroke-width="4" stroke-linejoin="round">7</text>
+</g>
+<g class="num n6">
+<text x="968" y="548" fill="#F72585" opacity=".75" filter="url(#glowNum)">6</text>
+<text x="960" y="540" fill="none" stroke="#4CC9F0" stroke-width="18" stroke-linejoin="round" filter="url(#glowNum)">6</text>
+<text x="960" y="540" fill="#FFFFFF" stroke="#B8F2FF" stroke-width="4" stroke-linejoin="round">6</text>
+</g>
+<g class="num n5">
+<text x="968" y="548" fill="#F72585" opacity=".75" filter="url(#glowNum)">5</text>
+<text x="960" y="540" fill="none" stroke="#4CC9F0" stroke-width="18" stroke-linejoin="round" filter="url(#glowNum)">5</text>
+<text x="960" y="540" fill="#FFFFFF" stroke="#B8F2FF" stroke-width="4" stroke-linejoin="round">5</text>
+</g>
+<g class="num n4">
+<text x="968" y="548" fill="#F72585" opacity=".75" filter="url(#glowNum)">4</text>
+<text x="960" y="540" fill="none" stroke="#4CC9F0" stroke-width="18" stroke-linejoin="round" filter="url(#glowNum)">4</text>
+<text x="960" y="540" fill="#FFFFFF" stroke="#B8F2FF" stroke-width="4" stroke-linejoin="round">4</text>
+</g>
+<g class="num n3">
+<text x="968" y="548" fill="#F72585" opacity=".75" filter="url(#glowNum)">3</text>
+<text x="960" y="540" fill="none" stroke="#4CC9F0" stroke-width="18" stroke-linejoin="round" filter="url(#glowNum)">3</text>
+<text x="960" y="540" fill="#FFFFFF" stroke="#B8F2FF" stroke-width="4" stroke-linejoin="round">3</text>
+</g>
+<g class="num n2">
+<text x="968" y="548" fill="#F72585" opacity=".75" filter="url(#glowNum)">2</text>
+<text x="960" y="540" fill="none" stroke="#4CC9F0" stroke-width="18" stroke-linejoin="round" filter="url(#glowNum)">2</text>
+<text x="960" y="540" fill="#FFFFFF" stroke="#B8F2FF" stroke-width="4" stroke-linejoin="round">2</text>
+</g>
+<g class="num n1">
+<text x="968" y="548" fill="#F72585" opacity=".75" filter="url(#glowNum)">1</text>
+<text x="960" y="540" fill="none" stroke="#4CC9F0" stroke-width="18" stroke-linejoin="round" filter="url(#glowNum)">1</text>
+<text x="960" y="540" fill="#FFFFFF" stroke="#B8F2FF" stroke-width="4" stroke-linejoin="round">1</text>
+</g>
+</g>
+</svg>
+</body>
+</html>
