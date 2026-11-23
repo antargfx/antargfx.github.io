@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Art Deco Gold Happy New Year Countdown and Fireworks Seamless Loop</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#041114}
+svg{display:block;width:100%;height:100%}
+.deco-title{font-family:'Futura','Century Gothic','Trebuchet MS','Helvetica Neue',sans-serif;font-weight:700;text-anchor:middle;dominant-baseline:central}
+.deco-num{font-family:'Didot','Bodoni MT','Georgia','Times New Roman',serif;font-weight:700;text-anchor:middle;dominant-baseline:central}
+</style>
+</head>
+<body>
+<svg id="stage" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<radialGradient id="bgGrad" cx="50%" cy="54%" r="70%">
+<stop offset="0%" stop-color="#0d3033"/>
+<stop offset="48%" stop-color="#06191e"/>
+<stop offset="100%" stop-color="#02090d"/>
+</radialGradient>
+<linearGradient id="goldMain" x1="0%" y1="0%" x2="100%" y2="100%">
+<stop offset="0%" stop-color="#FFF2B2"/>
+<stop offset="28%" stop-color="#E5B94C"/>
+<stop offset="55%" stop-color="#FDE38A"/>
+<stop offset="82%" stop-color="#B88324"/>
+<stop offset="100%" stop-color="#F5D06B"/>
+</linearGradient>
+<linearGradient id="goldVert" x1="0%" y1="0%" x2="0%" y2="100%">
+<stop offset="0%" stop-color="#FFF5C3"/>
+<stop offset="40%" stop-color="#F0C451"/>
+<stop offset="75%" stop-color="#B9821E"/>
+<stop offset="100%" stop-color="#F8DA7C"/>
+</linearGradient>
+<linearGradient id="goldDeep" x1="0%" y1="0%" x2="100%" y2="0%">
+<stop offset="0%" stop-color="#8C5F14"/>
+<stop offset="50%" stop-color="#E6BA4E"/>
+<stop offset="100%" stop-color="#8C5F14"/>
+</linearGradient>
+<linearGradient id="rayGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+<stop offset="0%" stop-color="#F4CC63" stop-opacity="0"/>
+<stop offset="65%" stop-color="#E5B442" stop-opacity="0.09"/>
+<stop offset="100%" stop-color="#FFF0A8" stop-opacity="0.22"/>
+</linearGradient>
+<radialGradient id="medallionBg" cx="50%" cy="45%" r="55%">
+<stop offset="0%" stop-color="#10383c"/>
+<stop offset="72%" stop-color="#061c20"/>
+<stop offset="100%" stop-color="#031014"/>
+</radialGradient>
+<radialGradient id="centerGlow" cx="50%" cy="50%" r="50%">
+<stop offset="0%" stop-color="#FFD86B" stop-opacity="0.32"/>
+<stop offset="55%" stop-color="#D99F2B" stop-opacity="0.08"/>
+<stop offset="100%" stop-color="#D99F2B" stop-opacity="0"/>
+</radialGradient>
+<radialGradient id="bubbleGrad" cx="35%" cy="35%" r="65%">
+<stop offset="0%" stop-color="#FFFBE0" stop-opacity="0.95"/>
+<stop offset="55%" stop-color="#F2C85B" stop-opacity="0.55"/>
+<stop offset="100%" stop-color="#B88324" stop-opacity="0.1"/>
+</radialGradient>
+<filter id="goldGlow" x="-30%" y="-30%" width="160%" height="160%">
+<feGaussianBlur stdDeviation="8" result="b"/>
+<feMerge>
+<feMergeNode in="b"/>
+<feMergeNode in="SourceGraphic"/>
+</feMerge>
+</filter>
+</defs>
+
+<rect width="1920" height="1080" fill="url(#bgGrad)"/>
+
+<g id="sunburstGroup" transform="translate(960,605)"></g>
+
+<circle id="ambientGlow" cx="960" cy="605" r="460" fill="url(#centerGlow)"/>
+
+<g id="fireworksLayer"></g>
+<g id="particlesLayer"></g>
+
+<g id="decoBorder" fill="none" stroke="url(#goldMain)">
+<rect x="44" y="44" width="1832" height="992" stroke-width="3.5"/>
+<rect x="60" y="60" width="1800" height="960" stroke-width="1.5" opacity="0.72"/>
+<path d="M 44 170 L 170 44 M 44 128 L 128 44 M 44 212 L 212 44" stroke-width="2" opacity="0.85"/>
+<path d="M 1876 170 L 1750 44 M 1876 128 L 1792 44 M 1876 212 L 1708 44" stroke-width="2" opacity="0.85"/>
+<path d="M 44 910 L 170 1036 M 44 952 L 128 1036 M 44 868 L 212 1036" stroke-width="2" opacity="0.85"/>
+<path d="M 1876 910 L 1750 1036 M 1876 952 L 1792 1036 M 1876 868 L 1708 1036" stroke-width="2" opacity="0.85"/>
+<polygon points="44,44 110,44 44,110" fill="url(#goldMain)" opacity="0.18"/>
+<polygon points="1876,44 1810,44 1876,110" fill="url(#goldMain)" opacity="0.18"/>
+<polygon points="44,1036 110,1036 44,970" fill="url(#goldMain)" opacity="0.18"/>
+<polygon points="1876,1036 1810,1036 1876,970" fill="url(#goldMain)" opacity="0.18"/>
+<g id="cornerFans"></g>
+</g>
+
+<g id="headerBanner">
+<path d="M 520 158 L 560 118 L 1360 118 L 1400 158 L 1360 198 L 560 198 Z" fill="#061b20" stroke="url(#goldMain)" stroke-width="3"/>
+<path d="M 538 158 L 568 128 L 1352 128 L 1382 158 L 1352 188 L 568 188 Z" fill="none" stroke="url(#goldMain)" stroke-width="1.2" opacity="0.7"/>
+<polygon points="486,158 506,144 526,158 506,172" fill="url(#goldMain)"/>
+<polygon points="1394,158 1414,144 1434,158 1414,172" fill="url(#goldMain)"/>
+<line x1="250" y1="158" x2="472" y2="158" stroke="url(#goldDeep)" stroke-width="2"/>
+<line x1="1448" y1="158" x2="1670" y2="158" stroke="url(#goldDeep)" stroke-width="2"/>
+<text x="960" y="160" font-size="52" letter-spacing="18" class="deco-title" fill="url(#goldVert)" filter="url(#goldGlow)">HAPPY NEW YEAR</text>
+</g>
+
+<g id="centerMedallion" transform="translate(960,605)">
+<g id="outerStarGroup"></g>
+<g id="chevronRingGroup"></g>
+<circle cx="0" cy="0" r="286" fill="none" stroke="url(#goldMain)" stroke-width="2.5" opacity="0.65"/>
+<circle cx="0" cy="0" r="266" fill="url(#medallionBg)" stroke="url(#goldMain)" stroke-width="6"/>
+<circle cx="0" cy="0" r="246" fill="none" stroke="url(#goldMain)" stroke-width="1.8" opacity="0.75"/>
+<circle id="rippleRing" cx="0" cy="0" r="210" fill="none" stroke="#FFE999" stroke-width="4" opacity="0"/>
+<circle id="progressTrack" cx="0" cy="0" r="222" fill="none" stroke="#18474c" stroke-width="8"/>
+<circle id="progressArc" cx="0" cy="0" r="222" fill="none" stroke="url(#goldMain)" stroke-width="8" stroke-linecap="butt" transform="rotate(-90)"/>
+<g id="tickMarks"></g>
+<g id="numGroup">
+<text id="numShadow" x="0" y="12" font-size="258" class="deco-num" fill="#020a0d" opacity="0.65">10</text>
+<text id="numMain" x="0" y="4" font-size="258" class="deco-num" fill="url(#goldVert)" stroke="#FFF5C8" stroke-width="2.2" filter="url(#goldGlow)">10</text>
+</g>
+</g>
+
+<g id="bottomAccent" fill="none" stroke="url(#goldMain)">
+<line x1="650" y1="972" x2="915" y2="972" stroke-width="2" opacity="0.75"/>
+<line x1="1005" y1="972" x2="1270" y2="972" stroke-width="2" opacity="0.75"/>
+<polygon points="960,954 990,972 960,990 930,972" fill="url(#goldMain)" opacity="0.9"/>
+<polygon points="960,962 976,972 960,982 944,972" fill="#05181c"/>
+</g>
+</svg>
+<script>
+(function(){
+const ns="http://www.w3.org/2000/svg";
+function el(tag,attrs,parent){
+const n=document.createElementNS(ns,tag);
+for(const k in attrs)n.setAttribute(k,attrs[k]);
+if(parent)parent.appendChild(n);
+return n;
+}
+
+const sunburst=document.getElementById("sunburstGroup");
+const rayCount=24;
+for(let i=0;i<rayCount;i++){
+const ang=i*(360/rayCount);
+el("polygon",{points:"-38,-1180 38,-1180 4,0 -4,0",fill:"url(#rayGrad)",transform:`rotate(${ang})`},sunburst);
+}
+
+const cornerFans=document.getElementById("cornerFans");
+const corners=[[60,60,0],[1860,60,90],[1860,1020,180],[60,1020,270]];
+corners.forEach(([x,y,rot])=>{
+const g=el("g",{transform:`translate(${x},${y}) rotate(${rot})`},cornerFans);
+for(let r=48;r<=128;r+=26){
+el("path",{d:`M ${r} 0 A ${r} ${r} 0 0 1 0 ${r}`,stroke:"url(#goldMain)","stroke-width":1.6,opacity:0.65},g);
+}
+for(let a=15;a<=75;a+=15){
+const rad=a*Math.PI/180;
+el("line",{x1:0,y1:0,x2:(Math.cos(rad)*128).toFixed(1),y2:(Math.sin(rad)*128).toFixed(1),stroke:"url(#goldMain)","stroke-width":1.2,opacity:0.45},g);
+}
+});
+
+const outerStar=document.getElementById("outerStarGroup");
+const starPoints=12;
+for(let i=0;i<starPoints;i++){
+const a=i*(360/starPoints);
+el("polygon",{points:"0,-348 22,-282 0,-266 -22,-282",fill:"url(#goldMain)",opacity:0.88,transform:`rotate(${a})`},outerStar);
+el("polygon",{points:"0,-332 10,-286 0,-276 -10,-286",fill:"#071e23",transform:`rotate(${a})`},outerStar);
+}
+
+const chevronRing=document.getElementById("chevronRingGroup");
+const chevCount=20;
+for(let i=0;i<chevCount;i++){
+const a=i*(360/chevCount);
+el("path",{d:"M -12 -298 L 0 -316 L 12 -298",fill:"none",stroke:"url(#goldMain)","stroke-width":2.2,opacity:0.75,transform:`rotate(${a})`},chevronRing);
+}
+
+const tickMarks=document.getElementById("tickMarks");
+const tickEls=[];
+for(let i=0;i<10;i++){
+const a=(-90+i*36)*Math.PI/180;
+const x1=Math.cos(a)*204,y1=Math.sin(a)*204;
+const x2=Math.cos(a)*240,y2=Math.sin(a)*240;
+const mx=Math.cos(a)*256,my=Math.sin(a)*256;
+el("line",{x1:x1.toFixed(1),y1:y1.toFixed(1),x2:x2.toFixed(1),y2:y2.toFixed(1),stroke:"url(#goldMain)","stroke-width":2.6,opacity:0.85},tickMarks);
+const dot=el("polygon",{points:"0,-9 9,0 0,9 -9,0",fill:"#F6D26C",transform:`translate(${mx.toFixed(1)},${my.toFixed(1)})`},tickMarks);
+tickEls.push(dot);
+}
+
+const fireworksLayer=document.getElementById("fireworksLayer");
+const fwSpecs=[
+{x:295,y:345,r:165,p0:0.04,cycles:2,color:"#FFD966",accent:"#FFF4C2",spokes:16},
+{x:1625,y:355,r:170,p0:0.28,cycles:2,color:"#F7B267",accent:"#FFE8C8",spokes:16},
+{x:355,y:760,r:145,p0:0.54,cycles:2,color:"#56E3D5",accent:"#D6FFF9",spokes:12},
+{x:1565,y:755,r:150,p0:0.78,cycles:2,color:"#FFD966",accent:"#FFF4C2",spokes:12},
+{x:540,y:495,r:115,p0:0.16,cycles:3,color:"#F4A896",accent:"#FFE3DC",spokes:12},
+{x:1380,y:495,r:115,p0:0.66,cycles:3,color:"#56E3D5",accent:"#D6FFF9",spokes:12}
+];
+const fwObjs=fwSpecs.map(spec=>{
+const g=el("g",{transform:`translate(${spec.x},${spec.y})`},fireworksLayer);
+const ring=el("circle",{cx:0,cy:0,r:10,fill:"none",stroke:spec.color,"stroke-width":2,opacity:0},g);
+const spokes=[];
+for(let i=0;i<spec.spokes;i++){
+const ang=(i/spec.spokes)*Math.PI*2;
+const line=el("line",{x1:0,y1:0,x2:0,y2:0,stroke:spec.color,"stroke-width":3,"stroke-linecap":"round"},g);
+const tip=el("polygon",{points:"0,-6 6,0 0,6 -6,0",fill:spec.accent},g);
+spokes.push({ang,line,tip});
+}
+return {spec,g,ring,spokes};
+});
+
+const particlesLayer=document.getElementById("particlesLayer");
+const particles=[];
+const pCount=52;
+for(let i=0;i<pCount;i++){
+const s1=Math.sin(i*17.13+1.2)*43758.5453;const r1=s1-Math.floor(s1);
+const s2=Math.sin(i*91.77+4.3)*28461.1234;const r2=s2-Math.floor(s2);
+const s3=Math.sin(i*43.51+7.9)*19532.9876;const r3=s3-Math.floor(s3);
+const isDiamond=(i%3===0);
+let x0=90+r1*1740;
+if(x0>640&&x0<1280)x0=(i%2===0)?(90+r1*500):(1330+r1*500);
+const y0=r2*1160;
+const speed=1+Math.floor(r3*2);
+const swayAmp=12+r2*28;
+const swayFreq=1+Math.floor(r1*2);
+const phase=r3*Math.PI*2;
+const size=3.5+r1*6.5;
+const spin=(i%2===0?1:-1)*(1+Math.floor(r2*2));
+let node;
+if(isDiamond){
+node=el("polygon",{points:`0,${-size} ${size*0.65},0 0,${size} ${-size*0.65},0`,fill:"url(#goldMain)"},particlesLayer);
+}else{
+node=el("circle",{cx:0,cy:0,r:size*0.68,fill:"url(#bubbleGrad)",stroke:"#FFF4BD","stroke-width":0.8},particlesLayer);
+}
+particles.push({node,isDiamond,x0,y0,speed,swayAmp,swayFreq,phase,spin});
+}
+
+const progressArc=document.getElementById("progressArc");
+const circum=2*Math.PI*222;
+progressArc.setAttribute("stroke-dasharray",circum.toFixed(2));
+const rippleRing=document.getElementById("rippleRing");
+const numGroup=document.getElementById("numGroup");
+const numMain=document.getElementById("numMain");
+const numShadow=document.getElementById("numShadow");
+const ambientGlow=document.getElementById("ambientGlow");
+
+function render(ts){
+const t=(((ts%10000)+10000)%10000)/10000;
+const secFloat=t*10;
+const secIdx=Math.floor(secFloat)%10;
+const frac=secFloat-Math.floor(secFloat);
+const numStr=String(10-secIdx);
+
+if(numMain.textContent!==numStr){
+numMain.textContent=numStr;
+numShadow.textContent=numStr;
+}
+
+sunburst.setAttribute("transform",`translate(960,605) rotate(${(t*15).toFixed(3)})`);
+outerStar.setAttribute("transform",`rotate(${(-t*30).toFixed(3)})`);
+chevronRing.setAttribute("transform",`rotate(${(t*18).toFixed(3)})`);
+
+const beat=Math.exp(-frac*5.8);
+const popScale=1+0.09*beat;
+numGroup.setAttribute("transform",`scale(${popScale.toFixed(4)})`);
+ambientGlow.setAttribute("opacity",(0.72+0.28*beat).toFixed(3));
+
+const dashOffset=circum*(1-frac);
+progressArc.setAttribute("stroke-dashoffset",dashOffset.toFixed(2));
+
+const ripR=218+frac*125;
+const ripOp=Math.sin(frac*Math.PI)*(1-frac)*0.75;
+rippleRing.setAttribute("r",ripR.toFixed(1));
+rippleRing.setAttribute("opacity",ripOp.toFixed(3));
+rippleRing.setAttribute("stroke-width",(4.5*(1-frac*0.65)).toFixed(2));
+
+for(let i=0;i<10;i++){
+const active=(i===secIdx);
+const passed=(i<secIdx);
+const a=(-90+i*36)*Math.PI/180;
+const mx=Math.cos(a)*256,my=Math.sin(a)*256;
+const sc=active?(1.35+0.35*beat):(passed?0.75:1.0);
+tickEls[i].setAttribute("transform",`translate(${mx.toFixed(1)},${my.toFixed(1)}) scale(${sc.toFixed(3)})`);
+tickEls[i].setAttribute("fill",active?"#FFF7C9":(passed?"#7A5A1E":"#E9BD4F"));
+}
+
+for(let i=0;i<fwObjs.length;i++){
+const fw=fwObjs[i];
+const u=(t*fw.spec.cycles+fw.spec.p0)%1;
+const easeOut=1-Math.pow(1-u,3);
+const fadeIn=Math.min(1,u/0.12);
+const fadeOut=Math.max(0,1-Math.max(0,(u-0.48)/0.52));
+const op=fadeIn*fadeOut;
+fw.g.setAttribute("opacity",op.toFixed(3));
+const rOuter=fw.spec.r*easeOut;
+const rInner=fw.spec.r*Math.max(0,easeOut-0.36);
+fw.ring.setAttribute("r",(rOuter*0.62).toFixed(1));
+fw.ring.setAttribute("opacity",(op*0.45).toFixed(3));
+const tipScale=Math.max(0.2,1-u*0.6);
+for(let j=0;j<fw.spokes.length;j++){
+const sp=fw.spokes[j];
+const c=Math.cos(sp.ang),s=Math.sin(sp.ang);
+sp.line.setAttribute("x1",(c*rInner).toFixed(1));
+sp.line.setAttribute("y1",(s*rInner).toFixed(1));
+sp.line.setAttribute("x2",(c*rOuter).toFixed(1));
+sp.line.setAttribute("y2",(s*rOuter).toFixed(1));
+sp.tip.setAttribute("transform",`translate(${(c*rOuter).toFixed(1)},${(s*rOuter).toFixed(1)}) scale(${tipScale.toFixed(2)})`);
+}
+}
+
+const wrapH=1160;
+for(let i=0;i<particles.length;i++){
+const p=particles[i];
+const y=((p.y0-t*wrapH*p.speed)%wrapH+wrapH)%wrapH-40;
+const x=p.x0+Math.sin(t*Math.PI*2*p.swayFreq+p.phase)*p.swayAmp;
+const edgeFade=Math.min(1,Math.max(0,(y+40)/130))*Math.min(1,Math.max(0,(1120-y)/140));
+const shimmer=0.55+0.45*Math.sin(t*Math.PI*2*3+p.phase);
+if(p.isDiamond){
+const rot=t*360*p.spin;
+p.node.setAttribute("transform",`translate(${x.toFixed(1)},${y.toFixed(1)}) rotate(${rot.toFixed(1)})`);
+}else{
+p.node.setAttribute("transform",`translate(${x.toFixed(1)},${y.toFixed(1)})`);
+}
+p.node.setAttribute("opacity",(edgeFade*shimmer*0.88).toFixed(3));
+}
+
+requestAnimationFrame(render);
+}
+requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>

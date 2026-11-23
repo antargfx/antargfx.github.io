@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Art Deco Gold Luxury Happy New Year Countdown Animation Loop</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#041418}
+svg{display:block;width:100%;height:100%}
+.rays-cw{transform-origin:960px 540px;animation:spinRays 10s linear infinite}
+@keyframes spinRays{
+0%{transform:rotate(0deg)}
+100%{transform:rotate(30deg)}
+}
+.ring-outer{transform-origin:960px 540px;animation:spinOuter 10s linear infinite}
+@keyframes spinOuter{
+0%{transform:rotate(0deg)}
+100%{transform:rotate(20deg)}
+}
+.ring-inner{transform-origin:960px 540px;animation:spinInner 10s linear infinite}
+@keyframes spinInner{
+0%{transform:rotate(0deg)}
+100%{transform:rotate(-30deg)}
+}
+.beat-halo{transform-origin:960px 540px;animation:haloBeat 1s ease-in-out infinite}
+@keyframes haloBeat{
+0%{transform:scale(.92);opacity:.35}
+25%{transform:scale(1.06);opacity:.95}
+100%{transform:scale(.92);opacity:.35}
+}
+.beat-wave{transform-origin:960px 540px;animation:waveBeat 1s ease-in-out infinite}
+@keyframes waveBeat{
+0%{transform:scale(.88);opacity:0}
+15%{transform:scale(1);opacity:.9}
+85%{transform:scale(1.24);opacity:.15}
+100%{transform:scale(1.3);opacity:0}
+}
+.num{transform-origin:960px 540px;opacity:0;animation:countTick 10s linear infinite}
+.n10{animation-delay:0s}
+.n9{animation-delay:-9s}
+.n8{animation-delay:-8s}
+.n7{animation-delay:-7s}
+.n6{animation-delay:-6s}
+.n5{animation-delay:-5s}
+.n4{animation-delay:-4s}
+.n3{animation-delay:-3s}
+.n2{animation-delay:-2s}
+.n1{animation-delay:-1s}
+@keyframes countTick{
+0%{opacity:0;transform:scale(.8)}
+1.4%{opacity:1;transform:scale(1.08)}
+3.4%{opacity:1;transform:scale(1.01)}
+8.6%{opacity:1;transform:scale(1)}
+9.8%{opacity:0;transform:scale(.92)}
+10%{opacity:0;transform:scale(.8)}
+100%{opacity:0;transform:scale(.8)}
+}
+.sheen{animation:sheenSweep 5s ease-in-out infinite}
+@keyframes sheenSweep{
+0%,15%{transform:translateX(-460px);opacity:0}
+35%{opacity:.55}
+65%{transform:translateX(460px);opacity:0}
+100%{transform:translateX(460px);opacity:0}
+}
+.fw-a{transform-box:fill-box;transform-origin:center;animation:fireworkBurst 2s ease-in-out infinite}
+.fw-b{transform-box:fill-box;transform-origin:center;animation:fireworkBurst 2s ease-in-out infinite;animation-delay:-1s}
+.fw-c{transform-box:fill-box;transform-origin:center;animation:fireworkBurst 5s ease-in-out infinite;animation-delay:-1.5s}
+.fw-d{transform-box:fill-box;transform-origin:center;animation:fireworkBurst 5s ease-in-out infinite;animation-delay:-4s}
+@keyframes fireworkBurst{
+0%{transform:scale(.25) rotate(0deg);opacity:0}
+25%{transform:scale(.85) rotate(10deg);opacity:1}
+75%{transform:scale(1.18) rotate(22deg);opacity:.7}
+100%{transform:scale(1.32) rotate(30deg);opacity:0}
+}
+.spark-a{transform-box:fill-box;transform-origin:center;animation:sparkle 2s ease-in-out infinite}
+.spark-b{transform-box:fill-box;transform-origin:center;animation:sparkle 2s ease-in-out infinite;animation-delay:-0.66s}
+.spark-c{transform-box:fill-box;transform-origin:center;animation:sparkle 2s ease-in-out infinite;animation-delay:-1.33s}
+.spark-d{transform-box:fill-box;transform-origin:center;animation:sparkle 5s ease-in-out infinite;animation-delay:-2.5s}
+@keyframes sparkle{
+0%,100%{transform:scale(.45) rotate(0deg);opacity:.25}
+50%{transform:scale(1.2) rotate(18deg);opacity:1}
+}
+.bubble{animation:riseUp 5s linear infinite}
+.b1{animation-delay:-0.2s}
+.b2{animation-delay:-0.9s}
+.b3{animation-delay:-1.6s}
+.b4{animation-delay:-2.3s}
+.b5{animation-delay:-3.1s}
+.b6{animation-delay:-3.8s}
+.b7{animation-delay:-4.4s}
+.b8{animation-delay:-0.6s}
+.b9{animation-delay:-1.9s}
+.b10{animation-delay:-2.8s}
+.b11{animation-delay:-3.5s}
+.b12{animation-delay:-4.7s}
+@keyframes riseUp{
+0%{transform:translateY(0px);opacity:0}
+12%{opacity:.65}
+85%{opacity:.5}
+100%{transform:translateY(-1160px);opacity:0}
+}
+</style>
+</head>
+<body>
+<svg viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<radialGradient id="bgGrad" cx="50%" cy="50%" r="65%">
+<stop offset="0%" stop-color="#0e3840"/>
+<stop offset="48%" stop-color="#072128"/>
+<stop offset="100%" stop-color="#030d12"/>
+</radialGradient>
+<radialGradient id="centerGlow" cx="50%" cy="50%" r="50%">
+<stop offset="0%" stop-color="#F9D976" stop-opacity=".35"/>
+<stop offset="55%" stop-color="#D4AF37" stop-opacity=".12"/>
+<stop offset="100%" stop-color="#030d12" stop-opacity="0"/>
+</radialGradient>
+<linearGradient id="goldMain" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0%" stop-color="#FFF5C0"/>
+<stop offset="28%" stop-color="#F3CE68"/>
+<stop offset="55%" stop-color="#C8962E"/>
+<stop offset="80%" stop-color="#FCE48D"/>
+<stop offset="100%" stop-color="#9B6E18"/>
+</linearGradient>
+<linearGradient id="goldV" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0%" stop-color="#FFF8D6"/>
+<stop offset="35%" stop-color="#F6D365"/>
+<stop offset="70%" stop-color="#C9962B"/>
+<stop offset="100%" stop-color="#8C6011"/>
+</linearGradient>
+<linearGradient id="rayGrad" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0%" stop-color="#F6D365" stop-opacity="0"/>
+<stop offset="45%" stop-color="#D4AF37" stop-opacity=".16"/>
+<stop offset="100%" stop-color="#FFF5C0" stop-opacity=".28"/>
+</linearGradient>
+<linearGradient id="sheenGrad" x1="0" y1="0" x2="1" y2="0">
+<stop offset="0%" stop-color="#FFF8D6" stop-opacity="0"/>
+<stop offset="50%" stop-color="#FFF8D6" stop-opacity=".9"/>
+<stop offset="100%" stop-color="#FFF8D6" stop-opacity="0"/>
+</linearGradient>
+<radialGradient id="medallionBg" cx="50%" cy="45%" r="55%">
+<stop offset="0%" stop-color="#0f333b"/>
+<stop offset="75%" stop-color="#06191f"/>
+<stop offset="100%" stop-color="#030c10"/>
+</radialGradient>
+<filter id="goldGlow" x="-30%" y="-30%" width="160%" height="160%">
+<feGaussianBlur stdDeviation="10" result="b"/>
+<feMerge>
+<feMergeNode in="b"/>
+<feMergeNode in="SourceGraphic"/>
+</feMerge>
+</filter>
+<filter id="softGlow" x="-25%" y="-25%" width="150%" height="150%">
+<feGaussianBlur stdDeviation="5" result="b"/>
+<feMerge>
+<feMergeNode in="b"/>
+<feMergeNode in="SourceGraphic"/>
+</feMerge>
+</filter>
+<clipPath id="bannerClip">
+<polygon points="560,72 1360,72 1390,104 1360,156 560,156 530,104"/>
+</clipPath>
+<g id="decoRay">
+<polygon points="960,540 936,-620 984,-620" fill="url(#rayGrad)"/>
+<line x1="960" y1="540" x2="960" y2="-620" stroke="#F6D365" stroke-width="1.2" opacity=".2"/>
+</g>
+<g id="decoFirework">
+<line x1="0" y1="-95" x2="0" y2="-32" stroke="url(#goldMain)" stroke-width="3.5" stroke-linecap="round"/>
+<line x1="0" y1="32" x2="0" y2="95" stroke="url(#goldMain)" stroke-width="3.5" stroke-linecap="round"/>
+<line x1="-95" y1="0" x2="-32" y2="0" stroke="url(#goldMain)" stroke-width="3.5" stroke-linecap="round"/>
+<line x1="32" y1="0" x2="95" y2="0" stroke="url(#goldMain)" stroke-width="3.5" stroke-linecap="round"/>
+<line x1="-67" y1="-67" x2="-24" y2="-24" stroke="url(#goldMain)" stroke-width="3" stroke-linecap="round"/>
+<line x1="24" y1="24" x2="67" y2="67" stroke="url(#goldMain)" stroke-width="3" stroke-linecap="round"/>
+<line x1="67" y1="-67" x2="24" y2="-24" stroke="url(#goldMain)" stroke-width="3" stroke-linecap="round"/>
+<line x1="-24" y1="24" x2="-67" y2="67" stroke="url(#goldMain)" stroke-width="3" stroke-linecap="round"/>
+<line x1="-36" y1="-87" x2="-15" y2="-36" stroke="#FFF5C0" stroke-width="2" stroke-linecap="round"/>
+<line x1="36" y1="-87" x2="15" y2="-36" stroke="#FFF5C0" stroke-width="2" stroke-linecap="round"/>
+<line x1="-36" y1="87" x2="-15" y2="36" stroke="#FFF5C0" stroke-width="2" stroke-linecap="round"/>
+<line x1="36" y1="87" x2="15" y2="36" stroke="#FFF5C0" stroke-width="2" stroke-linecap="round"/>
+<line x1="-87" y1="-36" x2="-36" y2="-15" stroke="#FFF5C0" stroke-width="2" stroke-linecap="round"/>
+<line x1="87" y1="-36" x2="36" y2="-15" stroke="#FFF5C0" stroke-width="2" stroke-linecap="round"/>
+<line x1="-87" y1="36" x2="-36" y2="15" stroke="#FFF5C0" stroke-width="2" stroke-linecap="round"/>
+<line x1="87" y1="36" x2="36" y2="15" stroke="#FFF5C0" stroke-width="2" stroke-linecap="round"/>
+<circle cx="0" cy="-112" r="4.5" fill="#FFF8D6"/>
+<circle cx="0" cy="112" r="4.5" fill="#FFF8D6"/>
+<circle cx="-112" cy="0" r="4.5" fill="#FFF8D6"/>
+<circle cx="112" cy="0" r="4.5" fill="#FFF8D6"/>
+<circle cx="-79" cy="-79" r="3.8" fill="#F6D365"/>
+<circle cx="79" cy="-79" r="3.8" fill="#F6D365"/>
+<circle cx="-79" cy="79" r="3.8" fill="#F6D365"/>
+<circle cx="79" cy="79" r="3.8" fill="#F6D365"/>
+<polygon points="0,-16 12,0 0,16 -12,0" fill="#FFF5C0"/>
+</g>
+<g id="cornerDeco">
+<path d="M40 40 L250 40 L230 60 L60 60 L60 230 L40 250 Z" fill="url(#goldMain)"/>
+<path d="M74 74 L190 74 L176 88 L88 88 L88 176 L74 190 Z" fill="none" stroke="url(#goldMain)" stroke-width="3"/>
+<line x1="60" y1="60" x2="150" y2="150" stroke="#F6D365" stroke-width="2.5"/>
+<polygon points="150,136 164,150 150,164 136,150" fill="#FFF5C0"/>
+<path d="M40 40 L125 40 A85 85 0 0 1 40 125 Z" fill="none" stroke="#FFF5C0" stroke-width="2" opacity=".6"/>
+</g>
+</defs>
+
+<rect x="0" y="0" width="1920" height="1080" fill="url(#bgGrad)"/>
+
+<g class="rays-cw">
+<use href="#decoRay" transform="rotate(0 960 540)"/>
+<use href="#decoRay" transform="rotate(30 960 540)"/>
+<use href="#decoRay" transform="rotate(60 960 540)"/>
+<use href="#decoRay" transform="rotate(90 960 540)"/>
+<use href="#decoRay" transform="rotate(120 960 540)"/>
+<use href="#decoRay" transform="rotate(150 960 540)"/>
+<use href="#decoRay" transform="rotate(180 960 540)"/>
+<use href="#decoRay" transform="rotate(210 960 540)"/>
+<use href="#decoRay" transform="rotate(240 960 540)"/>
+<use href="#decoRay" transform="rotate(270 960 540)"/>
+<use href="#decoRay" transform="rotate(300 960 540)"/>
+<use href="#decoRay" transform="rotate(330 960 540)"/>
+</g>
+
+<g>
+<g class="bubble b1"><circle cx="145" cy="1120" r="8" fill="#F6D365" fill-opacity=".28" stroke="#FFF5C0" stroke-width="1.5"/></g>
+<g class="bubble b2"><circle cx="265" cy="1120" r="5" fill="#FFF8D6" fill-opacity=".4"/></g>
+<g class="bubble b3"><circle cx="385" cy="1120" r="11" fill="#F6D365" fill-opacity=".22" stroke="#F6D365" stroke-width="1.5"/></g>
+<g class="bubble b4"><circle cx="495" cy="1120" r="6" fill="#FFF5C0" fill-opacity=".35"/></g>
+<g class="bubble b5"><circle cx="620" cy="1120" r="9" fill="#D4AF37" fill-opacity=".26" stroke="#FFF5C0" stroke-width="1.2"/></g>
+<g class="bubble b6"><circle cx="1310" cy="1120" r="7" fill="#FFF5C0" fill-opacity=".34"/></g>
+<g class="bubble b7"><circle cx="1435" cy="1120" r="10" fill="#F6D365" fill-opacity=".24" stroke="#FFF5C0" stroke-width="1.5"/></g>
+<g class="bubble b8"><circle cx="1550" cy="1120" r="5.5" fill="#FFF8D6" fill-opacity=".42"/></g>
+<g class="bubble b9"><circle cx="1675" cy="1120" r="9" fill="#F6D365" fill-opacity=".25" stroke="#F6D365" stroke-width="1.5"/></g>
+<g class="bubble b10"><circle cx="1790" cy="1120" r="6.5" fill="#FFF5C0" fill-opacity=".36"/></g>
+<g class="bubble b11"><circle cx="215" cy="1120" r="4.5" fill="#FFF8D6" fill-opacity=".45"/></g>
+<g class="bubble b12"><circle cx="1725" cy="1120" r="4.5" fill="#FFF8D6" fill-opacity=".45"/></g>
+</g>
+
+<g filter="url(#softGlow)">
+<g transform="translate(310 300)"><use class="fw-a" href="#decoFirework"/></g>
+<g transform="translate(1610 300)"><use class="fw-b" href="#decoFirework"/></g>
+<g transform="translate(260 760) scale(.82)"><use class="fw-c" href="#decoFirework"/></g>
+<g transform="translate(1660 760) scale(.82)"><use class="fw-d" href="#decoFirework"/></g>
+</g>
+
+<g>
+<path class="spark-a" d="M475 210 L480 227 L497 232 L480 237 L475 254 L470 237 L453 232 L470 227 Z" fill="#FFF5C0" filter="url(#softGlow)"/>
+<path class="spark-b" d="M1445 210 L1450 227 L1467 232 L1450 237 L1445 254 L1440 237 L1423 232 L1440 227 Z" fill="#FFF5C0" filter="url(#softGlow)"/>
+<path class="spark-c" d="M420 540 L424 554 L438 558 L424 562 L420 576 L416 562 L402 558 L416 554 Z" fill="#F6D365"/>
+<path class="spark-a" d="M1500 540 L1504 554 L1518 558 L1504 562 L1500 576 L1496 562 L1482 558 L1496 554 Z" fill="#F6D365"/>
+<path class="spark-d" d="M510 830 L515 845 L530 850 L515 855 L510 870 L505 855 L490 850 L505 845 Z" fill="#FFF5C0" filter="url(#softGlow)"/>
+<path class="spark-b" d="M1410 830 L1415 845 L1430 850 L1415 855 L1410 870 L1405 855 L1390 850 L1405 845 Z" fill="#FFF5C0" filter="url(#softGlow)"/>
+<path class="spark-c" d="M170 510 L174 522 L186 526 L174 530 L170 542 L166 530 L154 526 L166 522 Z" fill="#F6D365"/>
+<path class="spark-d" d="M1750 510 L1754 522 L1766 526 L1754 530 L1750 542 L1746 530 L1734 526 L1746 522 Z" fill="#F6D365"/>
+</g>
+
+<g>
+<rect x="40" y="40" width="1840" height="1000" fill="none" stroke="url(#goldMain)" stroke-width="4"/>
+<rect x="58" y="58" width="1804" height="964" fill="none" stroke="#F6D365" stroke-width="1.5" opacity=".7"/>
+<use href="#cornerDeco"/>
+<use href="#cornerDeco" transform="translate(1920 0) scale(-1 1)"/>
+<use href="#cornerDeco" transform="translate(0 1080) scale(1 -1)"/>
+<use href="#cornerDeco" transform="translate(1920 1080) scale(-1 -1)"/>
+<line x1="120" y1="540" x2="540" y2="540" stroke="url(#goldMain)" stroke-width="2" opacity=".55"/>
+<line x1="1380" y1="540" x2="1800" y2="540" stroke="url(#goldMain)" stroke-width="2" opacity=".55"/>
+<polygon points="540,530 554,540 540,550 526,540" fill="#F6D365"/>
+<polygon points="1380,530 1394,540 1380,550 1366,540" fill="#F6D365"/>
+</g>
+
+<g>
+<polygon points="560,72 1360,72 1390,114 1360,156 560,156 530,114" fill="#05171d" stroke="url(#goldMain)" stroke-width="4" filter="url(#softGlow)"/>
+<polygon points="572,82 1348,82 1372,114 1348,146 572,146 548,114" fill="none" stroke="#FFF5C0" stroke-width="1.5" opacity=".7"/>
+<polygon points="505,114 522,102 539,114 522,126" fill="url(#goldMain)"/>
+<polygon points="1415,114 1398,102 1381,114 1398,126" fill="url(#goldMain)"/>
+<g clip-path="url(#bannerClip)">
+<rect class="sheen" x="880" y="50" width="160" height="130" fill="url(#sheenGrad)" transform="skewX(-24)"/>
+</g>
+<text x="960" y="131" text-anchor="middle" font-family="'Futura','Century Gothic','Trebuchet MS',system-ui,sans-serif" font-weight="800" font-size="52" letter-spacing="14" fill="url(#goldV)" filter="url(#softGlow)">HAPPY NEW YEAR</text>
+</g>
+
+<circle class="beat-halo" cx="960" cy="540" r="355" fill="url(#centerGlow)"/>
+<circle class="beat-wave" cx="960" cy="540" r="265" fill="none" stroke="url(#goldMain)" stroke-width="4" filter="url(#goldGlow)"/>
+
+<g class="ring-outer">
+<circle cx="960" cy="540" r="298" fill="none" stroke="url(#goldMain)" stroke-width="3" stroke-dasharray="14 12" opacity=".85"/>
+<circle cx="960" cy="540" r="282" fill="none" stroke="#F6D365" stroke-width="1.5" opacity=".55"/>
+<g fill="#FFF5C0">
+<circle cx="960" cy="242" r="5"/>
+<circle cx="1011.7" cy="246.5" r="3.5"/>
+<circle cx="1061.9" cy="260" r="5"/>
+<circle cx="1109" cy="281.9" r="3.5"/>
+<circle cx="1151.5" cy="311.7" r="5"/>
+<circle cx="1188.3" cy="348.5" r="3.5"/>
+<circle cx="1218.1" cy="391" r="5"/>
+<circle cx="1240" cy="438.1" r="3.5"/>
+<circle cx="1253.5" cy="488.3" r="5"/>
+<circle cx="1258" cy="540" r="3.5"/>
+<circle cx="1253.5" cy="591.7" r="5"/>
+<circle cx="1240" cy="641.9" r="3.5"/>
+<circle cx="1218.1" cy="689" r="5"/>
+<circle cx="1188.3" cy="731.5" r="3.5"/>
+<circle cx="1151.5" cy="768.3" r="5"/>
+<circle cx="1109" cy="798.1" r="3.5"/>
+<circle cx="1061.9" cy="820" r="5"/>
+<circle cx="1011.7" cy="833.5" r="3.5"/>
+<circle cx="960" cy="838" r="5"/>
+<circle cx="908.3" cy="833.5" r="3.5"/>
+<circle cx="858.1" cy="820" r="5"/>
+<circle cx="811" cy="798.1" r="3.5"/>
+<circle cx="768.5" cy="768.3" r="5"/>
+<circle cx="731.7" cy="731.5" r="3.5"/>
+<circle cx="701.9" cy="689" r="5"/>
+<circle cx="680" cy="641.9" r="3.5"/>
+<circle cx="666.5" cy="591.7" r="5"/>
+<circle cx="662" cy="540" r="3.5"/>
+<circle cx="666.5" cy="488.3" r="5"/>
+<circle cx="680" cy="438.1" r="3.5"/>
+<circle cx="701.9" cy="391" r="5"/>
+<circle cx="731.7" cy="348.5" r="3.5"/>
+<circle cx="768.5" cy="311.7" r="5"/>
+<circle cx="811" cy="281.9" r="3.5"/>
+<circle cx="858.1" cy="260" r="5"/>
+<circle cx="908.3" cy="246.5" r="3.5"/>
+</g>
+</g>
+
+<g class="ring-inner">
+<polygon points="960,276 1092,311 1189,408 1224,540 1189,672 1092,769 960,804 828,769 731,672 696,540 731,408 828,311" fill="none" stroke="url(#goldMain)" stroke-width="3.5"/>
+<polygon points="960,296 1082,329 1171,418 1204,540 1171,662 1082,751 960,784 838,751 749,662 716,540 749,418 838,329" fill="none" stroke="#FFF5C0" stroke-width="1.5" opacity=".7"/>
+</g>
+
+<circle cx="960" cy="540" r="226" fill="url(#medallionBg)" stroke="url(#goldMain)" stroke-width="6" filter="url(#softGlow)"/>
+<circle cx="960" cy="540" r="208" fill="none" stroke="#FFF5C0" stroke-width="1.8" opacity=".65"/>
+
+<g font-family="'Futura','Didot','Georgia',serif" font-weight="700" font-size="252" text-anchor="middle" dominant-baseline="central">
+<g class="num n10">
+<text x="960" y="546" fill="#020a0d" opacity=".7">10</text>
+<text x="960" y="540" fill="url(#goldV)" stroke="#FFF8D6" stroke-width="3" filter="url(#goldGlow)">10</text>
+</g>
+<g class="num n9">
+<text x="960" y="546" fill="#020a0d" opacity=".7">9</text>
+<text x="960" y="540" fill="url(#goldV)" stroke="#FFF8D6" stroke-width="3" filter="url(#goldGlow)">9</text>
+</g>
+<g class="num n8">
+<text x="960" y="546" fill="#020a0d" opacity=".7">8</text>
+<text x="960" y="540" fill="url(#goldV)" stroke="#FFF8D6" stroke-width="3" filter="url(#goldGlow)">8</text>
+</g>
+<g class="num n7">
+<text x="960" y="546" fill="#020a0d" opacity=".7">7</text>
+<text x="960" y="540" fill="url(#goldV)" stroke="#FFF8D6" stroke-width="3" filter="url(#goldGlow)">7</text>
+</g>
+<g class="num n6">
+<text x="960" y="546" fill="#020a0d" opacity=".7">6</text>
+<text x="960" y="540" fill="url(#goldV)" stroke="#FFF8D6" stroke-width="3" filter="url(#goldGlow)">6</text>
+</g>
+<g class="num n5">
+<text x="960" y="546" fill="#020a0d" opacity=".7">5</text>
+<text x="960" y="540" fill="url(#goldV)" stroke="#FFF8D6" stroke-width="3" filter="url(#goldGlow)">5</text>
+</g>
+<g class="num n4">
+<text x="960" y="546" fill="#020a0d" opacity=".7">4</text>
+<text x="960" y="540" fill="url(#goldV)" stroke="#FFF8D6" stroke-width="3" filter="url(#goldGlow)">4</text>
+</g>
+<g class="num n3">
+<text x="960" y="546" fill="#020a0d" opacity=".7">3</text>
+<text x="960" y="540" fill="url(#goldV)" stroke="#FFF8D6" stroke-width="3" filter="url(#goldGlow)">3</text>
+</g>
+<g class="num n2">
+<text x="960" y="546" fill="#020a0d" opacity=".7">2</text>
+<text x="960" y="540" fill="url(#goldV)" stroke="#FFF8D6" stroke-width="3" filter="url(#goldGlow)">2</text>
+</g>
+<g class="num n1">
+<text x="960" y="546" fill="#020a0d" opacity=".7">1</text>
+<text x="960" y="540" fill="url(#goldV)" stroke="#FFF8D6" stroke-width="3" filter="url(#goldGlow)">1</text>
+</g>
+</g>
+
+<g>
+<path d="M740 946 L940 946 L960 924 L980 946 L1180 946" fill="none" stroke="url(#goldMain)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+<polygon points="960,942 974,956 960,970 946,956" fill="#FFF5C0" filter="url(#softGlow)"/>
+<circle cx="722" cy="946" r="5" fill="#F6D365"/>
+<circle cx="1198" cy="946" r="5" fill="#F6D365"/>
+</g>
+</svg>
+</body>
+</html>

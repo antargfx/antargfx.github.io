@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Retro Synthwave Neon Grid Happy New Year Countdown Animation</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#090418}
+.stage{position:fixed;inset:0;width:100%;height:100%;display:block}
+svg{width:100%;height:100%;display:block}
+.grid-h{animation:gridScroll 2s linear infinite}
+.sun-glow{animation:sunPulse 2s ease-in-out infinite}
+.star-a{animation:twinkle 2s ease-in-out infinite}
+.star-b{animation:twinkle 5s ease-in-out infinite}
+.hud-spin-cw{transform-box:fill-box;transform-origin:center;animation:spinCW 10s linear infinite}
+.hud-spin-ccw{transform-box:fill-box;transform-origin:center;animation:spinCCW 5s linear infinite}
+.hud-pulse{transform-box:fill-box;transform-origin:center;animation:beatPulse 1s ease-in-out infinite}
+.hud-shock{transform-box:fill-box;transform-origin:center;animation:shockwave 1s ease-in-out infinite}
+.banner-breathe{animation:neonBreathe 2s ease-in-out infinite}
+.float-left{transform-box:fill-box;transform-origin:center;animation:floatBob 5s ease-in-out infinite}
+.float-right{transform-box:fill-box;transform-origin:center;animation:floatBob 5s ease-in-out -2.5s infinite}
+.spark-slow{animation:sparkRise 10s linear infinite}
+.spark-fast{animation:sparkRise 5s linear infinite}
+.title-glow{
+  font-family:'Impact','Arial Black','Futura','Trebuchet MS',sans-serif;
+  font-weight:900;
+  font-style:italic;
+  font-size:102px;
+  letter-spacing:10px;
+  text-anchor:middle;
+  dominant-baseline:central;
+  fill:none;
+  stroke:#FF2A85;
+  stroke-width:12;
+  opacity:0.75;
+}
+.title-chrome{
+  font-family:'Impact','Arial Black','Futura','Trebuchet MS',sans-serif;
+  font-weight:900;
+  font-style:italic;
+  font-size:102px;
+  letter-spacing:10px;
+  text-anchor:middle;
+  dominant-baseline:central;
+  fill:url(#chromeGrad);
+  stroke:#FFFFFF;
+  stroke-width:2.2;
+}
+.cd-num{
+  font-family:'Futura','Century Gothic','Arial Black','Segoe UI',sans-serif;
+  font-weight:800;
+  font-size:190px;
+  text-anchor:middle;
+  dominant-baseline:central;
+  transform-box:fill-box;
+  transform-origin:center;
+  opacity:0;
+  animation:countdownStep 10s linear infinite;
+}
+.cd-10{animation-delay:0s}
+.cd-9{animation-delay:-9s}
+.cd-8{animation-delay:-8s}
+.cd-7{animation-delay:-7s}
+.cd-6{animation-delay:-6s}
+.cd-5{animation-delay:-5s}
+.cd-4{animation-delay:-4s}
+.cd-3{animation-delay:-3s}
+.cd-2{animation-delay:-2s}
+.cd-1{animation-delay:-1s}
+@keyframes gridScroll{
+  0%{transform:translateY(0px);opacity:0}
+  10%{transform:translateY(1.2px);opacity:0.25}
+  20%{transform:translateY(7px);opacity:0.45}
+  30%{transform:translateY(20.1px);opacity:0.6}
+  40%{transform:translateY(42.5px);opacity:0.72}
+  50%{transform:translateY(75.9px);opacity:0.82}
+  60%{transform:translateY(122px);opacity:0.9}
+  70%{transform:translateY(182.1px);opacity:0.95}
+  80%{transform:translateY(257.6px);opacity:1}
+  90%{transform:translateY(349.8px);opacity:1}
+  100%{transform:translateY(460px);opacity:1}
+}
+@keyframes sunPulse{
+  0%,100%{opacity:0.72}
+  50%{opacity:1}
+}
+@keyframes twinkle{
+  0%,100%{opacity:0.2}
+  50%{opacity:1}
+}
+@keyframes spinCW{
+  0%{transform:rotate(0deg)}
+  100%{transform:rotate(360deg)}
+}
+@keyframes spinCCW{
+  0%{transform:rotate(0deg)}
+  100%{transform:rotate(-360deg)}
+}
+@keyframes beatPulse{
+  0%{transform:scale(0.96);opacity:0.75}
+  20%{transform:scale(1.04);opacity:1}
+  100%{transform:scale(0.96);opacity:0.75}
+}
+@keyframes shockwave{
+  0%{transform:scale(0.92);opacity:0.95}
+  45%{transform:scale(1.18);opacity:0}
+  100%{transform:scale(1.18);opacity:0}
+}
+@keyframes neonBreathe{
+  0%,100%{opacity:0.88}
+  50%{opacity:1}
+}
+@keyframes floatBob{
+  0%,100%{transform:translateY(0px) rotate(0deg)}
+  50%{transform:translateY(-22px) rotate(6deg)}
+}
+@keyframes sparkRise{
+  0%{transform:translate(0px,0px) scale(0.6);opacity:0}
+  15%{transform:translate(10px,-110px) scale(1);opacity:0.9}
+  50%{transform:translate(-10px,-380px) scale(0.95);opacity:0.8}
+  85%{transform:translate(8px,-650px) scale(0.85);opacity:0.5}
+  100%{transform:translate(0px,-760px) scale(0.5);opacity:0}
+}
+@keyframes countdownStep{
+  0%{opacity:0;transform:scale(0.8)}
+  1.1%{opacity:1;transform:scale(1.06)}
+  2.2%{opacity:1;transform:scale(1)}
+  8.6%{opacity:1;transform:scale(1)}
+  9.8%{opacity:0;transform:scale(1.08)}
+  100%{opacity:0;transform:scale(0.8)}
+}
+</style>
+</head>
+<body>
+<div class="stage">
+<svg viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#070314"/>
+      <stop offset="32%" stop-color="#150734"/>
+      <stop offset="68%" stop-color="#3A0C5A"/>
+      <stop offset="100%" stop-color="#8A146B"/>
+    </linearGradient>
+    <linearGradient id="floorGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#22063F"/>
+      <stop offset="28%" stop-color="#110426"/>
+      <stop offset="100%" stop-color="#060212"/>
+    </linearGradient>
+    <radialGradient id="sunHalo" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FF4D8D" stop-opacity="0.55"/>
+      <stop offset="55%" stop-color="#FF2A85" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#150734" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="sunGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFF07C"/>
+      <stop offset="32%" stop-color="#FFB800"/>
+      <stop offset="68%" stop-color="#FF4D6D"/>
+      <stop offset="100%" stop-color="#FF1E8E"/>
+    </linearGradient>
+    <linearGradient id="chromeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="34%" stop-color="#C8F7FF"/>
+      <stop offset="48%" stop-color="#4A1A6B"/>
+      <stop offset="54%" stop-color="#FF7AD9"/>
+      <stop offset="82%" stop-color="#FFE6FA"/>
+      <stop offset="100%" stop-color="#FFFFFF"/>
+    </linearGradient>
+    <linearGradient id="mtnDark" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#2A0B4E"/>
+      <stop offset="100%" stop-color="#0B031D"/>
+    </linearGradient>
+    <linearGradient id="mtnLight" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#5B1478"/>
+      <stop offset="100%" stop-color="#160530"/>
+    </linearGradient>
+    <linearGradient id="cyanNeon" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E0FFFF"/>
+      <stop offset="45%" stop-color="#00F5FF"/>
+      <stop offset="100%" stop-color="#00A8FF"/>
+    </linearGradient>
+    <linearGradient id="pinkNeon" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FF2A85"/>
+      <stop offset="50%" stop-color="#FF85C0"/>
+      <stop offset="100%" stop-color="#FF2A85"/>
+    </linearGradient>
+    <radialGradient id="hudFill" cx="50%" cy="50%" r="55%">
+      <stop offset="0%" stop-color="#0B2242" stop-opacity="0.92"/>
+      <stop offset="68%" stop-color="#0B0524" stop-opacity="0.94"/>
+      <stop offset="100%" stop-color="#070216" stop-opacity="0.96"/>
+    </radialGradient>
+    <mask id="sunSliceMask">
+      <rect x="640" y="250" width="640" height="400" fill="#FFFFFF"/>
+      <rect x="640" y="458" width="640" height="8" fill="#000000"/>
+      <rect x="640" y="484" width="640" height="12" fill="#000000"/>
+      <rect x="640" y="514" width="640" height="16" fill="#000000"/>
+      <rect x="640" y="548" width="640" height="20" fill="#000000"/>
+      <rect x="640" y="586" width="640" height="26" fill="#000000"/>
+    </mask>
+    <clipPath id="floorClip">
+      <rect x="0" y="620" width="1920" height="460"/>
+    </clipPath>
+    <filter id="pinkGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="6" result="b1"/>
+      <feGaussianBlur stdDeviation="16" result="b2"/>
+      <feMerge>
+        <feMergeNode in="b2"/>
+        <feMergeNode in="b1"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="cyanGlow" x="-35%" y="-35%" width="170%" height="170%">
+      <feGaussianBlur stdDeviation="5" result="b1"/>
+      <feGaussianBlur stdDeviation="14" result="b2"/>
+      <feMerge>
+        <feMergeNode in="b2"/>
+        <feMergeNode in="b1"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="softGlow" x="-25%" y="-25%" width="150%" height="150%">
+      <feGaussianBlur stdDeviation="3.5" result="b1"/>
+      <feMerge>
+        <feMergeNode in="b1"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect x="0" y="0" width="1920" height="620" fill="url(#skyGrad)"/>
+  <g id="stars"></g>
+
+  <ellipse cx="960" cy="540" rx="520" ry="340" fill="url(#sunHalo)" class="sun-glow"/>
+  <circle cx="960" cy="540" r="265" fill="url(#sunGrad)" mask="url(#sunSliceMask)" filter="url(#softGlow)"/>
+
+  <g id="mountains">
+    <polygon points="0,620 140,465 310,620" fill="url(#mtnDark)"/>
+    <polygon points="140,465 215,542 155,620 0,620" fill="url(#mtnLight)" opacity="0.55"/>
+    <polygon points="210,620 390,415 585,620" fill="url(#mtnDark)"/>
+    <polygon points="390,415 470,515 415,620 210,620" fill="url(#mtnLight)" opacity="0.6"/>
+    <polygon points="465,620 635,485 785,620" fill="url(#mtnDark)"/>
+    <polygon points="635,485 695,552 650,620 465,620" fill="url(#mtnLight)" opacity="0.5"/>
+
+    <polygon points="1920,620 1780,465 1610,620" fill="url(#mtnDark)"/>
+    <polygon points="1780,465 1705,542 1765,620 1920,620" fill="url(#mtnLight)" opacity="0.55"/>
+    <polygon points="1710,620 1530,415 1335,620" fill="url(#mtnDark)"/>
+    <polygon points="1530,415 1450,515 1505,620 1710,620" fill="url(#mtnLight)" opacity="0.6"/>
+    <polygon points="1455,620 1285,485 1135,620" fill="url(#mtnDark)"/>
+    <polygon points="1285,485 1225,552 1270,620 1455,620" fill="url(#mtnLight)" opacity="0.5"/>
+
+    <polyline points="0,620 140,465 245,568 390,415 510,545 635,485 785,620" fill="none" stroke="#FF2A85" stroke-width="2.6" filter="url(#softGlow)"/>
+    <polyline points="1920,620 1780,465 1675,568 1530,415 1410,545 1285,485 1135,620" fill="none" stroke="#FF2A85" stroke-width="2.6" filter="url(#softGlow)"/>
+  </g>
+
+  <rect x="0" y="620" width="1920" height="460" fill="url(#floorGrad)"/>
+  <g id="gridFloor" clip-path="url(#floorClip)"></g>
+  <line x1="0" y1="620" x2="1920" y2="620" stroke="#FF2A85" stroke-width="4" filter="url(#pinkGlow)"/>
+  <line x1="0" y1="620" x2="1920" y2="620" stroke="#FFFFFF" stroke-width="1.4" opacity="0.9"/>
+
+  <g id="sparks"></g>
+
+  <g class="float-left" filter="url(#cyanGlow)">
+    <polygon points="210,330 278,430 210,530 142,430" fill="#120630" fill-opacity="0.72" stroke="#00F5FF" stroke-width="3"/>
+    <line x1="210" y1="330" x2="210" y2="530" stroke="#FF2A85" stroke-width="2"/>
+    <line x1="142" y1="430" x2="278" y2="430" stroke="#00F5FF" stroke-width="1.6" opacity="0.8"/>
+    <polygon points="210,365 250,430 210,495 170,430" fill="none" stroke="#FFB800" stroke-width="1.8" opacity="0.85"/>
+  </g>
+
+  <g class="float-right" filter="url(#cyanGlow)">
+    <polygon points="1710,330 1778,430 1710,530 1642,430" fill="#120630" fill-opacity="0.72" stroke="#00F5FF" stroke-width="3"/>
+    <line x1="1710" y1="330" x2="1710" y2="530" stroke="#FF2A85" stroke-width="2"/>
+    <line x1="1642" y1="430" x2="1778" y2="430" stroke="#00F5FF" stroke-width="1.6" opacity="0.8"/>
+    <polygon points="1710,365 1750,430 1710,495 1670,430" fill="none" stroke="#FFB800" stroke-width="1.8" opacity="0.85"/>
+  </g>
+
+  <g id="banner" class="banner-breathe">
+    <g filter="url(#cyanGlow)">
+      <line x1="120" y1="162" x2="365" y2="162" stroke="#00F5FF" stroke-width="3.5"/>
+      <line x1="175" y1="184" x2="350" y2="184" stroke="#FF2A85" stroke-width="2.6"/>
+      <line x1="230" y1="206" x2="365" y2="206" stroke="#00F5FF" stroke-width="2"/>
+      <line x1="1800" y1="162" x2="1555" y2="162" stroke="#00F5FF" stroke-width="3.5"/>
+      <line x1="1745" y1="184" x2="1570" y2="184" stroke="#FF2A85" stroke-width="2.6"/>
+      <line x1="1690" y1="206" x2="1555" y2="206" stroke="#00F5FF" stroke-width="2"/>
+    </g>
+
+    <polygon points="395,108 1525,108 1565,184 1525,260 395,260 355,184" fill="#0B0422" fill-opacity="0.86" stroke="url(#pinkNeon)" stroke-width="4" filter="url(#pinkGlow)"/>
+    <polygon points="410,122 1510,122 1544,184 1510,246 410,246 376,184" fill="none" stroke="#00F5FF" stroke-width="2" filter="url(#softGlow)"/>
+
+    <g filter="url(#pinkGlow)">
+      <text x="960" y="186" class="title-glow">HAPPY NEW YEAR</text>
+      <text x="960" y="186" class="title-chrome">HAPPY NEW YEAR</text>
+    </g>
+  </g>
+
+  <g id="countdownHud">
+    <polygon id="hexShock" class="hud-shock" fill="none" stroke="#00F5FF" stroke-width="4" filter="url(#cyanGlow)"/>
+    <polygon id="hexOuter" fill="url(#hudFill)" stroke="#FF2A85" stroke-width="5" filter="url(#pinkGlow)"/>
+    <polygon id="hexMid" class="hud-pulse" fill="none" stroke="url(#cyanNeon)" stroke-width="4.5" filter="url(#cyanGlow)"/>
+
+    <g class="hud-spin-cw" filter="url(#softGlow)">
+      <circle cx="960" cy="705" r="222" fill="none" stroke="#00F5FF" stroke-width="2.5" stroke-dasharray="48 22 14 22"/>
+    </g>
+    <g class="hud-spin-ccw" filter="url(#softGlow)">
+      <circle cx="960" cy="705" r="196" fill="none" stroke="#FF2A85" stroke-width="3" stroke-dasharray="72 32 18 32"/>
+    </g>
+
+    <g id="hudTicks" filter="url(#softGlow)"></g>
+
+    <g filter="url(#cyanGlow)">
+      <text x="960" y="709" class="cd-num cd-10" fill="#FFFFFF" stroke="#00F5FF" stroke-width="4.5" paint-order="stroke">10</text>
+      <text x="960" y="709" class="cd-num cd-9" fill="#FFFFFF" stroke="#00F5FF" stroke-width="4.5" paint-order="stroke">9</text>
+      <text x="960" y="709" class="cd-num cd-8" fill="#FFFFFF" stroke="#00F5FF" stroke-width="4.5" paint-order="stroke">8</text>
+      <text x="960" y="709" class="cd-num cd-7" fill="#FFFFFF" stroke="#00F5FF" stroke-width="4.5" paint-order="stroke">7</text>
+      <text x="960" y="709" class="cd-num cd-6" fill="#FFFFFF" stroke="#00F5FF" stroke-width="4.5" paint-order="stroke">6</text>
+      <text x="960" y="709" class="cd-num cd-5" fill="#FFFFFF" stroke="#00F5FF" stroke-width="4.5" paint-order="stroke">5</text>
+      <text x="960" y="709" class="cd-num cd-4" fill="#FFFFFF" stroke="#00F5FF" stroke-width="4.5" paint-order="stroke">4</text>
+      <text x="960" y="709" class="cd-num cd-3" fill="#FFFFFF" stroke="#00F5FF" stroke-width="4.5" paint-order="stroke">3</text>
+      <text x="960" y="709" class="cd-num cd-2" fill="#FFFFFF" stroke="#00F5FF" stroke-width="4.5" paint-order="stroke">2</text>
+      <text x="960" y="709" class="cd-num cd-1" fill="#FFFFFF" stroke="#00F5FF" stroke-width="4.5" paint-order="stroke">1</text>
+    </g>
+  </g>
+</svg>
+</div>
+<script>
+(function(){
+  const ns="http://www.w3.org/2000/svg";
+  function el(tag,attrs,parent){
+    const n=document.createElementNS(ns,tag);
+    for(const k in attrs)n.setAttribute(k,attrs[k]);
+    if(parent)parent.appendChild(n);
+    return n;
+  }
+
+  const stars=document.getElementById("stars");
+  const starPts=[
+    [70,65,2.2,0],[145,130,1.6,-0.7],[215,52,2.8,-1.3],[295,185,1.8,-2.1],[345,78,2.1,-0.4],
+    [420,58,1.5,-3.2],[515,72,2.4,-1.8],[610,48,1.9,-0.9],[715,82,2.2,-2.6],[835,44,1.6,-1.1],
+    [1085,48,2.1,-0.3],[1205,78,1.8,-2.4],[1310,52,2.5,-1.5],[1415,74,1.6,-3.8],[1510,58,2.2,-0.6],
+    [1615,88,2.7,-1.9],[1695,142,1.7,-2.8],[1775,62,2.3,-0.8],[1850,115,1.9,-3.4],[1872,240,2.4,-1.2],
+    [54,235,2.0,-2.5],[118,312,1.6,-0.5],[285,295,2.3,-1.7],[1635,285,2.1,-2.2],[1815,310,1.8,-0.9],
+    [460,315,1.7,-1.4],[565,355,2.2,-3.1],[1355,345,2.0,-0.4],[1460,310,1.6,-2.7],[960,42,2.6,-1.0],
+    [88,420,1.8,-3.5],[1835,415,1.9,-1.6],[320,405,1.5,-0.2],[1600,400,1.6,-2.9],[765,305,1.8,-1.3],[1155,305,1.8,-2.0]
+  ];
+  for(let i=0;i<starPts.length;i++){
+    const s=starPts[i];
+    el("circle",{
+      cx:s[0],cy:s[1],r:s[2],
+      fill:i%3===0?"#00F5FF":(i%3===1?"#FFFFFF":"#FF85C0"),
+      class:i%2===0?"star-a":"star-b",
+      style:`animation-delay:${s[3]}s`
+    },stars);
+  }
+
+  const grid=document.getElementById("gridFloor");
+  const vx=960,vy=620;
+  for(let i=-14;i<=14;i++){
+    const bx=vx+i*185;
+    el("line",{
+      x1:vx,y1:vy,x2:bx,y2:1080,
+      stroke:"#00F5FF",
+      "stroke-width":i===0?"2.6":"1.8",
+      opacity:Math.max(0.28,0.85-Math.abs(i)*0.035).toFixed(2)
+    },grid);
+  }
+  for(let i=0;i<10;i++){
+    el("line",{
+      x1:0,y1:620,x2:1920,y2:620,
+      stroke:"#00F5FF",
+      "stroke-width":"2.2",
+      class:"grid-h",
+      style:`animation-delay:${(-i*0.2).toFixed(1)}s`
+    },grid);
+  }
+
+  function hexPoints(ox,oy,r){
+    const pts=[];
+    for(let i=0;i<6;i++){
+      const a=(i*60-30)*Math.PI/180;
+      pts.push(`${(ox+Math.cos(a)*r).toFixed(1)},${(oy+Math.sin(a)*r).toFixed(1)}`);
+    }
+    return pts.join(" ");
+  }
+
+  const hcx=960,hcy=705;
+  document.getElementById("hexShock").setAttribute("points",hexPoints(hcx,hcy,268));
+  document.getElementById("hexOuter").setAttribute("points",hexPoints(hcx,hcy,282));
+  document.getElementById("hexMid").setAttribute("points",hexPoints(hcx,hcy,252));
+
+  const ticks=document.getElementById("hudTicks");
+  for(let i=0;i<24;i++){
+    const a=(i*15)*Math.PI/180;
+    const major=i%2===0;
+    const r1=major?166:174;
+    const r2=184;
+    el("line",{
+      x1:(hcx+Math.cos(a)*r1).toFixed(1),
+      y1:(hcy+Math.sin(a)*r1).toFixed(1),
+      x2:(hcx+Math.cos(a)*r2).toFixed(1),
+      y2:(hcy+Math.sin(a)*r2).toFixed(1),
+      stroke:major?"#00F5FF":"#FF2A85",
+      "stroke-width":major?"2.6":"1.6"
+    },ticks);
+  }
+
+  const sparks=document.getElementById("sparks");
+  const sparkData=[
+    [130,5,10,-0.5],[210,3.5,5,-1.2],[310,4.5,10,-3.4],[420,3.2,5,-2.6],[520,4.8,10,-6.2],
+    [175,4.0,5,-0.8],[265,5.2,10,-4.9],[365,3.4,5,-3.8],[470,4.2,10,-8.1],[95,3.8,5,-1.9],
+    [1790,5,10,-1.5],[1710,3.5,5,-2.2],[1610,4.5,10,-4.4],[1500,3.2,5,-0.6],[1400,4.8,10,-7.2],
+    [1745,4.0,5,-1.8],[1655,5.2,10,-5.9],[1555,3.4,5,-4.8],[1450,4.2,10,-9.1],[1825,3.8,5,-2.9]
+  ];
+  for(let i=0;i<sparkData.length;i++){
+    const sp=sparkData[i];
+    const g=el("g",{
+      class:sp[2]===10?"spark-slow":"spark-fast",
+      style:`animation-delay:${sp[3]}s`
+    },sparks);
+    const col=i%3===0?"#FFB800":(i%3===1?"#00F5FF":"#FF2A85");
+    el("polygon",{
+      points:`${sp[0]},${820-sp[1]*1.5} ${sp[0]+sp[1]},820 ${sp[0]},${820+sp[1]*1.5} ${sp[0]-sp[1]},820`,
+      fill:col
+    },g);
+  }
+})();
+</script>
+</body>
+</html>

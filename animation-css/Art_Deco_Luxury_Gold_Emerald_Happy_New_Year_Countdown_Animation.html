@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Art Deco Luxury Gold Emerald Happy New Year Countdown Animation</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#041A18}
+#stage{position:relative;width:100%;height:100%;overflow:hidden;background:#041A18}
+#fxCanvas,#decoSvg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.deco-serif{font-family:Georgia,'Times New Roman',serif;font-weight:700}
+.deco-sans{font-family:'Trebuchet MS','Gill Sans','Segoe UI',sans-serif;font-weight:700}
+</style>
+</head>
+<body>
+<div id="stage">
+<canvas id="fxCanvas" width="1920" height="1080"></canvas>
+<svg id="decoSvg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<radialGradient id="emeraldBg" cx="50%" cy="54%" r="68%">
+<stop offset="0%" stop-color="#0D3B35" stop-opacity="0.72"/>
+<stop offset="55%" stop-color="#06221F" stop-opacity="0.55"/>
+<stop offset="100%" stop-color="#020E0D" stop-opacity="0.96"/>
+</radialGradient>
+<radialGradient id="velvetCore" cx="50%" cy="45%" r="55%">
+<stop offset="0%" stop-color="#11463E"/>
+<stop offset="68%" stop-color="#06201D"/>
+<stop offset="100%" stop-color="#031110"/>
+</radialGradient>
+<linearGradient id="goldMain" x1="0%" y1="0%" x2="100%" y2="100%">
+<stop offset="0%" stop-color="#FFF4C2"/>
+<stop offset="32%" stop-color="#E9C064"/>
+<stop offset="68%" stop-color="#C89333"/>
+<stop offset="100%" stop-color="#F8E196"/>
+</linearGradient>
+<linearGradient id="goldHoriz" x1="0%" y1="0%" x2="100%" y2="0%">
+<stop offset="0%" stop-color="#B07B24"/>
+<stop offset="22%" stop-color="#F6DE92"/>
+<stop offset="50%" stop-color="#FFF8DC"/>
+<stop offset="78%" stop-color="#E6BA5E"/>
+<stop offset="100%" stop-color="#B07B24"/>
+</linearGradient>
+<linearGradient id="goldVert" x1="0%" y1="0%" x2="0%" y2="100%">
+<stop offset="0%" stop-color="#FFF5C8"/>
+<stop offset="45%" stop-color="#E5B95B"/>
+<stop offset="100%" stop-color="#9F6D1D"/>
+</linearGradient>
+<linearGradient id="champagneSheen" x1="0%" y1="0%" x2="100%" y2="0%">
+<stop offset="0%" stop-color="#D4A143"/>
+<stop offset="42%" stop-color="#F7E29B"/>
+<stop offset="50%" stop-color="#FFFFFF"/>
+<stop offset="58%" stop-color="#F7E29B"/>
+<stop offset="100%" stop-color="#C48F30"/>
+</linearGradient>
+<linearGradient id="rayFade" x1="0%" y1="0%" x2="0%" y2="100%">
+<stop offset="0%" stop-color="#F6DE92" stop-opacity="0.9"/>
+<stop offset="55%" stop-color="#C89333" stop-opacity="0.35"/>
+<stop offset="100%" stop-color="#C89333" stop-opacity="0"/>
+</linearGradient>
+<filter id="goldGlow" x="-30%" y="-30%" width="160%" height="160%">
+<feGaussianBlur stdDeviation="5" result="b"/>
+<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+</filter>
+<filter id="softBloom" x="-40%" y="-40%" width="180%" height="180%">
+<feGaussianBlur stdDeviation="10"/>
+</filter>
+</defs>
+
+<rect width="1920" height="1080" fill="url(#emeraldBg)"/>
+
+<g id="decoPattern" opacity="0.14" stroke="#E6BA5E" stroke-width="1.2" fill="none"></g>
+
+<g id="frameOrnament" fill="none" stroke="url(#goldHoriz)">
+<rect x="44" y="44" width="1832" height="992" stroke-width="2.5" opacity="0.85"/>
+<rect x="60" y="60" width="1800" height="960" stroke-width="1.2" opacity="0.55"/>
+<path d="M 44 124 L 124 124 L 124 44 M 60 108 L 108 108 L 108 60 M 44 150 L 74 150 L 74 124 M 150 44 L 150 74 L 124 74" stroke-width="2.2"/>
+<path d="M 1876 124 L 1796 124 L 1796 44 M 1860 108 L 1812 108 L 1812 60 M 1876 150 L 1846 150 L 1846 124 M 1770 44 L 1770 74 L 1796 74" stroke-width="2.2"/>
+<path d="M 44 956 L 124 956 L 124 1036 M 60 972 L 108 972 L 108 1020 M 44 930 L 74 930 L 74 956 M 150 1036 L 150 1006 L 124 1006" stroke-width="2.2"/>
+<path d="M 1876 956 L 1796 956 L 1796 1036 M 1860 972 L 1812 972 L 1812 1020 M 1876 930 L 1846 930 L 1846 956 M 1770 1036 L 1770 1006 L 1796 1006" stroke-width="2.2"/>
+<polygon points="84,84 94,74 104,84 94,94" fill="#F6DE92" stroke="none"/>
+<polygon points="1836,84 1826,74 1816,84 1826,94" fill="#F6DE92" stroke="none"/>
+<polygon points="84,996 94,986 104,996 94,1006" fill="#F6DE92" stroke="none"/>
+<polygon points="1836,996 1826,986 1816,996 1826,1006" fill="#F6DE92" stroke="none"/>
+</g>
+
+<g id="sideSteppedWings" fill="none" stroke="url(#goldMain)" opacity="0.65">
+<path d="M 140 595 L 545 595 M 190 568 L 530 568 M 190 622 L 530 622 M 260 544 L 515 544 M 260 646 L 515 646" stroke-width="1.8"/>
+<path d="M 1780 595 L 1375 595 M 1730 568 L 1390 568 M 1730 622 L 1390 622 M 1660 544 L 1405 544 M 1660 646 L 1405 646" stroke-width="1.8"/>
+<polygon points="140,595 164,581 188,595 164,609" fill="#E6BA5E" stroke="none"/>
+<polygon points="1780,595 1756,581 1732,595 1756,609" fill="#E6BA5E" stroke="none"/>
+<g id="wingDiamondsL"></g>
+<g id="wingDiamondsR"></g>
+</g>
+
+<g id="headerPlaque">
+<path d="M 470 112 L 520 82 L 1400 82 L 1450 112 L 1450 176 L 1400 206 L 520 206 L 470 176 Z" fill="#051E1B" fill-opacity="0.92" stroke="url(#goldHoriz)" stroke-width="3"/>
+<path d="M 488 120 L 528 96 L 1392 96 L 1432 120 L 1432 168 L 1392 192 L 528 192 L 488 168 Z" fill="none" stroke="url(#goldHoriz)" stroke-width="1.4" opacity="0.8"/>
+<path d="M 380 144 L 470 144 M 1450 144 L 1540 144" stroke="url(#goldHoriz)" stroke-width="2.5"/>
+<polygon points="446,144 458,132 470,144 458,156" fill="#F6DE92"/>
+<polygon points="1474,144 1462,132 1450,144 1462,156" fill="#F6DE92"/>
+<polygon points="960,64 976,82 960,100 944,82" fill="#051E1B" stroke="#F6DE92" stroke-width="2"/>
+<polygon points="960,73 967,82 960,91 953,82" fill="#FFF4C2"/>
+<text id="headerGlow" class="deco-sans" x="960" y="156" text-anchor="middle" font-size="60" letter-spacing="18" fill="#E6BA5E" filter="url(#softBloom)" opacity="0.45">HAPPY NEW YEAR</text>
+<text id="headerText" class="deco-sans" x="960" y="156" text-anchor="middle" font-size="60" letter-spacing="18" fill="url(#champagneSheen)">HAPPY NEW YEAR</text>
+</g>
+
+<g id="medallion" transform="translate(960,595)">
+<g id="outerSunburst"></g>
+<g id="innerSunburst"></g>
+
+<polygon id="pulseDiamond" points="0,-195 195,0 0,195 -195,0" fill="none" stroke="#F6DE92" stroke-width="3" opacity="0"/>
+
+<g id="octagonOuter">
+<polygon points="0,-328 232,-232 328,0 232,232 0,328 -232,232 -328,0 -232,-232" fill="#041917" fill-opacity="0.86" stroke="url(#goldMain)" stroke-width="3.5"/>
+<polygon points="0,-312 220,-220 312,0 220,220 0,312 -220,220 -312,0 -220,-220" fill="none" stroke="url(#goldMain)" stroke-width="1.4" opacity="0.7"/>
+</g>
+
+<g id="octagonInner">
+<polygon points="0,-292 206,-206 292,0 206,206 0,292 -206,206 -292,0 -206,-206" fill="none" stroke="#E6BA5E" stroke-width="2" stroke-dasharray="18 10" opacity="0.75"/>
+</g>
+
+<circle r="264" fill="none" stroke="#18473F" stroke-width="2"/>
+<circle r="244" fill="none" stroke="#123A33" stroke-width="12"/>
+<circle id="goldArcGlow" r="244" fill="none" stroke="#F6DE92" stroke-width="14" stroke-linecap="butt" transform="rotate(-90)" filter="url(#softBloom)" opacity="0.6"/>
+<circle id="goldArc" r="244" fill="none" stroke="url(#goldMain)" stroke-width="7.5" stroke-linecap="butt" transform="rotate(-90)"/>
+<g id="arcMarker" transform="rotate(0)">
+<polygon points="0,-256 9,-244 0,-232 -9,-244" fill="#FFF8DC" filter="url(#goldGlow)"/>
+</g>
+
+<g id="bezelJewels"></g>
+<g id="fineTicks"></g>
+
+<circle r="184" fill="url(#velvetCore)" stroke="url(#goldMain)" stroke-width="4"/>
+<circle r="172" fill="none" stroke="#E6BA5E" stroke-width="1.3" stroke-dasharray="6 8" opacity="0.75"/>
+<polygon points="0,-166 166,0 0,166 -166,0" fill="none" stroke="#E6BA5E" stroke-width="1" opacity="0.28"/>
+
+<g id="digitWrap">
+<text id="numShadow" class="deco-serif" x="0" y="12" text-anchor="middle" dominant-baseline="central" font-size="198" fill="#F6DE92" filter="url(#softBloom)" opacity="0.55">10</text>
+<text id="numMain" class="deco-serif" x="0" y="12" text-anchor="middle" dominant-baseline="central" font-size="198" fill="url(#goldVert)" stroke="#FFF8DC" stroke-width="2.2">10</text>
+<text id="numInner" class="deco-serif" x="0" y="12" text-anchor="middle" dominant-baseline="central" font-size="198" fill="none" stroke="#06221F" stroke-width="1.2" opacity="0.55">10</text>
+</g>
+</g>
+</svg>
+</div>
+<script>
+(function(){
+const ns='http://www.w3.org/2000/svg';
+const el=id=>document.getElementById(id);
+
+const decoPattern=el('decoPattern');
+for(let row=-1;row<8;row++){
+for(let col=-1;col<13;col++){
+const ox=col*180+(row%2)*90;
+const oy=row*160;
+for(let r=34;r<=88;r+=27){
+const p=document.createElementNS(ns,'path');
+p.setAttribute('d',`M ${ox-r} ${oy} A ${r} ${r} 0 0 1 ${ox+r} ${oy}`);
+decoPattern.appendChild(p);
+}
+const v=document.createElementNS(ns,'line');
+v.setAttribute('x1',ox);v.setAttribute('y1',oy-88);v.setAttribute('x2',ox);v.setAttribute('y2',oy);
+decoPattern.appendChild(v);
+}
+}
+
+const outerSunburst=el('outerSunburst');
+for(let i=0;i<24;i++){
+const ang=i*15;
+const isLong=i%2===0;
+const len=isLong?420:360;
+const w=isLong?18:10;
+const p=document.createElementNS(ns,'polygon');
+p.setAttribute('points',`0,-260 ${w},-310 0,-${len} -${w},-310`);
+p.setAttribute('fill','url(#rayFade)');
+p.setAttribute('transform',`rotate(${ang})`);
+p.setAttribute('opacity',isLong?'0.82':'0.48');
+outerSunburst.appendChild(p);
+}
+
+const innerSunburst=el('innerSunburst');
+for(let i=0;i<16;i++){
+const ang=i*22.5;
+const l=document.createElementNS(ns,'line');
+l.setAttribute('x1','0');l.setAttribute('y1','-290');
+l.setAttribute('x2','0');l.setAttribute('y2','-355');
+l.setAttribute('stroke','#F6DE92');
+l.setAttribute('stroke-width','2');
+l.setAttribute('transform',`rotate(${ang})`);
+l.setAttribute('opacity','0.65');
+innerSunburst.appendChild(l);
+}
+
+const fineTicks=el('fineTicks');
+for(let i=0;i<60;i++){
+const a=i*6*Math.PI/180;
+const maj=i%6===0;
+const r1=maj?194:200;
+const r2=212;
+const l=document.createElementNS(ns,'line');
+l.setAttribute('x1',(Math.cos(a)*r1).toFixed(2));
+l.setAttribute('y1',(Math.sin(a)*r1).toFixed(2));
+l.setAttribute('x2',(Math.cos(a)*r2).toFixed(2));
+l.setAttribute('y2',(Math.sin(a)*r2).toFixed(2));
+l.setAttribute('stroke',maj?'#FFF4C2':'#C89333');
+l.setAttribute('stroke-width',maj?'2.5':'1.2');
+fineTicks.appendChild(l);
+}
+
+const bezelJewels=el('bezelJewels');
+const jewelNodes=[];
+for(let i=0;i<10;i++){
+const deg=-90+i*36;
+const rad=deg*Math.PI/180;
+const jx=Math.cos(rad)*222;
+const jy=Math.sin(rad)*222;
+const g=document.createElementNS(ns,'g');
+g.setAttribute('transform',`translate(${jx.toFixed(2)},${jy.toFixed(2)}) rotate(${deg+90})`);
+const d=document.createElementNS(ns,'polygon');
+d.setAttribute('points','0,-10 7,0 0,10 -7,0');
+d.setAttribute('fill','#F6DE92');
+d.setAttribute('stroke','#FFF8DC');
+d.setAttribute('stroke-width','1.2');
+g.appendChild(d);
+bezelJewels.appendChild(g);
+jewelNodes.push(d);
+}
+
+const wingDiamondsL=el('wingDiamondsL');
+const wingDiamondsR=el('wingDiamondsR');
+const wingNodesL=[];
+const wingNodesR=[];
+for(let i=0;i<7;i++){
+const xL=510-i*46;
+const xR=1410+i*46;
+const s=11-i*0.9;
+const pL=document.createElementNS(ns,'polygon');
+pL.setAttribute('points',`${xL},${595-s} ${xL+s},595 ${xL},${595+s} ${xL-s},595`);
+pL.setAttribute('fill','#F6DE92');
+wingDiamondsL.appendChild(pL);
+wingNodesL.push(pL);
+const pR=document.createElementNS(ns,'polygon');
+pR.setAttribute('points',`${xR},${595-s} ${xR+s},595 ${xR},${595+s} ${xR-s},595`);
+pR.setAttribute('fill','#F6DE92');
+wingDiamondsR.appendChild(pR);
+wingNodesR.push(pR);
+}
+
+const octagonOuter=el('octagonOuter');
+const octagonInner=el('octagonInner');
+const goldArc=el('goldArc');
+const goldArcGlow=el('goldArcGlow');
+const arcMarker=el('arcMarker');
+const pulseDiamond=el('pulseDiamond');
+const digitWrap=el('digitWrap');
+const numShadow=el('numShadow');
+const numMain=el('numMain');
+const numInner=el('numInner');
+const headerGlow=el('headerGlow');
+
+const arcCirc=2*Math.PI*244;
+goldArc.setAttribute('stroke-dasharray',arcCirc.toFixed(2));
+goldArcGlow.setAttribute('stroke-dasharray',arcCirc.toFixed(2));
+
+const canvas=el('fxCanvas');
+const ctx=canvas.getContext('2d');
+
+const fireworks=[
+{x:290,y:270,rMax:175,rays:16,cycles:2,phase:0.0,col:'#F6DE92'},
+{x:1630,y:270,rMax:175,rays:16,cycles:2,phase:0.0,col:'#F6DE92'},
+{x:230,y:810,rMax:150,rays:12,cycles:2,phase:0.5,col:'#E09F7D'},
+{x:1690,y:810,rMax:150,rays:12,cycles:2,phase:0.5,col:'#E09F7D'},
+{x:435,y:395,rMax:120,rays:12,cycles:5,phase:0.25,col:'#FFF4C2'},
+{x:1485,y:395,rMax:120,rays:12,cycles:5,phase:0.25,col:'#FFF4C2'},
+{x:420,y:790,rMax:115,rays:12,cycles:5,phase:0.75,col:'#E6BA5E'},
+{x:1500,y:790,rMax:115,rays:12,cycles:5,phase:0.75,col:'#E6BA5E'}
+];
+
+const risingDiamonds=[];
+for(let i=0;i<26;i++){
+const xSide=90+(i*137)%460;
+const yBase=1080;
+const speed=(i%3)+1;
+const phase=(i*0.6180339)%1;
+const size=3.5+(i%4)*1.8;
+const sway=12+(i%3)*8;
+const col=i%3===0?'#FFF4C2':(i%3===1?'#E6BA5E':'#E09F7D');
+risingDiamonds.push({x:xSide,yBase,speed,phase,size,sway,col});
+risingDiamonds.push({x:1920-xSide,yBase,speed,phase,size,sway:-sway,col});
+}
+
+function easeOutQuart(x){return 1-Math.pow(1-x,4)}
+function easeInOutCubic(x){return x<0.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2}
+
+function drawDiamond(x,y,r,color,alpha){
+ctx.save();
+ctx.globalAlpha=alpha;
+ctx.fillStyle=color;
+ctx.beginPath();
+ctx.moveTo(x,y-r);
+ctx.lineTo(x+r*0.72,y);
+ctx.lineTo(x,y+r);
+ctx.lineTo(x-r*0.72,y);
+ctx.closePath();
+ctx.fill();
+ctx.restore();
+}
+
+function render(ts){
+const t=((ts%10000)+10000)%10000/10000;
+const secFloat=t*10;
+const secIdx=Math.floor(secFloat);
+const local=secFloat-secIdx;
+const digit=10-secIdx;
+
+outerSunburst.setAttribute('transform',`rotate(${(t*30).toFixed(3)})`);
+innerSunburst.setAttribute('transform',`rotate(${(-t*45).toFixed(3)})`);
+octagonOuter.setAttribute('transform',`rotate(${(t*45).toFixed(3)})`);
+octagonInner.setAttribute('transform',`rotate(${(-t*90).toFixed(3)})`);
+
+const prog=easeInOutCubic(Math.min(local/0.92,1));
+const fadeOut=local>0.90?1-(local-0.90)/0.10:1;
+const dashOff=arcCirc*(1-prog);
+goldArc.setAttribute('stroke-dashoffset',dashOff.toFixed(2));
+goldArcGlow.setAttribute('stroke-dashoffset',dashOff.toFixed(2));
+goldArc.setAttribute('opacity',fadeOut.toFixed(3));
+goldArcGlow.setAttribute('opacity',(fadeOut*0.6).toFixed(3));
+arcMarker.setAttribute('transform',`rotate(${(prog*360).toFixed(3)})`);
+arcMarker.setAttribute('opacity',fadeOut.toFixed(3));
+
+const dScalePulse=1+easeOutQuart(local)*0.95;
+const dOpPulse=Math.pow(1-local,2.1)*0.78;
+pulseDiamond.setAttribute('transform',`scale(${dScalePulse.toFixed(4)}) rotate(${(45+local*15).toFixed(2)})`);
+pulseDiamond.setAttribute('opacity',dOpPulse.toFixed(3));
+
+for(let i=0;i<10;i++){
+const active=i<digit;
+const current=i===digit-1;
+jewelNodes[i].setAttribute('fill',active?(current?'#FFFFFF':'#F6DE92'):'#0E332D');
+jewelNodes[i].setAttribute('stroke',active?'#FFF8DC':'#4D6E64');
+const op=current?(0.55+0.45*(1-local)):(active?0.95:0.45);
+jewelNodes[i].setAttribute('opacity',op.toFixed(3));
+}
+
+const dStr=String(digit);
+const fSize=digit===10?'178':'205';
+if(numMain.textContent!==dStr){
+numShadow.textContent=dStr;
+numMain.textContent=dStr;
+numInner.textContent=dStr;
+numShadow.setAttribute('font-size',fSize);
+numMain.setAttribute('font-size',fSize);
+numInner.setAttribute('font-size',fSize);
+}
+
+let s=1,op=1;
+if(local<0.14){
+const u=local/0.14;
+s=0.84+easeOutQuart(u)*0.16;
+op=u;
+}else if(local>0.86){
+const u=(local-0.86)/0.14;
+s=1+u*0.07;
+op=1-u;
+}else{
+s=1+Math.sin(((local-0.14)/0.72)*Math.PI)*0.02;
+}
+digitWrap.setAttribute('transform',`scale(${s.toFixed(4)})`);
+digitWrap.setAttribute('opacity',op.toFixed(3));
+
+headerGlow.setAttribute('opacity',(0.35+0.25*Math.sin(t*Math.PI*2*5)).toFixed(3));
+
+for(let i=0;i<7;i++){
+const wave=0.35+0.65*(0.5+0.5*Math.sin(t*Math.PI*2*5-i*0.7));
+wingNodesL[i].setAttribute('opacity',wave.toFixed(3));
+wingNodesR[i].setAttribute('opacity',wave.toFixed(3));
+}
+
+ctx.clearRect(0,0,1920,1080);
+
+const warmGlow=ctx.createRadialGradient(960,595,120,960,595,720);
+warmGlow.addColorStop(0,'rgba(246,222,146,0.12)');
+warmGlow.addColorStop(0.5,'rgba(200,147,51,0.05)');
+warmGlow.addColorStop(1,'rgba(4,26,24,0)');
+ctx.fillStyle=warmGlow;
+ctx.fillRect(0,0,1920,1080);
+
+ctx.save();
+ctx.globalCompositeOperation='lighter';
+
+for(let i=0;i<fireworks.length;i++){
+const fw=fireworks[i];
+const u=(t*fw.cycles+fw.phase)%1;
+const rOuter=easeOutQuart(u)*fw.rMax;
+const rInner=Math.max(0,rOuter-fw.rMax*0.38*(1-u*0.4));
+const alpha=u<0.12?(u/0.12):Math.pow(1-(u-0.12)/0.88,1.5);
+
+ctx.strokeStyle=fw.col;
+ctx.lineCap='round';
+for(let r=0;r<fw.rays;r++){
+const ang=(r/fw.rays)*Math.PI*2;
+const ca=Math.cos(ang),sa=Math.sin(ang);
+const x1=fw.x+ca*rInner;
+const y1=fw.y+sa*rInner;
+const x2=fw.x+ca*rOuter;
+const y2=fw.y+sa*rOuter;
+
+ctx.globalAlpha=alpha*0.75;
+ctx.lineWidth=r%2===0?2.6:1.5;
+ctx.beginPath();
+ctx.moveTo(x1,y1);
+ctx.lineTo(x2,y2);
+ctx.stroke();
+
+if(r%2===0){
+drawDiamond(x2,y2,4.5*(1-u*0.4),fw.col,alpha*0.95);
+}
+}
+if(u<0.35){
+ctx.globalAlpha=(1-u/0.35)*0.45;
+ctx.strokeStyle='#FFF8DC';
+ctx.lineWidth=1.8;
+ctx.beginPath();
+ctx.arc(fw.x,fw.y,rOuter*0.65,0,Math.PI*2);
+ctx.stroke();
+}
+}
+
+for(let i=0;i<risingDiamonds.length;i++){
+const rd=risingDiamonds[i];
+const u=(t*rd.speed+rd.phase)%1;
+const y=1120-u*1160;
+const x=rd.x+Math.sin(u*Math.PI*2)*rd.sway;
+const alpha=Math.sin(u*Math.PI)*0.72;
+drawDiamond(x,y,rd.size,rd.col,alpha);
+}
+
+ctx.restore();
+requestAnimationFrame(render);
+}
+requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>
