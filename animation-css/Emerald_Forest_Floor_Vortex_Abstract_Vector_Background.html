@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Emerald Forest Floor Vortex Abstract Vector Background</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#020D08}
+canvas{display:block;width:100%;height:100%}
+</style>
+</head>
+<body>
+<canvas id="c" width="3840" height="2160"></canvas>
+<script>
+(function(){
+const canvas=document.getElementById("c");
+const ctx=canvas.getContext("2d");
+const W=1920,H=1080,LOOP=10000,TAU=Math.PI*2;
+
+function mulberry32(a){
+  return function(){
+    a|=0;a=a+0x6D2B79F5|0;
+    let t=Math.imul(a^a>>>15,1|a);
+    t=t+Math.imul(t^t>>>7,61|t)^t;
+    return((t^t>>>14)>>>0)/4294967296;
+  };
+}
+const rnd=mulberry32(48271);
+
+const COLORS=["#10B981","#84CC16","#D1FAE5","#34D399","#A3E635"];
+
+const vortices=[
+  {cx:960,gy:935,rx:380,ry:78,airR:240,sway:45,dir:1,height:990},
+  {cx:600,gy:965,rx:260,ry:58,airR:175,sway:36,dir:-1,height:880},
+  {cx:1330,gy:955,rx:280,ry:62,airR:185,sway:40,dir:1,height:920}
+];
+
+const bgBokeh=[];
+for(let i=0;i<34;i++){
+  bgBokeh.push({
+    x:rnd()*W,
+    yStart:rnd(),
+    r:26+rnd()*68,
+    driftX:(rnd()-0.5)*70,
+    freq:1+Math.floor(rnd()*2),
+    phase:rnd()*TAU,
+    color:i%3===0?"#10B981":(i%3===1?"#84CC16":"#059669"),
+    alpha:0.04+rnd()*0.075
+  });
+}
+
+const fgBokeh=[];
+for(let i=0;i<16;i++){
+  fgBokeh.push({
+    x:rnd()*W,
+    yStart:rnd(),
+    r:55+rnd()*110,
+    driftX:(rnd()-0.5)*95,
+    freq:1,
+    phase:rnd()*TAU,
+    color:i%3===0?"#D1FAE5":(i%3===1?"#84CC16":"#10B981"),
+    alpha:0.035+rnd()*0.065
+  });
+}
+
+const particles=[];
+for(let i=0;i<260;i++){
+  const vIdx=i<145?0:(i<202?1:2);
+  const v=vortices[vIdx];
+  const colorIdx=rnd()<0.44?0:(rnd()<0.78?1:2);
+  particles.push({
+    vIdx:vIdx,
+    phase:rnd(),
+    angle0:rnd()*TAU,
+    rFactor:0.42+rnd()*0.72,
+    coreFactor:0.14+rnd()*0.32,
+    airSpread:0.55+rnd()*0.85,
+    turnsG:1.1+rnd()*1.1,
+    turnsA:1.6+rnd()*1.8,
+    size:1.8+rnd()*4.8,
+    color:COLORS[colorIdx],
+    glow:rnd()<0.55,
+    twinkleFreq:1+Math.floor(rnd()*3),
+    twinklePhase:rnd()*TAU,
+    yJitter:(rnd()-0.5)*28
+  });
+}
+
+const specks=[];
+for(let i=0;i<140;i++){
+  specks.push({
+    x:rnd()*W,
+    phase:rnd(),
+    swayAmp:14+rnd()*38,
+    swayFreq:1+Math.floor(rnd()*2),
+    swayPhase:rnd()*TAU,
+    size:1.1+rnd()*2.8,
+    sparkle:rnd()<0.42,
+    color:rnd()<0.55?"#D1FAE5":(rnd()<0.8?"#84CC16":"#10B981"),
+    twinkleFreq:2+Math.floor(rnd()*3),
+    twinklePhase:rnd()*TAU
+  });
+}
+
+const rays=[
+  {x0:-120,y0:-80,w0:130,x1:760,y1:1140,w1:420,a:0.11,freq:1,ph:0.2,col:"rgba(209,250,229,"},
+  {x0:40,y0:-110,w0:160,x1:1160,y1:1140,w1:510,a:0.095,freq:1,ph:1.7,col:"rgba(16,185,129,"},
+  {x0:-220,y0:40,w0:110,x1:460,y1:1140,w1:340,a:0.085,freq:2,ph:3.1,col:"rgba(132,204,22,"},
+  {x0:210,y0:-120,w0:120,x1:1490,y1:1140,w1:440,a:0.075,freq:1,ph:4.5,col:"rgba(209,250,229,"},
+  {x0:-60,y0:-100,w0:85,x1:940,y1:1140,w1:280,a:0.09,freq:2,ph:0.9,col:"rgba(132,204,22,"},
+  {x0:360,y0:-140,w0:100,x1:1760,y1:1140,w1:380,a:0.055,freq:1,ph:2.6,col:"rgba(16,185,129,"}
+];
+
+const ribbons=[];
+for(let vIdx=0;vIdx<vortices.length;vIdx++){
+  const count=vIdx===0?5:3;
+  for(let k=0;k<count;k++){
+    ribbons.push({
+      vIdx:vIdx,
+      angle0:(k/count)*TAU,
+      rScale:0.65+0.35*(k/count),
+      turnsG:1.25,
+      turnsA:2.2,
+      width:vIdx===0?3.2:2.2,
+      color:k%3===0?"#10B981":(k%3===1?"#84CC16":"#D1FAE5"),
+      pulseOffset:k/count
+    });
+  }
+}
+
+function drawBackdrop(p){
+  const bg=ctx.createLinearGradient(0,0,W*0.35,H);
+  bg.addColorStop(0,"#072416");
+  bg.addColorStop(0.38,"#04180F");
+  bg.addColorStop(0.75,"#02100A");
+  bg.addColorStop(1,"#020D08");
+  ctx.fillStyle=bg;
+  ctx.fillRect(0,0,W,H);
+
+  const pulse=0.5+0.5*Math.sin(TAU*p);
+  const tlGlow=ctx.createRadialGradient(140,80,20,260,180,980);
+  tlGlow.addColorStop(0,"rgba(132,204,22,"+(0.12+0.04*pulse)+")");
+  tlGlow.addColorStop(0.45,"rgba(16,185,129,"+(0.08+0.025*pulse)+")");
+  tlGlow.addColorStop(1,"rgba(2,13,8,0)");
+  ctx.fillStyle=tlGlow;
+  ctx.fillRect(0,0,W,H);
+
+  const centerAtmos=ctx.createRadialGradient(960,640,40,960,680,760);
+  centerAtmos.addColorStop(0,"rgba(16,185,129,"+(0.11+0.03*Math.sin(TAU*p+1.2))+")");
+  centerAtmos.addColorStop(0.55,"rgba(7,36,22,0.08)");
+  centerAtmos.addColorStop(1,"rgba(2,13,8,0)");
+  ctx.fillStyle=centerAtmos;
+  ctx.fillRect(0,0,W,H);
+}
+
+function drawGround(p){
+  ctx.save();
+
+  ctx.beginPath();
+  ctx.moveTo(0,875);
+  ctx.bezierCurveTo(420,838,760,852,1140,842);
+  ctx.bezierCurveTo(1480,832,1720,848,W,864);
+  ctx.lineTo(W,H);
+  ctx.lineTo(0,H);
+  ctx.closePath();
+  const g1=ctx.createLinearGradient(0,835,0,H);
+  g1.addColorStop(0,"#062115");
+  g1.addColorStop(0.35,"#04160E");
+  g1.addColorStop(1,"#020B07");
+  ctx.fillStyle=g1;
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.moveTo(0,925);
+  ctx.bezierCurveTo(500,888,920,906,1360,892);
+  ctx.bezierCurveTo(1640,882,1800,898,W,910);
+  ctx.lineTo(W,H);
+  ctx.lineTo(0,H);
+  ctx.closePath();
+  const g2=ctx.createLinearGradient(0,890,0,H);
+  g2.addColorStop(0,"#072718");
+  g2.addColorStop(0.45,"#03130C");
+  g2.addColorStop(1,"#010905");
+  ctx.fillStyle=g2;
+  ctx.fill();
+
+  for(let i=0;i<vortices.length;i++){
+    const v=vortices[i];
+    const glowPulse=0.85+0.15*Math.sin(TAU*p+i*2.1);
+    ctx.save();
+    ctx.translate(v.cx,v.gy);
+    ctx.scale(1,v.ry/v.rx);
+    const pool=ctx.createRadialGradient(0,0,10,0,0,v.rx*1.15);
+    pool.addColorStop(0,"rgba(209,250,229,"+(0.16*glowPulse)+")");
+    pool.addColorStop(0.28,"rgba(132,204,22,"+(0.14*glowPulse)+")");
+    pool.addColorStop(0.62,"rgba(16,185,129,"+(0.09*glowPulse)+")");
+    pool.addColorStop(1,"rgba(2,13,8,0)");
+    ctx.fillStyle=pool;
+    ctx.beginPath();
+    ctx.arc(0,0,v.rx*1.15,0,TAU);
+    ctx.fill();
+
+    for(let ring=1;ring<=3;ring++){
+      const rr=v.rx*(0.28*ring+0.04*Math.sin(TAU*p+ring));
+      ctx.beginPath();
+      ctx.arc(0,0,rr,0,TAU);
+      ctx.strokeStyle="rgba(16,185,129,"+(0.11/ring)+")";
+      ctx.lineWidth=2.5;
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  const horizonRim=ctx.createLinearGradient(0,860,W,860);
+  horizonRim.addColorStop(0,"rgba(16,185,129,0)");
+  horizonRim.addColorStop(0.28,"rgba(132,204,22,0.16)");
+  horizonRim.addColorStop(0.52,"rgba(209,250,229,0.22)");
+  horizonRim.addColorStop(0.76,"rgba(16,185,129,0.14)");
+  horizonRim.addColorStop(1,"rgba(16,185,129,0)");
+  ctx.beginPath();
+  ctx.moveTo(0,925);
+  ctx.bezierCurveTo(500,888,920,906,1360,892);
+  ctx.bezierCurveTo(1640,882,1800,898,W,910);
+  ctx.strokeStyle=horizonRim;
+  ctx.lineWidth=2.2;
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+function drawBokehLayer(list,p){
+  ctx.save();
+  ctx.globalCompositeOperation="screen";
+  for(let i=0;i<list.length;i++){
+    const b=list[i];
+    const u=(b.yStart+p)%1;
+    const y=H+b.r*1.5-u*(H+b.r*3);
+    const x=b.x+Math.sin(TAU*b.freq*p+b.phase)*b.driftX;
+    const edgeFade=Math.sin(Math.PI*u);
+    const a=b.alpha*edgeFade;
+    if(a<=0.002)continue;
+    const rg=ctx.createRadialGradient(x,y,b.r*0.12,x,y,b.r);
+    rg.addColorStop(0,hexToRgba(b.color,a*1.15));
+    rg.addColorStop(0.68,hexToRgba(b.color,a*0.55));
+    rg.addColorStop(0.9,hexToRgba(b.color,a*0.18));
+    rg.addColorStop(1,hexToRgba(b.color,0));
+    ctx.fillStyle=rg;
+    ctx.beginPath();
+    ctx.arc(x,y,b.r,0,TAU);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+function hexToRgba(hex,a){
+  const n=parseInt(hex.slice(1),16);
+  return"rgba("+((n>>16)&255)+","+((n>>8)&255)+","+(n&255)+","+a.toFixed(4)+")";
+}
+
+function evalVortexPoint(v,u,angle0,rScale,coreScale,airSpread,turnsG,turnsA,p){
+  const split=0.36;
+  const spinShift=p*TAU*v.dir;
+  if(u<split){
+    const g=u/split;
+    const easeG=g*g*(3-2*g);
+    const r=v.rx*(rScale*(1-easeG)+coreScale*easeG);
+    const ang=angle0+v.dir*turnsG*TAU*g+spinShift;
+    const x=v.cx+Math.cos(ang)*r;
+    const y=v.gy+Math.sin(ang)*r*(v.ry/v.rx)-Math.pow(g,3)*22;
+    const depth=0.5+0.5*Math.sin(ang);
+    return{x:x,y:y,depth:depth,inAir:0};
+  }else{
+    const a=(u-split)/(1-split);
+    const lift=Math.pow(a,1.08);
+    const baseR=v.rx*coreScale;
+    const targetR=v.airR*airSpread*(0.55+0.65*Math.sin(Math.PI*a*0.85));
+    const r=baseR*(1-Math.min(1,a*2.2))+targetR*Math.min(1,a*2.2);
+    const ang=angle0+v.dir*(turnsG*TAU+turnsA*TAU*a)+spinShift;
+    const swayX=Math.sin(a*TAU*1.2-p*TAU)*v.sway*a;
+    const x=v.cx+swayX+Math.cos(ang)*r;
+    const y=v.gy-22-lift*v.height+Math.sin(ang)*r*0.18*(1-a*0.5);
+    const depth=0.5+0.5*Math.sin(ang);
+    return{x:x,y:y,depth:depth,inAir:a};
+  }
+}
+
+function drawVortexRibbons(p){
+  ctx.save();
+  ctx.globalCompositeOperation="screen";
+  ctx.lineCap="round";
+  const steps=96;
+  for(let i=0;i<ribbons.length;i++){
+    const rb=ribbons[i];
+    const v=vortices[rb.vIdx];
+    let prev=null;
+    for(let s=0;s<=steps;s++){
+      const u=s/steps;
+      const pt=evalVortexPoint(v,u,rb.angle0,rb.rScale,0.22,0.75,rb.turnsG,rb.turnsA,p);
+      if(prev){
+        const wave=0.5+0.5*Math.sin(TAU*(u*2.0-p*2.0+rb.pulseOffset));
+        const env=Math.sin(Math.PI*u);
+        const alpha=(0.035+0.13*wave*wave)*env*(0.55+0.45*pt.depth);
+        if(alpha>0.004){
+          ctx.beginPath();
+          ctx.moveTo(prev.x,prev.y);
+          ctx.lineTo(pt.x,pt.y);
+          ctx.strokeStyle=hexToRgba(rb.color,alpha);
+          ctx.lineWidth=rb.width*(0.45+0.75*env)*(0.7+0.4*pt.depth);
+          ctx.stroke();
+        }
+      }
+      prev=pt;
+    }
+  }
+  ctx.restore();
+}
+
+function drawVortexParticles(p){
+  ctx.save();
+  ctx.globalCompositeOperation="screen";
+  for(let i=0;i<particles.length;i++){
+    const ptc=particles[i];
+    const v=vortices[ptc.vIdx];
+    const u=(p+ptc.phase)%1;
+    const fadeIn=Math.min(1,u/0.1);
+    const fadeOut=Math.min(1,(1-u)/0.14);
+    const env=fadeIn*fadeOut;
+    if(env<=0.005)continue;
+
+    const pos=evalVortexPoint(v,u,ptc.angle0,ptc.rFactor,ptc.coreFactor,ptc.airSpread,ptc.turnsG,ptc.turnsA,p);
+    const twinkle=0.65+0.35*Math.sin(TAU*ptc.twinkleFreq*p+ptc.twinklePhase);
+    const depthScale=0.65+0.55*pos.depth;
+    const rad=ptc.size*depthScale*(0.75+0.35*env);
+    const alpha=env*twinkle*(0.45+0.55*pos.depth);
+    const px=pos.x;
+    const py=pos.y+ptc.yJitter*(1-pos.inAir*0.5);
+
+    if(ptc.glow){
+      const haloR=rad*4.2;
+      const hg=ctx.createRadialGradient(px,py,0,px,py,haloR);
+      hg.addColorStop(0,hexToRgba("#D1FAE5",alpha*0.75));
+      hg.addColorStop(0.28,hexToRgba(ptc.color,alpha*0.42));
+      hg.addColorStop(1,hexToRgba(ptc.color,0));
+      ctx.fillStyle=hg;
+      ctx.beginPath();
+      ctx.arc(px,py,haloR,0,TAU);
+      ctx.fill();
+    }
+
+    ctx.fillStyle=hexToRgba(ptc.color,Math.min(1,alpha*1.1));
+    ctx.beginPath();
+    ctx.arc(px,py,rad,0,TAU);
+    ctx.fill();
+
+    if(rad>2.6){
+      ctx.fillStyle=hexToRgba("#ECFDF5",alpha*0.85);
+      ctx.beginPath();
+      ctx.arc(px,py,rad*0.42,0,TAU);
+      ctx.fill();
+    }
+  }
+  ctx.restore();
+}
+
+function drawSpecks(p){
+  ctx.save();
+  ctx.globalCompositeOperation="screen";
+  for(let i=0;i<specks.length;i++){
+    const s=specks[i];
+    const u=(p+s.phase)%1;
+    const y=H+30-u*(H+80);
+    const x=s.x+Math.sin(TAU*s.swayFreq*p+s.swayPhase)*s.swayAmp;
+    const env=Math.sin(Math.PI*u);
+    const tw=0.35+0.65*Math.pow(0.5+0.5*Math.sin(TAU*s.twinkleFreq*p+s.twinklePhase),2);
+    const a=env*tw*0.92;
+    if(a<=0.01)continue;
+
+    if(s.sparkle){
+      const r=s.size*2.4;
+      ctx.fillStyle=hexToRgba(s.color,a);
+      ctx.beginPath();
+      ctx.moveTo(x,y-r);
+      ctx.quadraticCurveTo(x,y,x+r,y);
+      ctx.quadraticCurveTo(x,y,x,y+r);
+      ctx.quadraticCurveTo(x,y,x-r,y);
+      ctx.quadraticCurveTo(x,y,x,y-r);
+      ctx.closePath();
+      ctx.fill();
+    }else{
+      ctx.fillStyle=hexToRgba(s.color,a);
+      ctx.beginPath();
+      ctx.arc(x,y,s.size,0,TAU);
+      ctx.fill();
+    }
+  }
+  ctx.restore();
+}
+
+function drawLightRays(p){
+  ctx.save();
+  ctx.globalCompositeOperation="screen";
+  for(let i=0;i<rays.length;i++){
+    const r=rays[i];
+    const sway=Math.sin(TAU*r.freq*p+r.ph)*34;
+    const breath=0.72+0.28*Math.sin(TAU*r.freq*p+r.ph+0.8);
+    const alpha=r.a*breath;
+    const grad=ctx.createLinearGradient(r.x0,r.y0,r.x1+sway,r.y1);
+    grad.addColorStop(0,r.col+(alpha*1.35)+")");
+    grad.addColorStop(0.38,r.col+(alpha*0.75)+")");
+    grad.addColorStop(0.78,r.col+(alpha*0.2)+")");
+    grad.addColorStop(1,r.col+"0)");
+
+    ctx.fillStyle=grad;
+    ctx.beginPath();
+    ctx.moveTo(r.x0-r.w0*0.5,r.y0);
+    ctx.lineTo(r.x0+r.w0*0.5,r.y0);
+    ctx.lineTo(r.x1+sway+r.w1*0.5,r.y1);
+    ctx.lineTo(r.x1+sway-r.w1*0.5,r.y1);
+    ctx.closePath();
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawVignette(){
+  const vg=ctx.createRadialGradient(W*0.5,H*0.52,W*0.26,W*0.5,H*0.5,W*0.74);
+  vg.addColorStop(0,"rgba(2,13,8,0)");
+  vg.addColorStop(0.75,"rgba(2,13,8,0.18)");
+  vg.addColorStop(1,"rgba(1,8,5,0.52)");
+  ctx.fillStyle=vg;
+  ctx.fillRect(0,0,W,H);
+}
+
+function render(ts){
+  const p=(((ts||0)%LOOP)+LOOP)%LOOP/LOOP;
+  ctx.setTransform(2,0,0,2,0,0);
+  drawBackdrop(p);
+  drawBokehLayer(bgBokeh,p);
+  drawGround(p);
+  drawVortexRibbons(p);
+  drawVortexParticles(p);
+  drawLightRays(p);
+  drawSpecks(p);
+  drawBokehLayer(fgBokeh,p);
+  drawVignette();
+  requestAnimationFrame(render);
+}
+
+requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>

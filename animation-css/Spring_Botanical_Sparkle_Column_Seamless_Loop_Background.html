@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Spring Botanical Sparkle Column Seamless Loop Background</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#041a11}
+.stage{position:relative;width:100%;height:100%;overflow:hidden}
+svg,canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.ray-a{transform-origin:0 0;animation:rayPulseA 10s ease-in-out infinite}
+.ray-b{transform-origin:0 0;animation:rayPulseB 10s ease-in-out infinite}
+.ray-c{transform-origin:0 0;animation:rayPulseC 5s ease-in-out infinite}
+.col-glow{transform-origin:960px 640px;animation:colBreath 10s ease-in-out infinite}
+.floor-glow{transform-origin:960px 940px;animation:floorBreath 5s ease-in-out infinite}
+.sway-l{transform-origin:140px 1080px;animation:swayLeft 10s ease-in-out infinite}
+.sway-l2{transform-origin:320px 1080px;animation:swayLeft2 10s ease-in-out infinite}
+.sway-r{transform-origin:1780px 1080px;animation:swayRight 10s ease-in-out infinite}
+.sway-r2{transform-origin:1600px 1080px;animation:swayRight2 10s ease-in-out infinite}
+@keyframes rayPulseA{0%,100%{opacity:.52;transform:rotate(0deg) scale(1)}50%{opacity:.78;transform:rotate(1.6deg) scale(1.03)}}
+@keyframes rayPulseB{0%,100%{opacity:.4;transform:rotate(0deg) scale(1.02)}50%{opacity:.66;transform:rotate(-1.4deg) scale(.98)}}
+@keyframes rayPulseC{0%,100%{opacity:.32}50%{opacity:.54}}
+@keyframes colBreath{0%,100%{opacity:.74;transform:scaleX(1)}50%{opacity:.95;transform:scaleX(1.06)}}
+@keyframes floorBreath{0%,100%{opacity:.68;transform:scale(1)}50%{opacity:.92;transform:scale(1.05)}}
+@keyframes swayLeft{0%,100%{transform:rotate(0deg)}50%{transform:rotate(2.6deg)}}
+@keyframes swayLeft2{0%,100%{transform:rotate(0deg)}50%{transform:rotate(-2.2deg)}}
+@keyframes swayRight{0%,100%{transform:rotate(0deg)}50%{transform:rotate(-2.5deg)}}
+@keyframes swayRight2{0%,100%{transform:rotate(0deg)}50%{transform:rotate(2.1deg)}}
+</style>
+</head>
+<body>
+<div class="stage">
+<svg viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+<stop offset="0%" stop-color="#0d4a31"/>
+<stop offset="32%" stop-color="#083322"/>
+<stop offset="68%" stop-color="#052116"/>
+<stop offset="100%" stop-color="#03150e"/>
+</linearGradient>
+<radialGradient id="topLeftGlow" cx="6%" cy="4%" r="62%">
+<stop offset="0%" stop-color="#bef264" stop-opacity=".46"/>
+<stop offset="28%" stop-color="#34d399" stop-opacity=".28"/>
+<stop offset="62%" stop-color="#22c55e" stop-opacity=".1"/>
+<stop offset="100%" stop-color="#052116" stop-opacity="0"/>
+</radialGradient>
+<linearGradient id="rayGrad1" x1="0%" y1="0%" x2="88%" y2="100%">
+<stop offset="0%" stop-color="#ecfccb" stop-opacity=".48"/>
+<stop offset="35%" stop-color="#bef264" stop-opacity=".22"/>
+<stop offset="72%" stop-color="#34d399" stop-opacity=".07"/>
+<stop offset="100%" stop-color="#22c55e" stop-opacity="0"/>
+</linearGradient>
+<linearGradient id="rayGrad2" x1="0%" y1="0%" x2="80%" y2="100%">
+<stop offset="0%" stop-color="#a7f3d0" stop-opacity=".42"/>
+<stop offset="42%" stop-color="#34d399" stop-opacity=".16"/>
+<stop offset="100%" stop-color="#22c55e" stop-opacity="0"/>
+</linearGradient>
+<radialGradient id="colAura" cx="50%" cy="54%" r="50%">
+<stop offset="0%" stop-color="#34d399" stop-opacity=".36"/>
+<stop offset="35%" stop-color="#22c55e" stop-opacity=".2"/>
+<stop offset="72%" stop-color="#0f5132" stop-opacity=".06"/>
+<stop offset="100%" stop-color="#052116" stop-opacity="0"/>
+</radialGradient>
+<linearGradient id="colBeam" x1="50%" y1="100%" x2="50%" y2="0%">
+<stop offset="0%" stop-color="#bef264" stop-opacity=".26"/>
+<stop offset="30%" stop-color="#22c55e" stop-opacity=".18"/>
+<stop offset="72%" stop-color="#34d399" stop-opacity=".09"/>
+<stop offset="100%" stop-color="#34d399" stop-opacity="0"/>
+</linearGradient>
+<linearGradient id="hillBack" x1="50%" y1="0%" x2="50%" y2="100%">
+<stop offset="0%" stop-color="#0f4730"/>
+<stop offset="100%" stop-color="#041b12"/>
+</linearGradient>
+<linearGradient id="hillMid" x1="50%" y1="0%" x2="50%" y2="100%">
+<stop offset="0%" stop-color="#0b3a27"/>
+<stop offset="100%" stop-color="#03160e"/>
+</linearGradient>
+<linearGradient id="horizonFloor" x1="50%" y1="0%" x2="50%" y2="100%">
+<stop offset="0%" stop-color="#135438"/>
+<stop offset="28%" stop-color="#082d1e"/>
+<stop offset="100%" stop-color="#02110b"/>
+</linearGradient>
+<radialGradient id="floorPool" cx="50%" cy="50%" r="50%">
+<stop offset="0%" stop-color="#bef264" stop-opacity=".42"/>
+<stop offset="38%" stop-color="#22c55e" stop-opacity=".24"/>
+<stop offset="74%" stop-color="#34d399" stop-opacity=".07"/>
+<stop offset="100%" stop-color="#082d1e" stop-opacity="0"/>
+</radialGradient>
+<linearGradient id="leafDark" x1="0%" y1="0%" x2="100%" y2="100%">
+<stop offset="0%" stop-color="#0e452e"/>
+<stop offset="100%" stop-color="#03140d"/>
+</linearGradient>
+<linearGradient id="leafMid" x1="0%" y1="0%" x2="100%" y2="100%">
+<stop offset="0%" stop-color="#155e3f"/>
+<stop offset="100%" stop-color="#051c12"/>
+</linearGradient>
+</defs>
+<rect width="1920" height="1080" fill="url(#bgGrad)"/>
+<rect width="1920" height="1080" fill="url(#topLeftGlow)"/>
+<g class="col-glow">
+<ellipse cx="960" cy="590" rx="340" ry="590" fill="url(#colAura)"/>
+<path d="M680,1040 C745,760 770,380 650,-40 L1270,-40 C1150,380 1175,760 1240,1040 Z" fill="url(#colBeam)"/>
+</g>
+<g class="ray-a">
+<polygon points="-140,-140 240,-140 1280,1080 620,1080" fill="url(#rayGrad1)"/>
+<polygon points="-120,-80 70,-140 840,1080 390,1080" fill="url(#rayGrad2)"/>
+</g>
+<g class="ray-b">
+<polygon points="-140,-40 430,-140 1620,940 1080,1080" fill="url(#rayGrad2)"/>
+<polygon points="-140,80 -40,-100 540,1080 120,1080" fill="url(#rayGrad1)"/>
+</g>
+<g class="ray-c">
+<polygon points="-120,-120 140,-120 1020,1080 510,1080" fill="url(#rayGrad1)"/>
+</g>
+<path d="M0,895 Q360,842 740,892 T1480,876 Q1720,860 1920,886 L1920,1080 L0,1080 Z" fill="url(#hillBack)" opacity=".75"/>
+<path d="M0,928 Q420,892 960,924 T1920,912 L1920,1080 L0,1080 Z" fill="url(#hillMid)" opacity=".88"/>
+<path d="M0,948 Q480,916 960,934 Q1440,952 1920,934 L1920,1080 L0,1080 Z" fill="url(#horizonFloor)"/>
+<path d="M0,948 Q480,916 960,934 Q1440,952 1920,934" fill="none" stroke="#34d399" stroke-opacity=".24" stroke-width="2"/>
+<g class="floor-glow">
+<ellipse cx="960" cy="954" rx="540" ry="62" fill="url(#floorPool)"/>
+<ellipse cx="960" cy="944" rx="230" ry="24" fill="#bef264" opacity=".2"/>
+</g>
+<g class="sway-l">
+<path d="M-20,1080 C20,950 90,825 185,730 C165,860 120,985 60,1080 Z" fill="url(#leafMid)"/>
+<path d="M40,1080 C70,975 155,890 250,830 C215,930 165,1010 115,1080 Z" fill="url(#leafDark)"/>
+</g>
+<g class="sway-l2">
+<path d="M180,1080 C215,995 275,925 360,875 C325,955 280,1025 235,1080 Z" fill="url(#leafDark)" opacity=".85"/>
+<path d="M90,1080 C95,970 120,855 155,775 C140,885 135,990 135,1080 Z" fill="#062216" opacity=".7"/>
+</g>
+<g class="sway-r">
+<path d="M1940,1080 C1900,945 1825,820 1730,725 C1755,855 1800,985 1860,1080 Z" fill="url(#leafMid)"/>
+<path d="M1880,1080 C1845,975 1760,890 1665,830 C1700,930 1750,1010 1805,1080 Z" fill="url(#leafDark)"/>
+</g>
+<g class="sway-r2">
+<path d="M1740,1080 C1705,995 1645,925 1560,875 C1595,955 1640,1025 1685,1080 Z" fill="url(#leafDark)" opacity=".85"/>
+<path d="M1830,1080 C1825,970 1800,855 1765,775 C1780,885 1785,990 1785,1080 Z" fill="#062216" opacity=".7"/>
+</g>
+</svg>
+<canvas id="c"></canvas>
+<svg viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" style="pointer-events:none">
+<defs>
+<linearGradient id="vigL" x1="0%" y1="50%" x2="100%" y2="50%">
+<stop offset="0%" stop-color="#010e08" stop-opacity=".72"/>
+<stop offset="22%" stop-color="#02140c" stop-opacity=".26"/>
+<stop offset="45%" stop-color="#02140c" stop-opacity="0"/>
+</linearGradient>
+<linearGradient id="vigR" x1="100%" y1="50%" x2="0%" y2="50%">
+<stop offset="0%" stop-color="#010e08" stop-opacity=".78"/>
+<stop offset="24%" stop-color="#02140c" stop-opacity=".3"/>
+<stop offset="48%" stop-color="#02140c" stop-opacity="0"/>
+</linearGradient>
+<linearGradient id="vigB" x1="50%" y1="100%" x2="50%" y2="0%">
+<stop offset="0%" stop-color="#010c07" stop-opacity=".72"/>
+<stop offset="16%" stop-color="#02130b" stop-opacity=".22"/>
+<stop offset="32%" stop-color="#02130b" stop-opacity="0"/>
+</linearGradient>
+</defs>
+<rect width="1920" height="1080" fill="url(#vigL)"/>
+<rect width="1920" height="1080" fill="url(#vigR)"/>
+<rect width="1920" height="1080" fill="url(#vigB)"/>
+</svg>
+</div>
+<script>
+(()=>{
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d');
+const W=1920,H=1080,LOOP=10000,TAU=Math.PI*2;
+let seed=48271;
+const rnd=()=>{seed=(seed*16807)%2147483647;return(seed-1)/2147483646};
+const palette=['#22C55E','#BEF264','#34D399','#86EFAC','#D9F99D'];
+
+const resize=()=>{
+const dpr=Math.min(window.devicePixelRatio||1,2);
+const cw=Math.round(window.innerWidth*dpr);
+const ch=Math.round(window.innerHeight*dpr);
+if(canvas.width!==cw||canvas.height!==ch){canvas.width=cw;canvas.height=ch}
+};
+resize();
+window.addEventListener('resize',resize);
+
+const eddies=[];
+for(let i=0;i<72;i++){
+const side=i%2===0?-1:1;
+eddies.push({
+side,
+phase:rnd(),
+loops:rnd()<0.35?2:1,
+startX:side*(280+rnd()*480),
+swirlRadius:45+rnd()*95,
+swirlTurns:1.2+rnd()*0.9,
+groundY:930+rnd()*75,
+liftHeight:420+rnd()*360,
+colSpread:(rnd()-0.5)*210,
+size:2.4+rnd()*5.2,
+color:palette[Math.floor(rnd()*palette.length)],
+kind:rnd()<0.35?'star':(rnd()<0.65?'ember':'leaf'),
+twinkle:1+Math.floor(rnd()*3),
+rotDir:rnd()<0.5?-1:1
+});
+}
+
+const embers=[];
+for(let i=0;i<115;i++){
+embers.push({
+phase:rnd(),
+loops:rnd()<0.42?2:1,
+lane:(rnd()-0.5)*2,
+swayAmp:16+rnd()*62,
+swayFreq:1+Math.floor(rnd()*2),
+swayPhase:rnd(),
+size:2+rnd()*5.8,
+color:palette[Math.floor(rnd()*palette.length)],
+kind:rnd()<0.34?'star':(rnd()<0.62?'ember':'leaf'),
+twinkle:1+Math.floor(rnd()*4),
+spin:(rnd()<0.5?-1:1)*(1+Math.floor(rnd()*2))
+});
+}
+
+const bokeh=[];
+for(let i=0;i<42;i++){
+const inRay=i<14;
+bokeh.push({
+inRay,
+phase:rnd(),
+loops:1,
+xBase:inRay?(120+rnd()*760):(960+(rnd()-0.5)*560),
+yBase:inRay?(90+rnd()*580):0,
+driftX:24+rnd()*55,
+driftY:20+rnd()*45,
+radius:inRay?(14+rnd()*44):(12+rnd()*38),
+alpha:inRay?(0.07+rnd()*0.14):(0.08+rnd()*0.18),
+color:inRay?(rnd()<0.55?'#BEF264':'#6EE7B7'):palette[Math.floor(rnd()*3)],
+pulse:1+Math.floor(rnd()*2)
+});
+}
+
+const ribbons=[];
+for(let i=0;i<8;i++){
+ribbons.push({
+side:i%2===0?-1:1,
+phase:i/8,
+yOff:(i-3.5)*9,
+amp:16+rnd()*22,
+width:1.4+rnd()*2.2,
+color:i%3===0?'#BEF264':(i%3===1?'#34D399':'#22C55E')
+});
+}
+
+const fadeCurve=(u,a,b)=>{
+if(u<a)return u/a;
+if(u>b)return(1-u)/(1-b);
+return 1;
+};
+
+const drawStar=(x,y,r,rot,color,alpha)=>{
+ctx.save();
+ctx.translate(x,y);
+ctx.rotate(rot);
+ctx.globalAlpha=alpha;
+const g=ctx.createRadialGradient(0,0,0,0,0,r*2.4);
+g.addColorStop(0,color);
+g.addColorStop(1,'rgba(34,197,94,0)');
+ctx.fillStyle=g;
+ctx.beginPath();
+ctx.arc(0,0,r*2.4,0,TAU);
+ctx.fill();
+ctx.fillStyle='#ECFCCB';
+ctx.beginPath();
+const ir=r*0.28;
+for(let i=0;i<8;i++){
+const ang=i*Math.PI/4;
+const rad=i%2===0?r*1.55:ir;
+const px=Math.cos(ang)*rad;
+const py=Math.sin(ang)*rad;
+if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);
+}
+ctx.closePath();
+ctx.fill();
+ctx.restore();
+};
+
+const drawEmber=(x,y,r,color,alpha)=>{
+ctx.save();
+ctx.globalAlpha=alpha;
+const g=ctx.createRadialGradient(x,y,0,x,y,r*2.8);
+g.addColorStop(0,'#ECFCCB');
+g.addColorStop(0.32,color);
+g.addColorStop(1,'rgba(34,197,94,0)');
+ctx.fillStyle=g;
+ctx.beginPath();
+ctx.arc(x,y,r*2.8,0,TAU);
+ctx.fill();
+ctx.restore();
+};
+
+const drawLeaf=(x,y,r,rot,color,alpha)=>{
+ctx.save();
+ctx.translate(x,y);
+ctx.rotate(rot);
+ctx.globalAlpha=alpha;
+ctx.fillStyle=color;
+ctx.beginPath();
+ctx.moveTo(0,-r*1.5);
+ctx.quadraticCurveTo(r*1.15,-r*0.2,0,r*1.5);
+ctx.quadraticCurveTo(-r*1.15,-r*0.2,0,-r*1.5);
+ctx.closePath();
+ctx.fill();
+ctx.fillStyle='#ECFCCB';
+ctx.globalAlpha=alpha*0.45;
+ctx.beginPath();
+ctx.ellipse(-r*0.18,-r*0.2,r*0.18,r*0.7,0,0,TAU);
+ctx.fill();
+ctx.restore();
+};
+
+const drawBokeh=(x,y,r,color,alpha)=>{
+ctx.save();
+ctx.globalAlpha=alpha;
+const g=ctx.createRadialGradient(x,y,0,x,y,r);
+g.addColorStop(0,color);
+g.addColorStop(0.62,color);
+g.addColorStop(1,'rgba(52,211,153,0)');
+ctx.fillStyle=g;
+ctx.beginPath();
+ctx.arc(x,y,r,0,TAU);
+ctx.fill();
+ctx.strokeStyle='#ECFCCB';
+ctx.globalAlpha=alpha*0.35;
+ctx.lineWidth=1.2;
+ctx.beginPath();
+ctx.arc(x,y,r*0.86,0,TAU);
+ctx.stroke();
+ctx.restore();
+};
+
+const drawEddyRibbons=(t)=>{
+ctx.save();
+ctx.globalCompositeOperation='lighter';
+for(const rb of ribbons){
+const u=(t+rb.phase)%1;
+const alpha=fadeCurve(u,0.2,0.78)*0.26;
+ctx.strokeStyle=rb.color;
+ctx.lineWidth=rb.width;
+ctx.globalAlpha=alpha;
+ctx.lineCap='round';
+ctx.beginPath();
+const steps=28;
+for(let s=0;s<=steps;s++){
+const f=s/steps;
+const p=u*0.72+f*0.28;
+const inv=1-p;
+const x=960+rb.side*Math.pow(inv,1.45)*560+Math.sin(p*TAU*1.5+rb.phase*TAU)*rb.amp*inv;
+const lift=p>0.55?Math.pow((p-0.55)/0.45,1.8)*320:0;
+const y=958+rb.yOff+Math.sin(p*TAU*2)*18*(1-p*0.6)-lift;
+if(s===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+}
+ctx.stroke();
+}
+ctx.restore();
+};
+
+const render=(ts)=>{
+const t=((ts%LOOP)+LOOP)%LOOP/LOOP;
+const cw=canvas.width,ch=canvas.height;
+const scale=Math.max(cw/W,ch/H);
+const ox=(cw-W*scale)*0.5;
+const oy=(ch-H*scale)*0.5;
+
+ctx.setTransform(1,0,0,1,0,0);
+ctx.clearRect(0,0,cw,ch);
+ctx.setTransform(scale,0,0,scale,ox,oy);
+
+drawEddyRibbons(t);
+
+ctx.save();
+ctx.globalCompositeOperation='lighter';
+
+for(const b of bokeh){
+const pulse=0.72+0.28*Math.sin(TAU*(t*b.pulse+b.phase));
+if(b.inRay){
+const x=b.xBase+Math.sin(TAU*(t+b.phase))*b.driftX;
+const y=b.yBase+Math.cos(TAU*(t+b.phase))*b.driftY;
+drawBokeh(x,y,b.radius,b.color,b.alpha*pulse);
+}else{
+const u=(t*b.loops+b.phase)%1;
+const y=1020-u*1120;
+const spread=0.55+0.65*Math.pow(u,1.2);
+const x=960+(b.xBase-960)*spread+Math.sin(TAU*(t+b.phase))*b.driftX*0.5;
+const a=b.alpha*fadeCurve(u,0.16,0.8)*pulse;
+drawBokeh(x,y,b.radius*(0.75+0.4*u),b.color,a);
+}
+}
+
+for(const e of eddies){
+const u=(t*e.loops+e.phase)%1;
+const alpha=fadeCurve(u,0.14,0.82)*(0.68+0.32*Math.sin(TAU*(t*e.twinkle+e.phase)));
+let x,y,sc;
+if(u<0.5){
+const p=u/0.5;
+const ease=1-Math.pow(1-p,2);
+const ang=p*TAU*e.swirlTurns;
+const rad=e.swirlRadius*(1-p*0.72);
+x=960+e.startX*(1-ease)+Math.cos(ang)*rad*e.side;
+y=e.groundY-p*32+Math.sin(ang)*rad*0.26;
+sc=0.72+0.35*p;
+}else{
+const p=(u-0.5)/0.5;
+const ang=p*TAU*1.4;
+const narrow=0.45+0.75*p;
+x=960+e.colSpread*narrow*p+Math.sin(ang+e.phase*TAU)*48*(1-p*0.35);
+y=(e.groundY-32)-Math.pow(p,1.08)*e.liftHeight;
+sc=1.07-0.25*p;
+}
+const rot=TAU*(t*e.rotDir+e.phase);
+if(e.kind==='star')drawStar(x,y,e.size*sc,rot,e.color,alpha);
+else if(e.kind==='leaf')drawLeaf(x,y,e.size*sc*1.1,rot,e.color,alpha*0.88);
+else drawEmber(x,y,e.size*sc,e.color,alpha);
+}
+
+for(const p of embers){
+const u=(t*p.loops+p.phase)%1;
+const y=985-u*1080;
+const waist=0.72+0.55*Math.pow(u,1.35)+0.35*Math.pow(1-u,2.4);
+const x=960+p.lane*195*waist+Math.sin(TAU*(u*p.swayFreq+p.swayPhase))*p.swayAmp;
+const tw=0.58+0.42*Math.sin(TAU*(t*p.twinkle+p.phase));
+const alpha=fadeCurve(u,0.12,0.84)*tw;
+const rot=TAU*(t*p.spin+p.phase);
+const sz=p.size*(0.8+0.4*Math.sin(u*Math.PI));
+if(p.kind==='star')drawStar(x,y,sz,rot,p.color,alpha);
+else if(p.kind==='leaf')drawLeaf(x,y,sz*1.15,rot,p.color,alpha*0.86);
+else drawEmber(x,y,sz,p.color,alpha);
+}
+
+ctx.restore();
+requestAnimationFrame(render);
+};
+requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>

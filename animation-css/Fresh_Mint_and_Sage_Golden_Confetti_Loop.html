@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fresh Mint and Sage Golden Confetti Loop</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#047857}
+canvas{display:block;width:100%;height:100%}
+</style>
+</head>
+<body>
+<canvas id="scene"></canvas>
+<script>
+(function(){
+const W=1920,H=1080,LOOP=10000,TAU=Math.PI*2;
+const canvas=document.getElementById('scene');
+const ctx=canvas.getContext('2d');
+
+function resize(){
+const dpr=Math.min(Math.max(window.devicePixelRatio||1,1),2);
+const cw=Math.max(1,Math.round(window.innerWidth*dpr));
+const ch=Math.max(1,Math.round(window.innerHeight*dpr));
+if(canvas.width!==cw||canvas.height!==ch){
+canvas.width=cw;
+canvas.height=ch;
+}
+}
+window.addEventListener('resize',resize);
+resize();
+
+let seed=918273645;
+function rand(){
+seed=(seed+0x6D2B79F5)|0;
+let t=Math.imul(seed^(seed>>>15),1|seed);
+t=(t+Math.imul(t^(t>>>7),61|t))^t;
+return((t^(t>>>14))>>>0)/4294967296;
+}
+function range(a,b){return a+(b-a)*rand();}
+function pick(arr){return arr[Math.floor(rand()*arr.length)];}
+
+const PALETTES=[
+{hi:'#FFFBEB',mid:'#FDE68A',lo:'#FBBF24',edge:'#D97706'},
+{hi:'#FEF3C7',mid:'#FBBF24',lo:'#F59E0B',edge:'#B45309'},
+{hi:'#FFFBEB',mid:'#FCD34D',lo:'#EA580C',edge:'#9A3412'},
+{hi:'#FFFFFF',mid:'#FEF08A',lo:'#FBBF24',edge:'#CA8A04'}
+];
+
+function makeBgSprite(size,pal,soft){
+const c=document.createElement('canvas');
+c.width=size;c.height=size;
+const g=c.getContext('2d');
+const r=size*0.5;
+const gr=g.createRadialGradient(r*0.78,r*0.72,r*0.04,r,r,r);
+if(soft){
+gr.addColorStop(0,'rgba(255,251,235,0.42)');
+gr.addColorStop(0.45,'rgba(253,230,138,0.24)');
+gr.addColorStop(0.8,'rgba(251,191,36,0.08)');
+gr.addColorStop(1,'rgba(251,191,36,0)');
+}else{
+gr.addColorStop(0,'rgba(255,251,235,0.28)');
+gr.addColorStop(0.68,'rgba(253,230,138,0.14)');
+gr.addColorStop(0.88,'rgba(251,191,36,0.22)');
+gr.addColorStop(1,'rgba(251,191,36,0)');
+}
+g.fillStyle=gr;
+g.beginPath();
+g.arc(r,r,r,0,TAU);
+g.fill();
+return c;
+}
+
+const bgSprites=[
+makeBgSprite(320,PALETTES[0],true),
+makeBgSprite(320,PALETTES[1],false),
+makeBgSprite(240,PALETTES[2],true),
+makeBgSprite(240,PALETTES[3],false)
+];
+
+const bgOrbs=[];
+for(let i=0;i<24;i++){
+const r=range(42,148);
+bgOrbs.push({
+sprite:pick(bgSprites),
+x0:range(-180,W+260),
+y0:range(-180,H+220),
+r:r,
+padX:r*1.5+140,
+padY:r*1.5+140,
+cyclesX:pick([-1,-1,1]),
+cyclesY:pick([1,1,2]),
+driftX:range(35,95),
+driftY:range(45,120),
+swayX:range(14,34),
+swayY:range(10,26),
+swayFreqX:pick([1,2]),
+swayFreqY:pick([1,2]),
+phaseX:rand(),
+phaseY:rand(),
+alpha:range(0.32,0.72)
+});
+}
+
+const pieces=[];
+const shapes=['triangle','hexagon','circle'];
+
+for(let i=0;i<96;i++){
+const layer=i<26?0:(i<72?1:2);
+const baseSize=layer===0?range(12,20):(layer===1?range(18,30):range(25,38));
+const pal=pick(PALETTES);
+const cyclesX=layer===0?1:(layer===1?pick([1,2]):2);
+const cyclesY=layer===0?pick([1,2]):(layer===1?pick([2,3]):pick([3,4]));
+const vxDir=-1;
+const vyDir=1;
+const spanX=W+460;
+const spanY=H+420;
+const speedScale=layer===0?0.68:(layer===1?1.0:1.32);
+
+pieces.push({
+layer:layer,
+shape:pick(shapes),
+pal:pal,
+size:baseSize,
+aspect:range(0.76,1.18),
+x0:range(-180,W+260),
+y0:range(-180,H+220),
+spanX:spanX,
+spanY:spanY,
+cyclesX:cyclesX*vxDir*speedScale,
+cyclesY:cyclesY*vyDir*speedScale,
+swayAmp:range(16,44)*(layer===0?0.65:(layer===2?1.2:1)),
+swayFreq:pick([1,2,2,3]),
+swayPhase:rand(),
+flipFreq:pick([2,3,4,5]),
+flipPhase:rand(),
+tiltAmp:range(0.28,0.58),
+tiltFreq:pick([1,2,3]),
+tiltPhase:rand(),
+spinBase:range(0,TAU),
+spinDir:pick([-1,1]),
+spinCycles:pick([1,1,2]),
+alpha:layer===0?range(0.55,0.78):(layer===1?range(0.84,0.97):range(0.92,1.0))
+});
+}
+
+function drawBackdrop(){
+const bgGrad=ctx.createLinearGradient(W*0.95,0,W*0.05,H);
+bgGrad.addColorStop(0,'#34D399');
+bgGrad.addColorStop(0.28,'#10B981');
+bgGrad.addColorStop(0.68,'#059669');
+bgGrad.addColorStop(1,'#047857');
+ctx.fillStyle=bgGrad;
+ctx.fillRect(0,0,W,H);
+
+const sunGrad=ctx.createRadialGradient(W*0.92,H*0.06,20,W*0.88,H*0.12,W*0.68);
+sunGrad.addColorStop(0,'rgba(255,251,235,0.52)');
+sunGrad.addColorStop(0.24,'rgba(253,230,138,0.28)');
+sunGrad.addColorStop(0.55,'rgba(167,243,208,0.12)');
+sunGrad.addColorStop(1,'rgba(4,120,87,0)');
+ctx.fillStyle=sunGrad;
+ctx.fillRect(0,0,W,H);
+
+const cornerShade=ctx.createRadialGradient(W*0.1,H*0.92,40,W*0.15,H*0.9,W*0.65);
+cornerShade.addColorStop(0,'rgba(6,95,70,0.28)');
+cornerShade.addColorStop(1,'rgba(4,120,87,0)');
+ctx.fillStyle=cornerShade;
+ctx.fillRect(0,0,W,H);
+}
+
+function traceShape(shape,s){
+ctx.beginPath();
+if(shape==='triangle'){
+const h=s*0.95;
+ctx.moveTo(0,-h*0.62);
+ctx.lineTo(s*0.58,h*0.48);
+ctx.lineTo(-s*0.58,h*0.48);
+ctx.closePath();
+}else if(shape==='hexagon'){
+for(let k=0;k<6;k++){
+const a=(k*TAU)/6-Math.PI/6;
+const px=Math.cos(a)*s*0.56;
+const py=Math.sin(a)*s*0.56;
+if(k===0)ctx.moveTo(px,py);
+else ctx.lineTo(px,py);
+}
+ctx.closePath();
+}else{
+ctx.arc(0,0,s*0.5,0,TAU);
+}
+}
+
+function drawConfettiPiece(pt,p){
+const rawX=pt.x0+p*pt.cyclesX*pt.spanX;
+const rawY=pt.y0+p*pt.cyclesY*pt.spanY;
+const x=(((rawX+200)%pt.spanX)+pt.spanX)%pt.spanX-200;
+const y=(((rawY+180)%pt.spanY)+pt.spanY)%pt.spanY-180;
+
+const flutter=Math.sin(TAU*(pt.swayFreq*p+pt.swayPhase));
+const px=x+flutter*pt.swayAmp;
+const py=y+Math.cos(TAU*(pt.swayFreq*p+pt.swayPhase))*pt.swayAmp*0.35;
+
+const flipWave=Math.cos(TAU*(pt.flipFreq*p+pt.flipPhase));
+const scaleY=Math.max(0.14,Math.abs(flipWave));
+const faceUp=flipWave>=0;
+const tilt=Math.sin(TAU*(pt.tiltFreq*p+pt.tiltPhase))*pt.tiltAmp+flutter*0.18;
+const rot=pt.spinBase+pt.spinDir*pt.spinCycles*TAU*p+tilt;
+
+ctx.save();
+ctx.translate(px,py);
+ctx.rotate(rot);
+ctx.scale(1,scaleY);
+ctx.globalAlpha=pt.alpha*(0.78+0.22*scaleY);
+
+const s=pt.size;
+const g=ctx.createLinearGradient(-s*0.6,-s*0.6,s*0.6,s*0.6);
+if(faceUp){
+g.addColorStop(0,pt.pal.hi);
+g.addColorStop(0.45,pt.pal.mid);
+g.addColorStop(1,pt.pal.lo);
+}else{
+g.addColorStop(0,pt.pal.mid);
+g.addColorStop(0.55,pt.pal.lo);
+g.addColorStop(1,pt.pal.edge);
+}
+
+traceShape(pt.shape,s);
+ctx.fillStyle=g;
+ctx.fill();
+
+ctx.lineWidth=Math.max(0.8,s*0.045);
+ctx.strokeStyle=faceUp?pt.pal.hi:pt.pal.edge;
+ctx.stroke();
+
+ctx.restore();
+}
+
+function render(ts){
+const p=(((ts%LOOP)+LOOP)%LOOP)/LOOP;
+const sx=canvas.width/W;
+const sy=canvas.height/H;
+
+ctx.setTransform(sx,0,0,sy,0,0);
+ctx.globalAlpha=1;
+drawBackdrop();
+
+for(let i=0;i<bgOrbs.length;i++){
+const o=bgOrbs[i];
+const wrapW=W+o.padX*2;
+const wrapH=H+o.padY*2;
+const baseX=(((o.x0+p*o.cyclesX*wrapW)%wrapW)+wrapW)%wrapW-o.padX;
+const baseY=(((o.y0+p*o.cyclesY*wrapH)%wrapH)+wrapH)%wrapH-o.padY;
+const ox=baseX+Math.sin(TAU*(o.swayFreqX*p+o.phaseX))*o.swayX;
+const oy=baseY+Math.cos(TAU*(o.swayFreqY*p+o.phaseY))*o.swayY;
+ctx.globalAlpha=o.alpha;
+ctx.drawImage(o.sprite,ox-o.r,oy-o.r,o.r*2,o.r*2);
+}
+
+for(let i=0;i<pieces.length;i++){
+drawConfettiPiece(pieces[i],p);
+}
+
+ctx.globalAlpha=1;
+requestAnimationFrame(render);
+}
+
+requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>

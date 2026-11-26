@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Northern Aurora Ground Swirl Vector Loop</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#010A06}
+canvas{display:block;width:100%;height:100%}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+(function(){
+const c=document.getElementById('c');
+const ctx=c.getContext('2d');
+const W=1920,H=1080,HORIZON=825,T=10000,TAU=Math.PI*2;
+
+function mulberry32(a){
+return function(){
+let t=a+=0x6D2B79F5;
+t=Math.imul(t^t>>>15,t|1);
+t^=t+Math.imul(t^t>>>7,t|61);
+return((t^t>>>14)>>>0)/4294967296;
+};
+}
+const rand=mulberry32(90421);
+
+const COLORS=[
+{r:74,g:222,b:128,hex:'#4ADE80'},
+{r:20,g:184,b:166,hex:'#14B8A6'},
+{r:236,g:253,b:245,hex:'#ECFDF5'}
+];
+
+function rgba(col,a){
+return 'rgba('+col.r+','+col.g+','+col.b+','+a.toFixed(4)+')';
+}
+
+const beams=[
+{ox:-140,oy:-140,angle:0.34,hw:0.085,len:2350,baseAlpha:0.12,pulseAmp:0.06,freq:1,phase:0.2,col:COLORS[2]},
+{ox:-120,oy:-160,angle:0.50,hw:0.11,len:2200,baseAlpha:0.14,pulseAmp:0.07,freq:1,phase:1.4,col:COLORS[0]},
+{ox:-160,oy:-110,angle:0.68,hw:0.095,len:2100,baseAlpha:0.13,pulseAmp:0.065,freq:2,phase:2.6,col:COLORS[1]},
+{ox:-100,oy:-180,angle:0.86,hw:0.105,len:1950,baseAlpha:0.11,pulseAmp:0.055,freq:1,phase:3.9,col:COLORS[0]},
+{ox:-150,oy:-120,angle:1.06,hw:0.08,len:1750,baseAlpha:0.10,pulseAmp:0.05,freq:2,phase:5.1,col:COLORS[2]},
+{ox:-110,oy:-150,angle:1.24,hw:0.07,len:1550,baseAlpha:0.09,pulseAmp:0.045,freq:1,phase:0.9,col:COLORS[1]}
+];
+
+const bgCurtains=[
+{x:310,w:240,amp:42,freq:0.0055,waveCycles:1,phase:0.4,col:COLORS[1],alpha:0.13},
+{x:680,w:310,amp:56,freq:0.0048,waveCycles:1,phase:2.1,col:COLORS[0],alpha:0.11},
+{x:1140,w:280,amp:48,freq:0.0052,waveCycles:1,phase:3.8,col:COLORS[1],alpha:0.12},
+{x:1560,w:260,amp:38,freq:0.006,waveCycles:1,phase:5.2,col:COLORS[0],alpha:0.10}
+];
+
+const swirls=[
+{cx:340,cy:895,rx:225,ry:52,tilt:-0.04,loops:1,phase:0.3,colA:COLORS[1],colB:COLORS[0],count:44},
+{cx:735,cy:945,rx:290,ry:70,tilt:0.02,loops:1,phase:1.7,colA:COLORS[0],colB:COLORS[2],count:56},
+{cx:1165,cy:915,rx:265,ry:60,tilt:-0.025,loops:1,phase:3.2,colA:COLORS[1],colB:COLORS[0],count:50},
+{cx:1575,cy:890,rx:220,ry:48,tilt:0.035,loops:1,phase:4.8,colA:COLORS[0],colB:COLORS[1],count:42},
+{cx:955,cy:1005,rx:340,ry:56,tilt:0.0,loops:1,phase:0.9,colA:COLORS[1],colB:COLORS[2],count:48}
+];
+
+const swirlParticles=[];
+for(let s=0;s<swirls.length;s++){
+const sw=swirls[s];
+for(let i=0;i<sw.count;i++){
+const pick=rand();
+const col=pick<0.45?sw.colA:(pick<0.82?sw.colB:COLORS[2]);
+swirlParticles.push({
+swirlIdx:s,
+offset:i/sw.count+(rand()-0.5)*0.015,
+speedInt:rand()<0.35?2:1,
+radJitter:(rand()-0.5)*22,
+yJitter:(rand()-0.5)*10,
+size:2.0+rand()*4.2,
+alpha:0.45+rand()*0.5,
+col:col,
+shape:rand()<0.32?1:0,
+twinkleFreq:1+Math.floor(rand()*3),
+twinklePhase:rand()*TAU
+});
+}
+}
+
+const columns=[
+{baseX:340,startY:895,endY:-80,width:115,amp:46,waveFreq:0.0072,waveCycles:1,phase:0.5,col:COLORS[1],count:58},
+{baseX:735,startY:945,endY:-90,width:145,amp:58,waveFreq:0.0064,waveCycles:1,phase:1.9,col:COLORS[0],count:74},
+{baseX:1165,startY:915,endY:-85,width:135,amp:52,waveFreq:0.0068,waveCycles:1,phase:3.4,col:COLORS[1],count:68},
+{baseX:1575,startY:890,endY:-80,width:110,amp:44,waveFreq:0.0075,waveCycles:1,phase:4.9,col:COLORS[0],count:56},
+{baseX:955,startY:990,endY:-90,width:125,amp:50,waveFreq:0.0062,waveCycles:1,phase:2.7,col:COLORS[2],count:62}
+];
+
+const colParticles=[];
+for(let ci=0;ci<columns.length;ci++){
+const colDef=columns[ci];
+for(let i=0;i<colDef.count;i++){
+const pick=rand();
+const col=pick<0.44?COLORS[0]:(pick<0.82?COLORS[1]:COLORS[2]);
+colParticles.push({
+colIdx:ci,
+phaseOffset:rand(),
+speedInt:rand()<0.3?2:1,
+spiralR:(0.15+rand()*0.85)*colDef.width*0.58,
+twistInt:1+Math.floor(rand()*2),
+angleOffset:rand()*TAU,
+size:1.8+rand()*4.6,
+alpha:0.42+rand()*0.54,
+col:col,
+shape:rand()<0.28?1:0,
+shimmerPhase:rand()*TAU
+});
+}
+}
+
+const ambientParticles=[];
+for(let i=0;i<110;i++){
+const pick=rand();
+const col=pick<0.42?COLORS[0]:(pick<0.78?COLORS[1]:COLORS[2]);
+ambientParticles.push({
+x:rand()*W,
+yOffset:rand(),
+speedInt:1,
+swayAmp:18+rand()*45,
+swayFreq:1+Math.floor(rand()*2),
+swayPhase:rand()*TAU,
+size:1.2+rand()*2.8,
+alpha:0.25+rand()*0.45,
+col:col,
+twinklePhase:rand()*TAU
+});
+}
+
+function resize(){
+const dpr=window.devicePixelRatio||1;
+const cw=Math.max(1,Math.round(window.innerWidth*dpr));
+const ch=Math.max(1,Math.round(window.innerHeight*dpr));
+if(c.width!==cw||c.height!==ch){
+c.width=cw;
+c.height=ch;
+}
+}
+
+function getBeamIntensity(x,y,theta){
+let total=0;
+for(let i=0;i<beams.length;i++){
+const b=beams[i];
+const dx=x-b.ox;
+const dy=y-b.oy;
+const ang=Math.atan2(dy,dx);
+const diff=Math.abs(ang-b.angle);
+if(diff<b.hw){
+const dist=Math.hypot(dx,dy);
+if(dist<b.len){
+const radial=1-diff/b.hw;
+const falloff=1-dist/b.len;
+const pulse=0.6+0.4*Math.sin(theta*b.freq+b.phase);
+total+=radial*radial*falloff*pulse;
+}
+}
+}
+return Math.min(1,total*1.65);
+}
+
+function drawBackdrop(theta){
+const bg=ctx.createLinearGradient(0,0,W*0.35,H);
+bg.addColorStop(0,'#042117');
+bg.addColorStop(0.32,'#02130C');
+bg.addColorStop(0.75,'#010A06');
+bg.addColorStop(1,'#010805');
+ctx.fillStyle=bg;
+ctx.fillRect(0,0,W,H);
+
+const topLeftGlow=ctx.createRadialGradient(-40,-40,20,120,100,980);
+const cornerPulse=0.16+0.05*Math.sin(theta);
+topLeftGlow.addColorStop(0,rgba(COLORS[2],cornerPulse));
+topLeftGlow.addColorStop(0.35,rgba(COLORS[0],cornerPulse*0.65));
+topLeftGlow.addColorStop(0.7,rgba(COLORS[1],cornerPulse*0.25));
+topLeftGlow.addColorStop(1,'rgba(1,10,6,0)');
+ctx.fillStyle=topLeftGlow;
+ctx.fillRect(0,0,W,H);
+
+const horizonGlow=ctx.createRadialGradient(W*0.5,HORIZON+15,40,W*0.5,HORIZON,920);
+horizonGlow.addColorStop(0,'rgba(20,184,166,0.16)');
+horizonGlow.addColorStop(0.5,'rgba(74,222,128,0.06)');
+horizonGlow.addColorStop(1,'rgba(1,10,6,0)');
+ctx.fillStyle=horizonGlow;
+ctx.fillRect(0,HORIZON-420,W,520);
+}
+
+function drawAuroraCurtains(theta){
+ctx.save();
+ctx.globalCompositeOperation='lighter';
+for(let i=0;i<bgCurtains.length;i++){
+const cur=bgCurtains[i];
+const g=ctx.createLinearGradient(0,40,0,HORIZON+30);
+g.addColorStop(0,rgba(cur.col,0));
+g.addColorStop(0.28,rgba(cur.col,cur.alpha*0.55));
+g.addColorStop(0.72,rgba(cur.col,cur.alpha));
+g.addColorStop(1,rgba(cur.col,0));
+ctx.fillStyle=g;
+ctx.beginPath();
+const steps=26;
+for(let s=0;s<=steps;s++){
+const y=40+(HORIZON-10)*(s/steps);
+const wave=Math.sin(y*cur.freq-theta*cur.waveCycles+cur.phase)*cur.amp;
+const taper=0.55+0.45*Math.sin((s/steps)*Math.PI);
+const x=cur.x+wave-cur.w*0.5*taper;
+if(s===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+}
+for(let s=steps;s>=0;s--){
+const y=40+(HORIZON-10)*(s/steps);
+const wave=Math.sin(y*cur.freq-theta*cur.waveCycles+cur.phase)*cur.amp;
+const taper=0.55+0.45*Math.sin((s/steps)*Math.PI);
+const x=cur.x+wave+cur.w*0.5*taper;
+ctx.lineTo(x,y);
+}
+ctx.closePath();
+ctx.fill();
+}
+ctx.restore();
+}
+
+function drawGround(theta){
+const g=ctx.createLinearGradient(0,HORIZON,0,H);
+g.addColorStop(0,'#041A12');
+g.addColorStop(0.18,'#02110B');
+g.addColorStop(0.65,'#010A06');
+g.addColorStop(1,'#010604');
+ctx.fillStyle=g;
+ctx.fillRect(0,HORIZON,W,H-HORIZON);
+
+ctx.save();
+ctx.beginPath();
+ctx.rect(0,HORIZON,W,H-HORIZON);
+ctx.clip();
+ctx.globalCompositeOperation='lighter';
+
+for(let i=0;i<columns.length;i++){
+const col=columns[i];
+const shift=Math.sin(col.startY*col.waveFreq-theta*col.waveCycles+col.phase)*col.amp*0.35;
+const rx=col.width*1.45;
+const ry=72;
+const pulse=0.14+0.04*Math.sin(theta+col.phase);
+const rg=ctx.createRadialGradient(col.baseX+shift,col.startY+18,6,col.baseX+shift,col.startY+18,rx);
+rg.addColorStop(0,rgba(col.col,pulse));
+rg.addColorStop(0.55,rgba(COLORS[1],pulse*0.4));
+rg.addColorStop(1,'rgba(1,10,6,0)');
+ctx.save();
+ctx.translate(col.baseX+shift,col.startY+18);
+ctx.scale(1,ry/rx);
+ctx.fillStyle=rg;
+ctx.beginPath();
+ctx.arc(0,0,rx,0,TAU);
+ctx.fill();
+ctx.restore();
+
+const streakG=ctx.createLinearGradient(0,HORIZON,0,H);
+streakG.addColorStop(0,rgba(col.col,0.10));
+streakG.addColorStop(0.5,rgba(col.col,0.05));
+streakG.addColorStop(1,'rgba(1,10,6,0)');
+ctx.fillStyle=streakG;
+ctx.fillRect(col.baseX+shift-col.width*0.42,HORIZON,col.width*0.84,H-HORIZON);
+}
+
+const sheenG=ctx.createLinearGradient(0,HORIZON,W,HORIZON);
+sheenG.addColorStop(0,'rgba(236,253,245,0.04)');
+sheenG.addColorStop(0.25,'rgba(74,222,128,0.22)');
+sheenG.addColorStop(0.5,'rgba(20,184,166,0.28)');
+sheenG.addColorStop(0.78,'rgba(74,222,128,0.18)');
+sheenG.addColorStop(1,'rgba(20,184,166,0.03)');
+ctx.fillStyle=sheenG;
+ctx.fillRect(0,HORIZON,W,2.5);
+
+ctx.restore();
+}
+
+function drawSwirlRibbons(theta){
+ctx.save();
+ctx.globalCompositeOperation='lighter';
+for(let s=0;s<swirls.length;s++){
+const sw=swirls[s];
+const cosT=Math.cos(sw.tilt),sinT=Math.sin(sw.tilt);
+const segs=96;
+for(let pass=0;pass<2;pass++){
+ctx.beginPath();
+for(let i=0;i<=segs;i++){
+const u=(i/segs)*TAU;
+const lx=sw.rx*Math.sin(u);
+const ly=sw.ry*Math.sin(2*u)*0.65;
+const x=sw.cx+lx*cosT-ly*sinT;
+const y=sw.cy+lx*sinT+ly*cosT+(pass===1?10:0);
+if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+}
+const pulse=0.14+0.05*Math.sin(theta+sw.phase);
+ctx.strokeStyle=rgba(pass===0?sw.colA:sw.colB,pass===0?pulse:pulse*0.38);
+ctx.lineWidth=pass===0?3.2:7.5;
+ctx.stroke();
+}
+}
+ctx.restore();
+}
+
+function drawColumnRibbons(theta){
+ctx.save();
+ctx.globalCompositeOperation='lighter';
+for(let i=0;i<columns.length;i++){
+const col=columns[i];
+const g=ctx.createLinearGradient(0,col.endY,0,col.startY);
+g.addColorStop(0,rgba(col.col,0));
+g.addColorStop(0.22,rgba(col.col,0.09));
+g.addColorStop(0.62,rgba(col.col,0.14));
+g.addColorStop(0.92,rgba(COLORS[2],0.11));
+g.addColorStop(1,rgba(col.col,0));
+
+const steps=38;
+ctx.beginPath();
+for(let s=0;s<=steps;s++){
+const p=s/steps;
+const y=col.startY-(col.startY-col.endY)*p;
+const wave=Math.sin(y*col.waveFreq-theta*col.waveCycles+col.phase)*col.amp;
+const halfW=col.width*(0.36+0.42*Math.sin(p*Math.PI));
+const x=col.baseX+wave-halfW;
+if(s===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+}
+for(let s=steps;s>=0;s--){
+const p=s/steps;
+const y=col.startY-(col.startY-col.endY)*p;
+const wave=Math.sin(y*col.waveFreq-theta*col.waveCycles+col.phase)*col.amp;
+const halfW=col.width*(0.36+0.42*Math.sin(p*Math.PI));
+const x=col.baseX+wave+halfW;
+ctx.lineTo(x,y);
+}
+ctx.closePath();
+ctx.fillStyle=g;
+ctx.fill();
+
+ctx.beginPath();
+for(let s=0;s<=steps;s++){
+const p=s/steps;
+const y=col.startY-(col.startY-col.endY)*p;
+const wave=Math.sin(y*col.waveFreq-theta*col.waveCycles+col.phase)*col.amp;
+const x=col.baseX+wave;
+if(s===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+}
+ctx.strokeStyle=rgba(COLORS[2],0.10+0.04*Math.sin(theta+col.phase));
+ctx.lineWidth=2;
+ctx.stroke();
+}
+ctx.restore();
+}
+
+function drawGlowDot(x,y,r,col,alpha,shimmer,shape){
+const boostAlpha=Math.min(1,alpha*(1+shimmer*0.85));
+const haloR=r*(2.9+shimmer*1.8);
+const rg=ctx.createRadialGradient(x,y,0,x,y,haloR);
+rg.addColorStop(0,rgba(shimmer>0.35?COLORS[2]:col,boostAlpha*0.95));
+rg.addColorStop(0.35,rgba(col,boostAlpha*0.42));
+rg.addColorStop(1,rgba(col,0));
+ctx.fillStyle=rg;
+ctx.beginPath();
+ctx.arc(x,y,haloR,0,TAU);
+ctx.fill();
+
+ctx.fillStyle=rgba(shimmer>0.25?COLORS[2]:col,Math.min(1,boostAlpha*1.15));
+if(shape===1){
+const dr=r*(1.15+shimmer*0.35);
+ctx.beginPath();
+ctx.moveTo(x,y-dr);
+ctx.lineTo(x+dr*0.72,y);
+ctx.lineTo(x,y+dr);
+ctx.lineTo(x-dr*0.72,y);
+ctx.closePath();
+ctx.fill();
+}else{
+ctx.beginPath();
+ctx.arc(x,y,r*(0.85+shimmer*0.25),0,TAU);
+ctx.fill();
+}
+
+if(shimmer>0.32){
+const glintLen=r*(2.6+shimmer*3.4);
+const ga=(shimmer-0.32)*1.25*boostAlpha;
+ctx.strokeStyle=rgba(COLORS[2],Math.min(0.9,ga));
+ctx.lineWidth=1.1;
+ctx.beginPath();
+ctx.moveTo(x-glintLen,y);
+ctx.lineTo(x+glintLen,y);
+ctx.moveTo(x,y-glintLen);
+ctx.lineTo(x,y+glintLen);
+ctx.stroke();
+}
+}
+
+function drawSwirlParticles(t,theta){
+ctx.save();
+ctx.globalCompositeOperation='lighter';
+for(let i=0;i<swirlParticles.length;i++){
+const p=swirlParticles[i];
+const sw=swirls[p.swirlIdx];
+const u=((t*p.speedInt+p.offset)%1)*TAU;
+const cosT=Math.cos(sw.tilt),sinT=Math.sin(sw.tilt);
+const lx=(sw.rx+p.radJitter)*Math.sin(u);
+const ly=(sw.ry+p.yJitter)*Math.sin(2*u)*0.65;
+const x=sw.cx+lx*cosT-ly*sinT;
+const y=sw.cy+lx*sinT+ly*cosT;
+const depth=0.72+0.28*Math.cos(u);
+const twinkle=0.78+0.22*Math.sin(theta*p.twinkleFreq+p.twinklePhase);
+const shimmer=getBeamIntensity(x,y,theta);
+const sz=p.size*depth;
+const al=p.alpha*depth*twinkle;
+
+const refY=y+16+(y-HORIZON)*0.12;
+if(refY<H){
+const refG=ctx.createRadialGradient(x,refY,0,x,refY,sz*3.2);
+refG.addColorStop(0,rgba(p.col,al*0.24));
+refG.addColorStop(1,rgba(p.col,0));
+ctx.fillStyle=refG;
+ctx.beginPath();
+ctx.ellipse(x,refY,sz*3.2,sz*1.35,0,0,TAU);
+ctx.fill();
+}
+
+drawGlowDot(x,y,sz,p.col,al,shimmer,p.shape);
+}
+ctx.restore();
+}
+
+function drawColumnParticles(t,theta){
+ctx.save();
+ctx.globalCompositeOperation='lighter';
+for(let i=0;i<colParticles.length;i++){
+const p=colParticles[i];
+const col=columns[p.colIdx];
+const prog=(t*p.speedInt+p.phaseOffset)%1;
+const y=col.startY-(col.startY-col.endY)*prog;
+const wave=Math.sin(y*col.waveFreq-theta*col.waveCycles+col.phase)*col.amp;
+const spiralAngle=prog*TAU*p.twistInt+p.angleOffset;
+const taper=0.55+0.45*Math.sin(prog*Math.PI);
+const x=col.baseX+wave+Math.cos(spiralAngle)*p.spiralR*taper;
+const depth=0.68+0.32*Math.sin(spiralAngle);
+const edgeFade=Math.min(1,prog/0.12)*Math.min(1,(1-prog)/0.14);
+const shimmer=getBeamIntensity(x,y,theta);
+const pulse=0.82+0.18*Math.sin(theta*2+p.shimmerPhase);
+const al=p.alpha*depth*edgeFade*pulse;
+if(al>0.01){
+drawGlowDot(x,y,p.size*depth,p.col,al,shimmer,p.shape);
+}
+}
+ctx.restore();
+}
+
+function drawAmbientParticles(t,theta){
+ctx.save();
+ctx.globalCompositeOperation='lighter';
+for(let i=0;i<ambientParticles.length;i++){
+const p=ambientParticles[i];
+const prog=(t*p.speedInt+p.yOffset)%1;
+const y=HORIZON+40-prog*(HORIZON+100);
+const x=p.x+Math.sin(theta*p.swayFreq+p.swayPhase)*p.swayAmp;
+const edgeFade=Math.min(1,prog/0.1)*Math.min(1,(1-prog)/0.1);
+const shimmer=getBeamIntensity(x,y,theta);
+const twinkle=0.7+0.3*Math.sin(theta*2+p.twinklePhase);
+const al=p.alpha*edgeFade*twinkle;
+if(al>0.01){
+drawGlowDot(x,y,p.size,p.col,al,shimmer,0);
+}
+}
+ctx.restore();
+}
+
+function drawLightBeams(theta){
+ctx.save();
+ctx.globalCompositeOperation='lighter';
+for(let i=0;i<beams.length;i++){
+const b=beams[i];
+const pulse=b.baseAlpha+b.pulseAmp*Math.sin(theta*b.freq+b.phase);
+const a1=b.angle-b.hw;
+const a2=b.angle+b.hw;
+const ex=b.ox+Math.cos(b.angle)*b.len;
+const ey=b.oy+Math.sin(b.angle)*b.len;
+const x1=b.ox+Math.cos(a1)*b.len;
+const y1=b.oy+Math.sin(a1)*b.len;
+const x2=b.ox+Math.cos(a2)*b.len;
+const y2=b.oy+Math.sin(a2)*b.len;
+
+const lg=ctx.createLinearGradient(b.ox,b.oy,ex,ey);
+lg.addColorStop(0,rgba(COLORS[2],pulse*1.15));
+lg.addColorStop(0.28,rgba(b.col,pulse*0.85));
+lg.addColorStop(0.68,rgba(b.col,pulse*0.28));
+lg.addColorStop(1,rgba(b.col,0));
+
+ctx.fillStyle=lg;
+ctx.beginPath();
+ctx.moveTo(b.ox,b.oy);
+ctx.lineTo(x1,y1);
+ctx.lineTo(x2,y2);
+ctx.closePath();
+ctx.fill();
+}
+ctx.restore();
+}
+
+function draw(ts){
+resize();
+const sx=c.width/W;
+const sy=c.height/H;
+const scale=Math.max(sx,sy);
+const ox=(c.width-W*scale)*0.5;
+const oy=(c.height-H*scale)*0.5;
+ctx.setTransform(scale,0,0,scale,ox,oy);
+
+const t=((((ts||0)%T)+T)%T)/T;
+const theta=t*TAU;
+
+drawBackdrop(theta);
+drawAuroraCurtains(theta);
+drawGround(theta);
+drawSwirlRibbons(theta);
+drawColumnRibbons(theta);
+drawAmbientParticles(t,theta);
+drawSwirlParticles(t,theta);
+drawColumnParticles(t,theta);
+drawLightBeams(theta);
+
+requestAnimationFrame(draw);
+}
+
+requestAnimationFrame(draw);
+})();
+</script>
+</body>
+</html>

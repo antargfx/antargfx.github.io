@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Kinetic Golden-Striped Hexagonal Tunnel Luxury Seamless Loop Animation</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#050506}
+canvas{display:block;width:100%;height:100%}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+(function(){
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d');
+const W=1920,H=1080,CX=960,CY=540;
+const DURATION=10000;
+const TAU=Math.PI*2;
+const RINGS=9;
+const CYCLES=3;
+const R_MIN=16;
+const R_MAX=1720;
+const BAND_RATIO=0.77;
+const HEX_ANGLES=[];
+for(let i=0;i<6;i++)HEX_ANGLES.push(i*Math.PI/3);
+
+let vw=0,vh=0,dpr=1;
+function resize(){
+dpr=window.devicePixelRatio||1;
+vw=Math.max(1,Math.floor(window.innerWidth*dpr));
+vh=Math.max(1,Math.floor(window.innerHeight*dpr));
+if(canvas.width!==vw||canvas.height!==vh){
+canvas.width=vw;
+canvas.height=vh;
+}
+}
+resize();
+window.addEventListener('resize',resize);
+
+function hexPath(r){
+for(let i=0;i<6;i++){
+const a=HEX_ANGLES[i];
+const x=CX+Math.cos(a)*r;
+const y=CY+Math.sin(a)*r;
+if(i===0)ctx.moveTo(x,y);
+else ctx.lineTo(x,y);
+}
+ctx.closePath();
+}
+
+function drawBackdrop(t){
+const bg=ctx.createRadialGradient(CX,CY,20,CX,CY,1160);
+bg.addColorStop(0,'#050506');
+bg.addColorStop(0.24,'#07080A');
+bg.addColorStop(0.62,'#111317');
+bg.addColorStop(1,'#1B1D21');
+ctx.fillStyle=bg;
+ctx.fillRect(0,0,W,H);
+
+ctx.save();
+const gridAlpha=0.055+0.015*Math.sin(TAU*t);
+const spokeGrad=ctx.createRadialGradient(CX,CY,40,CX,CY,1150);
+spokeGrad.addColorStop(0,'rgba(110,84,30,0)');
+spokeGrad.addColorStop(0.25,'rgba(110,84,30,'+(gridAlpha*0.7)+')');
+spokeGrad.addColorStop(0.75,'rgba(198,163,79,'+gridAlpha+')');
+spokeGrad.addColorStop(1,'rgba(110,84,30,'+(gridAlpha*0.5)+')');
+ctx.strokeStyle=spokeGrad;
+ctx.lineWidth=1.1;
+for(let i=0;i<6;i++){
+const a=HEX_ANGLES[i];
+ctx.beginPath();
+ctx.moveTo(CX,CY);
+ctx.lineTo(CX+Math.cos(a)*1300,CY+Math.sin(a)*1300);
+ctx.stroke();
+const am=a+Math.PI/6;
+ctx.beginPath();
+ctx.moveTo(CX,CY);
+ctx.lineTo(CX+Math.cos(am)*1300,CY+Math.sin(am)*1300);
+ctx.stroke();
+}
+ctx.restore();
+}
+
+function makeGoldGradient(r,angle,alpha){
+const x1=CX+Math.cos(angle)*r;
+const y1=CY+Math.sin(angle)*r;
+const x2=CX-Math.cos(angle)*r;
+const y2=CY-Math.sin(angle)*r;
+const g=ctx.createLinearGradient(x1,y1,x2,y2);
+g.addColorStop(0,'rgba(110,84,30,'+alpha+')');
+g.addColorStop(0.24,'rgba(198,163,79,'+alpha+')');
+g.addColorStop(0.46,'rgba(252,230,148,'+alpha+')');
+g.addColorStop(0.54,'rgba(252,230,148,'+alpha+')');
+g.addColorStop(0.76,'rgba(198,163,79,'+alpha+')');
+g.addColorStop(1,'rgba(110,84,30,'+alpha+')');
+return g;
+}
+
+function drawGlint(x,y,size,intensity){
+if(intensity<=0.01||size<=0.5)return;
+ctx.save();
+ctx.translate(x,y);
+const glowR=size*2.4;
+const rg=ctx.createRadialGradient(0,0,0,0,0,glowR);
+rg.addColorStop(0,'rgba(252,230,148,'+(0.85*intensity)+')');
+rg.addColorStop(0.35,'rgba(198,163,79,'+(0.35*intensity)+')');
+rg.addColorStop(1,'rgba(198,163,79,0)');
+ctx.fillStyle=rg;
+ctx.beginPath();
+ctx.arc(0,0,glowR,0,TAU);
+ctx.fill();
+
+ctx.fillStyle='rgba(252,230,148,'+(0.95*intensity)+')';
+const arm=size*1.85;
+const thin=Math.max(0.7,size*0.18);
+ctx.beginPath();
+ctx.moveTo(0,-arm);
+ctx.lineTo(thin,-thin);
+ctx.lineTo(arm,0);
+ctx.lineTo(thin,thin);
+ctx.lineTo(0,arm);
+ctx.lineTo(-thin,thin);
+ctx.lineTo(-arm,0);
+ctx.lineTo(-thin,-thin);
+ctx.closePath();
+ctx.fill();
+
+ctx.fillStyle='rgba(255,250,230,'+intensity+')';
+ctx.beginPath();
+ctx.arc(0,0,Math.max(0.8,size*0.28),0,TAU);
+ctx.fill();
+ctx.restore();
+}
+
+function drawHexRing(p,t){
+const rOut=R_MIN*Math.pow(R_MAX/R_MIN,p);
+const rIn=rOut*BAND_RATIO;
+let alpha=1;
+if(p<0.14)alpha=p/0.14;
+else if(p>0.92)alpha=Math.max(0,(1-p)/0.08);
+alpha=alpha*alpha*(3-2*alpha);
+if(alpha<=0.005)return;
+
+const sheenAngle=TAU*t+p*Math.PI*1.2;
+
+ctx.save();
+ctx.beginPath();
+hexPath(rOut);
+hexPath(rIn);
+ctx.clip('evenodd');
+
+const baseGrad=ctx.createRadialGradient(CX,CY,rIn*0.95,CX,CY,rOut*1.02);
+baseGrad.addColorStop(0,'rgba(14,12,9,'+(0.78*alpha)+')');
+baseGrad.addColorStop(0.5,'rgba(24,20,13,'+(0.62*alpha)+')');
+baseGrad.addColorStop(1,'rgba(10,9,7,'+(0.82*alpha)+')');
+ctx.fillStyle=baseGrad;
+ctx.fillRect(CX-rOut-4,CY-rOut-4,(rOut+4)*2,(rOut+4)*2);
+
+const step=Math.max(5.5,rOut*0.044);
+const stripeW=Math.max(0.75,rOut*0.0042);
+const goldStroke=makeGoldGradient(rOut,sheenAngle,0.72*alpha);
+const deepStroke=makeGoldGradient(rOut,sheenAngle+Math.PI*0.5,0.42*alpha);
+
+const angles=[Math.PI/3,-Math.PI/3];
+for(let aIdx=0;aIdx<angles.length;aIdx++){
+ctx.save();
+ctx.translate(CX,CY);
+ctx.rotate(angles[aIdx]);
+ctx.strokeStyle=aIdx===0?goldStroke:deepStroke;
+ctx.lineWidth=stripeW;
+ctx.beginPath();
+const count=Math.ceil(rOut/step)+1;
+for(let k=-count;k<=count;k++){
+const y=k*step;
+ctx.moveTo(-rOut-10,y);
+ctx.lineTo(rOut+10,y);
+}
+ctx.stroke();
+ctx.restore();
+}
+
+ctx.save();
+ctx.translate(CX,CY);
+ctx.strokeStyle=makeGoldGradient(rOut,sheenAngle+Math.PI/6,0.34*alpha);
+ctx.lineWidth=Math.max(0.6,stripeW*0.7);
+ctx.beginPath();
+const hStep=step*2;
+const hCount=Math.ceil(rOut/hStep)+1;
+for(let k=-hCount;k<=hCount;k++){
+const y=k*hStep;
+ctx.moveTo(-rOut-10,y);
+ctx.lineTo(rOut+10,y);
+}
+ctx.stroke();
+ctx.restore();
+
+const innerRimGlow=ctx.createRadialGradient(CX,CY,rIn,CX,CY,rOut);
+innerRimGlow.addColorStop(0,'rgba(252,230,148,'+(0.14*alpha)+')');
+innerRimGlow.addColorStop(0.22,'rgba(198,163,79,0)');
+innerRimGlow.addColorStop(0.8,'rgba(198,163,79,0)');
+innerRimGlow.addColorStop(1,'rgba(252,230,148,'+(0.18*alpha)+')');
+ctx.fillStyle=innerRimGlow;
+ctx.fillRect(CX-rOut-2,CY-rOut-2,(rOut+2)*2,(rOut+2)*2);
+
+ctx.restore();
+
+ctx.save();
+const borderW=Math.max(1,rOut*0.0065);
+ctx.strokeStyle=makeGoldGradient(rOut,sheenAngle,0.92*alpha);
+ctx.lineWidth=borderW;
+ctx.beginPath();
+hexPath(rOut);
+ctx.stroke();
+
+ctx.strokeStyle=makeGoldGradient(rIn,sheenAngle+Math.PI*0.35,0.78*alpha);
+ctx.lineWidth=Math.max(0.85,borderW*0.75);
+ctx.beginPath();
+hexPath(rIn);
+ctx.stroke();
+
+const midR=(rOut+rIn)*0.5;
+ctx.strokeStyle=makeGoldGradient(midR,sheenAngle+Math.PI*0.7,0.38*alpha);
+ctx.lineWidth=Math.max(0.6,borderW*0.42);
+ctx.beginPath();
+hexPath(midR);
+ctx.stroke();
+ctx.restore();
+
+if(rOut>55&&rOut<1480){
+const glintBaseSize=Math.min(13,Math.max(2.5,rOut*0.015));
+for(let i=0;i<6;i++){
+const a1=HEX_ANGLES[i];
+const a2=HEX_ANGLES[(i+1)%6];
+const wave1=Math.sin(TAU*(2*t+p*2+i/3));
+if(wave1>0.48){
+let g=(wave1-0.48)/0.52;
+g=g*g*(3-2*g)*alpha;
+drawGlint(CX+Math.cos(a1)*rOut,CY+Math.sin(a1)*rOut,glintBaseSize,g);
+}
+const wave2=Math.sin(TAU*(3*t-p*2+(i+0.5)/3));
+if(wave2>0.54){
+let g=(wave2-0.54)/0.46;
+g=g*g*(3-2*g)*alpha*0.85;
+const mx=(Math.cos(a1)+Math.cos(a2))*0.5*midR;
+const my=(Math.sin(a1)+Math.sin(a2))*0.5*midR;
+drawGlint(CX+mx,CY+my,glintBaseSize*0.85,g);
+}
+const wave3=Math.sin(TAU*(2*t+p*3+(i+1.5)/6));
+if(wave3>0.6){
+let g=(wave3-0.6)/0.4;
+g=g*g*(3-2*g)*alpha*0.75;
+drawGlint(CX+Math.cos(a1)*rIn,CY+Math.sin(a1)*rIn,glintBaseSize*0.75,g);
+}
+}
+}
+}
+
+function drawCenterCore(t){
+const coreR=115+8*Math.sin(TAU*t);
+const core=ctx.createRadialGradient(CX,CY,0,CX,CY,coreR);
+core.addColorStop(0,'rgba(5,5,6,1)');
+core.addColorStop(0.36,'rgba(5,5,6,0.92)');
+core.addColorStop(0.7,'rgba(5,5,6,0.35)');
+core.addColorStop(1,'rgba(5,5,6,0)');
+ctx.fillStyle=core;
+ctx.beginPath();
+ctx.arc(CX,CY,coreR,0,TAU);
+ctx.fill();
+}
+
+function render(ts){
+const t=((ts%DURATION)+DURATION)%DURATION/DURATION;
+ctx.setTransform(1,0,0,1,0,0);
+const scaleX=vw/W;
+const scaleY=vh/H;
+const scale=Math.max(scaleX,scaleY);
+const ox=(vw-W*scale)*0.5;
+const oy=(vh-H*scale)*0.5;
+ctx.setTransform(scale,0,0,scale,ox,oy);
+
+drawBackdrop(t);
+
+const phases=[];
+for(let i=0;i<RINGS;i++){
+const raw=(i+CYCLES*t)/RINGS;
+phases.push(raw-Math.floor(raw));
+}
+phases.sort(function(a,b){return a-b;});
+
+for(let i=0;i<phases.length;i++){
+drawHexRing(phases[i],t);
+}
+
+drawCenterCore(t);
+
+requestAnimationFrame(render);
+}
+requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>

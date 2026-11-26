@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Luxury Gold Dust Bokeh Confetti Snowfall on Jade Green</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#021C1E}
+canvas{display:block;width:100%;height:100%}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+(function(){
+const W=1920,H=1080,LOOP=10000,TAU=Math.PI*2;
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d',{alpha:false});
+
+function resize(){
+const dpr=Math.max(1,window.devicePixelRatio||1);
+canvas.width=Math.round(window.innerWidth*dpr);
+canvas.height=Math.round(window.innerHeight*dpr);
+}
+resize();
+window.addEventListener('resize',resize);
+
+let seed=2026112502;
+function rand(){
+seed|=0;seed=(seed+0x6D2B79F5)|0;
+let t=Math.imul(seed^(seed>>>15),1|seed);
+t=(t+Math.imul(t^(t>>>7),61|t))^t;
+return((t^(t>>>14))>>>0)/4294967296;
+}
+function rRange(a,b){return a+(b-a)*rand();}
+function mod(a,n){return((a%n)+n)%n;}
+
+const GOLD_PALETTE=[
+[245,158,11],
+[252,211,77],
+[255,255,255],
+[248,186,34],
+[254,226,130]
+];
+
+function makeBokehSprite(sz,c,soft){
+const s=document.createElement('canvas');
+s.width=sz;s.height=sz;
+const g=s.getContext('2d');
+const h=sz/2;
+const gr=g.createRadialGradient(h,h,0,h,h,h);
+if(soft){
+gr.addColorStop(0,`rgba(${c[0]},${c[1]},${c[2]},0.78)`);
+gr.addColorStop(0.32,`rgba(${c[0]},${c[1]},${c[2]},0.48)`);
+gr.addColorStop(0.68,`rgba(${c[0]},${c[1]},${c[2]},0.16)`);
+gr.addColorStop(0.88,`rgba(${c[0]},${c[1]},${c[2]},0.04)`);
+gr.addColorStop(1,`rgba(${c[0]},${c[1]},${c[2]},0)`);
+}else{
+gr.addColorStop(0,'rgba(255,255,255,1)');
+gr.addColorStop(0.22,`rgba(252,211,77,0.92)`);
+gr.addColorStop(0.5,`rgba(${c[0]},${c[1]},${c[2]},0.38)`);
+gr.addColorStop(0.8,`rgba(${c[0]},${c[1]},${c[2]},0.07)`);
+gr.addColorStop(1,`rgba(${c[0]},${c[1]},${c[2]},0)`);
+}
+g.fillStyle=gr;
+g.fillRect(0,0,sz,sz);
+return s;
+}
+
+const bgBokehSprites=GOLD_PALETTE.map(c=>makeBokehSprite(256,c,true));
+const moteSprites=GOLD_PALETTE.map(c=>makeBokehSprite(128,c,false));
+
+const bgBokeh=[];
+for(let i=0;i<68;i++){
+const ci=Math.floor(rand()*GOLD_PALETTE.length);
+bgBokeh.push({
+x0:rRange(-80,W+80),
+y0:rRange(-200,H+200),
+vyCycles:1,
+swayAmp:rRange(24,72),
+swayFreq:rand()<0.6?1:2,
+swayPhase:rRange(0,TAU),
+r:rRange(42,135),
+alpha:rRange(0.08,0.24),
+pulseAmp:rRange(0.12,0.28),
+pulseFreq:rand()<0.5?1:2,
+pulsePhase:rRange(0,TAU),
+ci:ci
+});
+}
+
+const foilSquares=[];
+for(let i=0;i<150;i++){
+const ci=Math.floor(rand()*3);
+foilSquares.push({
+x0:rRange(-40,W+40),
+y0:rRange(-120,H+120),
+vyCycles:rand()<0.25?3:2,
+swayAmp:rRange(18,58),
+swayFreq:rand()<0.5?2:3,
+swayPhase:rRange(0,TAU),
+size:rRange(9,24),
+rot0:rRange(0,TAU),
+rotDir:rand()<0.5?-1:1,
+rotTurns:rand()<0.4?2:1,
+tiltFreq:rand()<0.5?2:4,
+tiltPhase:rRange(0,TAU),
+twFreq:rand()<0.5?3:5,
+twPhase:rRange(0,TAU),
+alpha:rRange(0.52,0.92),
+ci:ci
+});
+}
+
+const fgMotes=[];
+for(let i=0;i<340;i++){
+const ci=Math.floor(rand()*GOLD_PALETTE.length);
+fgMotes.push({
+x0:rRange(-30,W+30),
+y0:rRange(-100,H+100),
+vyCycles:rand()<0.35?4:3,
+swayAmp:rRange(10,36),
+swayFreq:rand()<0.5?2:4,
+swayPhase:rRange(0,TAU),
+r:rRange(2.4,9.2),
+alpha:rRange(0.32,0.95),
+pulseFreq:rand()<0.4?3:(rand()<0.5?5:7),
+pulsePhase:rRange(0,TAU),
+pulsePow:rRange(1.6,3.2),
+ci:ci
+});
+}
+
+function render(ts){
+const t=(((ts%LOOP)+LOOP)%LOOP)/LOOP;
+const ang=TAU*t;
+const sx=canvas.width/W;
+const sy=canvas.height/H;
+
+ctx.setTransform(1,0,0,1,0,0);
+ctx.globalCompositeOperation='source-over';
+ctx.globalAlpha=1;
+ctx.fillStyle='#021C1E';
+ctx.fillRect(0,0,canvas.width,canvas.height);
+
+ctx.setTransform(sx,0,0,sy,0,0);
+
+const bgGrad=ctx.createRadialGradient(W*0.5,H*0.24,60,W*0.5,H*0.52,1180);
+bgGrad.addColorStop(0,'rgba(16,110,84,0.68)');
+bgGrad.addColorStop(0.45,'rgba(6,78,59,0.78)');
+bgGrad.addColorStop(0.8,'rgba(3,42,41,0.92)');
+bgGrad.addColorStop(1,'#021C1E');
+ctx.fillStyle=bgGrad;
+ctx.fillRect(0,0,W,H);
+
+const stageGlow=ctx.createRadialGradient(W*0.5,H*0.06,20,W*0.5,H*0.34,760);
+stageGlow.addColorStop(0,'rgba(252,211,77,0.19)');
+stageGlow.addColorStop(0.45,'rgba(245,158,11,0.08)');
+stageGlow.addColorStop(1,'rgba(245,158,11,0)');
+ctx.fillStyle=stageGlow;
+ctx.fillRect(0,0,W,H);
+
+ctx.globalCompositeOperation='screen';
+
+for(let i=0;i<bgBokeh.length;i++){
+const b=bgBokeh[i];
+const span=H+b.r*3;
+const y=mod(b.y0+t*b.vyCycles*span,span)-b.r*1.5;
+const x=b.x0+Math.sin(ang*b.swayFreq+b.swayPhase)*b.swayAmp;
+const pulse=0.5+0.5*Math.sin(ang*b.pulseFreq+b.pulsePhase);
+const r=b.r*(1-b.pulseAmp*0.5+b.pulseAmp*pulse);
+ctx.globalAlpha=b.alpha*(0.75+0.25*pulse);
+ctx.drawImage(bgBokehSprites[b.ci],x-r,y-r,r*2,r*2);
+}
+
+for(let i=0;i<foilSquares.length;i++){
+const f=foilSquares[i];
+const span=H+f.size*4;
+const y=mod(f.y0+t*f.vyCycles*span,span)-f.size*2;
+const x=f.x0+Math.sin(ang*f.swayFreq+f.swayPhase)*f.swayAmp;
+const yaw=ang*f.tiltFreq+f.tiltPhase;
+const scaleX=Math.max(0.14,Math.abs(Math.cos(yaw)));
+const scaleY=0.78+0.22*Math.sin(yaw*0.5);
+const rot=f.rot0+f.rotDir*ang*f.rotTurns;
+const sheen=0.62+0.38*Math.pow(0.5+0.5*Math.sin(ang*f.twFreq+f.twPhase),1.6);
+const col=GOLD_PALETTE[f.ci];
+const h=f.size*0.5;
+
+ctx.save();
+ctx.translate(x,y);
+ctx.rotate(rot);
+ctx.scale(scaleX,scaleY);
+ctx.globalAlpha=Math.min(1,f.alpha*sheen);
+
+const fg=ctx.createLinearGradient(-h,-h,h,h);
+fg.addColorStop(0,'rgba(255,255,255,0.96)');
+fg.addColorStop(0.45,`rgba(${col[0]},${col[1]},${col[2]},0.92)`);
+fg.addColorStop(1,'rgba(245,158,11,0.75)');
+ctx.fillStyle=fg;
+ctx.fillRect(-h,-h,f.size,f.size);
+
+ctx.strokeStyle='rgba(255,255,255,0.65)';
+ctx.lineWidth=1;
+ctx.strokeRect(-h+0.5,-h+0.5,f.size-1,f.size-1);
+ctx.restore();
+}
+
+for(let i=0;i<fgMotes.length;i++){
+const m=fgMotes[i];
+const span=H+m.r*6;
+const y=mod(m.y0+t*m.vyCycles*span,span)-m.r*3;
+const x=m.x0+Math.sin(ang*m.swayFreq+m.swayPhase)*m.swayAmp;
+const wave=0.5+0.5*Math.sin(ang*m.pulseFreq+m.pulsePhase);
+const tw=0.22+0.78*Math.pow(wave,m.pulsePow);
+const r=m.r*(0.78+0.34*tw);
+ctx.globalAlpha=Math.min(1,m.alpha*tw);
+ctx.drawImage(moteSprites[m.ci],x-r,y-r,r*2,r*2);
+}
+
+ctx.globalCompositeOperation='source-over';
+ctx.globalAlpha=1;
+requestAnimationFrame(render);
+}
+
+requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Rising Champagne Gold Bokeh and Glitter Cascade Background</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000000}
+canvas{display:block;width:100%;height:100%}
+</style>
+</head>
+<body>
+<canvas id="c" width="3840" height="2160"></canvas>
+<script>
+(function(){
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d');
+const W=1920,H=1080,SCALE=2,LOOP=10000,TAU=Math.PI*2;
+
+function mulberry32(a){
+  return function(){
+    a|=0;a=a+0x6D2B79F5|0;
+    let t=Math.imul(a^a>>>15,1|a);
+    t=t+Math.imul(t^t>>>7,61|t)^t;
+    return((t^t>>>14)>>>0)/4294967296;
+  };
+}
+
+const rng=mulberry32(948271);
+const rand=(a,b)=>a+(b-a)*rng();
+const randInt=(a,b)=>Math.floor(rand(a,b+1));
+
+function makeSprite(size,drawFn){
+  const oc=document.createElement('canvas');
+  oc.width=size;
+  oc.height=size;
+  const octx=oc.getContext('2d');
+  drawFn(octx,size/2,size/2,size/2);
+  return oc;
+}
+
+const amberPalettes=[
+  ['rgba(255,214,120,0.06)','rgba(235,162,52,0.16)','rgba(255,196,86,0.42)','rgba(214,132,32,0.18)','rgba(180,96,16,0)'],
+  ['rgba(255,226,148,0.05)','rgba(218,144,44,0.14)','rgba(248,184,78,0.38)','rgba(196,118,28,0.16)','rgba(160,84,12,0)'],
+  ['rgba(255,204,110,0.07)','rgba(202,126,34,0.15)','rgba(238,166,64,0.36)','rgba(184,104,24,0.14)','rgba(145,72,10,0)']
+];
+
+const bgRingSprites=amberPalettes.map(p=>makeSprite(512,(g,cx,cy,r)=>{
+  const grd=g.createRadialGradient(cx,cy,0,cx,cy,r);
+  grd.addColorStop(0,p[0]);
+  grd.addColorStop(0.52,p[1]);
+  grd.addColorStop(0.76,p[2]);
+  grd.addColorStop(0.88,p[3]);
+  grd.addColorStop(1,p[4]);
+  g.fillStyle=grd;
+  g.beginPath();
+  g.arc(cx,cy,r,0,TAU);
+  g.fill();
+}));
+
+const champagnePalettes=[
+  ['rgba(255,248,224,0.92)','rgba(249,220,146,0.72)','rgba(234,186,88,0.52)','rgba(246,208,118,0.38)','rgba(218,158,54,0)'],
+  ['rgba(255,242,206,0.88)','rgba(242,206,124,0.68)','rgba(226,172,72,0.48)','rgba(240,196,102,0.34)','rgba(204,142,42,0)'],
+  ['rgba(255,252,236,0.90)','rgba(252,228,162,0.70)','rgba(238,194,98,0.50)','rgba(248,214,132,0.36)','rgba(224,168,66,0)']
+];
+
+const midDiscSprites=champagnePalettes.map(p=>makeSprite(256,(g,cx,cy,r)=>{
+  const grd=g.createRadialGradient(cx,cy,0,cx,cy,r);
+  grd.addColorStop(0,p[0]);
+  grd.addColorStop(0.45,p[1]);
+  grd.addColorStop(0.72,p[2]);
+  grd.addColorStop(0.84,p[3]);
+  grd.addColorStop(1,p[4]);
+  g.fillStyle=grd;
+  g.beginPath();
+  g.arc(cx,cy,r,0,TAU);
+  g.fill();
+}));
+
+const moteSprites=[
+  ['rgba(255,252,235,1)','rgba(255,226,144,0.65)','rgba(232,174,62,0.18)','rgba(210,140,30,0)'],
+  ['rgba(255,244,210,1)','rgba(248,208,112,0.60)','rgba(220,156,48,0.16)','rgba(196,124,22,0)']
+].map(p=>makeSprite(128,(g,cx,cy,r)=>{
+  const grd=g.createRadialGradient(cx,cy,0,cx,cy,r);
+  grd.addColorStop(0,p[0]);
+  grd.addColorStop(0.24,p[1]);
+  grd.addColorStop(0.58,p[2]);
+  grd.addColorStop(1,p[3]);
+  g.fillStyle=grd;
+  g.beginPath();
+  g.arc(cx,cy,r,0,TAU);
+  g.fill();
+}));
+
+const sparkSprite=makeSprite(160,(g,cx,cy,r)=>{
+  const halo=g.createRadialGradient(cx,cy,0,cx,cy,r*0.52);
+  halo.addColorStop(0,'rgba(255,255,248,1)');
+  halo.addColorStop(0.16,'rgba(255,240,190,0.88)');
+  halo.addColorStop(0.45,'rgba(244,194,88,0.28)');
+  halo.addColorStop(1,'rgba(220,154,40,0)');
+  g.fillStyle=halo;
+  g.beginPath();
+  g.arc(cx,cy,r*0.52,0,TAU);
+  g.fill();
+
+  function drawRay(len,wid,alpha){
+    g.save();
+    const rg=g.createLinearGradient(cx-len,cy,cx+len,cy);
+    rg.addColorStop(0,'rgba(255,228,150,0)');
+    rg.addColorStop(0.35,'rgba(255,240,192,'+(alpha*0.45)+')');
+    rg.addColorStop(0.5,'rgba(255,255,250,'+alpha+')');
+    rg.addColorStop(0.65,'rgba(255,240,192,'+(alpha*0.45)+')');
+    rg.addColorStop(1,'rgba(255,228,150,0)');
+    g.fillStyle=rg;
+    g.beginPath();
+    g.moveTo(cx-len,cy);
+    g.quadraticCurveTo(cx,cy-wid,cx+len,cy);
+    g.quadraticCurveTo(cx,cy+wid,cx-len,cy);
+    g.closePath();
+    g.fill();
+    g.restore();
+  }
+
+  drawRay(r*0.95,r*0.048,0.95);
+  g.save();
+  g.translate(cx,cy);
+  g.rotate(Math.PI/2);
+  g.translate(-cx,-cy);
+  drawRay(r*0.95,r*0.048,0.95);
+  g.restore();
+
+  g.save();
+  g.translate(cx,cy);
+  g.rotate(Math.PI/4);
+  g.translate(-cx,-cy);
+  drawRay(r*0.42,r*0.028,0.45);
+  g.restore();
+
+  g.save();
+  g.translate(cx,cy);
+  g.rotate(-Math.PI/4);
+  g.translate(-cx,-cy);
+  drawRay(r*0.42,r*0.028,0.45);
+  g.restore();
+});
+
+const pinpointSprite=makeSprite(64,(g,cx,cy,r)=>{
+  const grd=g.createRadialGradient(cx,cy,0,cx,cy,r);
+  grd.addColorStop(0,'rgba(255,255,250,1)');
+  grd.addColorStop(0.22,'rgba(255,238,180,0.85)');
+  grd.addColorStop(0.55,'rgba(240,186,74,0.22)');
+  grd.addColorStop(1,'rgba(220,150,30,0)');
+  g.fillStyle=grd;
+  g.beginPath();
+  g.arc(cx,cy,r,0,TAU);
+  g.fill();
+});
+
+function createLayer(count,cfg){
+  const items=[];
+  for(let i=0;i<count;i++){
+    const r=rand(cfg.rMin,cfg.rMax);
+    const pad=cfg.pad;
+    const span=H+pad*2;
+    items.push({
+      x0:rand(-80,W+80),
+      y0:rand(0,span),
+      r,
+      pad,
+      span,
+      cycles:randInt(cfg.cMin,cfg.cMax),
+      amp1:rand(cfg.a1Min,cfg.a1Max),
+      f1:randInt(1,2),
+      p1:rand(0,1),
+      amp2:rand(cfg.a2Min,cfg.a2Max),
+      f2:randInt(2,4),
+      p2:rand(0,1),
+      alpha:rand(cfg.opMin,cfg.opMax),
+      pFreq:randInt(cfg.pfMin,cfg.pfMax),
+      pPhase:rand(0,1),
+      sAmp:rand(cfg.sMin,cfg.sMax),
+      sprite:cfg.sprites[randInt(0,cfg.sprites.length-1)],
+      rot0:rand(0,TAU),
+      rotAmp:rand(-0.22,0.22),
+      isStar:cfg.isStar||false,
+      sharpTwinkle:cfg.sharpTwinkle||false
+    });
+  }
+  return items;
+}
+
+const bgLayer=createLayer(22,{
+  rMin:125,rMax:245,pad:270,cMin:1,cMax:1,
+  a1Min:22,a1Max:58,a2Min:6,a2Max:18,
+  opMin:0.24,opMax:0.46,pfMin:1,pfMax:1,
+  sMin:0.04,sMax:0.10,sprites:bgRingSprites
+});
+
+const midLayer=createLayer(42,{
+  rMin:34,rMax:88,pad:110,cMin:1,cMax:2,
+  a1Min:18,a1Max:48,a2Min:6,a2Max:16,
+  opMin:0.22,opMax:0.48,pfMin:1,pfMax:2,
+  sMin:0.05,sMax:0.12,sprites:midDiscSprites
+});
+
+const moteLayer=createLayer(135,{
+  rMin:6,rMax:21,pad:45,cMin:1,cMax:2,
+  a1Min:16,a1Max:44,a2Min:5,a2Max:18,
+  opMin:0.30,opMax:0.74,pfMin:1,pfMax:3,
+  sMin:0.08,sMax:0.20,sprites:moteSprites
+});
+
+const pinpointLayer=createLayer(110,{
+  rMin:2.5,rMax:7.5,pad:30,cMin:2,cMax:3,
+  a1Min:12,a1Max:34,a2Min:4,a2Max:14,
+  opMin:0.45,opMax:0.95,pfMin:2,pfMax:4,
+  sMin:0.12,sMax:0.28,sprites:[pinpointSprite],
+  sharpTwinkle:true
+});
+
+const starLayer=createLayer(52,{
+  rMin:14,rMax:36,pad:60,cMin:2,cMax:3,
+  a1Min:14,a1Max:38,a2Min:4,a2Max:14,
+  opMin:0.55,opMax:1.0,pfMin:2,pfMax:5,
+  sMin:0.18,sMax:0.38,sprites:[sparkSprite],
+  isStar:true,sharpTwinkle:true
+});
+
+const layers=[bgLayer,midLayer,moteLayer,pinpointLayer,starLayer];
+
+function render(ts){
+  const t=(((ts||0)%LOOP)+LOOP)%LOOP/LOOP;
+
+  ctx.setTransform(SCALE,0,0,SCALE,0,0);
+  ctx.globalCompositeOperation='source-over';
+  ctx.globalAlpha=1;
+  ctx.fillStyle='#000000';
+  ctx.fillRect(0,0,W,H);
+
+  ctx.globalCompositeOperation='screen';
+
+  for(let l=0;l<layers.length;l++){
+    const arr=layers[l];
+    for(let i=0;i<arr.length;i++){
+      const p=arr[i];
+      const rawY=p.y0-p.cycles*p.span*t;
+      const y=(((rawY%p.span)+p.span)%p.span)-p.pad;
+      const x=p.x0+p.amp1*Math.sin(TAU*(p.f1*t+p.p1))+p.amp2*Math.sin(TAU*(p.f2*t+p.p2));
+
+      const wave=0.5+0.5*Math.sin(TAU*(p.pFreq*t+p.pPhase));
+      const pulse=p.sharpTwinkle?Math.pow(wave,2.6):wave;
+      const a=p.alpha*(p.sharpTwinkle?(0.18+0.82*pulse):(0.68+0.32*pulse));
+      const r=p.r*(1-p.sAmp*0.5+p.sAmp*pulse);
+
+      ctx.globalAlpha=a;
+      if(p.isStar){
+        const angle=p.rot0+p.rotAmp*Math.sin(TAU*(t+p.p1));
+        ctx.save();
+        ctx.translate(x,y);
+        ctx.rotate(angle);
+        ctx.drawImage(p.sprite,-r,-r,r*2,r*2);
+        ctx.restore();
+      }else{
+        ctx.drawImage(p.sprite,x-r,y-r,r*2,r*2);
+      }
+    }
+  }
+
+  requestAnimationFrame(render);
+}
+
+requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>

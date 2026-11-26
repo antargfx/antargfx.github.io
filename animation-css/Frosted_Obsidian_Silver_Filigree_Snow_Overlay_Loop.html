@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Frosted Obsidian Silver Filigree Snow Overlay Loop</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#05070B}
+#stage{width:100%;height:100%;display:block}
+</style>
+</head>
+<body>
+<svg id="stage" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<radialGradient id="bgGlow" cx="50%" cy="6%" r="68%" fx="50%" fy="2%">
+<stop offset="0%" stop-color="#1E293B" stop-opacity="0.95"/>
+<stop offset="28%" stop-color="#161E2E" stop-opacity="0.88"/>
+<stop offset="68%" stop-color="#0A0E17" stop-opacity="0.96"/>
+<stop offset="100%" stop-color="#05070B" stop-opacity="1"/>
+</radialGradient>
+<radialGradient id="topMist" cx="50%" cy="0%" r="48%">
+<stop offset="0%" stop-color="#93C5FD" stop-opacity="0.14"/>
+<stop offset="55%" stop-color="#161E2E" stop-opacity="0.05"/>
+<stop offset="100%" stop-color="#05070B" stop-opacity="0"/>
+</radialGradient>
+<linearGradient id="silverGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+<stop offset="0%" stop-color="#F8FAFC"/>
+<stop offset="52%" stop-color="#CBD5E1"/>
+<stop offset="100%" stop-color="#93C5FD"/>
+</linearGradient>
+<linearGradient id="iceGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+<stop offset="0%" stop-color="#F8FAFC"/>
+<stop offset="45%" stop-color="#E2E8F0"/>
+<stop offset="100%" stop-color="#93C5FD"/>
+</linearGradient>
+<radialGradient id="orbGrad" cx="40%" cy="35%" r="65%">
+<stop offset="0%" stop-color="#F8FAFC" stop-opacity="0.95"/>
+<stop offset="50%" stop-color="#CBD5E1" stop-opacity="0.45"/>
+<stop offset="100%" stop-color="#93C5FD" stop-opacity="0"/>
+</radialGradient>
+<radialGradient id="sparkCore" cx="50%" cy="50%" r="50%">
+<stop offset="0%" stop-color="#F8FAFC" stop-opacity="1"/>
+<stop offset="45%" stop-color="#93C5FD" stop-opacity="0.55"/>
+<stop offset="100%" stop-color="#93C5FD" stop-opacity="0"/>
+</radialGradient>
+<filter id="blurLg" x="-60%" y="-60%" width="220%" height="220%">
+<feGaussianBlur stdDeviation="14"/>
+</filter>
+<filter id="blurMd" x="-50%" y="-50%" width="200%" height="200%">
+<feGaussianBlur stdDeviation="6"/>
+</filter>
+<filter id="softGlow" x="-40%" y="-40%" width="180%" height="180%">
+<feGaussianBlur stdDeviation="2.5" result="g"/>
+<feMerge>
+<feMergeNode in="g"/>
+<feMergeNode in="SourceGraphic"/>
+</feMerge>
+</filter>
+<g id="sparkleSym">
+<circle cx="0" cy="0" r="10" fill="url(#sparkCore)"/>
+<path d="M0,-22 Q1.6,-1.6 22,0 Q1.6,1.6 0,22 Q-1.6,1.6 -22,0 Q-1.6,-1.6 0,-22 Z" fill="#F8FAFC"/>
+<path d="M0,-12 Q1.2,-1.2 12,0 Q1.2,1.2 0,12 Q-1.2,1.2 -12,0 Q-1.2,-1.2 0,-12 Z" fill="#93C5FD" opacity="0.7" transform="rotate(45)"/>
+</g>
+<g id="shardSym">
+<polygon points="0,-16 6,0 0,16 0,0" fill="#F8FAFC"/>
+<polygon points="0,-16 -6,0 0,16 0,0" fill="#CBD5E1"/>
+<polygon points="0,-10 3.2,0 0,10 -3.2,0" fill="#93C5FD" opacity="0.55"/>
+</g>
+<g id="miniStarSym">
+<polygon points="0,-14 2.2,-2.2 14,0 2.2,2.2 0,14 -2.2,2.2 -14,0 -2.2,-2.2" fill="url(#silverGrad)"/>
+<polygon points="0,-8 1.5,-1.5 8,0 1.5,1.5 0,8 -1.5,1.5 -8,0 -1.5,-1.5" fill="#F8FAFC" transform="rotate(45)"/>
+</g>
+</defs>
+<rect width="1920" height="1080" fill="#05070B"/>
+<rect width="1920" height="1080" fill="url(#bgGlow)"/>
+<rect width="1920" height="1080" fill="url(#topMist)"/>
+<g id="layerOrbs"></g>
+<g id="layerFarShards"></g>
+<g id="layerMidFlakes"></g>
+<g id="layerHeroFlakes"></g>
+<g id="layerFrontShards"></g>
+</svg>
+<script>
+(function(){
+const NS="http://www.w3.org/2000/svg";
+const svg=document.getElementById("stage");
+const defs=svg.querySelector("defs");
+const layerOrbs=document.getElementById("layerOrbs");
+const layerFarShards=document.getElementById("layerFarShards");
+const layerMidFlakes=document.getElementById("layerMidFlakes");
+const layerHeroFlakes=document.getElementById("layerHeroFlakes");
+const layerFrontShards=document.getElementById("layerFrontShards");
+
+function el(tag,attrs,parent){
+const n=document.createElementNS(NS,tag);
+if(attrs){for(const k in attrs){n.setAttribute(k,attrs[k]);}}
+if(parent){parent.appendChild(n);}
+return n;
+}
+
+function mulberry32(a){
+return function(){
+let t=a+=0x6D2B79F5;
+t=Math.imul(t^t>>>15,t|1);
+t^=t+Math.imul(t^t>>>7,t|61);
+return((t^t>>>14)>>>0)/4294967296;
+};
+}
+
+function hexPoints(r,rotDeg){
+const pts=[];
+for(let i=0;i<6;i++){
+const ang=(i*60+(rotDeg||0))*Math.PI/180;
+pts.push((Math.cos(ang)*r).toFixed(2)+","+(Math.sin(ang)*r).toFixed(2));
+}
+return pts.join(" ");
+}
+
+function buildFlake0(){
+const g=el("g",{id:"flake0"},defs);
+el("polygon",{points:hexPoints(24,30),fill:"#93C5FD","fill-opacity":"0.18",stroke:"#CBD5E1","stroke-width":"1.6"},g);
+el("polygon",{points:hexPoints(14,0),fill:"#F8FAFC","fill-opacity":"0.28",stroke:"#F8FAFC","stroke-width":"1.2"},g);
+el("polygon",{points:hexPoints(38,0),fill:"none",stroke:"#CBD5E1","stroke-width":"1.2","stroke-opacity":"0.75"},g);
+for(let i=0;i<6;i++){
+const arm=el("g",{transform:"rotate("+(i*60)+")"},g);
+el("line",{x1:"0",y1:"-14",x2:"0",y2:"-94",stroke:"url(#iceGrad)","stroke-width":"2.6","stroke-linecap":"round"},arm);
+el("polygon",{points:"0,-98 5.5,-84 0,-74 -5.5,-84",fill:"#F8FAFC",stroke:"#93C5FD","stroke-width":"0.8"},arm);
+el("polygon",{points:"0,-62 4.5,-52 0,-42 -4.5,-52",fill:"#93C5FD","fill-opacity":"0.45",stroke:"#F8FAFC","stroke-width":"1.1"},arm);
+el("path",{d:"M0,-36 L-15,-50 M0,-36 L15,-50",stroke:"#CBD5E1","stroke-width":"2","stroke-linecap":"round"},arm);
+el("path",{d:"M0,-58 L-24,-76 M0,-58 L24,-76",stroke:"#F8FAFC","stroke-width":"2.1","stroke-linecap":"round"},arm);
+el("path",{d:"M-12,-67 L-12,-79 M12,-67 L12,-79",stroke:"#93C5FD","stroke-width":"1.4","stroke-linecap":"round"},arm);
+el("path",{d:"M0,-76 L-11,-86 M0,-76 L11,-86",stroke:"#CBD5E1","stroke-width":"1.6","stroke-linecap":"round"},arm);
+el("circle",{cx:"-24",cy:"-76",r:"2.4",fill="#F8FAFC"},arm);
+el("circle",{cx:"24",cy:"-76",r:"2.4",fill="#F8FAFC"},arm);
+el("polygon",{points:"0,-26 7,-33 0,-39 -7,-33",fill:"none",stroke:"#F8FAFC","stroke-width":"1.1","stroke-opacity":"0.85"},arm);
+}
+el("circle",{cx:"0",cy:"0",r:"4.5",fill="#F8FAFC"},g);
+}
+
+function buildFlake1(){
+const g=el("g",{id:"flake1"},defs);
+el("polygon",{points:hexPoints(32,0),fill:"#93C5FD","fill-opacity":"0.14",stroke:"#F8FAFC","stroke-width":"1.4"},g);
+el("polygon",{points:hexPoints(20,30),fill:"#CBD5E1","fill-opacity":"0.22",stroke:"#CBD5E1","stroke-width":"1.2"},g);
+for(let i=0;i<6;i++){
+const arm=el("g",{transform:"rotate("+(i*60)+")"},g);
+el("polygon",{points:"0,-96 7,-70 0,-18 -7,-70",fill:"#93C5FD","fill-opacity":"0.22",stroke:"url(#silverGrad)","stroke-width":"1.5"},arm);
+el("line",{x1:"0",y1:"-18",x2:"0",y2:"-96",stroke:"#F8FAFC","stroke-width":"1.8"},arm);
+el("path",{d:"M0,-44 L-19,-58 L-14,-44 Z",fill:"#CBD5E1","fill-opacity":"0.55",stroke:"#F8FAFC","stroke-width":"1"},arm);
+el("path",{d:"M0,-44 L19,-58 L14,-44 Z",fill:"#F8FAFC","fill-opacity":"0.65",stroke:"#F8FAFC","stroke-width":"1"},arm);
+el("path",{d:"M0,-66 L-18,-78 M0,-66 L18,-78",stroke:"#F8FAFC","stroke-width":"1.9","stroke-linecap":"round"},arm);
+el("polygon",{points:"0,-96 4.5,-86 0,-78 -4.5,-86",fill="#F8FAFC"},arm);
+el("path",{d:"M16,-28 Q26,-36 32,-26",fill:"none",stroke:"#93C5FD","stroke-width":"1.3","stroke-opacity":"0.85"},arm);
+}
+el("polygon",{points:hexPoints(8,0),fill:"#F8FAFC"},g);
+}
+
+function buildFlake2(){
+const g=el("g",{id:"flake2"},defs);
+el("polygon",{points:hexPoints(28,30),fill:"none",stroke:"#93C5FD","stroke-width":"1.6","stroke-opacity":"0.8"},g);
+el("polygon",{points:hexPoints(16,30),fill:"#93C5FD","fill-opacity":"0.24",stroke:"#F8FAFC","stroke-width":"1.2"},g);
+for(let i=0;i<6;i++){
+const arm=el("g",{transform:"rotate("+(i*60)+")"},g);
+el("line",{x1:"0",y1:"-12",x2:"0",y2:"-90",stroke:"#F8FAFC","stroke-width":"2.2","stroke-linecap":"round"},arm);
+el("path",{d:"M0,-28 L-14,-42 M0,-28 L14,-42",stroke:"#CBD5E1","stroke-width":"1.6","stroke-linecap":"round"},arm);
+el("path",{d:"M0,-44 L-22,-62 M0,-44 L22,-62",stroke:"#F8FAFC","stroke-width":"1.8","stroke-linecap":"round"},arm);
+el("path",{d:"M0,-62 L-16,-76 M0,-62 L16,-76",stroke:"#CBD5E1","stroke-width":"1.6","stroke-linecap":"round"},arm);
+el("path",{d:"M0,-76 L-9,-85 M0,-76 L9,-85",stroke:"#F8FAFC","stroke-width":"1.4","stroke-linecap":"round"},arm);
+el("polygon",{points:"-22,-62 -26,-67 -20,-68",fill:"#93C5FD"},arm);
+el("polygon",{points:"22,-62 26,-67 20,-68",fill:"#93C5FD"},arm);
+el("circle",{cx:"0",cy:"-92",r:"3",fill="#F8FAFC"},arm);
+el("circle",{cx:"0",cy:"-44",r:"3.2",fill="#93C5FD",stroke:"#F8FAFC","stroke-width":"1"},arm);
+}
+el("circle",{cx:"0",cy:"0",r:"5",fill:"none",stroke:"#F8FAFC","stroke-width":"1.8"},g);
+}
+
+function buildFlake3(){
+const g=el("g",{id:"flake3"},defs);
+el("polygon",{points:hexPoints(36,0),fill:"#93C5FD","fill-opacity":"0.12",stroke:"#CBD5E1","stroke-width":"1.3"},g);
+el("polygon",{points:hexPoints(24,0),fill:"#F8FAFC","fill-opacity":"0.18",stroke:"#F8FAFC","stroke-width":"1.4"},g);
+for(let i=0;i<6;i++){
+const arm=el("g",{transform:"rotate("+(i*60)+")"},g);
+el("polygon",{points:"0,-92 9,-72 4,-54 12,-42 0,-22 -12,-42 -4,-54 -9,-72",fill:"#CBD5E1","fill-opacity":"0.22",stroke:"url(#silverGrad)","stroke-width":"1.6"},arm);
+el("polygon",{points:"0,-92 4,-74 0,-56 -4,-74",fill:"#F8FAFC","fill-opacity":"0.85"},arm);
+el("line",{x1:"0",y1:"-22",x2:"0",y2:"-92",stroke:"#F8FAFC","stroke-width":"1.5"},arm);
+el("line",{x1:"-12",y1:"-42",x2:"-22",y2:"-52",stroke:"#93C5FD","stroke-width":"1.6","stroke-linecap":"round"},arm);
+el("line",{x1:"12",y1:"-42",x2:"22",y2:"-52",stroke:"#93C5FD","stroke-width":"1.6","stroke-linecap":"round"},arm);
+el("circle",{cx:"-22",cy:"-52",r:"2.2",fill="#F8FAFC"},arm);
+el("circle",{cx:"22",cy:"-52",r:"2.2",fill="#F8FAFC"},arm);
+}
+el("polygon",{points:hexPoints(10,30),fill:"#F8FAFC","fill-opacity":"0.9"},g);
+}
+
+buildFlake0();
+buildFlake1();
+buildFlake2();
+buildFlake3();
+
+const rand=mulberry32(20261125);
+const items=[];
+const sparkles=[];
+
+function addOrb(i){
+const r=22+rand()*58;
+const x=rand()*1920;
+const y0=rand()*1320;
+const wrapH=1320;
+const pad=120;
+const g=el("g",{},layerOrbs);
+el("circle",{cx:"0",cy:"0",r:r.toFixed(1),fill:"url(#orbGrad)",filter:r>44?"url(#blurLg)":"url(#blurMd)"},g);
+items.push({
+el:g,
+x0:x,
+y0:y0,
+wrapH:wrapH,
+pad:pad,
+cycles:1,
+swayAmp:18+rand()*34,
+swayFreq:1,
+swayPhase:rand(),
+rot0:0,
+rotDelta:0,
+scale:1,
+opBase:0.08+rand()*0.15,
+opAmp:0.04+rand()*0.06,
+opFreq:1+Math.floor(rand()*2),
+opPhase:rand()
+});
+}
+
+for(let i=0;i<26;i++){addOrb(i);}
+
+for(let i=0;i<46;i++){
+const isStar=rand()>0.55;
+const x=rand()*1920;
+const y0=rand()*1240;
+const g=el("g",{},layerFarShards);
+el("use",{href:isStar?"#miniStarSym":"#shardSym"},g);
+const cycles=rand()>0.6?2:1;
+items.push({
+el:g,
+x0:x,
+y0:y0,
+wrapH:1240,
+pad:80,
+cycles:cycles,
+swayAmp:14+rand()*28,
+swayFreq:cycles,
+swayPhase:rand(),
+rot0:rand()*360,
+rotDelta:(rand()>0.5?1:-1)*(isStar?180:360),
+scale:0.35+rand()*0.55,
+opBase:0.28+rand()*0.32,
+opAmp:0.12+rand()*0.18,
+opFreq:2+Math.floor(rand()*3),
+opPhase:rand()
+});
+}
+
+const midCols=9;
+for(let i=0;i<27;i++){
+const col=i%midCols;
+const row=Math.floor(i/midCols);
+const x=((col+0.15+rand()*0.7)/midCols)*1920;
+const y0=((row+rand()*0.85)/3)*1360;
+const type=i%4;
+const g=el("g",{},layerMidFlakes);
+el("use",{href:"#flake"+type},g);
+const scale=0.34+rand()*0.34;
+const dir=rand()>0.5?1:-1;
+items.push({
+el:g,
+x0:x,
+y0:y0,
+wrapH:1360,
+pad:140,
+cycles:1,
+swayAmp:24+rand()*38,
+swayFreq:1,
+swayPhase:rand(),
+rot0:rand()*60,
+rotDelta:dir*60*(1+Math.floor(rand()*2)),
+scale:scale,
+opBase:0.42+rand()*0.28,
+opAmp:0.1+rand()*0.14,
+opFreq:1+Math.floor(rand()*2),
+opPhase:rand()
+});
+}
+
+const heroSpecs=[
+{x:180,y:160,t:0,s:1.25,dir:1,c:1,sw:44},
+{x:520,y:760,t:1,s:1.1,dir:-1,c:1,sw:38},
+{x:860,y:340,t:2,s:1.35,dir:1,c:1,sw:48},
+{x:1260,y:880,t:3,s:1.18,dir:-1,c:1,sw:42},
+{x:1640,y:260,t:0,s:1.3,dir:-1,c:1,sw:46},
+{x:340,y:1120,t:3,s:0.95,dir:1,c:1,sw:36},
+{x:1080,y:1180,t:1,s:1.05,dir:1,c:1,sw:40},
+{x:1480,y:620,t:2,s:0.98,dir:-1,c:1,sw:38},
+{x:1810,y:960,t:1,s:1.08,dir:1,c:1,sw:34},
+{x:690,y:60,t:3,s:0.92,dir:-1,c:1,sw:36},
+{x:1350,y:120,t:0,s:0.88,dir:1,c:1,sw:32},
+{x:90,y:620,t:2,s:1.0,dir:-1,c:1,sw:35}
+];
+
+heroSpecs.forEach(function(h,idx){
+const g=el("g",{filter:"url(#softGlow)"},layerHeroFlakes);
+el("use",{href:"#flake"+h.t},g);
+const spCount=2;
+for(let k=0;k<spCount;k++){
+const armIdx=(idx*2+k*3)%6;
+const rad=k===0?92:56;
+const ang=(armIdx*60-90)*Math.PI/180;
+const sx=Math.cos(ang)*rad;
+const sy=Math.sin(ang)*rad;
+const sp=el("use",{href:"#sparkleSym",x:sx.toFixed(1),y:sy.toFixed(1),opacity:"0"},g);
+sparkles.push({
+el:sp,
+freq:1+((idx+k)%2),
+phase:rand(),
+maxScale:0.55+rand()*0.55,
+sx:sx,
+sy:sy
+});
+}
+items.push({
+el:g,
+x0:h.x,
+y0:h.y,
+wrapH:1440,
+pad:180,
+cycles:h.c,
+swayAmp:h.sw,
+swayFreq:1,
+swayPhase:rand(),
+rot0:rand()*60,
+rotDelta:h.dir*60,
+scale:h.s,
+opBase:0.82,
+opAmp:0.14,
+opFreq:2,
+opPhase:rand()
+});
+});
+
+for(let i=0;i<32;i++){
+const x=rand()*1920;
+const y0=rand()*1280;
+const g=el("g",{},layerFrontShards);
+el("use",{href:i%3===0?"#miniStarSym":"#shardSym"},g);
+items.push({
+el:g,
+x0:x,
+y0:y0,
+wrapH:1280,
+pad:100,
+cycles:2,
+swayAmp:22+rand()*34,
+swayFreq:2,
+swayPhase:rand(),
+rot0:rand()*180,
+rotDelta:(rand()>0.5?1:-1)*180,
+scale:0.55+rand()*0.65,
+opBase:0.55+rand()*0.3,
+opAmp:0.15+rand()*0.15,
+opFreq:2+Math.floor(rand()*2),
+opPhase:rand()
+});
+}
+
+const PERIOD=10000;
+const TAU=Math.PI*2;
+
+function render(ts){
+const u=(((ts%PERIOD)+PERIOD)%PERIOD)/PERIOD;
+for(let i=0;i<items.length;i++){
+const it=items[i];
+const y=((it.y0+u*it.cycles*it.wrapH)%it.wrapH)-it.pad;
+const x=it.x0+Math.sin(TAU*(it.swayFreq*u+it.swayPhase))*it.swayAmp;
+const rot=it.rot0+u*it.rotDelta;
+const op=Math.max(0.02,Math.min(1,it.opBase+Math.sin(TAU*(it.opFreq*u+it.opPhase))*it.opAmp));
+it.el.setAttribute("transform","translate("+x.toFixed(2)+","+y.toFixed(2)+") rotate("+rot.toFixed(2)+") scale("+it.scale.toFixed(3)+")");
+it.el.setAttribute("opacity",op.toFixed(3));
+}
+for(let j=0;j<sparkles.length;j++){
+const s=sparkles[j];
+const wave=Math.sin(TAU*(s.freq*u+s.phase));
+const flash=wave>0?Math.pow(wave,12):0;
+if(flash>0.005){
+const sc=0.25+flash*s.maxScale;
+s.el.setAttribute("opacity",flash.toFixed(3));
+s.el.setAttribute("transform","translate("+s.sx.toFixed(1)+","+s.sy.toFixed(1)+") scale("+sc.toFixed(3)+") translate("+(-s.sx).toFixed(1)+","+(-s.sy).toFixed(1)+")");
+}else{
+s.el.setAttribute("opacity","0");
+}
+}
+requestAnimationFrame(render);
+}
+
+render(0);
+})();
+</script>
+</body>
+</html>

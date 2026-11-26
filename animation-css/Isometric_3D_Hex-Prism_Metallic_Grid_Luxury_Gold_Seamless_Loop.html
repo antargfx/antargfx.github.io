@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Isometric 3D Hex-Prism Metallic Grid Luxury Gold Seamless Loop</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#070708}
+canvas{display:block;width:100%;height:100%}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+(function(){
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d');
+const W=1920,H=1080,CX=960,CY=540;
+const ISO_Y=0.58;
+const R=68;
+const PRISM_H=88;
+const SQRT3=Math.sqrt(3);
+const ANGLES=[];
+for(let i=0;i<6;i++){
+const a=(i*Math.PI)/3;
+ANGLES.push({c:Math.cos(a),s:Math.sin(a)});
+}
+const cells=[];
+for(let col=-12;col<=12;col++){
+for(let row=-11;row<=11;row++){
+const wx=col*R*1.5;
+const wy=(row+(col&1?0.5:0))*R*SQRT3;
+const sx=CX+wx;
+const sy=CY+wy*ISO_Y;
+if(sx>-R*2.5&&sx<W+R*2.5&&sy>-R*3.5&&sy<H+R*4){
+const dist=Math.hypot(wx,wy);
+const nx=dist>0.001?wx/dist:0;
+const ny=dist>0.001?wy/dist:0;
+cells.push({wx,wy,dist,nx,ny});
+}
+}
+}
+cells.sort((a,b)=>a.wy-b.wy);
+function resize(){
+const dpr=window.devicePixelRatio||1;
+canvas.width=Math.round(window.innerWidth*dpr);
+canvas.height=Math.round(window.innerHeight*dpr);
+}
+window.addEventListener('resize',resize);
+resize();
+const topPts=new Array(6);
+for(let i=0;i<6;i++)topPts[i]={x:0,y:0};
+function draw(ts){
+const t=(((ts%10000)+10000)%10000)/10000;
+const phase=t*Math.PI*2;
+const sx=canvas.width/W;
+const sy=canvas.height/H;
+const scale=Math.max(sx,sy);
+const ox=(canvas.width-W*scale)*0.5;
+const oy=(canvas.height-H*scale)*0.5;
+ctx.setTransform(scale,0,0,scale,ox,oy);
+const bg=ctx.createRadialGradient(CX,CY*0.72,60,CX,CY,1220);
+bg.addColorStop(0,'#1C1E22');
+bg.addColorStop(0.55,'#101114');
+bg.addColorStop(1,'#070708');
+ctx.fillStyle=bg;
+ctx.fillRect(0,0,W,H);
+for(let i=0;i<cells.length;i++){
+const cell=cells[i];
+const a1=cell.dist*0.0085-phase*2;
+const a2=cell.dist*0.0042-phase;
+const wave=Math.sin(a1)*0.72+Math.cos(a2)*0.28;
+const slope=Math.cos(a1)*0.72-Math.sin(a2)*0.28;
+const z=wave*26;
+const sc=0.885+wave*0.032;
+const rad=R*sc;
+for(let k=0;k<6;k++){
+const vx=ANGLES[k].c*rad;
+const vy=ANGLES[k].s*rad;
+const tz=(vx*cell.nx+vy*cell.ny)*slope*0.13;
+topPts[k].x=CX+cell.wx+vx;
+topPts[k].y=CY+(cell.wy+vy)*ISO_Y-(z+tz);
+}
+const cx=CX+cell.wx;
+const cy=CY+cell.wy*ISO_Y-z;
+const lightDot=(-cell.nx*0.65-cell.ny*0.76)*slope;
+const lum=Math.max(0,Math.min(1,0.48+wave*0.28+lightDot*0.24));
+const glint1=Math.pow(Math.max(0,Math.sin(a1+0.6)),5);
+const glint2=Math.pow(Math.max(0,Math.cos(cell.wx*0.0017+cell.wy*0.0023-phase)),7);
+const glint=Math.min(1,glint1*0.78+glint2*0.68);
+const f1=ctx.createLinearGradient(0,topPts[3].y,0,topPts[2].y+PRISM_H);
+f1.addColorStop(0,`rgb(${Math.round(30+lum*14)},${Math.round(33+lum*15)},${Math.round(38+lum*17)})`);
+f1.addColorStop(0.65,'#0D0E11');
+f1.addColorStop(1,'#070708');
+ctx.fillStyle=f1;
+ctx.beginPath();
+ctx.moveTo(topPts[3].x,topPts[3].y);
+ctx.lineTo(topPts[2].x,topPts[2].y);
+ctx.lineTo(topPts[2].x,topPts[2].y+PRISM_H);
+ctx.lineTo(topPts[3].x,topPts[3].y+PRISM_H);
+ctx.closePath();
+ctx.fill();
+const f2=ctx.createLinearGradient(0,topPts[2].y,0,topPts[1].y+PRISM_H);
+f2.addColorStop(0,`rgb(${Math.round(21+lum*10)},${Math.round(23+lum*11)},${Math.round(27+lum*12)})`);
+f2.addColorStop(0.65,'#0A0B0D');
+f2.addColorStop(1,'#070708');
+ctx.fillStyle=f2;
+ctx.beginPath();
+ctx.moveTo(topPts[2].x,topPts[2].y);
+ctx.lineTo(topPts[1].x,topPts[1].y);
+ctx.lineTo(topPts[1].x,topPts[1].y+PRISM_H);
+ctx.lineTo(topPts[2].x,topPts[2].y+PRISM_H);
+ctx.closePath();
+ctx.fill();
+const f3=ctx.createLinearGradient(0,topPts[1].y,0,topPts[0].y+PRISM_H);
+f3.addColorStop(0,`rgb(${Math.round(14+lum*7)},${Math.round(15+lum*8)},${Math.round(18+lum*9)})`);
+f3.addColorStop(0.65,'#08080A');
+f3.addColorStop(1,'#070708');
+ctx.fillStyle=f3;
+ctx.beginPath();
+ctx.moveTo(topPts[1].x,topPts[1].y);
+ctx.lineTo(topPts[0].x,topPts[0].y);
+ctx.lineTo(topPts[0].x,topPts[0].y+PRISM_H);
+ctx.lineTo(topPts[1].x,topPts[1].y+PRISM_H);
+ctx.closePath();
+ctx.fill();
+const edgeG=ctx.createLinearGradient(0,topPts[2].y,0,topPts[2].y+PRISM_H*0.75);
+edgeG.addColorStop(0,`rgba(229,193,88,${0.32+glint*0.35})`);
+edgeG.addColorStop(0.55,`rgba(180,138,62,${0.12+glint*0.14})`);
+edgeG.addColorStop(1,'rgba(180,138,62,0)');
+ctx.strokeStyle=edgeG;
+ctx.lineWidth=0.9;
+ctx.beginPath();
+ctx.moveTo(topPts[2].x,topPts[2].y);
+ctx.lineTo(topPts[2].x,topPts[2].y+PRISM_H*0.75);
+ctx.moveTo(topPts[1].x,topPts[1].y);
+ctx.lineTo(topPts[1].x,topPts[1].y+PRISM_H*0.75);
+ctx.stroke();
+const topG=ctx.createLinearGradient(topPts[4].x,topPts[4].y,topPts[1].x,topPts[1].y);
+const r1=Math.round(35+lum*24),g1=Math.round(38+lum*25),b1=Math.round(44+lum*28);
+const r2=Math.round(21+lum*14),g2=Math.round(23+lum*15),b2=Math.round(27+lum*17);
+const r3=Math.round(13+lum*9),g3=Math.round(14+lum*10),b3=Math.round(17+lum*11);
+topG.addColorStop(0,`rgb(${r1},${g1},${b1})`);
+topG.addColorStop(0.5,`rgb(${r2},${g2},${b2})`);
+topG.addColorStop(1,`rgb(${r3},${g3},${b3})`);
+ctx.fillStyle=topG;
+ctx.beginPath();
+ctx.moveTo(topPts[0].x,topPts[0].y);
+for(let k=1;k<6;k++)ctx.lineTo(topPts[k].x,topPts[k].y);
+ctx.closePath();
+ctx.fill();
+ctx.fillStyle=`rgba(255,255,255,${0.018+lum*0.032})`;
+ctx.beginPath();
+ctx.moveTo(cx,cy);
+ctx.lineTo(topPts[3].x,topPts[3].y);
+ctx.lineTo(topPts[4].x,topPts[4].y);
+ctx.lineTo(topPts[5].x,topPts[5].y);
+ctx.closePath();
+ctx.fill();
+ctx.fillStyle=`rgba(0,0,0,${0.08+(1-lum)*0.09})`;
+ctx.beginPath();
+ctx.moveTo(cx,cy);
+ctx.lineTo(topPts[0].x,topPts[0].y);
+ctx.lineTo(topPts[1].x,topPts[1].y);
+ctx.lineTo(topPts[2].x,topPts[2].y);
+ctx.closePath();
+ctx.fill();
+ctx.save();
+ctx.setLineDash([7,4]);
+ctx.lineWidth=0.85;
+ctx.strokeStyle=`rgba(229,193,88,${0.26+glint*0.44})`;
+ctx.beginPath();
+for(let k=0;k<6;k++){
+const ix=cx+(topPts[k].x-cx)*0.84;
+const iy=cy+(topPts[k].y-cy)*0.84;
+if(k===0)ctx.moveTo(ix,iy);else ctx.lineTo(ix,iy);
+}
+ctx.closePath();
+ctx.stroke();
+ctx.restore();
+ctx.lineWidth=0.6;
+ctx.strokeStyle=`rgba(180,138,62,${0.18+glint*0.24})`;
+ctx.beginPath();
+for(let k=0;k<6;k++){
+const ix=cx+(topPts[k].x-cx)*0.74;
+const iy=cy+(topPts[k].y-cy)*0.74;
+if(k===0)ctx.moveTo(ix,iy);else ctx.lineTo(ix,iy);
+}
+ctx.closePath();
+ctx.stroke();
+const borderG=ctx.createLinearGradient(topPts[4].x,topPts[4].y,topPts[1].x,topPts[1].y);
+borderG.addColorStop(0,glint>0.25?'#FEF08A':'#E5C158');
+borderG.addColorStop(0.35,'#E5C158');
+borderG.addColorStop(0.7,'#B48A3E');
+borderG.addColorStop(1,`rgba(180,138,62,${0.55+glint*0.35})`);
+ctx.strokeStyle=borderG;
+ctx.lineWidth=1.35;
+ctx.beginPath();
+ctx.moveTo(topPts[0].x,topPts[0].y);
+for(let k=1;k<6;k++)ctx.lineTo(topPts[k].x,topPts[k].y);
+ctx.closePath();
+ctx.stroke();
+if(glint>0.04){
+ctx.strokeStyle=`rgba(254,240,138,${glint*0.88})`;
+ctx.lineWidth=1.55;
+ctx.beginPath();
+ctx.moveTo(topPts[3].x,topPts[3].y);
+ctx.lineTo(topPts[4].x,topPts[4].y);
+ctx.lineTo(topPts[5].x,topPts[5].y);
+ctx.lineTo(topPts[0].x,topPts[0].y);
+ctx.stroke();
+if(glint>0.32){
+const ga=(glint-0.32)/0.68;
+const gx=topPts[4].x;
+const gy=topPts[4].y;
+const gr=10+ga*14;
+const sg=ctx.createRadialGradient(gx,gy,0,gx,gy,gr);
+sg.addColorStop(0,`rgba(254,240,138,${ga*0.85})`);
+sg.addColorStop(0.35,`rgba(229,193,88,${ga*0.32})`);
+sg.addColorStop(1,'rgba(229,193,88,0)');
+ctx.fillStyle=sg;
+ctx.beginPath();
+ctx.arc(gx,gy,gr,0,Math.PI*2);
+ctx.fill();
+}
+}
+}
+const vig=ctx.createRadialGradient(CX,CY,520,CX,CY,1180);
+vig.addColorStop(0,'rgba(7,7,8,0)');
+vig.addColorStop(0.75,'rgba(7,7,8,0.28)');
+vig.addColorStop(1,'rgba(7,7,8,0.72)');
+ctx.fillStyle=vig;
+ctx.fillRect(0,0,W,H);
+requestAnimationFrame(draw);
+}
+requestAnimationFrame(draw);
+})();
+</script>
+</body>
+</html>

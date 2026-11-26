@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Luxury Obsidian Honeycomb Lattice Brushed Gold Geometric Background</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#050506}
+svg{display:block;width:100%;height:100%}
+.tile-lift{animation:tileLift 10s ease-in-out infinite;will-change:transform,opacity}
+.tile-shadow{animation:tileShadow 10s ease-in-out infinite;will-change:transform,opacity}
+.tile-rim{animation:tileRim 10s ease-in-out infinite;will-change:opacity}
+.tile-breath{animation:tileBreath 10s ease-in-out infinite;will-change:opacity}
+.sheen-primary{animation:sheenSweep 10s linear infinite;will-change:transform}
+.sheen-secondary{animation:sheenSweep 10s linear infinite;animation-delay:-5s;will-change:transform}
+.ambient-pulse{animation:ambientPulse 10s ease-in-out infinite;will-change:opacity}
+@keyframes tileLift{
+0%,100%{transform:translate(0px,0px)}
+50%{transform:translate(0px,-5px)}
+}
+@keyframes tileShadow{
+0%,100%{transform:translate(0px,2px);opacity:.18}
+50%{transform:translate(5px,11px);opacity:.82}
+}
+@keyframes tileRim{
+0%,100%{opacity:.12}
+50%{opacity:.88}
+}
+@keyframes tileBreath{
+0%,100%{opacity:.78}
+50%{opacity:1}
+}
+@keyframes sheenSweep{
+0%{transform:translate(-1150px,0px)}
+100%{transform:translate(2750px,0px)}
+}
+@keyframes ambientPulse{
+0%,100%{opacity:.55}
+50%{opacity:.9}
+}
+</style>
+</head>
+<body>
+<svg id="stage" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<radialGradient id="bgGrad" cx="50%" cy="46%" r="72%" fx="50%" fy="44%">
+<stop offset="0%" stop-color="#1E2024"/>
+<stop offset="48%" stop-color="#121317"/>
+<stop offset="82%" stop-color="#090A0C"/>
+<stop offset="100%" stop-color="#050506"/>
+</radialGradient>
+<radialGradient id="ambientGlow" cx="50%" cy="48%" r="55%">
+<stop offset="0%" stop-color="#D4AF37" stop-opacity="0.065"/>
+<stop offset="55%" stop-color="#8A6D1C" stop-opacity="0.02"/>
+<stop offset="100%" stop-color="#050506" stop-opacity="0"/>
+</radialGradient>
+<linearGradient id="goldBase" x1="0%" y1="0%" x2="100%" y2="100%">
+<stop offset="0%" stop-color="#8A6D1C"/>
+<stop offset="22%" stop-color="#D4AF37"/>
+<stop offset="46%" stop-color="#8A6D1C"/>
+<stop offset="68%" stop-color="#FDE68A"/>
+<stop offset="85%" stop-color="#D4AF37"/>
+<stop offset="100%" stop-color="#705714"/>
+</linearGradient>
+<linearGradient id="goldRim" x1="0%" y1="0%" x2="100%" y2="100%">
+<stop offset="0%" stop-color="#FDE68A"/>
+<stop offset="45%" stop-color="#D4AF37"/>
+<stop offset="100%" stop-color="#8A6D1C"/>
+</linearGradient>
+<linearGradient id="cellDeep" x1="15%" y1="0%" x2="85%" y2="100%">
+<stop offset="0%" stop-color="#1A1C20"/>
+<stop offset="50%" stop-color="#101115"/>
+<stop offset="100%" stop-color="#08090B"/>
+</linearGradient>
+<linearGradient id="cellDark" x1="0%" y1="0%" x2="100%" y2="100%">
+<stop offset="0%" stop-color="#1E2025"/>
+<stop offset="55%" stop-color="#14161A"/>
+<stop offset="100%" stop-color="#0B0C0F"/>
+</linearGradient>
+<linearGradient id="cellElevated" x1="10%" y1="0%" x2="90%" y2="100%">
+<stop offset="0%" stop-color="#25282E"/>
+<stop offset="48%" stop-color="#16181D"/>
+<stop offset="100%" stop-color="#0D0E12"/>
+</linearGradient>
+<linearGradient id="sheenGold" x1="0%" y1="0%" x2="100%" y2="0%">
+<stop offset="0%" stop-color="#D4AF37" stop-opacity="0"/>
+<stop offset="22%" stop-color="#D4AF37" stop-opacity="0.35"/>
+<stop offset="42%" stop-color="#FDE68A" stop-opacity="0.92"/>
+<stop offset="50%" stop-color="#FFFBEB" stop-opacity="1"/>
+<stop offset="58%" stop-color="#FDE68A" stop-opacity="0.92"/>
+<stop offset="78%" stop-color="#D4AF37" stop-opacity="0.35"/>
+<stop offset="100%" stop-color="#D4AF37" stop-opacity="0"/>
+</linearGradient>
+<linearGradient id="sheenSoft" x1="0%" y1="0%" x2="100%" y2="0%">
+<stop offset="0%" stop-color="#D4AF37" stop-opacity="0"/>
+<stop offset="35%" stop-color="#D4AF37" stop-opacity="0.18"/>
+<stop offset="50%" stop-color="#FDE68A" stop-opacity="0.45"/>
+<stop offset="65%" stop-color="#D4AF37" stop-opacity="0.18"/>
+<stop offset="100%" stop-color="#D4AF37" stop-opacity="0"/>
+</linearGradient>
+<linearGradient id="surfaceGlaze" x1="0%" y1="0%" x2="100%" y2="0%">
+<stop offset="0%" stop-color="#FDE68A" stop-opacity="0"/>
+<stop offset="45%" stop-color="#FDE68A" stop-opacity="0.06"/>
+<stop offset="50%" stop-color="#FFFBEB" stop-opacity="0.09"/>
+<stop offset="55%" stop-color="#FDE68A" stop-opacity="0.06"/>
+<stop offset="100%" stop-color="#FDE68A" stop-opacity="0"/>
+</linearGradient>
+<radialGradient id="vignette" cx="50%" cy="50%" r="72%">
+<stop offset="58%" stop-color="#050506" stop-opacity="0"/>
+<stop offset="88%" stop-color="#050506" stop-opacity="0.45"/>
+<stop offset="100%" stop-color="#040405" stop-opacity="0.78"/>
+</radialGradient>
+<pattern id="pinstripe" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(42)">
+<line x1="0" y1="0" x2="0" y2="10" stroke="#D4AF37" stroke-width="0.65" stroke-opacity="0.22"/>
+<line x1="5" y1="0" x2="5" y2="10" stroke="#8A6D1C" stroke-width="0.45" stroke-opacity="0.14"/>
+</pattern>
+<pattern id="pinstripeMaskPat" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(42)">
+<line x1="0" y1="0" x2="0" y2="10" stroke="#FFFFFF" stroke-width="0.75" stroke-opacity="0.65"/>
+</pattern>
+<filter id="dropShadow" x="-35%" y="-35%" width="170%" height="170%">
+<feGaussianBlur in="SourceAlpha" stdDeviation="7"/>
+</filter>
+<filter id="sheenGlow" x="-20%" y="-20%" width="140%" height="140%">
+<feGaussianBlur stdDeviation="2.2" result="blur"/>
+<feMerge>
+<feMergeNode in="blur"/>
+<feMergeNode in="SourceGraphic"/>
+</feMerge>
+</filter>
+<mask id="gridMask">
+<rect width="1920" height="1080" fill="#000000"/>
+<g id="gridMaskGroup"></g>
+</mask>
+<mask id="hatchMask">
+<rect width="1920" height="1080" fill="#000000"/>
+<g id="hatchMaskGroup"></g>
+</mask>
+</defs>
+<rect width="1920" height="1080" fill="url(#bgGrad)"/>
+<rect width="1920" height="1080" fill="url(#ambientGlow)" class="ambient-pulse"/>
+<g id="baseTiles"></g>
+<g id="elevatedTiles"></g>
+<g id="goldLattice"></g>
+<g mask="url(#hatchMask)">
+<g class="sheen-primary">
+<rect x="0" y="-420" width="640" height="1920" fill="url(#surfaceGlaze)" transform="skewX(-28)"/>
+</g>
+</g>
+<g mask="url(#gridMask)" filter="url(#sheenGlow)">
+<g class="sheen-primary">
+<rect x="0" y="-420" width="520" height="1920" fill="url(#sheenGold)" transform="skewX(-28)"/>
+</g>
+<g class="sheen-secondary">
+<rect x="0" y="-420" width="380" height="1920" fill="url(#sheenSoft)" transform="skewX(-28)"/>
+</g>
+</g>
+<rect width="1920" height="1080" fill="url(#vignette)" pointer-events="none"/>
+</svg>
+<script>
+(function(){
+const ns="http://www.w3.org/2000/svg";
+const el=(tag,attrs)=>{
+const node=document.createElementNS(ns,tag);
+for(const k in attrs)node.setAttribute(k,attrs[k]);
+return node;
+};
+const hexPts=(cx,cy,r)=>{
+const pts=[];
+for(let i=0;i<6;i++){
+const a=(Math.PI/180)*(60*i-30);
+pts.push((cx+r*Math.cos(a)).toFixed(2)+","+(cy+r*Math.sin(a)).toFixed(2));
+}
+return pts.join(" ");
+};
+const R=78;
+const dx=Math.sqrt(3)*R;
+const dy=1.5*R;
+const baseTiles=document.getElementById("baseTiles");
+const elevatedTiles=document.getElementById("elevatedTiles");
+const goldLattice=document.getElementById("goldLattice");
+const gridMaskGroup=document.getElementById("gridMaskGroup");
+const hatchMaskGroup=document.getElementById("hatchMaskGroup");
+const nodeMap=new Map();
+for(let row=-1;row<=10;row++){
+for(let col=-1;col<=15;col++){
+const cx=col*dx+(row%2!==0?dx/2:0);
+const cy=row*dy;
+const hash=Math.abs((row*37+col*53+row*col*11)%100);
+const isHatched=((row+col)&1)===0;
+const isElevated=(hash%7===0)||(hash%11===0);
+const hasInnerFrame=(hash%5===0);
+const phase=(((col*0.62+row*0.95+(hash%10)*0.15)%10)+10)%10;
+const delay="-"+phase.toFixed(2)+"s";
+const outerPts=hexPts(cx,cy,R);
+const tilePts=hexPts(cx,cy,R-2.2);
+const innerPts=hexPts(cx,cy,R-11.5);
+const latticePoly=el("polygon",{
+points:outerPts,
+fill:"none",
+stroke:"url(#goldBase)",
+"stroke-width":"1.45",
+"stroke-linejoin":"miter",
+opacity:"0.62"
+});
+goldLattice.appendChild(latticePoly);
+gridMaskGroup.appendChild(el("polygon",{
+points:outerPts,
+fill:"none",
+stroke:"#FFFFFF",
+"stroke-width":"2.1",
+"stroke-linejoin":"miter"
+}));
+for(let i=0;i<6;i++){
+const a=(Math.PI/180)*(60*i-30);
+const vx=Math.round((cx+R*Math.cos(a))*2)/2;
+const vy=Math.round((cy+R*Math.sin(a))*2)/2;
+const key=vx+"_"+vy;
+if(!nodeMap.has(key)){
+nodeMap.set(key,[vx,vy]);
+}
+}
+if(isElevated){
+const sh=el("polygon",{
+points:tilePts,
+fill:"#010102",
+filter:"url(#dropShadow)",
+class:"tile-shadow",
+style:"animation-delay:"+delay
+});
+elevatedTiles.appendChild(sh);
+const g=el("g",{
+class:"tile-lift",
+style:"animation-delay:"+delay
+});
+g.appendChild(el("polygon",{
+points:tilePts,
+fill:"url(#cellElevated)",
+stroke:"#2A2D34",
+"stroke-width":"0.8"
+}));
+if(isHatched){
+g.appendChild(el("polygon",{
+points:tilePts,
+fill:"url(#pinstripe)"
+}));
+hatchMaskGroup.appendChild(el("polygon",{
+points:tilePts,
+fill:"url(#pinstripeMaskPat)"
+}));
+}
+if(hasInnerFrame){
+g.appendChild(el("polygon",{
+points:innerPts,
+fill:"none",
+stroke:"#8A6D1C",
+"stroke-width":"0.75",
+opacity:"0.5"
+}));
+}
+g.appendChild(el("polygon",{
+points:tilePts,
+fill:"none",
+stroke:"url(#goldRim)",
+"stroke-width":"1.35",
+class:"tile-rim",
+style:"animation-delay:"+delay
+}));
+elevatedTiles.appendChild(g);
+}else{
+const g=el("g",{
+class:"tile-breath",
+style:"animation-delay:"+delay
+});
+g.appendChild(el("polygon",{
+points:tilePts,
+fill:isHatched?"url(#cellDark)":"url(#cellDeep)",
+stroke:"#1D1F24",
+"stroke-width":"0.6"
+}));
+if(isHatched){
+g.appendChild(el("polygon",{
+points:tilePts,
+fill:"url(#pinstripe)"
+}));
+hatchMaskGroup.appendChild(el("polygon",{
+points:tilePts,
+fill:"url(#pinstripeMaskPat)"
+}));
+}
+if(hasInnerFrame){
+g.appendChild(el("polygon",{
+points:innerPts,
+fill:"none",
+stroke:"#8A6D1C",
+"stroke-width":"0.65",
+opacity:"0.35"
+}));
+gridMaskGroup.appendChild(el("polygon",{
+points:innerPts,
+fill:"none",
+stroke:"#FFFFFF",
+"stroke-width":"0.9",
+opacity:"0.55"
+}));
+}
+baseTiles.appendChild(g);
+}
+}
+}
+nodeMap.forEach(([vx,vy])=>{
+goldLattice.appendChild(el("circle",{
+cx:vx,
+cy:vy,
+r:"1.75",
+fill:"#D4AF37",
+opacity:"0.55"
+}));
+gridMaskGroup.appendChild(el("circle",{
+cx:vx,
+cy:vy,
+r:"2.6",
+fill:"#FFFFFF"
+}));
+});
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Bioluminescent Meadow Updraft Flat Vector Loop</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#03120E}
+canvas{display:block;width:100vw;height:100vh}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+(function(){
+const c=document.getElementById('c');
+const ctx=c.getContext('2d');
+const W=1920,H=1080,DUR=10000,TAU=Math.PI*2;
+
+function resize(){
+const dpr=Math.min(window.devicePixelRatio||1,2);
+const cw=Math.max(1,Math.round(window.innerWidth*dpr));
+const ch=Math.max(1,Math.round(window.innerHeight*dpr));
+if(c.width!==cw||c.height!==ch){c.width=cw;c.height=ch;}
+}
+window.addEventListener('resize',resize);
+resize();
+
+let seed=42071;
+function rand(){
+seed=(seed*1664525+1013904223)>>>0;
+return seed/4294967296;
+}
+function lerp(a,b,t){return a+(b-a)*t;}
+function clamp(v,a,b){return v<a?a:v>b?b:v;}
+function smoothstep(e0,e1,x){
+const t=clamp((x-e0)/(e1-e0),0,1);
+return t*t*(3-2*t);
+}
+
+const PAL=[
+{hex:'#A3E635',r:163,g:230,b:53},
+{hex:'#059669',r:5,g:150,b:105},
+{hex:'#6EE7B7',r:110,g:231,b:183}
+];
+
+const beams=[
+{x0:-180,wTop:290,wBot:620,angle:0.46,alpha:0.115,phase:0.0,freq:1,drift:28},
+{x0:140,wTop:210,wBot:490,angle:0.44,alpha:0.14,phase:1.4,freq:1,drift:22},
+{x0:440,wTop:260,wBot:580,angle:0.48,alpha:0.095,phase:2.8,freq:2,drift:24},
+{x0:760,wTop:180,wBot:410,angle:0.45,alpha:0.07,phase:4.1,freq:1,drift:18},
+{x0:-320,wTop:160,wBot:360,angle:0.42,alpha:0.085,phase:5.2,freq:2,drift:20}
+];
+
+function beamIntensityAt(x,y,p){
+let sum=0;
+for(let i=0;i<beams.length;i++){
+const b=beams[i];
+const sway=Math.sin(p*TAU*b.freq+b.phase)*b.drift;
+const t=clamp((y+80)/(H+200),0,1);
+const cx=b.x0+sway+Math.tan(b.angle)*(y+80);
+const hw=lerp(b.wTop,b.wBot,t)*0.5;
+const d=Math.abs(x-cx)/hw;
+if(d<1){
+const falloff=Math.cos(d*Math.PI*0.5);
+const pulse=0.82+0.18*Math.sin(p*TAU*b.freq+b.phase);
+sum+=falloff*falloff*b.alpha*pulse*6.5;
+}
+}
+return clamp(sum,0,1);
+}
+
+const vortices=[
+{x:290,y:955,rx:220,ry:32,col:PAL[0],glowR:250,phase:0.2},
+{x:680,y:978,rx:260,ry:36,col:PAL[2],glowR:280,phase:1.5},
+{x:1080,y:960,rx:250,ry:34,col:PAL[1],glowR:270,phase:2.9},
+{x:1490,y:972,rx:240,ry:32,col:PAL[0],glowR:260,phase:4.4},
+{x:1760,y:950,rx:180,ry:26,col:PAL[2],glowR:210,phase:5.6}
+];
+
+const groundDust=[];
+for(let i=0;i<150;i++){
+const v=vortices[i%vortices.length];
+const cObj=PAL[Math.floor(rand()*PAL.length)];
+groundDust.push({
+vIdx:i%vortices.length,
+rx:v.rx*(0.28+rand()*0.82),
+ry:v.ry*(0.35+rand()*0.85),
+yOff:(rand()-0.5)*34,
+angle0:rand()*TAU,
+turns:rand()<0.65?1:2,
+dir:i%2===0?1:-1,
+size:2.2+rand()*4.6,
+col:cObj,
+alpha:0.42+rand()*0.52,
+twinkleFreq:1+Math.floor(rand()*3),
+twinklePhase:rand()*TAU
+});
+}
+
+const risingParticles=[];
+for(let i=0;i<185;i++){
+const v=vortices[Math.floor(rand()*vortices.length)];
+const cObj=PAL[Math.floor(rand()*PAL.length)];
+const big=rand()<0.18;
+risingParticles.push({
+vx:v.x+(rand()-0.5)*90,
+vy:v.y+(rand()-0.5)*28,
+rx:v.rx*(0.3+rand()*0.72),
+ry:v.ry*(0.4+rand()*0.75),
+startAng:rand()*TAU,
+orbitTurns:1+Math.floor(rand()*2),
+dir:rand()<0.5?1:-1,
+offset:rand(),
+riseHeight:960+rand()*260,
+driftX:(rand()-0.5)*130,
+sAmp:26+rand()*62,
+sFreq:1+Math.floor(rand()*2),
+sPhase:rand()*TAU,
+size:big?(5.2+rand()*4.8):(2.0+rand()*3.8),
+col:cObj,
+baseAlpha:big?(0.72+rand()*0.26):(0.48+rand()*0.46),
+twinklePhase:rand()*TAU,
+twinkleFreq:1+Math.floor(rand()*3),
+glint:rand()<0.34
+});
+}
+
+const bokehOrbs=[];
+for(let i=0;i<24;i++){
+const pick=rand();
+const col=pick<0.4?PAL[0]:(pick<0.75?PAL[2]:{r:254,g:249,b:195});
+bokehOrbs.push({
+x0:80+rand()*1760,
+yOffset:rand(),
+rise:1240+rand()*200,
+sAmp:22+rand()*45,
+sPhase:rand()*TAU,
+rad:28+rand()*68,
+col:col,
+alpha:0.06+rand()*0.11,
+ring:rand()<0.55
+});
+}
+
+const backStalks=[];
+for(let i=0;i<56;i++){
+const x=(i/55)*W+(rand()-0.5)*26;
+const edgeBoost=Math.pow(Math.abs((x/W)-0.5)*2,2.1);
+const h=110+rand()*190+edgeBoost*360;
+backStalks.push({
+x:x,
+baseY:1080,
+h:h,
+w:3.5+rand()*6.5+edgeBoost*5,
+lean:(rand()-0.5)*46+(x<W*0.5?14:-14)*edgeBoost,
+sway:10+rand()*18,
+phase:rand()*TAU,
+hasTip:rand()<0.42,
+tipCol:PAL[Math.floor(rand()*PAL.length)]
+});
+}
+
+const frontStalks=[];
+for(let i=0;i<34;i++){
+const side=i%2===0?0:1;
+const x=side===0?(rand()*420-30):(W-rand()*420+30);
+const edgeProx=side===0?(1-x/420):(1-(W-x)/420);
+const h=220+rand()*280+clamp(edgeProx,0,1)*320;
+frontStalks.push({
+x:x,
+baseY:1090,
+h:h,
+w:6+rand()*10,
+lean:(side===0?1:-1)*(26+rand()*58),
+sway:14+rand()*20,
+phase:rand()*TAU,
+leaves:2+Math.floor(rand()*3)
+});
+}
+
+function drawBackground(p){
+const g=ctx.createLinearGradient(0,0,0,H);
+g.addColorStop(0,'#020B08');
+g.addColorStop(0.32,'#03120E');
+g.addColorStop(0.72,'#052019');
+g.addColorStop(0.92,'#073125');
+g.addColorStop(1,'#041B14');
+ctx.fillStyle=g;
+ctx.fillRect(0,0,W,H);
+
+for(let i=0;i<vortices.length;i++){
+const v=vortices[i];
+const pulse=0.82+0.18*Math.sin(p*TAU+v.phase);
+const cg=ctx.createLinearGradient(v.x,H,v.x,140);
+cg.addColorStop(0,`rgba(${v.col.r},${v.col.g},${v.col.b},${(0.11*pulse).toFixed(4)})`);
+cg.addColorStop(0.45,`rgba(${v.col.r},${v.col.g},${v.col.b},${(0.04*pulse).toFixed(4)})`);
+cg.addColorStop(1,'rgba(3,18,14,0)');
+ctx.fillStyle=cg;
+ctx.fillRect(v.x-v.rx*1.15,120,v.rx*2.3,H-120);
+}
+}
+
+function drawSunShafts(p,intensityScale){
+ctx.save();
+ctx.globalCompositeOperation='screen';
+for(let i=0;i<beams.length;i++){
+const b=beams[i];
+const sway=Math.sin(p*TAU*b.freq+b.phase)*b.drift;
+const pulse=0.84+0.16*Math.sin(p*TAU*b.freq+b.phase);
+const a=b.alpha*pulse*intensityScale;
+const xTop=b.x0+sway;
+const xBot=xTop+Math.tan(b.angle)*(H+220);
+const dx=xBot-xTop,dy=H+220;
+const len=Math.hypot(dx,dy);
+const nx=-dy/len,ny=dx/len;
+const grad=ctx.createLinearGradient(xTop,-100,xBot,H+120);
+grad.addColorStop(0,`rgba(254,249,195,${(a*1.15).toFixed(4)})`);
+grad.addColorStop(0.35,`rgba(217,249,157,${(a*0.85).toFixed(4)})`);
+grad.addColorStop(0.75,`rgba(167,243,208,${(a*0.38).toFixed(4)})`);
+grad.addColorStop(1,'rgba(110,231,183,0)');
+
+ctx.fillStyle=grad;
+ctx.beginPath();
+ctx.moveTo(xTop-b.wTop*0.5,-100);
+ctx.lineTo(xTop+b.wTop*0.5,-100);
+ctx.lineTo(xBot+b.wBot*0.5,H+120);
+ctx.lineTo(xBot-b.wBot*0.5,H+120);
+ctx.closePath();
+ctx.fill();
+
+const coreGrad=ctx.createLinearGradient(xTop,-100,xBot,H+120);
+coreGrad.addColorStop(0,`rgba(254,252,232,${(a*0.65).toFixed(4)})`);
+coreGrad.addColorStop(0.5,`rgba(236,252,203,${(a*0.28).toFixed(4)})`);
+coreGrad.addColorStop(1,'rgba(167,243,208,0)');
+ctx.fillStyle=coreGrad;
+ctx.beginPath();
+ctx.moveTo(xTop-b.wTop*0.18+nx*4,-100+ny*4);
+ctx.lineTo(xTop+b.wTop*0.18+nx*4,-100+ny*4);
+ctx.lineTo(xBot+b.wBot*0.18,H+120);
+ctx.lineTo(xBot-b.wBot*0.18,H+120);
+ctx.closePath();
+ctx.fill();
+}
+ctx.restore();
+}
+
+function drawBackHills(p){
+ctx.beginPath();
+ctx.moveTo(0,H);
+ctx.lineTo(0,910);
+ctx.bezierCurveTo(360,860,640,945,980,912);
+ctx.bezierCurveTo(1320,878,1620,938,W,888);
+ctx.lineTo(W,H);
+ctx.closePath();
+const g1=ctx.createLinearGradient(0,860,0,H);
+g1.addColorStop(0,'#062920');
+g1.addColorStop(1,'#020F0B');
+ctx.fillStyle=g1;
+ctx.fill();
+
+for(let i=0;i<backStalks.length;i++){
+const s=backStalks[i];
+const bend=s.lean+Math.sin(p*TAU+s.phase)*s.sway;
+const tx=s.x+bend;
+const ty=s.baseY-s.h;
+ctx.beginPath();
+ctx.moveTo(s.x-s.w*0.5,s.baseY);
+ctx.quadraticCurveTo(s.x+bend*0.35,s.baseY-s.h*0.55,tx,ty);
+ctx.quadraticCurveTo(s.x+bend*0.35+s.w*0.45,s.baseY-s.h*0.55,s.x+s.w*0.5,s.baseY);
+ctx.closePath();
+ctx.fillStyle='#041D16';
+ctx.fill();
+
+if(s.hasTip){
+const glow=0.55+0.45*Math.sin(p*TAU*2+s.phase);
+ctx.beginPath();
+ctx.arc(tx,ty,2.6+glow*1.8,0,TAU);
+ctx.fillStyle=`rgba(${s.tipCol.r},${s.tipCol.g},${s.tipCol.b},${(0.45+0.4*glow).toFixed(3)})`;
+ctx.fill();
+}
+}
+}
+
+function drawVortexPools(p){
+ctx.save();
+ctx.globalCompositeOperation='screen';
+for(let i=0;i<vortices.length;i++){
+const v=vortices[i];
+const pulse=0.8+0.2*Math.sin(p*TAU*2+v.phase);
+ctx.save();
+ctx.translate(v.x,v.y);
+ctx.scale(1,v.ry/v.rx*1.55);
+const rg=ctx.createRadialGradient(0,0,8,0,0,v.glowR);
+rg.addColorStop(0,`rgba(${v.col.r},${v.col.g},${v.col.b},${(0.32*pulse).toFixed(4)})`);
+rg.addColorStop(0.45,`rgba(${v.col.r},${v.col.g},${v.col.b},${(0.12*pulse).toFixed(4)})`);
+rg.addColorStop(1,'rgba(5,150,105,0)');
+ctx.fillStyle=rg;
+ctx.beginPath();
+ctx.arc(0,0,v.glowR,0,TAU);
+ctx.fill();
+ctx.restore();
+
+for(let r=0;r<2;r++){
+const prog=(p+r*0.5+i*0.17)%1;
+const ringA=Math.sin(prog*Math.PI)*0.22;
+const rr=0.45+prog*0.65;
+ctx.strokeStyle=`rgba(${v.col.r},${v.col.g},${v.col.b},${ringA.toFixed(4)})`;
+ctx.lineWidth=1.8;
+ctx.beginPath();
+ctx.ellipse(v.x,v.y,v.rx*rr,v.ry*rr,0,0,TAU);
+ctx.stroke();
+}
+}
+ctx.restore();
+}
+
+function drawStarGlint(x,y,r,alpha){
+ctx.save();
+ctx.translate(x,y);
+ctx.fillStyle=`rgba(254,252,232,${alpha.toFixed(4)})`;
+ctx.beginPath();
+const inner=r*0.18;
+for(let i=0;i<8;i++){
+const a=(i*Math.PI)/4;
+const rad=i%2===0?r:inner;
+const px=Math.cos(a)*rad;
+const py=Math.sin(a)*rad;
+if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);
+}
+ctx.closePath();
+ctx.fill();
+ctx.restore();
+}
+
+function drawParticle(x,y,rad,col,alpha,spec,glint){
+const glowR=rad*(2.8+spec*2.2);
+const g=ctx.createRadialGradient(x,y,0,x,y,glowR);
+const cr=Math.round(lerp(col.r,254,spec*0.75));
+const cg=Math.round(lerp(col.g,252,spec*0.65));
+const cb=Math.round(lerp(col.b,220,spec*0.7));
+g.addColorStop(0,`rgba(${cr},${cg},${cb},${(alpha*0.95).toFixed(4)})`);
+g.addColorStop(0.32,`rgba(${col.r},${col.g},${col.b},${(alpha*0.48).toFixed(4)})`);
+g.addColorStop(1,`rgba(${col.r},${col.g},${col.b},0)`);
+ctx.fillStyle=g;
+ctx.beginPath();
+ctx.arc(x,y,glowR,0,TAU);
+ctx.fill();
+
+ctx.fillStyle=`rgba(${cr},${cg},${cb},${clamp(alpha*1.15,0,1).toFixed(4)})`;
+ctx.beginPath();
+ctx.arc(x,y,rad*(0.65+spec*0.25),0,TAU);
+ctx.fill();
+
+if(glint&&spec>0.28){
+drawStarGlint(x,y,rad*(2.4+spec*2.2),alpha*spec*0.9);
+}
+}
+
+function drawGroundDust(p){
+ctx.save();
+ctx.globalCompositeOperation='screen';
+for(let i=0;i<groundDust.length;i++){
+const d=groundDust[i];
+const v=vortices[d.vIdx];
+const ang=d.angle0+p*TAU*d.turns*d.dir;
+const x=v.x+Math.cos(ang)*d.rx;
+const y=v.y+d.yOff+Math.sin(ang)*d.ry;
+const depth=0.72+0.28*Math.sin(ang);
+const tw=0.75+0.25*Math.sin(p*TAU*d.twinkleFreq+d.twinklePhase);
+const spec=beamIntensityAt(x,y,p);
+drawParticle(x,y,d.size*depth,d.col,d.alpha*depth*tw,spec,false);
+}
+ctx.restore();
+}
+
+function drawRisingParticles(p){
+ctx.save();
+ctx.globalCompositeOperation='screen';
+for(let i=0;i<risingParticles.length;i++){
+const pt=risingParticles[i];
+const u=(p+pt.offset)%1;
+const r=Math.pow(smoothstep(0.16,1.0,u),1.32);
+const vWeight=1-smoothstep(0.18,0.52,u);
+const sWeight=smoothstep(0.20,0.48,u);
+const ang=pt.startAng+u*TAU*pt.orbitTurns*pt.dir;
+
+const x=pt.vx
++Math.cos(ang)*pt.rx*vWeight
++pt.driftX*r
++Math.sin(u*TAU*pt.sFreq+pt.sPhase)*pt.sAmp*sWeight;
+
+const y=pt.vy
++Math.sin(ang)*pt.ry*vWeight
+-pt.riseHeight*r;
+
+const fadeIn=smoothstep(0.0,0.08,u);
+const fadeOut=1-smoothstep(0.86,1.0,u);
+const tw=0.8+0.2*Math.sin(p*TAU*pt.twinkleFreq+pt.twinklePhase);
+const alpha=pt.baseAlpha*fadeIn*fadeOut*tw;
+if(alpha<=0.01)continue;
+
+const spec=beamIntensityAt(x,y,p);
+const size=pt.size*(0.75+0.35*smoothstep(0.15,0.6,u))*(1-0.2*smoothstep(0.75,1.0,u));
+
+if(sWeight>0.25&&size>3.4){
+const uPrev=(u-0.018+1)%1;
+const rPrev=Math.pow(smoothstep(0.16,1.0,uPrev),1.32);
+const vPrev=1-smoothstep(0.18,0.52,uPrev);
+const sPrev=smoothstep(0.20,0.48,uPrev);
+const aPrev=pt.startAng+uPrev*TAU*pt.orbitTurns*pt.dir;
+const px=pt.vx+Math.cos(aPrev)*pt.rx*vPrev+pt.driftX*rPrev+Math.sin(uPrev*TAU*pt.sFreq+pt.sPhase)*pt.sAmp*sPrev;
+const py=pt.vy+Math.sin(aPrev)*pt.ry*vPrev-pt.riseHeight*rPrev;
+const tg=ctx.createLinearGradient(x,y,px,py);
+tg.addColorStop(0,`rgba(${pt.col.r},${pt.col.g},${pt.col.b},${(alpha*0.32).toFixed(4)})`);
+tg.addColorStop(1,`rgba(${pt.col.r},${pt.col.g},${pt.col.b},0)`);
+ctx.strokeStyle=tg;
+ctx.lineWidth=size*0.65;
+ctx.lineCap='round';
+ctx.beginPath();
+ctx.moveTo(x,y);
+ctx.lineTo(px,py);
+ctx.stroke();
+}
+
+drawParticle(x,y,size,pt.col,alpha,spec,pt.glint);
+}
+ctx.restore();
+}
+
+function drawFrontMeadow(p){
+ctx.beginPath();
+ctx.moveTo(0,H);
+ctx.lineTo(0,975);
+ctx.bezierCurveTo(420,940,760,1025,1140,986);
+ctx.bezierCurveTo(1480,952,1720,1005,W,960);
+ctx.lineTo(W,H);
+ctx.closePath();
+const g2=ctx.createLinearGradient(0,940,0,H);
+g2.addColorStop(0,'#041C16');
+g2.addColorStop(1,'#010907');
+ctx.fillStyle=g2;
+ctx.fill();
+
+ctx.save();
+ctx.globalCompositeOperation='screen';
+ctx.strokeStyle='rgba(163,230,53,0.16)';
+ctx.lineWidth=3;
+ctx.beginPath();
+ctx.moveTo(0,975);
+ctx.bezierCurveTo(420,940,760,1025,1140,986);
+ctx.bezierCurveTo(1480,952,1720,1005,W,960);
+ctx.stroke();
+ctx.restore();
+
+for(let i=0;i<frontStalks.length;i++){
+const s=frontStalks[i];
+const bend=s.lean+Math.sin(p*TAU+s.phase)*s.sway;
+const tx=s.x+bend;
+const ty=s.baseY-s.h;
+ctx.beginPath();
+ctx.moveTo(s.x-s.w*0.5,s.baseY);
+ctx.quadraticCurveTo(s.x+bend*0.32,s.baseY-s.h*0.52,tx,ty);
+ctx.quadraticCurveTo(s.x+bend*0.32+s.w*0.42,s.baseY-s.h*0.52,s.x+s.w*0.5,s.baseY);
+ctx.closePath();
+ctx.fillStyle='#020E0B';
+ctx.fill();
+}
+}
+
+function drawBokeh(p){
+ctx.save();
+ctx.globalCompositeOperation='screen';
+for(let i=0;i<bokehOrbs.length;i++){
+const b=bokehOrbs[i];
+const u=(p+b.yOffset)%1;
+const y=H+120-u*b.rise;
+const x=b.x0+Math.sin(u*TAU+b.sPhase)*b.sAmp+u*45;
+const fade=smoothstep(0,0.14,u)*(1-smoothstep(0.84,1,u));
+const spec=beamIntensityAt(x,y,p);
+const a=b.alpha*fade*(1+spec*0.9);
+if(a<=0.005)continue;
+
+const rg=ctx.createRadialGradient(x,y,b.rad*0.08,x,y,b.rad);
+rg.addColorStop(0,`rgba(${b.col.r},${b.col.g},${b.col.b},${(a*1.15).toFixed(4)})`);
+rg.addColorStop(0.62,`rgba(${b.col.r},${b.col.g},${b.col.b},${(a*0.52).toFixed(4)})`);
+rg.addColorStop(0.88,`rgba(${b.col.r},${b.col.g},${b.col.b},${(a*0.18).toFixed(4)})`);
+rg.addColorStop(1,`rgba(${b.col.r},${b.col.g},${b.col.b},0)`);
+ctx.fillStyle=rg;
+ctx.beginPath();
+ctx.arc(x,y,b.rad,0,TAU);
+ctx.fill();
+
+if(b.ring){
+ctx.strokeStyle=`rgba(254,249,195,${(a*0.55).toFixed(4)})`;
+ctx.lineWidth=1.5;
+ctx.beginPath();
+ctx.arc(x,y,b.rad*0.82,0,TAU);
+ctx.stroke();
+}
+}
+ctx.restore();
+}
+
+function frame(ts){
+const p=(((ts%DUR)+DUR)%DUR)/DUR;
+ctx.save();
+ctx.setTransform(c.width/W,0,0,c.height/H,0,0);
+
+drawBackground(p);
+drawSunShafts(p,0.68);
+drawBackHills(p);
+drawVortexPools(p);
+drawGroundDust(p);
+drawRisingParticles(p);
+drawFrontMeadow(p);
+drawSunShafts(p,0.42);
+drawBokeh(p);
+
+ctx.restore();
+requestAnimationFrame(frame);
+}
+
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

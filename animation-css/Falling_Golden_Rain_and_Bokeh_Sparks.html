@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Falling Golden Rain and Bokeh Sparks</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000000}
+canvas{display:block;width:100%;height:100%}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+(function(){
+const W=1920,H=1080,LOOP=10000,TAU=Math.PI*2;
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d');
+
+function resize(){
+const dpr=Math.min(Math.max(window.devicePixelRatio||1,1),2);
+const cw=Math.max(1,Math.round(window.innerWidth*dpr));
+const ch=Math.max(1,Math.round(window.innerHeight*dpr));
+if(canvas.width!==cw||canvas.height!==ch){
+canvas.width=cw;
+canvas.height=ch;
+}
+}
+window.addEventListener('resize',resize);
+resize();
+
+let seed=4281937;
+function rand(){
+seed=(seed+0x6D2B79F5)|0;
+let t=Math.imul(seed^(seed>>>15),1|seed);
+t=(t+Math.imul(t^(t>>>7),61|t))^t;
+return((t^(t>>>14))>>>0)/4294967296;
+}
+function range(a,b){return a+(b-a)*rand();}
+function pick(arr){return arr[Math.floor(rand()*arr.length)];}
+
+const PALETTES=[
+{core:'#fffef5',mid:'#ffe082',edge:'#d48806'},
+{core:'#fff8dc',mid:'#f7c443',edge:'#b86b00'},
+{core:'#fffaf0',mid:'#ffd166',edge:'#c97a10'},
+{core:'#fffdf2',mid:'#ffdf8e',edge:'#a85c00'},
+{core:'#fff5d6',mid:'#f2a93b',edge:'#9e5200'}
+];
+
+function makeSoftBokehSprite(pal){
+const s=256,c=document.createElement('canvas');
+c.width=s;c.height=s;
+const g=c.getContext('2d');
+const r=s/2;
+const gr=g.createRadialGradient(r,r,0,r,r,r);
+gr.addColorStop(0,pal.core);
+gr.addColorStop(0.22,pal.mid);
+gr.addColorStop(0.62,pal.edge);
+gr.addColorStop(1,'rgba(0,0,0,0)');
+g.fillStyle=gr;
+g.fillRect(0,0,s,s);
+return c;
+}
+
+function makeLightDiscSprite(pal){
+const s=256,c=document.createElement('canvas');
+c.width=s;c.height=s;
+const g=c.getContext('2d');
+const r=s/2;
+const gr=g.createRadialGradient(r,r,0,r,r,r);
+gr.addColorStop(0,'rgba(255,244,204,0.38)');
+gr.addColorStop(0.55,'rgba(245,184,46,0.46)');
+gr.addColorStop(0.76,pal.mid);
+gr.addColorStop(0.84,pal.core);
+gr.addColorStop(0.92,pal.edge);
+gr.addColorStop(1,'rgba(0,0,0,0)');
+g.fillStyle=gr;
+g.fillRect(0,0,s,s);
+return c;
+}
+
+function makeGlowSparkSprite(pal){
+const s=128,c=document.createElement('canvas');
+c.width=s;c.height=s;
+const g=c.getContext('2d');
+const r=s/2;
+const gr=g.createRadialGradient(r,r,0,r,r,r);
+gr.addColorStop(0,'#ffffff');
+gr.addColorStop(0.16,pal.core);
+gr.addColorStop(0.38,pal.mid);
+gr.addColorStop(0.72,pal.edge);
+gr.addColorStop(1,'rgba(0,0,0,0)');
+g.fillStyle=gr;
+g.fillRect(0,0,s,s);
+return c;
+}
+
+const softSprites=PALETTES.map(makeSoftBokehSprite);
+const discSprites=PALETTES.map(makeLightDiscSprite);
+const sparkSprites=PALETTES.map(makeGlowSparkSprite);
+
+const particles=[];
+
+for(let i=0;i<16;i++){
+const radius=range(95,215);
+particles.push({
+kind:'soft',
+sprite:pick(softSprites),
+x0:range(-80,W+80),
+y0:range(0,H+radius*2.8),
+radius:radius,
+pad:radius*1.4,
+cyclesY:1,
+swayAmp:range(18,52),
+swayFreq:1,
+swayPhase:rand(),
+scaleAmp:range(0.08,0.18),
+scaleFreq:pick([1,2]),
+scalePhase:rand(),
+baseAlpha:range(0.09,0.21),
+twinkleDepth:range(0.28,0.48),
+twinkleFreq:pick([1,2]),
+twinklePhase:rand(),
+sharpTwinkle:false
+});
+}
+
+for(let i=0;i<36;i++){
+const radius=range(26,74);
+particles.push({
+kind:'disc',
+sprite:pick(discSprites),
+x0:range(-40,W+40),
+y0:range(0,H+radius*2.8),
+radius:radius,
+pad:radius*1.4,
+cyclesY:pick([1,1,2]),
+swayAmp:range(14,42),
+swayFreq:pick([1,2]),
+swayPhase:rand(),
+scaleAmp:range(0.07,0.16),
+scaleFreq:pick([1,2,3]),
+scalePhase:rand(),
+baseAlpha:range(0.18,0.42),
+twinkleDepth:range(0.32,0.58),
+twinkleFreq:pick([1,2,3]),
+twinklePhase:rand(),
+sharpTwinkle:false
+});
+}
+
+for(let i=0;i<48;i++){
+const radius=range(10,28);
+particles.push({
+kind:'sphere',
+sprite:pick(sparkSprites),
+x0:range(-20,W+20),
+y0:range(0,H+radius*3.2),
+radius:radius,
+pad:radius*1.6,
+cyclesY:pick([1,2,2]),
+swayAmp:range(10,34),
+swayFreq:pick([1,2]),
+swayPhase:rand(),
+scaleAmp:range(0.1,0.22),
+scaleFreq:pick([2,3]),
+scalePhase:rand(),
+baseAlpha:range(0.35,0.72),
+twinkleDepth:range(0.38,0.68),
+twinkleFreq:pick([2,3,4]),
+twinklePhase:rand(),
+sharpTwinkle:false
+});
+}
+
+const rainStreaks=[];
+for(let i=0;i<42;i++){
+const len=range(46,135);
+const pal=pick(PALETTES);
+rainStreaks.push({
+x0:range(0,W),
+y0:range(0,H+len*2.4),
+len:len,
+width:range(1.2,2.8),
+headR:range(2.2,4.6),
+pad:len*1.2,
+cyclesY:pick([2,3,3,4]),
+swayAmp:range(4,16),
+swayFreq:1,
+swayPhase:rand(),
+scaleAmp:range(0.08,0.18),
+scaleFreq:pick([2,3]),
+scalePhase:rand(),
+baseAlpha:range(0.28,0.66),
+twinkleDepth:range(0.35,0.65),
+twinkleFreq:pick([2,3,4]),
+twinklePhase:rand(),
+pal:pal,
+sprite:pick(sparkSprites)
+});
+}
+
+for(let i=0;i<155;i++){
+const radius=range(2.2,8.5);
+const hasStar=rand()<0.28;
+particles.push({
+kind:hasStar?'star':'dust',
+sprite:pick(sparkSprites),
+x0:range(0,W),
+y0:range(0,H+60),
+radius:radius,
+pad:30,
+cyclesY:pick([1,2,2,3]),
+swayAmp:range(6,28),
+swayFreq:pick([1,2,3]),
+swayPhase:rand(),
+scaleAmp:range(0.14,0.32),
+scaleFreq:pick([2,3,4,5]),
+scalePhase:rand(),
+baseAlpha:range(0.45,0.95),
+twinkleDepth:range(0.55,0.92),
+twinkleFreq:pick([2,3,4,5,6]),
+twinklePhase:rand(),
+sharpTwinkle:true,
+rot0:rand()*TAU,
+rotFreq:pick([-1,1]),
+starSize:range(8,20),
+pal:pick(PALETTES)
+});
+}
+
+function drawStarFlare(x,y,size,rot,alpha,pal){
+ctx.save();
+ctx.translate(x,y);
+ctx.rotate(rot);
+ctx.globalAlpha=alpha;
+const inner=size*0.14;
+ctx.beginPath();
+for(let i=0;i<8;i++){
+const a=(i*Math.PI)/4;
+const rr=i%2===0?size:inner;
+const px=Math.cos(a)*rr;
+const py=Math.sin(a)*rr;
+if(i===0)ctx.moveTo(px,py);
+else ctx.lineTo(px,py);
+}
+ctx.closePath();
+const gr=ctx.createRadialGradient(0,0,0,0,0,size);
+gr.addColorStop(0,'#ffffff');
+gr.addColorStop(0.28,pal.core);
+gr.addColorStop(0.65,pal.mid);
+gr.addColorStop(1,'rgba(0,0,0,0)');
+ctx.fillStyle=gr;
+ctx.fill();
+ctx.restore();
+}
+
+function render(ts){
+const p=(((ts%LOOP)+LOOP)%LOOP)/LOOP;
+const sx=canvas.width/W;
+const sy=canvas.height/H;
+
+ctx.setTransform(sx,0,0,sy,0,0);
+ctx.globalCompositeOperation='source-over';
+ctx.globalAlpha=1;
+ctx.fillStyle='#000000';
+ctx.fillRect(0,0,W,H);
+
+ctx.globalCompositeOperation='screen';
+
+for(let i=0;i<particles.length;i++){
+const pt=particles[i];
+const wrapH=H+pt.pad*2;
+const y=(((pt.y0+p*pt.cyclesY*wrapH)%wrapH)+wrapH)%wrapH-pt.pad;
+const x=pt.x0+Math.sin(TAU*(pt.swayFreq*p+pt.swayPhase))*pt.swayAmp;
+const scale=1+pt.scaleAmp*Math.sin(TAU*(pt.scaleFreq*p+pt.scalePhase));
+let tw=0.5+0.5*Math.sin(TAU*(pt.twinkleFreq*p+pt.twinklePhase));
+if(pt.sharpTwinkle)tw=tw*tw;
+const alpha=pt.baseAlpha*(1-pt.twinkleDepth+pt.twinkleDepth*tw);
+const r=pt.radius*scale;
+
+ctx.globalAlpha=alpha;
+ctx.drawImage(pt.sprite,x-r,y-r,r*2,r*2);
+
+if(pt.kind==='star'&&tw>0.25){
+const flareScale=scale*(0.45+0.55*tw);
+const rot=pt.rot0+TAU*pt.rotFreq*p;
+drawStarFlare(x,y,pt.starSize*flareScale,rot,alpha*0.92,pt.pal);
+}
+}
+
+for(let i=0;i<rainStreaks.length;i++){
+const st=rainStreaks[i];
+const wrapH=H+st.pad*2;
+const y=(((st.y0+p*st.cyclesY*wrapH)%wrapH)+wrapH)%wrapH-st.pad;
+const x=st.x0+Math.sin(TAU*(st.swayFreq*p+st.swayPhase))*st.swayAmp;
+const scale=1+st.scaleAmp*Math.sin(TAU*(st.scaleFreq*p+st.scalePhase));
+const tw=0.5+0.5*Math.sin(TAU*(st.twinkleFreq*p+st.twinklePhase));
+const alpha=st.baseAlpha*(1-st.twinkleDepth+st.twinkleDepth*tw);
+const curLen=st.len*scale;
+
+const grad=ctx.createLinearGradient(x,y-curLen,x,y);
+grad.addColorStop(0,'rgba(0,0,0,0)');
+grad.addColorStop(0.55,st.pal.edge);
+grad.addColorStop(0.88,st.pal.mid);
+grad.addColorStop(1,st.pal.core);
+
+ctx.globalAlpha=alpha*0.85;
+ctx.strokeStyle=grad;
+ctx.lineWidth=st.width;
+ctx.lineCap='round';
+ctx.beginPath();
+ctx.moveTo(x,y-curLen);
+ctx.lineTo(x,y);
+ctx.stroke();
+
+const hr=st.headR*scale*2.2;
+ctx.globalAlpha=alpha;
+ctx.drawImage(st.sprite,x-hr,y-hr,hr*2,hr*2);
+}
+
+requestAnimationFrame(render);
+}
+
+requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>

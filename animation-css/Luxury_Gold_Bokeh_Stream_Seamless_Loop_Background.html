@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Luxury Gold Bokeh Stream Seamless Loop Background</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden}
+body{background:#000000}
+canvas{display:block;width:100%;height:100%}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+(function(){
+  const canvas = document.getElementById('c');
+  const ctx = canvas.getContext('2d', { alpha: false });
+  const W = 1920;
+  const H = 1080;
+  const LOOP = 10000;
+  const TAU = Math.PI * 2;
+  const DIAG = Math.hypot(W, H);
+  const DX = W / DIAG;
+  const DY = -H / DIAG;
+  const PX = H / DIAG;
+  const PY = W / DIAG;
+  const U_SPAN = 3400;
+
+  let seed = 71849321;
+  function rand() {
+    seed = (seed + 0x6D2B79F5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  }
+
+  function gauss() {
+    return (rand() + rand() + rand() - 1.5) / 1.5;
+  }
+
+  const PALETTES = [
+    { core: '255,248,224', mid: '245,188,66', edge: '176,102,24' },
+    { core: '255,235,176', mid: '229,156,36', edge: '142,74,16' },
+    { core: '255,244,205', mid: '214,132,32', edge: '122,58,14' },
+    { core: '255,252,238', mid: '252,208,92', edge: '194,122,28' },
+    { core: '248,214,136', mid: '198,112,26', edge: '110,50,12' }
+  ];
+
+  const mistOrbs = [];
+  for (let i = 0; i < 16; i++) {
+    mistOrbs.push({
+      u0: rand(),
+      v0: gauss() * 340,
+      speed: 1,
+      r: 260 + rand() * 260,
+      alpha: 0.055 + rand() * 0.055,
+      pal: PALETTES[i % PALETTES.length],
+      freq: i % 2 === 0 ? 1 : 2,
+      phase: rand() * TAU,
+      waveAmp: 24 + rand() * 38,
+      wavePhase: rand() * TAU
+    });
+  }
+
+  const bokehOrbs = [];
+  for (let i = 0; i < 115; i++) {
+    const layer = i < 28 ? 0 : (i < 74 ? 1 : 2);
+    const speed = layer === 0 ? 1 : (layer === 1 ? 2 : 3);
+    const r = layer === 0
+      ? 105 + rand() * 115
+      : (layer === 1 ? 42 + rand() * 58 : 14 + rand() * 24);
+    const spread = layer === 0 ? 520 : (layer === 1 ? 440 : 380);
+    const isStray = rand() < 0.16;
+    const v0 = isStray ? (rand() * 2 - 1) * 620 : gauss() * spread;
+    const alpha = layer === 0
+      ? 0.11 + rand() * 0.13
+      : (layer === 1 ? 0.18 + rand() * 0.22 : 0.28 + rand() * 0.34);
+    bokehOrbs.push({
+      layer,
+      u0: rand(),
+      v0,
+      speed,
+      r,
+      alpha,
+      pal: PALETTES[Math.floor(rand() * PALETTES.length)],
+      ring: rand() < (layer === 2 ? 0.55 : 0.42),
+      freq: rand() < 0.55 ? 1 : 2,
+      pulseDepth: 0.15 + rand() * 0.22,
+      scaleAmp: 0.04 + rand() * 0.08,
+      phase: rand() * TAU,
+      waveAmp: (layer === 0 ? 18 : 28) + rand() * 34,
+      wavePhase: rand() * TAU
+    });
+  }
+
+  const sparks = [];
+  for (let i = 0; i < 175; i++) {
+    const bright = rand() < 0.28;
+    const isStray = rand() < 0.14;
+    sparks.push({
+      u0: rand(),
+      v0: isStray ? (rand() * 2 - 1) * 580 : gauss() * 370,
+      speed: rand() < 0.45 ? 2 : 3,
+      r: bright ? 3.2 + rand() * 3.4 : 1.4 + rand() * 2.4,
+      bright,
+      star: bright && rand() < 0.65,
+      starLen: 12 + rand() * 20,
+      starAngle: rand() * Math.PI,
+      pal: PALETTES[Math.floor(rand() * PALETTES.length)],
+      freq: rand() < 0.65 ? 2 : 4,
+      subFreq: 1,
+      phase: rand() * TAU,
+      subPhase: rand() * TAU,
+      waveAmp: 14 + rand() * 32,
+      wavePhase: rand() * TAU
+    });
+  }
+
+  function resize() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.max(1, Math.round(window.innerWidth * dpr));
+    canvas.height = Math.max(1, Math.round(window.innerHeight * dpr));
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  function posFromStream(uNorm, vBase, waveAmp, wavePhase, t) {
+    const u = (uNorm - 0.5) * U_SPAN;
+    const v = vBase + Math.sin(TAU * (t + uNorm) + wavePhase) * waveAmp;
+    return [W * 0.5 + u * DX + v * PX, H * 0.5 + u * DY + v * PY];
+  }
+
+  function drawMist(t) {
+    for (let i = 0; i < mistOrbs.length; i++) {
+      const m = mistOrbs[i];
+      const uNorm = (m.u0 + m.speed * t) % 1;
+      const p = posFromStream(uNorm, m.v0, m.waveAmp, m.wavePhase, t);
+      const x = p[0];
+      const y = p[1];
+      if (x < -m.r || x > W + m.r || y < -m.r || y > H + m.r) continue;
+      const pulse = 0.8 + 0.2 * Math.sin(TAU * m.freq * t + m.phase);
+      const a = m.alpha * pulse;
+      const g = ctx.createRadialGradient(x, y, 0, x, y, m.r);
+      g.addColorStop(0, 'rgba(' + m.pal.mid + ',' + a.toFixed(4) + ')');
+      g.addColorStop(0.5, 'rgba(' + m.pal.edge + ',' + (a * 0.45).toFixed(4) + ')');
+      g.addColorStop(1, 'rgba(' + m.pal.edge + ',0)');
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(x, y, m.r, 0, TAU);
+      ctx.fill();
+    }
+  }
+
+  function drawBokeh(t) {
+    for (let i = 0; i < bokehOrbs.length; i++) {
+      const b = bokehOrbs[i];
+      const uNorm = (b.u0 + b.speed * t) % 1;
+      const p = posFromStream(uNorm, b.v0, b.waveAmp, b.wavePhase, t);
+      const x = p[0];
+      const y = p[1];
+      const s = 1 + Math.sin(TAU * b.freq * t + b.phase) * b.scaleAmp;
+      const r = b.r * s;
+      if (x < -r || x > W + r || y < -r || y > H + r) continue;
+      const pulse = 1 - b.pulseDepth * 0.5 + b.pulseDepth * 0.5 * Math.sin(TAU * b.freq * t + b.phase);
+      const a = b.alpha * pulse;
+      const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+      if (b.ring) {
+        g.addColorStop(0, 'rgba(' + b.pal.core + ',' + (a * 0.35).toFixed(4) + ')');
+        g.addColorStop(0.55, 'rgba(' + b.pal.mid + ',' + (a * 0.52).toFixed(4) + ')');
+        g.addColorStop(0.84, 'rgba(' + b.pal.core + ',' + (a * 0.88).toFixed(4) + ')');
+        g.addColorStop(0.94, 'rgba(' + b.pal.mid + ',' + (a * 0.42).toFixed(4) + ')');
+        g.addColorStop(1, 'rgba(' + b.pal.edge + ',0)');
+      } else {
+        g.addColorStop(0, 'rgba(' + b.pal.core + ',' + (a * 0.92).toFixed(4) + ')');
+        g.addColorStop(0.35, 'rgba(' + b.pal.mid + ',' + (a * 0.68).toFixed(4) + ')');
+        g.addColorStop(0.75, 'rgba(' + b.pal.edge + ',' + (a * 0.24).toFixed(4) + ')');
+        g.addColorStop(1, 'rgba(' + b.pal.edge + ',0)');
+      }
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, TAU);
+      ctx.fill();
+    }
+  }
+
+  function drawSparks(t) {
+    for (let i = 0; i < sparks.length; i++) {
+      const sp = sparks[i];
+      const uNorm = (sp.u0 + sp.speed * t) % 1;
+      const p = posFromStream(uNorm, sp.v0, sp.waveAmp, sp.wavePhase, t);
+      const x = p[0];
+      const y = p[1];
+      const margin = sp.star ? sp.starLen + 10 : sp.r * 5;
+      if (x < -margin || x > W + margin || y < -margin || y > H + margin) continue;
+      const w1 = 0.5 + 0.5 * Math.sin(TAU * sp.freq * t + sp.phase);
+      const w2 = 0.5 + 0.5 * Math.sin(TAU * sp.subFreq * t + sp.subPhase);
+      const twinkle = 0.08 + 0.92 * Math.pow(w1, 4) * (0.45 + 0.55 * w2);
+      const haloR = sp.r * (2.6 + 1.8 * twinkle);
+
+      const g = ctx.createRadialGradient(x, y, 0, x, y, haloR);
+      g.addColorStop(0, 'rgba(255,253,245,' + Math.min(1, twinkle * 1.1).toFixed(4) + ')');
+      g.addColorStop(0.28, 'rgba(' + sp.pal.core + ',' + (twinkle * 0.72).toFixed(4) + ')');
+      g.addColorStop(0.62, 'rgba(' + sp.pal.mid + ',' + (twinkle * 0.26).toFixed(4) + ')');
+      g.addColorStop(1, 'rgba(' + sp.pal.edge + ',0)');
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(x, y, haloR, 0, TAU);
+      ctx.fill();
+
+      if (sp.star && twinkle > 0.28) {
+        const len = sp.starLen * (0.45 + 0.75 * twinkle);
+        const thick = 0.9 + 1.1 * twinkle;
+        const sa = twinkle * 0.85;
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(sp.starAngle);
+        for (let k = 0; k < 2; k++) {
+          ctx.rotate(k * Math.PI * 0.5);
+          const lg = ctx.createLinearGradient(-len, 0, len, 0);
+          lg.addColorStop(0, 'rgba(255,244,205,0)');
+          lg.addColorStop(0.5, 'rgba(255,253,245,' + sa.toFixed(4) + ')');
+          lg.addColorStop(1, 'rgba(255,244,205,0)');
+          ctx.fillStyle = lg;
+          ctx.beginPath();
+          ctx.moveTo(-len, 0);
+          ctx.quadraticCurveTo(0, -thick, len, 0);
+          ctx.quadraticCurveTo(0, thick, -len, 0);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+    }
+  }
+
+  function render(ts) {
+    const t = (((ts % LOOP) + LOOP) % LOOP) / LOOP;
+    const cw = canvas.width;
+    const ch = canvas.height;
+    const scale = Math.max(cw / W, ch / H);
+    const ox = (cw - W * scale) * 0.5;
+    const oy = (ch - H * scale) * 0.5;
+
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, cw, ch);
+
+    ctx.setTransform(scale, 0, 0, scale, ox, oy);
+    ctx.globalCompositeOperation = 'screen';
+
+    const bgGrad = ctx.createLinearGradient(0, H, W, 0);
+    const bgPulse = 0.88 + 0.12 * Math.sin(TAU * t);
+    bgGrad.addColorStop(0, 'rgba(138,75,20,' + (0.09 * bgPulse).toFixed(4) + ')');
+    bgGrad.addColorStop(0.5, 'rgba(229,161,36,' + (0.07 * bgPulse).toFixed(4) + ')');
+    bgGrad.addColorStop(1, 'rgba(164,92,22,' + (0.08 * bgPulse).toFixed(4) + ')');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, W, H);
+
+    drawMist(t);
+    drawBokeh(t);
+    drawSparks(t);
+
+    requestAnimationFrame(render);
+  }
+
+  requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Swirling Golden Bokeh Vortex and Magical Dust Cloud</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000000}
+canvas{display:block;width:100%;height:100%}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+(function(){
+const W=1920,H=1080,CX=960,CY=540,LOOP=10000,TAU=Math.PI*2;
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d',{alpha:false});
+
+function resize(){
+const dpr=Math.max(1,window.devicePixelRatio||1);
+canvas.width=Math.round(window.innerWidth*dpr);
+canvas.height=Math.round(window.innerHeight*dpr);
+}
+resize();
+window.addEventListener('resize',resize);
+
+let seed=20261125;
+function rand(){
+seed|=0;seed=(seed+0x6D2B79F5)|0;
+let t=Math.imul(seed^(seed>>>15),1|seed);
+t=(t+Math.imul(t^(t>>>7),61|t))^t;
+return((t^(t>>>14))>>>0)/4294967296;
+}
+function rRange(a,b){return a+(b-a)*rand();}
+
+const PALETTE=[
+[255,212,92],
+[255,176,46],
+[242,134,24],
+[255,232,164],
+[255,196,74],
+[228,118,22],
+[255,244,205]
+];
+
+function makeSprite(size,drawFn){
+const s=document.createElement('canvas');
+s.width=size;s.height=size;
+drawFn(s.getContext('2d'),size);
+return s;
+}
+
+const softSprites=PALETTE.map(c=>makeSprite(256,(g,sz)=>{
+const h=sz/2;
+const gr=g.createRadialGradient(h,h,0,h,h,h);
+gr.addColorStop(0,`rgba(${c[0]},${c[1]},${c[2]},0.95)`);
+gr.addColorStop(0.28,`rgba(${c[0]},${c[1]},${c[2]},0.62)`);
+gr.addColorStop(0.62,`rgba(${c[0]},${c[1]},${c[2]},0.22)`);
+gr.addColorStop(0.85,`rgba(${c[0]},${c[1]},${c[2]},0.05)`);
+gr.addColorStop(1,`rgba(${c[0]},${c[1]},${c[2]},0)`);
+g.fillStyle=gr;
+g.fillRect(0,0,sz,sz);
+}));
+
+const ringSprites=PALETTE.map(c=>makeSprite(256,(g,sz)=>{
+const h=sz/2;
+const gr=g.createRadialGradient(h,h,0,h,h,h);
+gr.addColorStop(0,`rgba(${c[0]},${c[1]},${c[2]},0.16)`);
+gr.addColorStop(0.45,`rgba(${c[0]},${c[1]},${c[2]},0.22)`);
+gr.addColorStop(0.72,`rgba(${c[0]},${c[1]},${c[2]},0.52)`);
+gr.addColorStop(0.84,`rgba(${c[0]},${c[1]},${c[2]},0.88)`);
+gr.addColorStop(0.92,`rgba(${c[0]},${c[1]},${c[2]},0.35)`);
+gr.addColorStop(1,`rgba(${c[0]},${c[1]},${c[2]},0)`);
+g.fillStyle=gr;
+g.fillRect(0,0,sz,sz);
+}));
+
+const crispSprites=PALETTE.map(c=>makeSprite(128,(g,sz)=>{
+const h=sz/2;
+const gr=g.createRadialGradient(h,h,0,h,h,h);
+gr.addColorStop(0,`rgba(255,252,238,1)`);
+gr.addColorStop(0.18,`rgba(${c[0]},${c[1]},${c[2]},0.95)`);
+gr.addColorStop(0.45,`rgba(${c[0]},${c[1]},${c[2]},0.32)`);
+gr.addColorStop(0.75,`rgba(${c[0]},${c[1]},${c[2]},0.06)`);
+gr.addColorStop(1,`rgba(${c[0]},${c[1]},${c[2]},0)`);
+g.fillStyle=gr;
+g.fillRect(0,0,sz,sz);
+}));
+
+const starSprites=PALETTE.map(c=>makeSprite(128,(g,sz)=>{
+const h=sz/2;
+const gr=g.createRadialGradient(h,h,0,h,h,h*0.7);
+gr.addColorStop(0,'rgba(255,255,245,1)');
+gr.addColorStop(0.2,`rgba(${c[0]},${c[1]},${c[2]},0.85)`);
+gr.addColorStop(0.55,`rgba(${c[0]},${c[1]},${c[2]},0.14)`);
+gr.addColorStop(1,`rgba(${c[0]},${c[1]},${c[2]},0)`);
+g.fillStyle=gr;
+g.fillRect(0,0,sz,sz);
+g.save();
+g.translate(h,h);
+for(let k=0;k<2;k++){
+g.rotate(k*Math.PI/2);
+const lg=g.createLinearGradient(-h*0.92,0,h*0.92,0);
+lg.addColorStop(0,'rgba(255,245,210,0)');
+lg.addColorStop(0.42,`rgba(${c[0]},${c[1]},${c[2]},0.55)`);
+lg.addColorStop(0.5,'rgba(255,255,248,1)');
+lg.addColorStop(0.58,`rgba(${c[0]},${c[1]},${c[2]},0.55)`);
+lg.addColorStop(1,'rgba(255,245,210,0)');
+g.fillStyle=lg;
+g.beginPath();
+g.moveTo(-h*0.92,0);
+g.quadraticCurveTo(0,-h*0.055,h*0.92,0);
+g.quadraticCurveTo(0,h*0.055,-h*0.92,0);
+g.closePath();
+g.fill();
+}
+g.restore();
+}));
+
+const nebulaClouds=[];
+for(let i=0;i<18;i++){
+nebulaClouds.push({
+rx:rRange(80,520),
+ry:rRange(45,270),
+tilt:rRange(-0.42,0.18),
+a0:rRange(0,TAU),
+freq:1,
+r:rRange(240,560),
+alpha:rRange(0.045,0.105),
+pulseAmp:rRange(0.12,0.28),
+pulsePhase:rRange(0,TAU),
+ci:Math.floor(rand()*PALETTE.length)
+});
+}
+
+const vortexRibbons=[];
+for(let i=0;i<9;i++){
+vortexRibbons.push({
+rx:rRange(220,780),
+ry:rRange(95,350),
+tilt:rRange(-0.34,0.12),
+a0:rRange(0,TAU),
+arcLen:rRange(0.9,1.8),
+lw:rRange(14,48),
+alpha:rRange(0.03,0.075),
+ci:Math.floor(rand()*PALETTE.length),
+phase:rRange(0,TAU)
+});
+}
+
+const particles=[];
+
+function addLayer(count,cfg){
+for(let i=0;i<count;i++){
+const dist=Math.pow(rand(),cfg.distPow);
+const rx=cfg.rxMin+(cfg.rxMax-cfg.rxMin)*dist;
+const aspect=rRange(0.38,0.62);
+const ry=rx*aspect;
+const tilt=rRange(-0.36,0.06)+rRange(-0.18,0.18)*dist;
+const kindRand=rand();
+let kind=cfg.kind;
+if(kind==='mix'){
+kind=kindRand<0.58?'ring':'soft';
+}
+particles.push({
+kind:kind,
+ci:Math.floor(rand()*PALETTE.length),
+rx:rx,
+ry:ry,
+tilt:tilt,
+tiltAmp:rRange(0.02,0.08),
+tiltPhase:rRange(0,TAU),
+a0:rRange(0,TAU),
+orbFreq:cfg.freqChoices[Math.floor(rand()*cfg.freqChoices.length)],
+radAmp:rRange(0.04,0.16),
+radFreq:rand()<0.65?1:2,
+radPhase:rRange(0,TAU),
+zBase:rRange(cfg.zMin,cfg.zMax),
+zAmp:rRange(0.18,0.45),
+zPhase:rRange(0,TAU),
+yAmp:rRange(6,38),
+yFreq:rand()<0.6?1:2,
+yPhase:rRange(0,TAU),
+size:rRange(cfg.sizeMin,cfg.sizeMax),
+alpha:rRange(cfg.alphaMin,cfg.alphaMax),
+twFreq:cfg.twChoices[Math.floor(rand()*cfg.twChoices.length)],
+twPhase:rRange(0,TAU),
+twPow:cfg.twPow,
+twFloor:cfg.twFloor
+});
+}
+}
+
+addLayer(75,{
+kind:'soft',distPow:0.8,rxMin:120,rxMax:980,
+zMin:-0.65,zMax:-0.2,sizeMin:42,sizeMax:115,
+alphaMin:0.06,alphaMax:0.19,freqChoices:[1],
+twChoices:[1,2],twPow:1.5,twFloor:0.55
+});
+
+addLayer(175,{
+kind:'mix',distPow:0.9,rxMin:65,rxMax:940,
+zMin:-0.25,zMax:0.4,sizeMin:16,sizeMax:74,
+alphaMin:0.14,alphaMax:0.46,freqChoices:[1,1,1,2],
+twChoices:[1,2,3],twPow:1.8,twFloor:0.4
+});
+
+addLayer(26,{
+kind:'ring',distPow:0.75,rxMin:320,rxMax:1080,
+zMin:0.42,zMax:0.75,sizeMin:88,sizeMax:205,
+alphaMin:0.055,alphaMax:0.16,freqChoices:[1],
+twChoices:[1,2],twPow:1.5,twFloor:0.5
+});
+
+addLayer(380,{
+kind:'crisp',distPow:1.05,rxMin:25,rxMax:960,
+zMin:-0.35,zMax:0.55,sizeMin:3.2,sizeMax:11.5,
+alphaMin:0.35,alphaMax:0.95,freqChoices:[1,1,2],
+twChoices:[2,3,4,5],twPow:3.2,twFloor:0.12
+});
+
+addLayer(75,{
+kind:'star',distPow:1.15,rxMin:35,rxMax:860,
+zMin:-0.15,zMax:0.6,sizeMin:12,sizeMax:34,
+alphaMin:0.45,alphaMax:0.98,freqChoices:[1,2],
+twChoices:[2,3,4,5],twPow:4.0,twFloor:0.06
+});
+
+function render(ts){
+const t=(((ts%LOOP)+LOOP)%LOOP)/LOOP;
+const angT=TAU*t;
+const sx=canvas.width/W;
+const sy=canvas.height/H;
+
+ctx.setTransform(1,0,0,1,0,0);
+ctx.globalCompositeOperation='source-over';
+ctx.globalAlpha=1;
+ctx.fillStyle='#000000';
+ctx.fillRect(0,0,canvas.width,canvas.height);
+
+ctx.setTransform(sx,0,0,sy,0,0);
+ctx.globalCompositeOperation='screen';
+
+const corePulse=1+0.07*Math.sin(angT*2);
+const coreGrad=ctx.createRadialGradient(CX,CY,0,CX,CY,580*corePulse);
+coreGrad.addColorStop(0,'rgba(255,210,115,0.22)');
+coreGrad.addColorStop(0.28,'rgba(235,148,38,0.13)');
+coreGrad.addColorStop(0.62,'rgba(168,84,12,0.045)');
+coreGrad.addColorStop(1,'rgba(0,0,0,0)');
+ctx.fillStyle=coreGrad;
+ctx.fillRect(0,0,W,H);
+
+for(let i=0;i<nebulaClouds.length;i++){
+const n=nebulaClouds[i];
+const a=n.a0+angT*n.freq;
+const ct=Math.cos(n.tilt),st=Math.sin(n.tilt);
+const lx=Math.cos(a)*n.rx;
+const ly=Math.sin(a)*n.ry;
+const x=CX+lx*ct-ly*st;
+const y=CY+lx*st+ly*ct;
+const r=n.r*(1+n.pulseAmp*Math.sin(angT+n.pulsePhase));
+ctx.globalAlpha=n.alpha;
+ctx.drawImage(softSprites[n.ci],x-r,y-r,r*2,r*2);
+}
+
+for(let i=0;i<vortexRibbons.length;i++){
+const rb=vortexRibbons[i];
+const aStart=rb.a0+angT;
+const aEnd=aStart+rb.arcLen;
+const col=PALETTE[rb.ci];
+ctx.save();
+ctx.translate(CX,CY);
+ctx.rotate(rb.tilt+0.04*Math.sin(angT+rb.phase));
+const segs=28;
+for(let s=0;s<segs;s++){
+const u0=s/segs;
+const u1=(s+1)/segs;
+const bell=Math.sin(Math.PI*(u0+u1)*0.5);
+const th0=aStart+(aEnd-aStart)*u0;
+const th1=aStart+(aEnd-aStart)*u1;
+const x0=Math.cos(th0)*rb.rx,y0=Math.sin(th0)*rb.ry;
+const x1=Math.cos(th1)*rb.rx,y1=Math.sin(th1)*rb.ry;
+ctx.strokeStyle=`rgba(${col[0]},${col[1]},${col[2]},${(rb.alpha*bell).toFixed(4)})`;
+ctx.lineWidth=rb.lw*(0.35+0.65*bell);
+ctx.lineCap='round';
+ctx.beginPath();
+ctx.moveTo(x0,y0);
+ctx.lineTo(x1,y1);
+ctx.stroke();
+}
+ctx.restore();
+}
+
+for(let i=0;i<particles.length;i++){
+const p=particles[i];
+const a=p.a0+angT*p.orbFreq;
+const radMod=1+p.radAmp*Math.sin(angT*p.radFreq+p.radPhase);
+const lx=Math.cos(a)*p.rx*radMod;
+const ly=Math.sin(a)*p.ry*radMod;
+const tilt=p.tilt+p.tiltAmp*Math.sin(angT+p.tiltPhase);
+const ct=Math.cos(tilt),st=Math.sin(tilt);
+const rxp=lx*ct-ly*st;
+const ryp=lx*st+ly*ct;
+const z=p.zBase+Math.sin(a+p.zPhase)*p.zAmp;
+const persp=1/(1-z*0.34);
+const x=CX+rxp*persp;
+const y=CY+ryp*persp+Math.sin(angT*p.yFreq+p.yPhase)*p.yAmp;
+const rad=p.size*persp;
+
+if(x+rad<-40||x-rad>W+40||y+rad<-40||y-rad>H+40)continue;
+
+const twWave=0.5+0.5*Math.sin(angT*p.twFreq+p.twPhase);
+const tw=p.twFloor+(1-p.twFloor)*Math.pow(twWave,p.twPow);
+const depthFade=Math.max(0.25,Math.min(1.15,0.68+z*0.42));
+ctx.globalAlpha=Math.min(1,p.alpha*tw*depthFade);
+
+let spr;
+if(p.kind==='ring')spr=ringSprites[p.ci];
+else if(p.kind==='soft')spr=softSprites[p.ci];
+else if(p.kind==='star')spr=starSprites[p.ci];
+else spr=crispSprites[p.ci];
+
+ctx.drawImage(spr,x-rad,y-rad,rad*2,rad*2);
+}
+
+ctx.globalAlpha=1;
+requestAnimationFrame(render);
+}
+
+requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>

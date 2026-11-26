@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Nordic Dawn Pastel Crystal Snowfall</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0F2942}
+svg{width:100%;height:100%;display:block}
+</style>
+</head>
+<body>
+<svg id="stage" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+<stop offset="0%" stop-color="#0F2942"/>
+<stop offset="52%" stop-color="#1E5F74"/>
+<stop offset="100%" stop-color="#3B82A6"/>
+</linearGradient>
+<radialGradient id="dawnGlow" cx="16%" cy="16%" r="62%">
+<stop offset="0%" stop-color="#CFFAFE" stop-opacity="0.42"/>
+<stop offset="32%" stop-color="#7DD3FC" stop-opacity="0.18"/>
+<stop offset="68%" stop-color="#3B82A6" stop-opacity="0.06"/>
+<stop offset="100%" stop-color="#0F2942" stop-opacity="0"/>
+</radialGradient>
+<radialGradient id="horizonGlow" cx="50%" cy="105%" r="68%">
+<stop offset="0%" stop-color="#CFFAFE" stop-opacity="0.24"/>
+<stop offset="50%" stop-color="#3B82A6" stop-opacity="0.08"/>
+<stop offset="100%" stop-color="#1E5F74" stop-opacity="0"/>
+</radialGradient>
+<linearGradient id="beamGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+<stop offset="0%" stop-color="#CFFAFE" stop-opacity="0.14"/>
+<stop offset="55%" stop-color="#FFFFFF" stop-opacity="0.04"/>
+<stop offset="100%" stop-color="#CFFAFE" stop-opacity="0"/>
+</linearGradient>
+<radialGradient id="softFlurry" cx="50%" cy="50%" r="50%">
+<stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.95"/>
+<stop offset="55%" stop-color="#CFFAFE" stop-opacity="0.45"/>
+<stop offset="100%" stop-color="#CFFAFE" stop-opacity="0"/>
+</radialGradient>
+<linearGradient id="hexGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+<stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.32"/>
+<stop offset="100%" stop-color="#CFFAFE" stop-opacity="0.08"/>
+</linearGradient>
+<g id="flakeClassic">
+<g stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none">
+<line x1="0" y1="-34" x2="0" y2="34"/>
+<line x1="-29.44" y1="-17" x2="29.44" y2="17"/>
+<line x1="-29.44" y1="17" x2="29.44" y2="-17"/>
+<path d="M-7,-22 L0,-15 L7,-22 M-5,-29 L0,-24 L5,-29"/>
+<path d="M-7,22 L0,15 L7,22 M-5,29 L0,24 L5,29"/>
+<g transform="rotate(60)">
+<path d="M-7,-22 L0,-15 L7,-22 M-5,-29 L0,-24 L5,-29"/>
+<path d="M-7,22 L0,15 L7,22 M-5,29 L0,24 L5,29"/>
+</g>
+<g transform="rotate(120)">
+<path d="M-7,-22 L0,-15 L7,-22 M-5,-29 L0,-24 L5,-29"/>
+<path d="M-7,22 L0,15 L7,22 M-5,29 L0,24 L5,29"/>
+</g>
+</g>
+<polygon points="0,-9 7.8,-4.5 7.8,4.5 0,9 -7.8,4.5 -7.8,-4.5" fill="currentColor"/>
+</g>
+<g id="flakeCrystal">
+<polygon points="0,-24 20.8,-12 20.8,12 0,24 -20.8,12 -20.8,-12" fill="none" stroke="currentColor" stroke-width="2.2"/>
+<polygon points="0,-11 9.5,-5.5 9.5,5.5 0,11 -9.5,5.5 -9.5,-5.5" fill="currentColor" opacity="0.35"/>
+<g stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+<line x1="0" y1="-34" x2="0" y2="34"/>
+<line x1="-29.44" y1="-17" x2="29.44" y2="17"/>
+<line x1="-29.44" y1="17" x2="29.44" y2="-17"/>
+</g>
+<circle cx="0" cy="-34" r="3" fill="currentColor"/>
+<circle cx="0" cy="34" r="3" fill="currentColor"/>
+<circle cx="29.44" cy="-17" r="3" fill="currentColor"/>
+<circle cx="-29.44" cy="17" r="3" fill="currentColor"/>
+<circle cx="29.44" cy="17" r="3" fill="currentColor"/>
+<circle cx="-29.44" cy="-17" r="3" fill="currentColor"/>
+</g>
+<g id="flakeStar">
+<polygon points="0,-32 5.2,-8.5 27.7,-16 9.8,0 27.7,16 5.2,8.5 0,32 -5.2,8.5 -27.7,16 -9.8,0 -27.7,-16 -5.2,-8.5" fill="currentColor"/>
+<circle cx="0" cy="0" r="4.2" fill="#1E5F74" opacity="0.35"/>
+</g>
+<g id="flakeDiamond">
+<polygon points="0,-26 5.5,-5.5 26,0 5.5,5.5 0,26 -5.5,5.5 -26,0 -5.5,-5.5" fill="currentColor"/>
+<polygon points="0,-11 3.5,-3.5 11,0 3.5,3.5 0,11 -3.5,3.5 -11,0 -3.5,-3.5" fill="#FFFFFF" opacity="0.7"/>
+</g>
+<g id="hexSolid">
+<polygon points="0,-60 51.96,-30 51.96,30 0,60 -51.96,30 -51.96,-30" fill="url(#hexGrad)"/>
+</g>
+<g id="hexRing">
+<polygon points="0,-60 51.96,-30 51.96,30 0,60 -51.96,30 -51.96,-30" fill="none" stroke="currentColor" stroke-width="2.2"/>
+<polygon points="0,-42 36.37,-21 36.37,21 0,42 -36.37,21 -36.37,-21" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.5"/>
+</g>
+<g id="flurryDot">
+<circle cx="0" cy="0" r="14" fill="url(#softFlurry)"/>
+</g>
+</defs>
+<rect width="1920" height="1080" fill="url(#skyGrad)"/>
+<g id="lightLayer">
+<polygon id="beam1" points="-120,-80 560,-80 1280,1160 440,1160" fill="url(#beamGrad)"/>
+<polygon id="beam2" points="280,-80 860,-80 1680,1160 1040,1160" fill="url(#beamGrad)"/>
+<rect id="glowTop" width="1920" height="1080" fill="url(#dawnGlow)"/>
+<rect id="glowBottom" width="1920" height="1080" fill="url(#horizonGlow)"/>
+</g>
+<g id="layerHex"></g>
+<g id="layerMid"></g>
+<g id="layerFore"></g>
+</svg>
+<script>
+(function(){
+const NS="http://www.w3.org/2000/svg";
+const DUR=10000;
+const PAD=180;
+const TW=1920+PAD*2;
+const TH=1080+PAD*2;
+const PI2=Math.PI*2;
+
+let seed=20261125;
+function rand(){
+seed=(seed+0x6D2B79F5)|0;
+let t=Math.imul(seed^(seed>>>15),1|seed);
+t=(t+Math.imul(t^(t>>>7),61|t))^t;
+return((t^(t>>>14))>>>0)/4294967296;
+}
+function range(a,b){return a+(b-a)*rand();}
+function pick(arr){return arr[Math.floor(rand()*arr.length)];}
+
+const layerHex=document.getElementById("layerHex");
+const layerMid=document.getElementById("layerMid");
+const layerFore=document.getElementById("layerFore");
+const glowTop=document.getElementById("glowTop");
+const glowBottom=document.getElementById("glowBottom");
+const beam1=document.getElementById("beam1");
+const beam2=document.getElementById("beam2");
+
+const items=[];
+
+function addTiledParticle(parent,cfg){
+const k=cfg.k;
+for(let j=0;j<k;j++){
+const g=document.createElementNS(NS,"g");
+const use=document.createElementNS(NS,"use");
+use.setAttribute("href","#"+cfg.symbol);
+g.setAttribute("color",cfg.color);
+g.appendChild(use);
+parent.appendChild(g);
+items.push({
+el:g,
+x0:(cfg.x0+(j*TW)/k)%TW,
+y0:((cfg.y0-(j*TH)/k)%TH+TH)%TH,
+dx:TW/k,
+dy:TH/k,
+scale:cfg.scale,
+rot0:cfg.rot0,
+rotDelta:cfg.rotDir*360*cfg.rotTurns,
+bobAmpX:cfg.bobAmpX,
+bobAmpY:cfg.bobAmpY,
+bobFreq:cfg.bobFreq,
+bobPhase:cfg.bobPhase,
+op:cfg.op,
+twinkleAmp:cfg.twinkleAmp,
+twinkleFreq:cfg.twinkleFreq,
+twinklePhase:cfg.twinklePhase
+});
+}
+}
+
+for(let i=0;i<11;i++){
+const isRing=rand()>0.55;
+addTiledParticle(layerHex,{
+k:3,
+symbol:isRing?"hexRing":"hexSolid",
+color:pick(["#CFFAFE","#FFFFFF","#BAE6FD"]),
+x0:rand()*TW,
+y0:rand()*TH,
+scale:range(0.75,2.25),
+rot0:rand()*360,
+rotDir:rand()>0.5?1:-1,
+rotTurns:1,
+bobAmpX:range(10,24),
+bobAmpY:range(14,32),
+bobFreq:1,
+bobPhase:rand(),
+op:isRing?range(0.10,0.22):range(0.14,0.32),
+twinkleAmp:0.06,
+twinkleFreq:1,
+twinklePhase:rand()
+});
+}
+
+for(let i=0;i<24;i++){
+const sym=pick(["flakeClassic","flakeCrystal","flakeStar","flakeDiamond","flurryDot","flurryDot"]);
+const isDot=sym==="flurryDot";
+addTiledParticle(layerMid,{
+k:2,
+symbol:sym,
+color:pick(["#FFFFFF","#CFFAFE","#E0F2FE"]),
+x0:rand()*TW,
+y0:rand()*TH,
+scale:isDot?range(0.45,1.15):range(0.42,0.92),
+rot0:rand()*360,
+rotDir:rand()>0.5?1:-1,
+rotTurns:isDot?0:pick([1,1,2]),
+bobAmpX:range(14,34),
+bobAmpY:range(18,40),
+bobFreq:pick([1,2]),
+bobPhase:rand(),
+op:isDot?range(0.32,0.62):range(0.45,0.78),
+twinkleAmp:sym==="flakeDiamond"||sym==="flakeStar"?0.22:0.08,
+twinkleFreq:pick([1,2]),
+twinklePhase:rand()
+});
+}
+
+for(let i=0;i<36;i++){
+const sym=pick(["flakeClassic","flakeCrystal","flakeStar","flakeDiamond","flurryDot","flurryDot","flurryDot"]);
+const isDot=sym==="flurryDot";
+addTiledParticle(layerFore,{
+k:1,
+symbol:sym,
+color:pick(["#FFFFFF","#FFFFFF","#CFFAFE"]),
+x0:rand()*TW,
+y0:rand()*TH,
+scale:isDot?range(0.35,0.95):range(0.65,1.35),
+rot0:rand()*360,
+rotDir:rand()>0.5?1:-1,
+rotTurns:isDot?0:pick([1,2]),
+bobAmpX:range(18,44),
+bobAmpY:range(22,48),
+bobFreq:pick([1,2]),
+bobPhase:rand(),
+op:isDot?range(0.55,0.92):range(0.75,0.98),
+twinkleAmp:sym==="flakeDiamond"?0.26:0.10,
+twinkleFreq:pick([1,2,3]),
+twinklePhase:rand()
+});
+}
+
+function render(ts){
+const t=(((ts%DUR)+DUR)%DUR)/DUR;
+const s1=Math.sin(PI2*t);
+const c1=Math.cos(PI2*t);
+
+glowTop.setAttribute("opacity",(0.86+0.14*s1).toFixed(4));
+glowBottom.setAttribute("opacity",(0.82+0.18*c1).toFixed(4));
+beam1.setAttribute("opacity",(0.68+0.32*Math.sin(PI2*(t+0.15))).toFixed(4));
+beam2.setAttribute("opacity",(0.62+0.38*Math.sin(PI2*(t+0.55))).toFixed(4));
+
+for(let i=0;i<items.length;i++){
+const p=items[i];
+const wx=(((p.x0-p.dx*t)%TW)+TW)%TW-PAD;
+const wy=(((p.y0+p.dy*t)%TH)+TH)%TH-PAD;
+const phase=PI2*(p.bobFreq*t+p.bobPhase);
+const x=wx+Math.sin(phase)*p.bobAmpX;
+const y=wy+Math.cos(phase)*p.bobAmpY;
+const rot=p.rot0+p.rotDelta*t;
+const op=p.op*(1-p.twinkleAmp+p.twinkleAmp*Math.sin(PI2*(p.twinkleFreq*t+p.twinklePhase)));
+p.el.setAttribute("transform","translate("+x.toFixed(2)+","+y.toFixed(2)+") rotate("+rot.toFixed(2)+") scale("+p.scale.toFixed(3)+")");
+p.el.setAttribute("opacity",op.toFixed(3));
+}
+requestAnimationFrame(render);
+}
+requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>

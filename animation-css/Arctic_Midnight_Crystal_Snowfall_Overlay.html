@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Arctic Midnight Crystal Snowfall Overlay</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#030917}
+canvas{display:block;width:100%;height:100%}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+(function(){
+const W=1920,H=1080,PERIOD=10000,TAU=Math.PI*2;
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d');
+
+function resize(){
+const dpr=Math.min(window.devicePixelRatio||1,2);
+canvas.width=Math.max(1,Math.round(window.innerWidth*dpr));
+canvas.height=Math.max(1,Math.round(window.innerHeight*dpr));
+}
+window.addEventListener('resize',resize);
+resize();
+
+function createRng(seed){
+let s=seed>>>0;
+return function(){
+s=(s+0x6D2B79F5)>>>0;
+let t=Math.imul(s^(s>>>15),1|s);
+t=(t+Math.imul(t^(t>>>7),61|t))^t;
+return((t^(t>>>14))>>>0)/4294967296;
+};
+}
+const rng=createRng(20261225);
+function rand(a,b){return a+(b-a)*rng()}
+function pick(arr){return arr[Math.floor(rng()*arr.length)]}
+function mod(n,m){return((n%m)+m)%m}
+
+const PAD=160,WRAP_W=W+PAD*2,WRAP_H=H+PAD*2;
+const PALETTE=['#FFFFFF','#BAE6FD','#7DD3FC'];
+
+const bokehList=[];
+for(let i=0;i<26;i++){
+bokehList.push({
+x0:rand(0,WRAP_W),
+y0:rand(0,WRAP_H),
+r:rand(42,128),
+vy:1,
+vx:0,
+swayAmp:rand(18,48),
+swayFreq:1,
+phase:rand(0,TAU),
+alpha:rand(0.05,0.14),
+pulseAmp:rand(0.015,0.04),
+pulseFreq:pick([1,2]),
+color:pick(['186,230,253','125,211,252','224,242,254']),
+ring:rng()>0.55
+});
+}
+
+const farDust=[];
+for(let i=0;i<95;i++){
+farDust.push({
+x0:rand(0,WRAP_W),
+y0:rand(0,WRAP_H),
+r:rand(1.4,3.8),
+vy:1,
+vx:0,
+swayAmp:rand(15,38),
+swayFreq:pick([1,2]),
+phase:rand(0,TAU),
+alpha:rand(0.22,0.52),
+color:pick(PALETTE)
+});
+}
+
+const midCrystals=[];
+for(let i=0;i<44;i++){
+const isHero=i<14;
+midCrystals.push({
+x0:rand(0,WRAP_W),
+y0:rand(0,WRAP_H),
+r:isHero?rand(34,62):rand(16,33),
+type:Math.floor(rng()*4),
+vy:isHero?1:pick([1,2]),
+vx:0,
+swayAmp:isHero?rand(28,64):rand(22,52),
+swayFreq:pick([1,2]),
+phase:rand(0,TAU),
+rot0:rand(0,TAU),
+rotSteps:pick([-3,-2,-1,1,2,3]),
+alpha:isHero?rand(0.78,0.98):rand(0.55,0.88),
+color:isHero?pick(['#FFFFFF','#FFFFFF','#BAE6FD']):pick(PALETTE),
+hasGlint:isHero&&rng()>0.35,
+glintPhase:rand(0,TAU),
+glintFreq:pick([1,2])
+});
+}
+
+const foreFlakes=[];
+for(let i=0;i<110;i++){
+foreFlakes.push({
+x0:rand(0,WRAP_W),
+y0:rand(0,WRAP_H),
+r:rand(2.0,6.2),
+kind:rng()>0.68?1:0,
+vy:pick([2,3]),
+vx:0,
+swayAmp:rand(34,76),
+swayFreq:pick([1,2]),
+phase:rand(0,TAU),
+rot0:rand(0,TAU),
+rotSteps:pick([-4,-2,2,4]),
+alpha:rand(0.58,0.95),
+color:pick(['#FFFFFF','#FFFFFF','#BAE6FD','#7DD3FC']),
+hasGlint:rng()>0.78,
+glintPhase:rand(0,TAU),
+glintFreq:pick([2,3])
+});
+}
+
+const ambientGlints=[];
+for(let i=0;i<22;i++){
+ambientGlints.push({
+x0:rand(0,WRAP_W),
+y0:rand(0,WRAP_H),
+r:rand(10,22),
+vy:pick([1,2]),
+swayAmp:rand(24,54),
+swayFreq:1,
+phase:rand(0,TAU),
+twinkleFreq:pick([2,3]),
+twinklePhase:rand(0,TAU),
+color:pick(['#FFFFFF','#BAE6FD'])
+});
+}
+
+function drawDendrite(r){
+const lw=Math.max(1.2,r*0.068);
+ctx.lineWidth=lw;
+ctx.lineCap='round';
+ctx.lineJoin='round';
+for(let i=0;i<6;i++){
+ctx.save();
+ctx.rotate(i*TAU/6);
+ctx.beginPath();
+ctx.moveTo(0,-r*0.18);
+ctx.lineTo(0,-r);
+ctx.moveTo(0,-r*0.38);
+ctx.lineTo(-r*0.18,-r*0.54);
+ctx.moveTo(0,-r*0.38);
+ctx.lineTo(r*0.18,-r*0.54);
+ctx.moveTo(0,-r*0.62);
+ctx.lineTo(-r*0.24,-r*0.80);
+ctx.moveTo(0,-r*0.62);
+ctx.lineTo(r*0.24,-r*0.80);
+ctx.moveTo(0,-r*0.82);
+ctx.lineTo(-r*0.12,-r*0.92);
+ctx.moveTo(0,-r*0.82);
+ctx.lineTo(r*0.12,-r*0.92);
+ctx.stroke();
+ctx.beginPath();
+ctx.moveTo(0,-r*1.04);
+ctx.lineTo(r*0.07,-r*0.95);
+ctx.lineTo(0,-r*0.86);
+ctx.lineTo(-r*0.07,-r*0.95);
+ctx.closePath();
+ctx.fill();
+ctx.restore();
+}
+ctx.beginPath();
+for(let i=0;i<6;i++){
+const a=i*TAU/6-Math.PI/2;
+const px=Math.cos(a)*r*0.22;
+const py=Math.sin(a)*r*0.22;
+if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);
+}
+ctx.closePath();
+ctx.stroke();
+}
+
+function drawRoyalPlate(r){
+const lw=Math.max(1.1,r*0.055);
+ctx.lineWidth=lw;
+ctx.lineCap='round';
+ctx.lineJoin='round';
+ctx.beginPath();
+for(let i=0;i<6;i++){
+const a=i*TAU/6-Math.PI/2;
+const px=Math.cos(a)*r*0.30;
+const py=Math.sin(a)*r*0.30;
+if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);
+}
+ctx.closePath();
+ctx.fill();
+for(let i=0;i<6;i++){
+ctx.save();
+ctx.rotate(i*TAU/6);
+ctx.beginPath();
+ctx.moveTo(0,-r*0.26);
+ctx.lineTo(r*0.11,-r*0.56);
+ctx.lineTo(0,-r);
+ctx.lineTo(-r*0.11,-r*0.56);
+ctx.closePath();
+ctx.fill();
+ctx.beginPath();
+ctx.moveTo(0,-r*0.44);
+ctx.lineTo(r*0.24,-r*0.58);
+ctx.moveTo(0,-r*0.44);
+ctx.lineTo(-r*0.24,-r*0.58);
+ctx.stroke();
+ctx.rotate(TAU/12);
+ctx.beginPath();
+ctx.moveTo(0,-r*0.28);
+ctx.lineTo(0,-r*0.64);
+ctx.stroke();
+ctx.beginPath();
+ctx.arc(0,-r*0.67,r*0.055,0,TAU);
+ctx.fill();
+ctx.restore();
+}
+}
+
+function drawHexCrystal(r){
+const lw=Math.max(1.2,r*0.062);
+ctx.lineWidth=lw;
+ctx.lineCap='round';
+ctx.lineJoin='round';
+const rings=[0.32,0.62];
+for(let k=0;k<rings.length;k++){
+const rr=r*rings[k];
+ctx.beginPath();
+for(let i=0;i<6;i++){
+const a=i*TAU/6-Math.PI/2;
+const px=Math.cos(a)*rr;
+const py=Math.sin(a)*rr;
+if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);
+}
+ctx.closePath();
+ctx.stroke();
+}
+for(let i=0;i<6;i++){
+ctx.save();
+ctx.rotate(i*TAU/6);
+ctx.beginPath();
+ctx.moveTo(0,-r*0.12);
+ctx.lineTo(0,-r*0.92);
+ctx.moveTo(0,-r*0.72);
+ctx.lineTo(-r*0.15,-r*0.84);
+ctx.moveTo(0,-r*0.72);
+ctx.lineTo(r*0.15,-r*0.84);
+ctx.stroke();
+ctx.beginPath();
+ctx.moveTo(0,-r*1.02);
+ctx.lineTo(r*0.09,-r*0.90);
+ctx.lineTo(0,-r*0.78);
+ctx.lineTo(-r*0.09,-r*0.90);
+ctx.closePath();
+ctx.fill();
+ctx.restore();
+}
+ctx.beginPath();
+ctx.arc(0,0,r*0.11,0,TAU);
+ctx.fill();
+}
+
+function drawFernCrystal(r){
+const lw=Math.max(1.1,r*0.058);
+ctx.lineWidth=lw;
+ctx.lineCap='round';
+ctx.lineJoin='round';
+for(let i=0;i<6;i++){
+ctx.save();
+ctx.rotate(i*TAU/6);
+ctx.beginPath();
+ctx.moveTo(0,0);
+ctx.lineTo(0,-r*0.96);
+const tiers=[0.30,0.48,0.66,0.82];
+const spans=[0.13,0.22,0.19,0.11];
+for(let j=0;j<tiers.length;j++){
+const y0=-r*tiers[j];
+const dx=r*spans[j];
+const dy=dx*0.72;
+ctx.moveTo(0,y0);
+ctx.lineTo(-dx,y0-dy);
+ctx.moveTo(0,y0);
+ctx.lineTo(dx,y0-dy);
+}
+ctx.stroke();
+ctx.beginPath();
+ctx.arc(0,-r*0.98,r*0.055,0,TAU);
+ctx.fill();
+ctx.restore();
+}
+}
+
+function drawMiniStar(r){
+ctx.lineWidth=Math.max(0.9,r*0.24);
+ctx.lineCap='round';
+ctx.beginPath();
+for(let i=0;i<3;i++){
+const a=i*Math.PI/3;
+const dx=Math.cos(a)*r;
+const dy=Math.sin(a)*r;
+ctx.moveTo(-dx,-dy);
+ctx.lineTo(dx,dy);
+}
+ctx.stroke();
+}
+
+function drawStarGlint(x,y,r,alpha,color){
+if(alpha<=0.01)return;
+ctx.save();
+ctx.translate(x,y);
+ctx.globalAlpha=alpha;
+const g=ctx.createRadialGradient(0,0,0,0,0,r*0.9);
+g.addColorStop(0,'rgba(255,255,255,0.95)');
+g.addColorStop(0.35,'rgba(186,230,253,0.45)');
+g.addColorStop(1,'rgba(125,211,252,0)');
+ctx.fillStyle=g;
+ctx.beginPath();
+ctx.arc(0,0,r*0.9,0,TAU);
+ctx.fill();
+ctx.fillStyle=color;
+const w=r*0.12;
+ctx.beginPath();
+ctx.moveTo(0,-r);
+ctx.quadraticCurveTo(w*0.5,-w*0.5,r,0);
+ctx.quadraticCurveTo(w*0.5,w*0.5,0,r);
+ctx.quadraticCurveTo(-w*0.5,w*0.5,-r,0);
+ctx.quadraticCurveTo(-w*0.5,-w*0.5,0,-r);
+ctx.closePath();
+ctx.fill();
+ctx.restore();
+}
+
+function render(ts){
+const t=mod(ts,PERIOD)/PERIOD;
+const sx=canvas.width/W;
+const sy=canvas.height/H;
+ctx.setTransform(sx,0,0,sy,0,0);
+
+const bg=ctx.createLinearGradient(0,0,0,H);
+bg.addColorStop(0,'#030917');
+bg.addColorStop(0.52,'#071734');
+bg.addColorStop(1,'#0D254C');
+ctx.fillStyle=bg;
+ctx.fillRect(0,0,W,H);
+
+const glowPulse1=0.07+0.025*Math.sin(t*TAU);
+const glowX1=W*0.26+Math.sin(t*TAU)*65;
+const g1=ctx.createRadialGradient(glowX1,H*0.22,0,glowX1,H*0.22,720);
+g1.addColorStop(0,'rgba(56,189,248,'+glowPulse1.toFixed(4)+')');
+g1.addColorStop(0.55,'rgba(14,165,233,'+(glowPulse1*0.35).toFixed(4)+')');
+g1.addColorStop(1,'rgba(13,37,76,0)');
+ctx.fillStyle=g1;
+ctx.fillRect(0,0,W,H);
+
+const glowPulse2=0.08+0.025*Math.cos(t*TAU);
+const glowX2=W*0.76+Math.cos(t*TAU)*75;
+const g2=ctx.createRadialGradient(glowX2,H*0.78,0,glowX2,H*0.78,780);
+g2.addColorStop(0,'rgba(125,211,252,'+glowPulse2.toFixed(4)+')');
+g2.addColorStop(0.5,'rgba(30,64,175,'+(glowPulse2*0.4).toFixed(4)+')');
+g2.addColorStop(1,'rgba(3,9,23,0)');
+ctx.fillStyle=g2;
+ctx.fillRect(0,0,W,H);
+
+for(let i=0;i<bokehList.length;i++){
+const b=bokehList[i];
+const y=mod(b.y0+t*b.vy*WRAP_H,WRAP_H)-PAD;
+const x=mod(b.x0+t*b.vx*WRAP_W+Math.sin(t*TAU*b.swayFreq+b.phase)*b.swayAmp,WRAP_W)-PAD;
+const a=b.alpha+Math.sin(t*TAU*b.pulseFreq+b.phase)*b.pulseAmp;
+const rg=ctx.createRadialGradient(x,y,0,x,y,b.r);
+if(b.ring){
+rg.addColorStop(0,'rgba('+b.color+','+(a*0.32).toFixed(4)+')');
+rg.addColorStop(0.68,'rgba('+b.color+','+(a*0.58).toFixed(4)+')');
+rg.addColorStop(0.86,'rgba('+b.color+','+(a*0.85).toFixed(4)+')');
+rg.addColorStop(1,'rgba('+b.color+',0)');
+}else{
+rg.addColorStop(0,'rgba('+b.color+','+a.toFixed(4)+')');
+rg.addColorStop(0.6,'rgba('+b.color+','+(a*0.45).toFixed(4)+')');
+rg.addColorStop(1,'rgba('+b.color+',0)');
+}
+ctx.fillStyle=rg;
+ctx.beginPath();
+ctx.arc(x,y,b.r,0,TAU);
+ctx.fill();
+}
+
+for(let i=0;i<farDust.length;i++){
+const d=farDust[i];
+const y=mod(d.y0+t*d.vy*WRAP_H,WRAP_H)-PAD;
+const x=mod(d.x0+Math.sin(t*TAU*d.swayFreq+d.phase)*d.swayAmp,WRAP_W)-PAD;
+ctx.globalAlpha=d.alpha;
+ctx.fillStyle=d.color;
+ctx.beginPath();
+ctx.arc(x,y,d.r,0,TAU);
+ctx.fill();
+}
+ctx.globalAlpha=1;
+
+const crystalGlints=[];
+for(let i=0;i<midCrystals.length;i++){
+const c=midCrystals[i];
+const y=mod(c.y0+t*c.vy*WRAP_H,WRAP_H)-PAD;
+const x=mod(c.x0+Math.sin(t*TAU*c.swayFreq+c.phase)*c.swayAmp,WRAP_W)-PAD;
+const rot=c.rot0+t*(TAU/6)*c.rotSteps;
+
+if(c.r>32){
+const halo=ctx.createRadialGradient(x,y,0,x,y,c.r*1.45);
+halo.addColorStop(0,'rgba(186,230,253,'+(c.alpha*0.18).toFixed(4)+')');
+halo.addColorStop(1,'rgba(125,211,252,0)');
+ctx.fillStyle=halo;
+ctx.beginPath();
+ctx.arc(x,y,c.r*1.45,0,TAU);
+ctx.fill();
+}
+
+ctx.save();
+ctx.translate(x,y);
+ctx.rotate(rot);
+ctx.globalAlpha=c.alpha;
+ctx.fillStyle=c.color;
+ctx.strokeStyle=c.color;
+if(c.type===0)drawDendrite(c.r);
+else if(c.type===1)drawRoyalPlate(c.r);
+else if(c.type===2)drawHexCrystal(c.r);
+else drawFernCrystal(c.r);
+ctx.restore();
+
+if(c.hasGlint){
+const pulse=Math.pow(0.5+0.5*Math.sin(t*TAU*c.glintFreq+c.glintPhase),3);
+if(pulse>0.08){
+crystalGlints.push({x:x,y:y,r:c.r*0.52,a:pulse*0.85,color:'#FFFFFF'});
+}
+}
+}
+
+const foreGlints=[];
+for(let i=0;i<foreFlakes.length;i++){
+const f=foreFlakes[i];
+const y=mod(f.y0+t*f.vy*WRAP_H,WRAP_H)-PAD;
+const x=mod(f.x0+Math.sin(t*TAU*f.swayFreq+f.phase)*f.swayAmp,WRAP_W)-PAD;
+ctx.save();
+ctx.translate(x,y);
+ctx.globalAlpha=f.alpha;
+ctx.fillStyle=f.color;
+ctx.strokeStyle=f.color;
+if(f.kind===1){
+ctx.rotate(f.rot0+t*(TAU/6)*f.rotSteps);
+drawMiniStar(f.r*1.45);
+}else{
+ctx.beginPath();
+ctx.arc(0,0,f.r,0,TAU);
+ctx.fill();
+}
+ctx.restore();
+if(f.hasGlint){
+const pulse=Math.pow(0.5+0.5*Math.sin(t*TAU*f.glintFreq+f.glintPhase),4);
+if(pulse>0.1){
+foreGlints.push({x:x,y:y,r:f.r*3.6,a:pulse*0.9,color:'#FFFFFF'});
+}
+}
+}
+
+ctx.save();
+ctx.globalCompositeOperation='lighter';
+for(let i=0;i<crystalGlints.length;i++){
+const g=crystalGlints[i];
+drawStarGlint(g.x,g.y,g.r,g.a,g.color);
+}
+for(let i=0;i<foreGlints.length;i++){
+const g=foreGlints[i];
+drawStarGlint(g.x,g.y,g.r,g.a,g.color);
+}
+for(let i=0;i<ambientGlints.length;i++){
+const ag=ambientGlints[i];
+const y=mod(ag.y0+t*ag.vy*WRAP_H,WRAP_H)-PAD;
+const x=mod(ag.x0+Math.sin(t*TAU*ag.swayFreq+ag.phase)*ag.swayAmp,WRAP_W)-PAD;
+const pulse=Math.pow(0.5+0.5*Math.sin(t*TAU*ag.twinkleFreq+ag.twinklePhase),4);
+drawStarGlint(x,y,ag.r,pulse*0.78,ag.color);
+}
+ctx.restore();
+
+requestAnimationFrame(render);
+}
+requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>

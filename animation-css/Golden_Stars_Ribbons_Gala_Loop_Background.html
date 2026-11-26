@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Golden Stars Ribbons Gala Loop Background</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden}
+body{background:#052E16;font-family:system-ui,-apple-system,sans-serif}
+canvas{display:block;width:100%;height:100%}
+</style>
+</head>
+<body>
+<canvas id="scene"></canvas>
+<script>
+(function(){
+  const canvas = document.getElementById('scene');
+  const ctx = canvas.getContext('2d', { alpha: false });
+  const W = 1920;
+  const H = 1080;
+  const LOOP = 10000;
+  const TAU = Math.PI * 2;
+
+  let s = 90421573;
+  function rng() {
+    s = (s + 0x6D2B79F5) | 0;
+    let t = Math.imul(s ^ (s >>> 15), 1 | s);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  }
+
+  function resize() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.max(1, Math.round(window.innerWidth * dpr));
+    canvas.height = Math.max(1, Math.round(window.innerHeight * dpr));
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  const goldSets = [
+    { top: '#FEF9C3', mid: '#FACC15', bot: '#D97706', rim: '#FDE047' },
+    { top: '#FDE047', mid: '#EAB308', bot: '#B45309', rim: '#FEF9C3' },
+    { top: '#FEF08A', mid: '#F59E0B', bot: '#92400E', rim: '#FACC15' }
+  ];
+
+  function createStarPath(points, outerR, innerR) {
+    const p = new Path2D();
+    const step = Math.PI / points;
+    for (let i = 0; i < points * 2; i++) {
+      const r = i % 2 === 0 ? outerR : innerR;
+      const a = i * step - Math.PI / 2;
+      const x = Math.cos(a) * r;
+      const y = Math.sin(a) * r;
+      if (i === 0) p.moveTo(x, y);
+      else p.lineTo(x, y);
+    }
+    p.closePath();
+    return p;
+  }
+
+  const star5Large = createStarPath(5, 1, 0.44);
+  const star4Large = createStarPath(4, 1, 0.34);
+  const star5Small = createStarPath(5, 1, 0.46);
+  const star4Small = createStarPath(4, 1, 0.36);
+
+  const rays = [
+    { x0: -120, y0: -90, x1: 920, y1: 1080, wTop: 95, wBot: 460, alpha: 0.055, freq: 1, phase: 0.3 },
+    { x0: 90, y0: -110, x1: 1280, y1: 1080, wTop: 70, wBot: 390, alpha: 0.045, freq: 1, phase: 1.9 },
+    { x0: 340, y0: -120, x1: 1620, y1: 1080, wTop: 55, wBot: 310, alpha: 0.036, freq: 2, phase: 3.4 },
+    { x0: -60, y0: 140, x1: 660, y1: 1080, wTop: 65, wBot: 290, alpha: 0.035, freq: 2, phase: 4.8 }
+  ];
+
+  const ribbons = [];
+  for (let i = 0; i < 22; i++) {
+    const depth = i < 7 ? 0 : (i < 16 ? 1 : 2);
+    const speed = depth === 0 ? 1 : (depth === 1 ? 2 : 3);
+    const len = depth === 0 ? 150 + rng() * 90 : (depth === 1 ? 115 + rng() * 75 : 85 + rng() * 55);
+    const width = depth === 0 ? 14 + rng() * 8 : (depth === 1 ? 10 + rng() * 6 : 7 + rng() * 4);
+    const pal = goldSets[i % goldSets.length];
+    ribbons.push({
+      x0: rng() * W,
+      y0: rng() * (H + 360) - 180,
+      speed,
+      len,
+      width,
+      pal,
+      swayAmp: (depth === 0 ? 28 : 42) + rng() * 26,
+      swayPhase: rng() * TAU,
+      waveFreq: 1.5 + rng() * 1.2,
+      wavePhase: rng() * TAU,
+      spinDir: rng() < 0.5 ? 1 : -1,
+      spinCycles: rng() < 0.5 ? 1 : 2,
+      spinPhase: rng() * TAU,
+      twinkleFreq: rng() < 0.5 ? 2 : 5,
+      twinklePhase: rng() * TAU
+    });
+  }
+
+  const stars = [];
+  for (let i = 0; i < 64; i++) {
+    const depth = i < 16 ? 0 : (i < 42 ? 1 : 2);
+    const speed = depth === 0 ? 1 : (depth === 1 ? 2 : 3);
+    const is5 = i % 3 !== 0;
+    const size = depth === 0
+      ? (is5 ? 26 + rng() * 14 : 24 + rng() * 14)
+      : (depth === 1 ? (is5 ? 16 + rng() * 10 : 15 + rng() * 10) : (is5 ? 10 + rng() * 6 : 9 + rng() * 6));
+    const pal = goldSets[i % goldSets.length];
+    stars.push({
+      x0: rng() * W,
+      y0: rng() * (H + 220) - 110,
+      speed,
+      size,
+      is5,
+      pal,
+      swayAmp: 16 + rng() * 30,
+      swayPhase: rng() * TAU,
+      spinDir: rng() < 0.5 ? 1 : -1,
+      spinCycles: depth === 0 ? 1 : (rng() < 0.6 ? 2 : 3),
+      baseAngle: rng() * TAU,
+      pulseFreq: rng() < 0.5 ? 2 : 5,
+      pulsePhase: rng() * TAU,
+      halo: depth === 0 || (depth === 1 && rng() < 0.45)
+    });
+  }
+
+  const glints = [];
+  for (let i = 0; i < 130; i++) {
+    const speed = i < 35 ? 1 : (i < 88 ? 2 : 3);
+    const r = speed === 3 ? 2.6 + rng() * 2.8 : (speed === 2 ? 2.2 + rng() * 2.4 : 1.8 + rng() * 2.0);
+    const pal = goldSets[i % goldSets.length];
+    glints.push({
+      x0: rng() * W,
+      y0: rng() * (H + 160) - 80,
+      speed,
+      r,
+      pal,
+      swayAmp: 10 + rng() * 22,
+      swayPhase: rng() * TAU,
+      freq: rng() < 0.52 ? 2 : 5,
+      phase: rng() * TAU,
+      diamond: i % 2 === 0
+    });
+  }
+
+  function drawBackdrop(t) {
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = '#052E16';
+    ctx.fillRect(0, 0, W, H);
+
+    const pulse = 0.88 + 0.12 * Math.sin(TAU * t);
+    const glow = ctx.createRadialGradient(W * 0.52, H * 0.44, 40, W * 0.52, H * 0.44, W * 0.62);
+    glow.addColorStop(0, 'rgba(20, 83, 45, ' + (0.95 * pulse).toFixed(4) + ')');
+    glow.addColorStop(0.55, 'rgba(12, 61, 32, ' + (0.72 * pulse).toFixed(4) + ')');
+    glow.addColorStop(1, 'rgba(5, 46, 22, 0)');
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, W, H);
+
+    const vig = ctx.createRadialGradient(W * 0.5, H * 0.5, W * 0.32, W * 0.5, H * 0.5, W * 0.78);
+    vig.addColorStop(0, 'rgba(5, 46, 22, 0)');
+    vig.addColorStop(1, 'rgba(2, 22, 10, 0.55)');
+    ctx.fillStyle = vig;
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.globalCompositeOperation = 'screen';
+    for (let i = 0; i < rays.length; i++) {
+      const ray = rays[i];
+      const m = 0.75 + 0.25 * Math.sin(TAU * ray.freq * t + ray.phase);
+      const a = ray.alpha * m;
+      const g = ctx.createLinearGradient(ray.x0, ray.y0, ray.x1, ray.y1);
+      g.addColorStop(0, 'rgba(254, 249, 195, ' + (a * 1.25).toFixed(4) + ')');
+      g.addColorStop(0.4, 'rgba(250, 204, 21, ' + (a * 0.75).toFixed(4) + ')');
+      g.addColorStop(1, 'rgba(217, 119, 6, 0)');
+
+      const dx = ray.x1 - ray.x0;
+      const dy = ray.y1 - ray.y0;
+      const len = Math.hypot(dx, dy);
+      const nx = -dy / len;
+      const ny = dx / len;
+
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.moveTo(ray.x0 - nx * ray.wTop, ray.y0 - ny * ray.wTop);
+      ctx.lineTo(ray.x0 + nx * ray.wTop, ray.y0 + ny * ray.wTop);
+      ctx.lineTo(ray.x1 + nx * ray.wBot, ray.y1 + ny * ray.wBot);
+      ctx.lineTo(ray.x1 - nx * ray.wBot, ray.y1 - ny * ray.wBot);
+      ctx.closePath();
+      ctx.fill();
+    }
+  }
+
+  function drawRibbon(rb, t) {
+    const spanY = H + 360;
+    const y = (((rb.y0 + rb.speed * spanY * t) % spanY) + spanY) % spanY - 180;
+    const x = rb.x0 + Math.sin(TAU * t + rb.swayPhase) * rb.swayAmp;
+    const rot = rb.spinPhase + rb.spinDir * TAU * rb.spinCycles * t;
+    const glint = 0.85 + 0.15 * Math.sin(TAU * rb.twinkleFreq * t + rb.twinklePhase);
+
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rot);
+
+    const halfL = rb.len * 0.5;
+    const grad = ctx.createLinearGradient(-halfL, -rb.width, halfL, rb.width);
+    grad.addColorStop(0, rb.pal.bot);
+    grad.addColorStop(0.32, rb.pal.mid);
+    grad.addColorStop(0.55, rb.pal.top);
+    grad.addColorStop(0.78, rb.pal.mid);
+    grad.addColorStop(1, rb.pal.bot);
+
+    const amp = rb.width * 1.15;
+    const segs = 12;
+
+    ctx.beginPath();
+    for (let i = 0; i <= segs; i++) {
+      const u = i / segs;
+      const px = -halfL + u * rb.len;
+      const py = Math.sin(u * Math.PI * 2 * rb.waveFreq + rb.wavePhase + TAU * t * 0.5) * amp;
+      const taper = Math.sin(u * Math.PI);
+      const hw = rb.width * 0.5 * (0.35 + 0.65 * taper) * glint;
+      if (i === 0) ctx.moveTo(px, py - hw);
+      else ctx.lineTo(px, py - hw);
+    }
+    for (let i = segs; i >= 0; i--) {
+      const u = i / segs;
+      const px = -halfL + u * rb.len;
+      const py = Math.sin(u * Math.PI * 2 * rb.waveFreq + rb.wavePhase + TAU * t * 0.5) * amp;
+      const taper = Math.sin(u * Math.PI);
+      const hw = rb.width * 0.5 * (0.35 + 0.65 * taper) * glint;
+      ctx.lineTo(px, py + hw);
+    }
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    ctx.lineWidth = 1.2;
+    ctx.strokeStyle = 'rgba(254, 249, 195, 0.55)';
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  function drawStar(st, t) {
+    const spanY = H + 220;
+    const y = (((st.y0 + st.speed * spanY * t) % spanY) + spanY) % spanY - 110;
+    const x = st.x0 + Math.sin(TAU * t + st.swayPhase) * st.swayAmp;
+    const angle = st.baseAngle + st.spinDir * TAU * st.spinCycles * t;
+    const wave = 0.5 + 0.5 * Math.sin(TAU * st.pulseFreq * t + st.pulsePhase);
+    const scale = st.size * (0.9 + 0.16 * wave);
+
+    if (st.halo) {
+      const hr = scale * 2.2;
+      const hg = ctx.createRadialGradient(x, y, scale * 0.1, x, y, hr);
+      hg.addColorStop(0, 'rgba(254, 249, 195, ' + (0.28 + 0.22 * wave).toFixed(4) + ')');
+      hg.addColorStop(0.45, 'rgba(250, 204, 21, ' + (0.14 + 0.1 * wave).toFixed(4) + ')');
+      hg.addColorStop(1, 'rgba(217, 119, 6, 0)');
+      ctx.fillStyle = hg;
+      ctx.beginPath();
+      ctx.arc(x, y, hr, 0, TAU);
+      ctx.fill();
+    }
+
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(angle);
+    ctx.scale(scale, scale);
+
+    const sg = ctx.createLinearGradient(-0.7, -0.9, 0.7, 0.9);
+    sg.addColorStop(0, st.pal.top);
+    sg.addColorStop(0.5, st.pal.mid);
+    sg.addColorStop(1, st.pal.bot);
+
+    const path = st.size > 22
+      ? (st.is5 ? star5Large : star4Large)
+      : (st.is5 ? star5Small : star4Small);
+
+    ctx.fillStyle = sg;
+    ctx.fill(path);
+
+    ctx.lineWidth = 0.06;
+    ctx.strokeStyle = st.pal.rim;
+    ctx.stroke(path);
+
+    ctx.restore();
+  }
+
+  function drawGlint(gl, t) {
+    const spanY = H + 160;
+    const y = (((gl.y0 + gl.speed * spanY * t) % spanY) + spanY) % spanY - 80;
+    const x = gl.x0 + Math.sin(TAU * t + gl.swayPhase) * gl.swayAmp;
+    const raw = 0.5 + 0.5 * Math.sin(TAU * gl.freq * t + gl.phase);
+    const twinkle = Math.pow(raw, 2.2);
+    const r = gl.r * (0.65 + 0.85 * twinkle);
+
+    const haloR = r * 4.2;
+    const hg = ctx.createRadialGradient(x, y, 0, x, y, haloR);
+    hg.addColorStop(0, 'rgba(254, 249, 195, ' + (0.65 * twinkle).toFixed(4) + ')');
+    hg.addColorStop(0.4, 'rgba(250, 204, 21, ' + (0.28 * twinkle).toFixed(4) + ')');
+    hg.addColorStop(1, 'rgba(217, 119, 6, 0)');
+    ctx.fillStyle = hg;
+    ctx.beginPath();
+    ctx.arc(x, y, haloR, 0, TAU);
+    ctx.fill();
+
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.fillStyle = twinkle > 0.65 ? '#FEF9C3' : gl.pal.mid;
+    ctx.beginPath();
+    if (gl.diamond) {
+      const d = r * 1.45;
+      ctx.moveTo(0, -d);
+      ctx.lineTo(d * 0.65, 0);
+      ctx.lineTo(0, d);
+      ctx.lineTo(-d * 0.65, 0);
+    } else {
+      ctx.arc(0, 0, r * 0.85, 0, TAU);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function render(ts) {
+    const t = (((ts % LOOP) + LOOP) % LOOP) / LOOP;
+    const cw = canvas.width;
+    const ch = canvas.height;
+    const scale = Math.max(cw / W, ch / H);
+    const ox = (cw - W * scale) * 0.5;
+    const oy = (ch - H * scale) * 0.5;
+
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.setTransform(scale, 0, 0, scale, ox, oy);
+
+    drawBackdrop(t);
+
+    for (let i = 0; i < ribbons.length; i++) {
+      if (ribbons[i].speed === 1) drawRibbon(ribbons[i], t);
+    }
+    for (let i = 0; i < stars.length; i++) {
+      if (stars[i].speed === 1) drawStar(stars[i], t);
+    }
+    for (let i = 0; i < glints.length; i++) {
+      if (glints[i].speed === 1) drawGlint(glints[i], t);
+    }
+
+    for (let i = 0; i < ribbons.length; i++) {
+      if (ribbons[i].speed === 2) drawRibbon(ribbons[i], t);
+    }
+    for (let i = 0; i < stars.length; i++) {
+      if (stars[i].speed === 2) drawStar(stars[i], t);
+    }
+    for (let i = 0; i < glints.length; i++) {
+      if (glints[i].speed === 2) drawGlint(glints[i], t);
+    }
+
+    for (let i = 0; i < ribbons.length; i++) {
+      if (ribbons[i].speed === 3) drawRibbon(ribbons[i], t);
+    }
+    for (let i = 0; i < stars.length; i++) {
+      if (stars[i].speed === 3) drawStar(stars[i], t);
+    }
+    for (let i = 0; i < glints.length; i++) {
+      if (glints[i].speed === 3) drawGlint(glints[i], t);
+    }
+
+    requestAnimationFrame(render);
+  }
+
+  requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>

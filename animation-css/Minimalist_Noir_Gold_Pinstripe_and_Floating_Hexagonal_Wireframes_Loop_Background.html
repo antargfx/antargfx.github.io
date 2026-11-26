@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minimalist Noir Gold Pinstripe and Floating Hexagonal Wireframes Loop Background</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#040405}
+svg{display:block;width:100%;height:100%}
+.pinstripe-sheen{animation:sheenSlide 10s linear infinite}
+.back-x{animation:driftBackX 10s ease-in-out infinite}
+.back-y{animation:driftBackY 10s ease-in-out -2.5s infinite}
+.mid-x{animation:driftMidX 10s ease-in-out -5s infinite}
+.mid-y{animation:driftMidY 10s ease-in-out -7.5s infinite}
+.front-x{animation:driftFrontX 10s ease-in-out infinite}
+.front-y{animation:driftFrontY 10s ease-in-out -7.5s infinite}
+.sheen-back{animation:sheenSlide 10s linear -3s infinite}
+.sheen-mid{animation:sheenSlideRev 10s linear -1.5s infinite}
+.sheen-front{animation:sheenSlide 10s linear infinite}
+@keyframes sheenSlide{
+0%{transform:translateX(0px)}
+100%{transform:translateX(1920px)}
+}
+@keyframes sheenSlideRev{
+0%{transform:translateX(1920px)}
+100%{transform:translateX(0px)}
+}
+@keyframes driftBackX{
+0%,100%{transform:translateX(-16px)}
+50%{transform:translateX(16px)}
+}
+@keyframes driftBackY{
+0%,100%{transform:translateY(-14px)}
+50%{transform:translateY(14px)}
+}
+@keyframes driftMidX{
+0%,100%{transform:translateX(24px)}
+50%{transform:translateX(-24px)}
+}
+@keyframes driftMidY{
+0%,100%{transform:translateY(-20px)}
+50%{transform:translateY(20px)}
+}
+@keyframes driftFrontX{
+0%,100%{transform:translateX(-30px)}
+50%{transform:translateX(30px)}
+}
+@keyframes driftFrontY{
+0%,100%{transform:translateY(24px)}
+50%{transform:translateY(-24px)}
+}
+</style>
+</head>
+<body>
+<svg viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<linearGradient id="bgNoir" x1="0%" y1="0%" x2="100%" y2="100%">
+<stop offset="0%" stop-color="#1A1C20"/>
+<stop offset="48%" stop-color="#101114"/>
+<stop offset="100%" stop-color="#040405"/>
+</linearGradient>
+<radialGradient id="centerGlow" cx="50%" cy="50%" r="55%">
+<stop offset="0%" stop-color="#22252B" stop-opacity="0.32"/>
+<stop offset="65%" stop-color="#0B0C0E" stop-opacity="0.08"/>
+<stop offset="100%" stop-color="#000000" stop-opacity="0.45"/>
+</radialGradient>
+<pattern id="goldPinstripes" width="120" height="120" patternUnits="userSpaceOnUse">
+<line x1="0.5" y1="0" x2="0.5" y2="120" stroke="#9A7B3E" stroke-width="0.9" stroke-opacity="0.22"/>
+<line x1="24.5" y1="0" x2="24.5" y2="120" stroke="#9A7B3E" stroke-width="0.65" stroke-opacity="0.12"/>
+<line x1="48.5" y1="0" x2="48.5" y2="120" stroke="#9A7B3E" stroke-width="0.65" stroke-opacity="0.12"/>
+<line x1="72.5" y1="0" x2="72.5" y2="120" stroke="#9A7B3E" stroke-width="0.65" stroke-opacity="0.12"/>
+<line x1="96.5" y1="0" x2="96.5" y2="120" stroke="#9A7B3E" stroke-width="0.65" stroke-opacity="0.12"/>
+<line x1="0" y1="0.5" x2="120" y2="0.5" stroke="#9A7B3E" stroke-width="0.65" stroke-opacity="0.08"/>
+</pattern>
+<pattern id="pinstripeMaskPattern" width="120" height="120" patternUnits="userSpaceOnUse">
+<line x1="0.5" y1="0" x2="0.5" y2="120" stroke="#FFFFFF" stroke-width="1"/>
+<line x1="24.5" y1="0" x2="24.5" y2="120" stroke="#FFFFFF" stroke-width="0.7" stroke-opacity="0.6"/>
+<line x1="48.5" y1="0" x2="48.5" y2="120" stroke="#FFFFFF" stroke-width="0.7" stroke-opacity="0.6"/>
+<line x1="72.5" y1="0" x2="72.5" y2="120" stroke="#FFFFFF" stroke-width="0.7" stroke-opacity="0.6"/>
+<line x1="96.5" y1="0" x2="96.5" y2="120" stroke="#FFFFFF" stroke-width="0.7" stroke-opacity="0.6"/>
+</pattern>
+<linearGradient id="pinstripeLight" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="1920" y2="0" spreadMethod="repeat">
+<stop offset="0%" stop-color="#9A7B3E" stop-opacity="0"/>
+<stop offset="35%" stop-color="#D4AF37" stop-opacity="0.06"/>
+<stop offset="50%" stop-color="#F3D06B" stop-opacity="0.26"/>
+<stop offset="65%" stop-color="#D4AF37" stop-opacity="0.06"/>
+<stop offset="100%" stop-color="#9A7B3E" stop-opacity="0"/>
+</linearGradient>
+<linearGradient id="goldSheenHero" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="1920" y2="0" spreadMethod="repeat">
+<stop offset="0%" stop-color="#8C6D2E"/>
+<stop offset="18%" stop-color="#D4AF37"/>
+<stop offset="30%" stop-color="#FFF2B8"/>
+<stop offset="38%" stop-color="#F3D06B"/>
+<stop offset="54%" stop-color="#9A7B3E"/>
+<stop offset="72%" stop-color="#D4AF37"/>
+<stop offset="82%" stop-color="#FCE38A"/>
+<stop offset="92%" stop-color="#B8923A"/>
+<stop offset="100%" stop-color="#8C6D2E"/>
+</linearGradient>
+<linearGradient id="goldSheenMid" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="1920" y2="0" spreadMethod="repeat">
+<stop offset="0%" stop-color="#7A5F28"/>
+<stop offset="22%" stop-color="#C9A238"/>
+<stop offset="34%" stop-color="#F7DC80"/>
+<stop offset="46%" stop-color="#9A7B3E"/>
+<stop offset="68%" stop-color="#D4AF37"/>
+<stop offset="78%" stop-color="#F3D06B"/>
+<stop offset="100%" stop-color="#7A5F28"/>
+</linearGradient>
+<linearGradient id="goldSheenBack" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="1920" y2="0" spreadMethod="repeat">
+<stop offset="0%" stop-color="#5E4A22"/>
+<stop offset="28%" stop-color="#A6853E"/>
+<stop offset="42%" stop-color="#DFBC57"/>
+<stop offset="56%" stop-color="#7D622D"/>
+<stop offset="82%" stop-color="#C29C3B"/>
+<stop offset="100%" stop-color="#5E4A22"/>
+</linearGradient>
+<g id="hexBevelHero" fill="none" stroke-linejoin="miter" stroke-miterlimit="4">
+<polygon points="0,-200 173.21,-100 173.21,100 0,200 -173.21,100 -173.21,-100" stroke-width="3.6"/>
+<polygon points="0,-187 161.95,-93.5 161.95,93.5 0,187 -161.95,93.5 -161.95,-93.5" stroke-width="1.35" opacity="0.88"/>
+<polygon points="0,-174 150.69,-87 150.69,87 0,174 -150.69,87 -150.69,-87" stroke-width="0.7" opacity="0.45"/>
+<path d="M0,-200 L0,-187 M173.21,-100 L161.95,-93.5 M173.21,100 L161.95,93.5 M0,200 L0,187 M-173.21,100 L-161.95,93.5 M-173.21,-100 L-161.95,-93.5" stroke-width="1.4" opacity="0.85"/>
+</g>
+<g id="hexBevelMid" fill="none" stroke-linejoin="miter" stroke-miterlimit="4">
+<polygon points="0,-200 173.21,-100 173.21,100 0,200 -173.21,100 -173.21,-100" stroke-width="2.5"/>
+<polygon points="0,-188 162.81,-94 162.81,94 0,188 -162.81,94 -162.81,-94" stroke-width="1.05" opacity="0.75"/>
+<path d="M0,-200 L0,-188 M173.21,-100 L162.81,-94 M173.21,100 L162.81,94 M0,200 L0,188 M-173.21,100 L-162.81,94 M-173.21,-100 L-162.81,-94" stroke-width="1.1" opacity="0.75"/>
+</g>
+<g id="hexBevelBack" fill="none" stroke-linejoin="miter" stroke-miterlimit="4">
+<polygon points="0,-200 173.21,-100 173.21,100 0,200 -173.21,100 -173.21,-100" stroke-width="1.6"/>
+<polygon points="0,-189 163.68,-94.5 163.68,94.5 0,189 -163.68,94.5 -163.68,-94.5" stroke-width="0.75" opacity="0.6"/>
+</g>
+<g id="layerBackShapes">
+<use href="#hexBevelBack" transform="translate(115,215) scale(1.38)"/>
+<use href="#hexBevelBack" transform="translate(425,875) scale(1.12) rotate(30)"/>
+<use href="#hexBevelBack" transform="translate(1805,845) scale(1.42)"/>
+<use href="#hexBevelBack" transform="translate(1495,210) scale(1.14) rotate(30)"/>
+</g>
+<g id="layerMidShapes">
+<use href="#hexBevelMid" transform="translate(345,275) scale(0.96)"/>
+<use href="#hexBevelMid" transform="translate(145,785) scale(1.06)"/>
+<use href="#hexBevelMid" transform="translate(505,565) scale(0.54) rotate(30)"/>
+<use href="#hexBevelMid" transform="translate(1575,785) scale(0.98)"/>
+<use href="#hexBevelMid" transform="translate(1775,280) scale(1.04)"/>
+<use href="#hexBevelMid" transform="translate(1415,505) scale(0.52) rotate(30)"/>
+</g>
+<g id="layerFrontShapes">
+<use href="#hexBevelHero" transform="translate(215,495) scale(1.22)"/>
+<use href="#hexBevelHero" transform="translate(465,155) scale(0.66)"/>
+<use href="#hexBevelHero" transform="translate(485,955) scale(0.6)"/>
+<use href="#hexBevelHero" transform="translate(1705,565) scale(1.24)"/>
+<use href="#hexBevelHero" transform="translate(1455,915) scale(0.66)"/>
+<use href="#hexBevelHero" transform="translate(1435,125) scale(0.6)"/>
+</g>
+<mask id="maskPinstripes" maskUnits="userSpaceOnUse" x="0" y="0" width="1920" height="1080">
+<rect x="0" y="0" width="1920" height="1080" fill="url(#pinstripeMaskPattern)"/>
+</mask>
+<mask id="maskBack" maskUnits="userSpaceOnUse" x="-400" y="-400" width="2720" height="1880">
+<use href="#layerBackShapes" stroke="#FFFFFF"/>
+</mask>
+<mask id="maskMid" maskUnits="userSpaceOnUse" x="-400" y="-400" width="2720" height="1880">
+<use href="#layerMidShapes" stroke="#FFFFFF"/>
+</mask>
+<mask id="maskFront" maskUnits="userSpaceOnUse" x="-400" y="-400" width="2720" height="1880">
+<use href="#layerFrontShapes" stroke="#FFFFFF"/>
+</mask>
+</defs>
+<rect width="1920" height="1080" fill="url(#bgNoir)"/>
+<rect width="1920" height="1080" fill="url(#centerGlow)"/>
+<rect width="1920" height="1080" fill="url(#goldPinstripes)"/>
+<g mask="url(#maskPinstripes)">
+<g transform="skewX(-28)">
+<rect class="pinstripe-sheen" x="-2600" y="-200" width="7200" height="1480" fill="url(#pinstripeLight)"/>
+</g>
+</g>
+<g class="back-x">
+<g class="back-y" opacity="0.58">
+<use href="#layerBackShapes" transform="translate(4,6)" stroke="#050507" opacity="0.65"/>
+<g mask="url(#maskBack)">
+<g transform="skewX(-30)">
+<rect class="sheen-back" x="-2600" y="-400" width="7600" height="1880" fill="url(#goldSheenBack)"/>
+</g>
+</g>
+</g>
+</g>
+<g class="mid-x">
+<g class="mid-y" opacity="0.82">
+<use href="#layerMidShapes" transform="translate(5,7)" stroke="#040406" opacity="0.72"/>
+<g mask="url(#maskMid)">
+<g transform="skewX(-26)">
+<rect class="sheen-mid" x="-2600" y="-400" width="7600" height="1880" fill="url(#goldSheenMid)"/>
+</g>
+</g>
+</g>
+</g>
+<g class="front-x">
+<g class="front-y">
+<use href="#layerFrontShapes" transform="translate(6,9)" stroke="#030304" opacity="0.8"/>
+<g mask="url(#maskFront)">
+<g transform="skewX(-28)">
+<rect class="sheen-front" x="-2600" y="-400" width="7600" height="1880" fill="url(#goldSheenHero)"/>
+</g>
+</g>
+</g>
+</g>
+</svg>
+</body>
+</html>

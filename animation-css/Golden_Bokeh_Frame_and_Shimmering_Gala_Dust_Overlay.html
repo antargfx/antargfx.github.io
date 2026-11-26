@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Golden Bokeh Frame and Shimmering Gala Dust Overlay</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000000;}
+canvas{display:block;width:100%;height:100%;}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+(function(){
+const STAGE_W=1920;
+const STAGE_H=1080;
+const PERIOD=10000;
+const TAU=Math.PI*2;
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d');
+
+function resize(){
+const dpr=window.devicePixelRatio||1;
+const w=Math.max(1,Math.floor(window.innerWidth*dpr));
+const h=Math.max(1,Math.floor(window.innerHeight*dpr));
+if(canvas.width!==w||canvas.height!==h){
+canvas.width=w;
+canvas.height=h;
+}
+}
+resize();
+window.addEventListener('resize',resize);
+
+function mulberry32(seed){
+let a=seed>>>0;
+return function(){
+a|=0;a=a+0x6D2B79F5|0;
+let t=Math.imul(a^a>>>15,1|a);
+t=t+Math.imul(t^t>>>7,61|t)^t;
+return ((t^t>>>14)>>>0)/4294967296;
+};
+}
+
+const rng=mulberry32(20261125);
+
+const PALETTES=[
+{c0:'rgba(255,235,165,0.95)',c1:'rgba(230,175,65,0.55)',c2:'rgba(180,115,25,0.18)',c3:'rgba(120,70,10,0)'},
+{c0:'rgba(255,212,110,0.92)',c1:'rgba(218,142,32,0.52)',c2:'rgba(165,92,15,0.16)',c3:'rgba(100,52,5,0)'},
+{c0:'rgba(255,244,200,0.90)',c1:'rgba(240,195,95,0.48)',c2:'rgba(195,135,40,0.14)',c3:'rgba(125,80,15,0)'},
+{c0:'rgba(242,188,82,0.88)',c1:'rgba(196,124,28,0.50)',c2:'rgba(140,76,12,0.15)',c3:'rgba(85,42,5,0)'},
+{c0:'rgba(255,198,88,0.90)',c1:'rgba(212,126,24,0.46)',c2:'rgba(150,74,10,0.14)',c3:'rgba(90,40,4,0)'}
+];
+
+function createSoftBokehSprite(pal,size){
+const oc=document.createElement('canvas');
+oc.width=size;
+oc.height=size;
+const g=oc.getContext('2d');
+const half=size/2;
+const grad=g.createRadialGradient(half,half,0,half,half,half);
+grad.addColorStop(0,pal.c0);
+grad.addColorStop(0.38,pal.c1);
+grad.addColorStop(0.72,pal.c2);
+grad.addColorStop(1,pal.c3);
+g.fillStyle=grad;
+g.fillRect(0,0,size,size);
+return oc;
+}
+
+function createRingBokehSprite(pal,size){
+const oc=document.createElement('canvas');
+oc.width=size;
+oc.height=size;
+const g=oc.getContext('2d');
+const half=size/2;
+const grad=g.createRadialGradient(half,half,0,half,half,half);
+grad.addColorStop(0,pal.c1);
+grad.addColorStop(0.56,pal.c1);
+grad.addColorStop(0.76,pal.c0);
+grad.addColorStop(0.88,pal.c2);
+grad.addColorStop(1,pal.c3);
+g.fillStyle=grad;
+g.fillRect(0,0,size,size);
+return oc;
+}
+
+function createGlowOrbSprite(size){
+const oc=document.createElement('canvas');
+oc.width=size;
+oc.height=size;
+const g=oc.getContext('2d');
+const half=size/2;
+const grad=g.createRadialGradient(half,half,0,half,half,half);
+grad.addColorStop(0,'rgba(255,248,220,1)');
+grad.addColorStop(0.25,'rgba(255,220,128,0.85)');
+grad.addColorStop(0.6,'rgba(224,158,42,0.28)');
+grad.addColorStop(1,'rgba(160,96,12,0)');
+g.fillStyle=grad;
+g.fillRect(0,0,size,size);
+return oc;
+}
+
+function createStarSprite(size){
+const oc=document.createElement('canvas');
+oc.width=size;
+oc.height=size;
+const g=oc.getContext('2d');
+const half=size/2;
+const rad=g.createRadialGradient(half,half,0,half,half,half*0.55);
+rad.addColorStop(0,'rgba(255,252,235,1)');
+rad.addColorStop(0.3,'rgba(255,224,132,0.7)');
+rad.addColorStop(1,'rgba(215,148,36,0)');
+g.fillStyle=rad;
+g.fillRect(0,0,size,size);
+g.save();
+g.translate(half,half);
+for(let k=0;k<2;k++){
+g.save();
+g.rotate(k*Math.PI/2);
+const lg=g.createLinearGradient(-half,0,half,0);
+lg.addColorStop(0,'rgba(255,235,165,0)');
+lg.addColorStop(0.35,'rgba(255,235,165,0.45)');
+lg.addColorStop(0.5,'rgba(255,252,235,0.98)');
+lg.addColorStop(0.65,'rgba(255,235,165,0.45)');
+lg.addColorStop(1,'rgba(255,235,165,0)');
+g.fillStyle=lg;
+g.beginPath();
+g.moveTo(-half,0);
+g.quadraticCurveTo(0,-size*0.032,half,0);
+g.quadraticCurveTo(0,size*0.032,-half,0);
+g.closePath();
+g.fill();
+g.restore();
+}
+g.restore();
+return oc;
+}
+
+const softSprites=PALETTES.map(p=>createSoftBokehSprite(p,256));
+const ringSprites=PALETTES.map(p=>createRingBokehSprite(p,256));
+const orbSprite=createGlowOrbSprite(64);
+const starSprite=createStarSprite(128);
+
+const WRAP_PAD=260;
+const WRAP_W=STAGE_W+WRAP_PAD*2;
+const bokehList=[];
+
+function addBokehCluster(count,isTop,layer){
+for(let i=0;i<count;i++){
+const palIdx=Math.floor(rng()*PALETTES.length);
+const isRing=layer===1?rng()<0.62:(layer===2?rng()<0.45:rng()<0.2);
+const r=layer===0?(95+rng()*110):(layer===1?(42+rng()*62):(16+rng()*30));
+const edgeBias=Math.pow(rng(),1.35);
+const bandDepth=layer===0?210:(layer===1?195:225);
+const yBase=isTop?(-45+edgeBias*bandDepth):(STAGE_H+45-edgeBias*bandDepth);
+const x0=rng()*WRAP_W;
+const dir=isTop?1:-1;
+const cycles=layer===0?1:(layer===1?(rng()<0.75?1:2):(rng()<0.5?1:2));
+const baseAlpha=layer===0?(0.16+rng()*0.18):(layer===1?(0.22+rng()*0.26):(0.28+rng()*0.38));
+bokehList.push({
+sprite:isRing?ringSprites[palIdx]:softSprites[palIdx],
+x0,
+y0:yBase,
+r,
+dir,
+cycles,
+yAmp:layer===0?(8+rng()*14):(10+rng()*20),
+yFreq:rng()<0.7?1:2,
+yPhase:rng()*TAU,
+tFreq:layer===2?(rng()<0.5?2:3):(rng()<0.6?1:2),
+tPhase:rng()*TAU,
+baseAlpha,
+scaleAmp:layer===0?0.05:0.09,
+layer
+});
+}
+}
+
+addBokehCluster(24,true,0);
+addBokehCluster(24,false,0);
+addBokehCluster(32,true,1);
+addBokehCluster(32,false,1);
+addBokehCluster(26,true,2);
+addBokehCluster(26,false,2);
+
+bokehList.sort((a,b)=>a.layer-b.layer);
+
+const DUST_PAD=80;
+const DUST_WRAP_W=STAGE_W+DUST_PAD*2;
+const dustList=[];
+
+for(let i=0;i<190;i++){
+const isStar=rng()<0.24;
+const centerBand=rng()<0.78;
+const y0=centerBand?(185+rng()*710):(40+rng()*(STAGE_H-80));
+const x0=rng()*DUST_WRAP_W;
+const dir=rng()<0.65?1:-1;
+const xCycles=1;
+const size=isStar?(10+rng()*18):(2.2+rng()*6.5);
+dustList.push({
+isStar,
+x0,
+y0,
+size,
+dir,
+xCycles,
+wAmp:12+rng()*32,
+wFreq:rng()<0.6?1:2,
+wPhase:rng()*TAU,
+yAmp:16+rng()*42,
+yFreq:rng()<0.65?1:2,
+yPhase:rng()*TAU,
+tFreq:isStar?(rng()<0.5?2:3):(rng()<0.5?1:2),
+tPhase:rng()*TAU,
+sharpness:isStar?2.8:1.8,
+minAlpha:isStar?0.06:0.12,
+maxAlpha:isStar?(0.65+rng()*0.35):(0.45+rng()*0.48),
+rotBase:rng()*TAU,
+rotAmp:(rng()-0.5)*0.6
+});
+}
+
+const edgeGlows=[
+{x:320,y:-40,rx:580,ry:210,phase:0,freq:1,a:0.26},
+{x:960,y:-55,rx:680,ry:225,phase:1.4,freq:1,a:0.30},
+{x:1600,y:-40,rx:580,ry:210,phase:2.8,freq:1,a:0.26},
+{x:320,y:STAGE_H+40,rx:580,ry:210,phase:3.1,freq:1,a:0.26},
+{x:960,y:STAGE_H+55,rx:680,ry:225,phase:4.5,freq:1,a:0.30},
+{x:1600,y:STAGE_H+40,rx:580,ry:210,phase:5.6,freq:1,a:0.26}
+];
+
+function drawEdgeGlows(p){
+for(let i=0;i<edgeGlows.length;i++){
+const e=edgeGlows[i];
+const pulse=0.72+0.28*Math.sin(TAU*e.freq*p+e.phase);
+const dx=Math.sin(TAU*p+e.phase)*45;
+ctx.save();
+ctx.translate(e.x+dx,e.y);
+ctx.scale(e.rx,e.ry);
+const g=ctx.createRadialGradient(0,0,0,0,0,1);
+g.addColorStop(0,'rgba(235,168,48,'+(e.a*pulse).toFixed(4)+')');
+g.addColorStop(0.55,'rgba(176,105,18,'+(e.a*0.42*pulse).toFixed(4)+')');
+g.addColorStop(1,'rgba(90,45,5,0)');
+ctx.fillStyle=g;
+ctx.beginPath();
+ctx.arc(0,0,1,0,TAU);
+ctx.fill();
+ctx.restore();
+}
+}
+
+function render(ts){
+const p=(((ts%PERIOD)+PERIOD)%PERIOD)/PERIOD;
+const cw=canvas.width;
+const ch=canvas.height;
+
+ctx.setTransform(1,0,0,1,0,0);
+ctx.globalCompositeOperation='source-over';
+ctx.globalAlpha=1;
+ctx.fillStyle='#000000';
+ctx.fillRect(0,0,cw,ch);
+
+const sx=cw/STAGE_W;
+const sy=ch/STAGE_H;
+ctx.setTransform(sx,0,0,sy,0,0);
+ctx.globalCompositeOperation='screen';
+
+drawEdgeGlows(p);
+
+for(let i=0;i<bokehList.length;i++){
+const b=bokehList[i];
+const rawX=b.x0+b.dir*b.cycles*p*WRAP_W;
+const x=((rawX%WRAP_W)+WRAP_W)%WRAP_W-WRAP_PAD;
+const y=b.y0+Math.sin(TAU*b.yFreq*p+b.yPhase)*b.yAmp;
+const wave=0.5+0.5*Math.sin(TAU*b.tFreq*p+b.tPhase);
+const alpha=b.baseAlpha*(0.52+0.48*wave);
+const rad=b.r*(1-b.scaleAmp*0.5+b.scaleAmp*wave);
+ctx.globalAlpha=alpha;
+ctx.drawImage(b.sprite,x-rad,y-rad,rad*2,rad*2);
+}
+
+for(let i=0;i<dustList.length;i++){
+const d=dustList[i];
+const rawX=d.x0+d.dir*d.xCycles*p*DUST_WRAP_W;
+const x=((rawX%DUST_WRAP_W)+DUST_WRAP_W)%DUST_WRAP_W-DUST_PAD+Math.sin(TAU*d.wFreq*p+d.wPhase)*d.wAmp;
+const y=d.y0+Math.cos(TAU*d.yFreq*p+d.yPhase)*d.yAmp;
+const tw=Math.pow(0.5+0.5*Math.sin(TAU*d.tFreq*p+d.tPhase),d.sharpness);
+const alpha=d.minAlpha+(d.maxAlpha-d.minAlpha)*tw;
+if(d.isStar){
+const sz=d.size*(0.55+0.65*tw);
+ctx.save();
+ctx.translate(x,y);
+ctx.rotate(d.rotBase+Math.sin(TAU*p+d.tPhase)*d.rotAmp);
+ctx.globalAlpha=alpha;
+ctx.drawImage(starSprite,-sz,-sz,sz*2,sz*2);
+ctx.restore();
+}else{
+const sz=d.size*(0.75+0.35*tw);
+ctx.globalAlpha=alpha;
+ctx.drawImage(orbSprite,x-sz,y-sz,sz*2,sz*2);
+}
+}
+
+ctx.globalAlpha=1;
+requestAnimationFrame(render);
+}
+
+requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>
